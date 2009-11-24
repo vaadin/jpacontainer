@@ -44,7 +44,7 @@ import javax.persistence.Transient;
  *
  * @author Petter Holmström (IT Mill)
  */
-public final class ClassMetadataImplFactory extends MetadataFactory {
+public final class ClassMetadataImplFactory implements MetadataFactory {
 
     // TODO Document this class a bit better to make maintenance easier
     @Override
@@ -86,12 +86,6 @@ public final class ClassMetadataImplFactory extends MetadataFactory {
         ClassMetadataImpl<T> metadata = new ClassMetadataImpl<T>(entityName,
                 entityClass, properties, identifierProperties);
         return metadata;
-    }
-
-    static {
-        // Register the factory as the default factory
-        MetadataFactory.registerFactory("default",
-                ClassMetadataImplFactory.class);
     }
 
     static void loadProperties(Class<?> type,
