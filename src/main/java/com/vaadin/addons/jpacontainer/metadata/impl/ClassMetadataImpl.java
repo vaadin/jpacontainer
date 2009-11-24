@@ -95,7 +95,7 @@ public final class ClassMetadataImpl<T> implements ClassMetadata<T> {
 
     @Override
     public PropertyMetadata getIdentifierProperty() {
-        return idProperties.iterator().next();
+        return !hasIdentifierProperty() ? null : idProperties.iterator().next();
     }
 
     @Override
@@ -105,7 +105,11 @@ public final class ClassMetadataImpl<T> implements ClassMetadata<T> {
 
     @Override
     public Collection<PropertyMetadata> getEmbeddedIdentifierProperties() {
-        return idProperties;
+        if (hasEmbeddedIdentifier()) {
+            return idProperties;
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     @Override
