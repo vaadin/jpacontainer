@@ -20,6 +20,8 @@ package com.vaadin.addons.jpacontainer.metadata.impl;
 import com.vaadin.addons.jpacontainer.metadata.PropertyMetadata;
 import com.vaadin.addons.jpacontainer.metadata.PropertyMetadata.AccessType;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 /**
  * Default implementation of {@link PropertyMetadata}.
@@ -40,18 +42,34 @@ public final class PropertyMetadataImpl implements PropertyMetadata {
 
     private final AccessType accessType;
 
-    private final Annotation[] annotations;
+    final Field field;
+
+    final Method getter;
+
+    final Method setter;
 
     PropertyMetadataImpl(String name, Class<?> type, boolean embedded,
-            boolean reference, boolean collection, AccessType accessType,
-            Annotation[] annotations) {
+            boolean reference, boolean collection, Field field, Method getter,
+            Method setter) {
+        assert name != null : "name must not be null";
+        assert type != null : "type must not be null";
+        assert (field != null && getter == null && setter == null) || (field
+                == null && getter != null && setter != null) :
+                "field or getter/setter must be specified";
+
         this.name = name;
         this.type = type;
         this.embedded = embedded;
         this.reference = reference;
         this.collection = collection;
-        this.accessType = accessType;
-        this.annotations = annotations;
+        this.field = field;
+        this.getter = getter;
+        this.setter = setter;
+        if (field != null) {
+            this.accessType = AccessType.FIELD;
+        } else {
+            this.accessType = AccessType.METHOD;
+        }
     }
 
     @Override
@@ -86,12 +104,16 @@ public final class PropertyMetadataImpl implements PropertyMetadata {
 
     @Override
     public Annotation[] getAnnotations() {
-        return annotations;
+        if (field != null) {
+            return field.getAnnotations();
+        } else {
+            return getter.getAnnotations();
+        }
     }
 
     @Override
     public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
-        for (Annotation a : annotations) {
+        for (Annotation a : getAnnotations()) {
             if (a.annotationType() == annotationClass) {
                 return annotationClass.cast(a);
             }

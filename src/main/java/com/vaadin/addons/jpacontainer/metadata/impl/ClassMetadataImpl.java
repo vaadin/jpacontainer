@@ -19,6 +19,8 @@ package com.vaadin.addons.jpacontainer.metadata.impl;
 
 import com.vaadin.addons.jpacontainer.metadata.ClassMetadata;
 import com.vaadin.addons.jpacontainer.metadata.PropertyMetadata;
+import com.vaadin.addons.jpacontainer.metadata.PropertyMetadata.AccessType;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -115,7 +117,44 @@ public final class ClassMetadataImpl<T> implements ClassMetadata<T> {
     @Override
     public Object getPropertyValue(T object,
             PropertyMetadata property) throws IllegalArgumentException {
-        // TODO Implement me!
-        throw new UnsupportedOperationException("Not supported yet.");
+        try {
+            PropertyMetadataImpl prop = (PropertyMetadataImpl) property;
+            if (prop.getAccessType() == AccessType.FIELD) {
+                prop.field.setAccessible(true);
+                return prop.field.get(object);
+            } else {
+                return prop.getter.invoke(object);
+            }
+        } catch (ClassCastException e) {
+            throw new IllegalArgumentException(
+                    "Unsupported PropertyMetadata implementation", e);
+        } catch (IllegalAccessException e) {
+            throw new IllegalArgumentException("Cannot access the field value",
+                    e);
+        } catch (InvocationTargetException e) {
+            throw new IllegalArgumentException("Cannot access the getter", e);
+        }
+    }
+
+    @Override
+    public void setPropertyValue(T object, PropertyMetadata property,
+            Object value) throws IllegalArgumentException {
+        try {
+            PropertyMetadataImpl prop = (PropertyMetadataImpl) property;
+            if (prop.getAccessType() == AccessType.FIELD) {
+                prop.field.setAccessible(true);
+                prop.field.set(object, value);
+            } else {
+                prop.setter.invoke(object, value);
+            }
+        } catch (ClassCastException e) {
+            throw new IllegalArgumentException(
+                    "Unsupported PropertyMetadata implementation", e);
+        } catch (IllegalAccessException e) {
+            throw new IllegalArgumentException("Cannot access the field value",
+                    e);
+        } catch (InvocationTargetException e) {
+            throw new IllegalArgumentException("Cannot access the setter", e);
+        }
     }
 }

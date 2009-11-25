@@ -28,6 +28,7 @@ import java.util.Collection;
 public interface ClassMetadata<T> extends Serializable {
 
     // TODO Improve the documentation
+
     /**
      * The name of the entity.
      */
@@ -46,20 +47,23 @@ public interface ClassMetadata<T> extends Serializable {
     /**
      * Gets the metadata of the named mapped property.
      * 
-     * @param propertyName the name of the property.
+     * @param propertyName the name of the property (must not be null).
      * @return the property metadata, or null if not found.
      */
     public PropertyMetadata getMappedProperty(String propertyName);
 
     /**
-     * TODO Document me!
-     * @return
+     * If the entity has a version property or  not.
+     *
+     * @see #getVersionProperty()
      */
     public boolean hasVersionProperty();
 
     /**
-     * TODO Document me!
-     * @return
+     * Gets the version property, if it exists.
+     *
+     * @see #hasVersionProperty() 
+     * @return the version property metadata, or null if not available.
      */
     public PropertyMetadata getVersionProperty();
 
@@ -100,11 +104,22 @@ public interface ClassMetadata<T> extends Serializable {
      * Gets the value of <code>property</code> from <code>object</code>.
      *
      * @param object the entity object from which the property value should be
-     * fetched.
-     * @param property the metadata of the property.
+     * fetched (must not be null).
+     * @param property the metadata of the property (must not be null).
      * @return the property value.
      * @throws IllegalArgumentException if the property value could not be fetched.
      */
     public Object getPropertyValue(T object, PropertyMetadata property) throws
             IllegalArgumentException;
+
+    /**
+     * Sets the value of <code>object.property</code> to <code>value</code>.
+     *
+     * @param object the object whose property should be set (must not be null).
+     * @param property the property to set (must not be null).
+     * @param value the value to set (must not be null).
+     * @throws IllegalArgumentException if the value could not be set.
+     */
+    public void setPropertyValue(T object, PropertyMetadata property,
+            Object value) throws IllegalArgumentException;
 }

@@ -115,8 +115,7 @@ public final class ClassMetadataImplFactory implements MetadataFactory {
                 LinkedList<PropertyMetadata> l =
                         new LinkedList<PropertyMetadata>();
                 l.add(new PropertyMetadataImpl(f.getName(), f.getType(), false,
-                        false, false, PropertyMetadata.AccessType.FIELD, f.
-                        getAnnotations()));
+                        false, false, f, null, null));
                 return l;
             } else if (f.getAnnotation(EmbeddedId.class) != null) {
                 // We have an embedded ID
@@ -132,13 +131,20 @@ public final class ClassMetadataImplFactory implements MetadataFactory {
             if (m.getName().startsWith("get") && m.getReturnType() != Void.TYPE) {
                 if (m.getAnnotation(Id.class) != null) {
                     // We have a single ID property
-                    LinkedList<PropertyMetadata> l =
-                            new LinkedList<PropertyMetadata>();
-                    l.add(new PropertyMetadataImpl(Introspector.decapitalize(
-                            m.getName().substring(3)), m.getReturnType(), false,
-                            false, false, PropertyMetadata.AccessType.METHOD, m.
-                            getAnnotations()));
-                    return l;
+                    try {
+                        LinkedList<PropertyMetadata> l =
+                                new LinkedList<PropertyMetadata>();
+                        Method setter = type.getDeclaredMethod("set" + m.getName().
+                                substring(3), m.getReturnType());
+                        l.add(new PropertyMetadataImpl(Introspector.decapitalize(
+                                m.getName().substring(3)), m.getReturnType(),
+                                false,
+                                false, false, null, m, setter));
+                        return l;
+                    } catch (NoSuchMethodException e) {
+                        // We have no corresponding setter method!
+                        return null;
+                    }
                 } else if (m.getAnnotation(EmbeddedId.class) != null) {
                     // We have an embedded ID
                     LinkedList<PropertyMetadata> l =
@@ -199,11 +205,10 @@ public final class ClassMetadataImplFactory implements MetadataFactory {
                         // Are we dealing with a collection?
                         boolean collection = isCollection(f);
 
-                        properties.add(new PropertyMetadataImpl(name,
+                        properties.add(
+                                new PropertyMetadataImpl(name,
                                 f.getType(), owner
-                                != null, reference, collection,
-                                PropertyMetadata.AccessType.FIELD, f.
-                                getAnnotations()));
+                                != null, reference, collection, f, null, null));
                     }
                 }
             }
@@ -222,8 +227,8 @@ public final class ClassMetadataImplFactory implements MetadataFactory {
                         getAnnotation(EmbeddedId.class) == null)) {
                     try {
                         // Check if we have a setter
-                        type.getDeclaredMethod("set" + m.getName().substring(3), m.
-                                getReturnType());
+                        Method setter = type.getDeclaredMethod("set" + m.getName().
+                                substring(3), m.getReturnType());
 
                         String name;
                         if (owner == null) {
@@ -248,9 +253,7 @@ public final class ClassMetadataImplFactory implements MetadataFactory {
 
                             properties.add(new PropertyMetadataImpl(name, m.
                                     getReturnType(), owner != null, reference,
-                                    collection,
-                                    PropertyMetadata.AccessType.METHOD, m.
-                                    getAnnotations()));
+                                    collection, null, m, setter));
                         }
                     } catch (NoSuchMethodException ignoreit) {
                         // No setter <=> no persistent property
