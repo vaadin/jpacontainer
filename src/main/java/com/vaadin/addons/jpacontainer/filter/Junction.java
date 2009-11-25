@@ -17,14 +17,12 @@
  */
 package com.vaadin.addons.jpacontainer.filter;
 
-import java.util.List;
-
 /**
  * A filter that groups other filters together using some associative logical operator.
  *
  * @author Petter Holmström (IT Mill)
  */
-public interface Junction extends Filter {
+public interface Junction extends CompositeFilter {
 
     /**
      * Adds <code>filter</code> to the end of the list of filters. If it has already been added,
@@ -43,11 +41,4 @@ public interface Junction extends Filter {
      * @return <code>this</code>, to allow chaining.
      */
     public Junction remove(Filter filter);
-
-    /**
-     * Gets a list of all the filters included in this junction.
-     *
-     * @return an unmodifiable list of filters (never null).
-     */
-    public List<Filter> getFilters();
 }

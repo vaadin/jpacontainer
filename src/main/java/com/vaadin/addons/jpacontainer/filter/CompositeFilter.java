@@ -17,34 +17,20 @@
  */
 package com.vaadin.addons.jpacontainer.filter;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
- * Filter that negates another filter.
+ * Interface to be implemented by all filters that are composed of at least
+ * one other filter.
  *
  * @author Petter Holmström (IT Mill)
  */
-public class Negation implements CompositeFilter {
+public interface CompositeFilter extends Filter {
 
-    private Filter filter;
-
-    private List<Filter> filterList;
-
-    protected Negation(Filter filter) {
-        assert filter != null : "filter must not be null";
-        this.filter = filter;
-        this.filterList.add(filter);
-        this.filterList = Collections.unmodifiableList(this.filterList);
-    }
-
-    @Override
-    public String toQLString() {
-        return String.format("(not %s)", filter.toQLString());
-    }
-
-    @Override
-    public List<Filter> getFilters() {
-        return filterList;
-    }
+    /**
+     * Gets a list of all the filters included in this composite filter.
+     *
+     * @return an unmodifiable list of filters (never null).
+     */
+    public List<Filter> getFilters();
 }
