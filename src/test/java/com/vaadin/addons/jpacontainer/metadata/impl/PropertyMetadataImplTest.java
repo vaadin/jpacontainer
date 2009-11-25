@@ -36,16 +36,28 @@ public class PropertyMetadataImplTest {
     public int dummyField;
 
     PropertyMetadata pmd;
+    PropertyMetadata pmd2;
+
+    @Version
+    public Integer getDummyField() {
+        return dummyField;
+    }
+
+    public void setDummyField(Integer dummyField) {
+        this.dummyField = dummyField;
+    }
 
     @Before
     public void setUp() throws Exception {
         pmd = new PropertyMetadataImpl("name", Long.class, true,
-                false, false, AccessType.FIELD, getClass().getField("dummyField").
-                getAnnotations());
+                false, false, getClass().getField("dummyField"), null, null);
+        pmd2 = new PropertyMetadataImpl("name", Long.class, true,
+                false, false, null, getClass().getMethod("getDummyField"),
+                getClass().getMethod("setDummyField", Integer.class));
     }
 
     @Test
-    public void testGetters() throws Exception {
+    public void testGetters1() throws Exception {
         Assert.assertEquals("name", pmd.getName());
         Assert.assertEquals(Long.class, pmd.getType());
         Assert.assertTrue(pmd.isEmbedded());
@@ -57,8 +69,24 @@ public class PropertyMetadataImplTest {
     }
 
     @Test
+    public void testGetters2() throws Exception {
+        Assert.assertEquals("name", pmd2.getName());
+        Assert.assertEquals(Long.class, pmd2.getType());
+        Assert.assertTrue(pmd2.isEmbedded());
+        Assert.assertFalse(pmd2.isReference());
+        Assert.assertFalse(pmd2.isCollection());
+        Assert.assertEquals(AccessType.METHOD, pmd2.getAccessType());
+        Assert.assertArrayEquals(getClass().getMethod("getDummyField").
+                getAnnotations(), pmd2.getAnnotations());
+    }
+
+
+    @Test
     public void testGetAnnotation() {
         Assert.assertNull(pmd.getAnnotation(Id.class));
         Assert.assertNotNull(pmd.getAnnotation(Version.class));
+        
+        Assert.assertNull(pmd2.getAnnotation(Id.class));
+        Assert.assertNotNull(pmd2.getAnnotation(Version.class));
     }
 }

@@ -18,8 +18,6 @@
 package com.vaadin.addons.jpacontainer.metadata.impl;
 
 import com.vaadin.addons.jpacontainer.metadata.PropertyMetadata;
-import com.vaadin.addons.jpacontainer.metadata.PropertyMetadata.AccessType;
-import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -40,23 +38,49 @@ public class ClassMetadataImplTest {
 
     private Map<String, PropertyMetadata> properties;
 
+    private String property1;
+
+    private Integer property2;
+
+    private Integer property3;
+
+    static class Entity_F {
+
+        @Version
+        Integer version;
+    }
+
+    static class Entity_M {
+
+        Integer version;
+
+        @Version
+        public Integer getVersion() {
+            return version;
+        }
+
+        public void setVersion(Integer version) {
+            this.version = version;
+        }
+    }
+
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         properties = new HashMap<String, PropertyMetadata>();
         properties.put("property1", new PropertyMetadataImpl("property1",
-                String.class, false, false, false, AccessType.FIELD,
-                new Annotation[]{}));
+                String.class, false, false, false, getClass().getDeclaredField(
+                "property1"), null, null));
         properties.put("property2", new PropertyMetadataImpl("property2",
-                Integer.class, false, false, false, AccessType.FIELD,
-                new Annotation[]{}));
+                Integer.class, false, false, false, getClass().getDeclaredField(
+                "property2"), null, null));
         properties.put("property3", new PropertyMetadataImpl("property3",
-                Integer.class, false, false, false, AccessType.FIELD,
-                new Annotation[]{}));
+                Integer.class, false, false, false, getClass().getDeclaredField(
+                "property3"), null, null));
         idProperties = new LinkedList<PropertyMetadata>();
     }
 
     @Test
-    public void testSimpleGetters() {
+    public void testSimpleGetters() throws Exception {
         ClassMetadataImpl<Object> metadata = new ClassMetadataImpl<Object>(
                 "entityName", Object.class, properties, idProperties);
 
@@ -71,8 +95,8 @@ public class ClassMetadataImplTest {
                 getMappedProperty("property3"));
         try {
             metadata.getMappedProperties().add(new PropertyMetadataImpl(
-                    "property4", Integer.class, false, false, false,
-                    AccessType.FIELD, new Annotation[]{}));
+                    "property3", Integer.class, false, false, false,
+                    getClass().getDeclaredField("property3"), null, null));
             Assert.fail("No exception thrown");
         } catch (UnsupportedOperationException e) {
             Assert.assertEquals(3, metadata.getMappedProperties().size());
@@ -109,37 +133,18 @@ public class ClassMetadataImplTest {
         Assert.assertEquals(2, metadata.getEmbeddedIdentifierProperties().size());
     }
 
-    static class Entity_F {
-
-        @Version
-        Integer version;
-    }
-
-    static class Entity_M {
-
-        Integer version;
-
-        @Version
-        public Integer getVersion() {
-            return version;
-        }
-
-        public void setVersion(Integer version) {
-            this.version = version;
-        }
-    }
-
     @Test
     public void testVersionProperty() throws Exception {
         properties.put("version", new PropertyMetadataImpl("version",
                 Integer.class, false,
-                false, false, AccessType.METHOD, Entity_F.class.getDeclaredField(
-                "version").getAnnotations()));
+                false, false, Entity_F.class.getDeclaredField(
+                "version"), null, null));
         ClassMetadataImpl<Object> metadata = new ClassMetadataImpl<Object>(
                 "entityName", Object.class, properties, idProperties);
 
         Assert.assertTrue(metadata.hasVersionProperty());
-        Assert.assertSame(properties.get("version"), metadata.getVersionProperty());
+        Assert.assertSame(properties.get("version"),
+                metadata.getVersionProperty());
     }
 
     @Test
@@ -149,16 +154,62 @@ public class ClassMetadataImplTest {
 
         properties.put("version", new PropertyMetadataImpl("version",
                 Integer.class, false,
-                false, false, AccessType.METHOD, Entity_F.class.getDeclaredField(
-                "version").getAnnotations()));
+                false, false, Entity_F.class.getDeclaredField("version"),
+                null, null));
         ClassMetadataImpl<Entity_F> metadata = new ClassMetadataImpl<Entity_F>(
                 "entityName", Entity_F.class, properties, idProperties);
 
-        Assert.assertEquals(123, metadata.getPropertyValue(entity_f, metadata.getVersionProperty()));
+        Assert.assertEquals(123, metadata.getPropertyValue(entity_f, metadata.
+                getVersionProperty()));
     }
 
-    //@Test
-    public void testgetPropertyValue_Method() throws Exception {
-        Assert.fail("Not implemented");
+    @Test
+    public void testGetPropertyValue_Method() throws Exception {
+        Entity_M entity_m = new Entity_M();
+        entity_m.setVersion(123);
+
+        properties.put("version", new PropertyMetadataImpl("version",
+                Integer.class, false,
+                false, false, null, Entity_M.class.getDeclaredMethod(
+                "getVersion"),
+                Entity_M.class.getDeclaredMethod("setVersion", Integer.class)));
+        ClassMetadataImpl<Entity_M> metadata = new ClassMetadataImpl<Entity_M>(
+                "entityName", Entity_M.class, properties, idProperties);
+
+        Assert.assertEquals(123, metadata.getPropertyValue(entity_m, metadata.
+                getVersionProperty()));
+    }
+
+    @Test
+    public void testSetPropertyValue_Field() throws Exception {
+        Entity_F entity_f = new Entity_F();
+        entity_f.version = 123;
+
+        properties.put("version", new PropertyMetadataImpl("version",
+                Integer.class, false,
+                false, false, Entity_F.class.getDeclaredField("version"),
+                null, null));
+        ClassMetadataImpl<Entity_F> metadata = new ClassMetadataImpl<Entity_F>(
+                "entityName", Entity_F.class, properties, idProperties);
+
+        metadata.setPropertyValue(entity_f, metadata.getVersionProperty(), 456);
+        Assert.assertEquals(new Integer(456), entity_f.version);
+    }
+
+    @Test
+    public void testSetPropertyValue_Method() throws Exception {
+        Entity_M entity_m = new Entity_M();
+        entity_m.setVersion(123);
+
+        properties.put("version", new PropertyMetadataImpl("version",
+                Integer.class, false,
+                false, false, null, Entity_M.class.getDeclaredMethod(
+                "getVersion"),
+                Entity_M.class.getDeclaredMethod("setVersion", Integer.class)));
+        ClassMetadataImpl<Entity_M> metadata = new ClassMetadataImpl<Entity_M>(
+                "entityName", Entity_M.class, properties, idProperties);
+
+        metadata.setPropertyValue(entity_m, metadata.getVersionProperty(), 456);
+        Assert.assertEquals(new Integer(456), entity_m.getVersion());
     }
 }
