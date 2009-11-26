@@ -33,10 +33,15 @@ public class Conjunction extends AbstractJunction {
 
     @Override
     public String toQLString() {
+        return toQLString(PropertyIdPreprocessor.DEFAULT);
+    }
+
+    @Override
+    public String toQLString(PropertyIdPreprocessor propertyIdPreprocessor) {
         StringBuffer sb = new StringBuffer();
         sb.append("(");
         for (Iterator<Filter> it = getFilters().iterator(); it.hasNext();) {
-            sb.append(it.next().toQLString());
+            sb.append(it.next().toQLString(propertyIdPreprocessor));
             if (it.hasNext()) {
                 sb.append(" and ");
             }

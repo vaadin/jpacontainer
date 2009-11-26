@@ -17,30 +17,34 @@
  */
 package com.vaadin.addons.jpacontainer.filter;
 
-import java.io.Serializable;
-
 /**
- * Base interface to be implemented by all filters.
+ * Interface to be implemented by all property ID preprocessors. These
+ * are used to support using e.g. aliases in QL-queries.
  *
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public interface Filter extends Serializable {
+public interface PropertyIdPreprocessor {
 
     /**
-     * Constructs a QL-criteria string for the filter. The returned string is
-     * surrounded by curved brackets.
-     * 
-     * @return the QL-string (never null).
+     * A property ID preprocessor that returns the String-representation of the property ID without
+     * any other processing.
      */
-    public String toQLString();
+    public static PropertyIdPreprocessor DEFAULT = new PropertyIdPreprocessor() {
+
+        @Override
+        public String process(Object propertyId) {
+            assert propertyId != null : "propertyId must not be null";
+            return propertyId.toString();
+        }
+    };
 
     /**
-     * Returns the same as {@link Filter#toQLString()}, but preprocesses
-     * any property IDs before they are used in the query.
+     * Processes <code>propertyId</code> so that it can be
+     * used in a QL string.
      *
-     * @param propertyIdPreprocessor the property ID preprocessor to use (must not be null).
-     * @return the preprocessed QL string (never null).
+     * @param propertyId the property ID to process (must not be null).
+     * @return the processed property ID.
      */
-    public String toQLString(PropertyIdPreprocessor propertyIdPreprocessor);
+    public String process(Object propertyId);
 }

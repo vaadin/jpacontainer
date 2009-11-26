@@ -41,7 +41,12 @@ public class Negation implements CompositeFilter {
 
     @Override
     public String toQLString() {
-        return String.format("(not %s)", filter.toQLString());
+        return toQLString(PropertyIdPreprocessor.DEFAULT);
+    }
+
+    @Override
+    public String toQLString(PropertyIdPreprocessor propertyIdPreprocessor) {
+        return String.format("(not %s)", filter.toQLString(propertyIdPreprocessor));
     }
 
     @Override

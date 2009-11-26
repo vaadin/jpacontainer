@@ -24,7 +24,7 @@ import java.util.Iterator;
  *
  * @author Petter Holmström (IT Mill)
  * @since 1.0
-*/
+ */
 public class Disjunction extends AbstractJunction {
 
     protected Disjunction(Filter[] filters) {
@@ -33,6 +33,11 @@ public class Disjunction extends AbstractJunction {
 
     @Override
     public String toQLString() {
+        return toQLString(PropertyIdPreprocessor.DEFAULT);
+    }
+
+    @Override
+    public String toQLString(PropertyIdPreprocessor propertyIdPreprocessor) {
         StringBuffer sb = new StringBuffer();
         sb.append("(");
         for (Iterator<Filter> it = getFilters().iterator(); it.hasNext();) {

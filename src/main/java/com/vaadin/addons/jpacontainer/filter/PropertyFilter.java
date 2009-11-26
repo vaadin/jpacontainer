@@ -26,37 +26,9 @@ package com.vaadin.addons.jpacontainer.filter;
 public interface PropertyFilter extends Filter {
 
     /**
-     * Interface to be implemented by all property ID preprocessors.
-     *
-     * @see PropertyFilter#toQLString(com.vaadin.addons.jpacontainer.filter.PropertyFilter.PropertyIdPreprocessor)
-     * @author Petter Holmström (IT Mill)
-     * @since 1.0
-     */
-    public static interface PropertyIdPreprocessor {
-
-        /**
-         * Processes <code>propertyId</code> so that it can be
-         * used in a QL string.
-         *
-         * @param propertyId the property ID to process (must not be null).
-         * @return the processed property ID.
-         */
-        public String process(Object propertyId);
-    }
-
-    /**
      * Gets the ID of the property that this filter is applied to.
      *
      * @return the property ID (never null).
      */
     public Object getPropertyId();
-
-    /**
-     * Returns the same as {@link Filter#toQLString()}, but preprocesses
-     * the property ID before it is used in the query.
-     *
-     * @param propertyIdPreprocessor the property ID preprocessor to use (must not be null).
-     * @return the preprocessed QL string (never null).
-     */
-    public String toQLString(PropertyIdPreprocessor propertyIdPreprocessor);
 }

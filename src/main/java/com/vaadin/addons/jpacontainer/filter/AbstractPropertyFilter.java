@@ -28,15 +28,6 @@ public abstract class AbstractPropertyFilter implements PropertyFilter {
 
     private Object propertyId;
 
-    private PropertyIdPreprocessor defaultPreprocessor = new PropertyIdPreprocessor() {
-
-        @Override
-        public String process(Object propertyId) {
-            assert propertyId != null : "propertyId must not be null";
-            return propertyId.toString();
-        }
-    };
-
     protected AbstractPropertyFilter(Object propertyId) {
         assert propertyId != null : "propertyId must not be null";
         this.propertyId = propertyId;
@@ -49,6 +40,6 @@ public abstract class AbstractPropertyFilter implements PropertyFilter {
 
     @Override
     public String toQLString() {
-        return toQLString(defaultPreprocessor);
+        return toQLString(PropertyIdPreprocessor.DEFAULT);
     }
 }
