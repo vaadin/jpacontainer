@@ -17,20 +17,35 @@
  */
 package com.vaadin.addons.jpacontainer.filter;
 
-import java.io.Serializable;
+import java.util.Random;
 
 /**
- * Base interface to be implemented by all filters.
+ * Abstract implementation of {@link ValueFilter} that constructs the QL paremter name
+ * by appending a random integer to the property ID.
  *
  * @author Petter Holmström (IT Mill)
  */
-public interface Filter extends Serializable {
+public abstract class AbstractValueFilter extends AbstractPropertyFilter
+        implements ValueFilter {
 
-    /**
-     * Constructs a QL-criteria string for the filter. The returned string is
-     * surrounded by curved brackets.
-     * 
-     * @return the QL-string (never null).
-     */
-    public String toQLString();
+    private Object value;
+
+    private String qlParameterName;
+
+    protected AbstractValueFilter(Object propertyId, Object value) {
+        super(propertyId);
+        assert value != null : "value must not be null";
+        this.value = value;
+        this.qlParameterName = propertyId.toString() + new Random().nextInt();
+    }
+
+    @Override
+    public Object getValue() {
+        return value;
+    }
+
+    @Override
+    public String getQLParameterName() {
+        return qlParameterName;
+    }
 }

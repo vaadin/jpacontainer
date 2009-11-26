@@ -29,7 +29,8 @@ public class IsNotNullFilter extends AbstractPropertyFilter {
     }
 
     @Override
-    public String toQLString() {
-        return String.format("(%s is not null)", getPropertyId());
+    public String toQLString(PropertyIdPreprocessor propertyIdPreprocessor) {
+        return String.format("(%s is not null)", propertyIdPreprocessor.process(
+                getPropertyId()));
     }
 }

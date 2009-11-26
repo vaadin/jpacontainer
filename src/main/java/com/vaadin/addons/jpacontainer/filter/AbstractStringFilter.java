@@ -17,20 +17,25 @@
  */
 package com.vaadin.addons.jpacontainer.filter;
 
-import java.io.Serializable;
-
 /**
- * Base interface to be implemented by all filters.
+ * Abstract base class for filters that filter string properties.
  *
  * @author Petter Holmström (IT Mill)
  */
-public interface Filter extends Serializable {
+public abstract class AbstractStringFilter extends AbstractValueFilter {
+
+    private boolean caseSensitive;
+
+    protected AbstractStringFilter(Object propertyId, Object value,
+            boolean caseSensitive) {
+        super(propertyId, value);
+        this.caseSensitive = caseSensitive;
+    }
 
     /**
-     * Constructs a QL-criteria string for the filter. The returned string is
-     * surrounded by curved brackets.
-     * 
-     * @return the QL-string (never null).
+     * Returns whether the filter should be case sensitive or not.
      */
-    public String toQLString();
+    public boolean isCaseSensitive() {
+        return caseSensitive;
+    }
 }

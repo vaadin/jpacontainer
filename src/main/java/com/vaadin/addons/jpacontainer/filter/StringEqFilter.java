@@ -17,20 +17,27 @@
  */
 package com.vaadin.addons.jpacontainer.filter;
 
-import java.io.Serializable;
-
 /**
- * Base interface to be implemented by all filters.
+ * Filter that includes all items for which the filtered (String)-property equals the filter value.
  *
  * @author Petter Holmström (IT Mill)
  */
-public interface Filter extends Serializable {
+public class StringEqFilter extends AbstractStringFilter {
 
-    /**
-     * Constructs a QL-criteria string for the filter. The returned string is
-     * surrounded by curved brackets.
-     * 
-     * @return the QL-string (never null).
-     */
-    public String toQLString();
+    protected StringEqFilter(Object propertyId, String value,
+            boolean caseSensitive) {
+        super(propertyId, value, caseSensitive);
+    }
+
+    @Override
+    public String toQLString(PropertyIdPreprocessor propertyIdPreprocessor) {
+        String s;
+        if (isCaseSensitive()) {
+            s = "(%s = :%s)";
+        } else {
+            s = "(upper(%s) = upper(:%s))";
+        }
+        return String.format(s, propertyIdPreprocessor.process(
+                getPropertyId()), getQLParameterName());
+    }
 }

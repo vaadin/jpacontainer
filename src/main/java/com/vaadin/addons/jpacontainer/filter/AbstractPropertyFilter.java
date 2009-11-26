@@ -18,13 +18,23 @@
 package com.vaadin.addons.jpacontainer.filter;
 
 /**
- * Abstract base class for {@link PropertyFilter}s.
+ * Abstract base class for {@link PropertyFilter}s. Subclasses should implement
+ * {@link #toQLString(com.vaadin.addons.jpacontainer.filter.PropertyFilter.PropertyIdPreprocessor) }.
  *
  * @author Petter Holmström (IT Mill)
  */
 public abstract class AbstractPropertyFilter implements PropertyFilter {
 
     private Object propertyId;
+
+    private PropertyIdPreprocessor defaultPreprocessor = new PropertyIdPreprocessor() {
+
+        @Override
+        public String process(Object propertyId) {
+            assert propertyId != null : "propertyId must not be null";
+            return propertyId.toString();
+        }
+    };
 
     protected AbstractPropertyFilter(Object propertyId) {
         assert propertyId != null : "propertyId must not be null";
@@ -34,5 +44,10 @@ public abstract class AbstractPropertyFilter implements PropertyFilter {
     @Override
     public Object getPropertyId() {
         return propertyId;
+    }
+
+    @Override
+    public String toQLString() {
+        return toQLString(defaultPreprocessor);
     }
 }

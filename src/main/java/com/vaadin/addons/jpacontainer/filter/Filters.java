@@ -56,14 +56,21 @@ public final class Filters {
         return new IsNotEmptyFilter(propertyId);
     }
 
+    /**
+     * Creates a new filter that includes all items whose value of <code>propertyId</code> is equal to <code>value</code>.
+     */
     public static ValueFilter eq(Object propertyId, String value,
             boolean caseSensitive) {
-        return null;
+        return new StringEqFilter(propertyId, value, caseSensitive);
     }
 
+    /**
+     * Creates a new filter that includes all items whose value of <code>propertyId</code> matches <code>value</code>. The precent-sign (%)
+     * may be used as wildcard.
+     */
     public static ValueFilter like(Object propertyId, String value,
             boolean caseSensitive) {
-        return null;
+        return new StringLikeFilter(propertyId, value, caseSensitive);
     }
 
     public static ValueFilter eq(Object propertyId, Object value) {

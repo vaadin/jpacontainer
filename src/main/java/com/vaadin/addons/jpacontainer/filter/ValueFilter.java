@@ -30,7 +30,16 @@ public interface ValueFilter extends PropertyFilter {
     /**
      * Gets the filter value.
      * 
-     * @return the value (must not be null).
+     * @return the value (never null).
      */
     public Object getValue();
+
+    /**
+     * Gets the name of the QL parameter name that
+     * is used in the generated QL and that should be replaced with the filter value
+     * when the query is executed.
+     *
+     * @return the QL parameter name (never null).
+     */
+    public String getQLParameterName();
 }

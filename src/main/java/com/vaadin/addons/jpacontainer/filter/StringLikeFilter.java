@@ -17,20 +17,28 @@
  */
 package com.vaadin.addons.jpacontainer.filter;
 
-import java.io.Serializable;
-
 /**
- * Base interface to be implemented by all filters.
+ * Filter that includes all items for which the filtered (String)-property matches the filter value. The precent-sign (%)
+ * may be used as wildcard.
  *
  * @author Petter Holmström (IT Mill)
  */
-public interface Filter extends Serializable {
+public class StringLikeFilter extends AbstractStringFilter {
 
-    /**
-     * Constructs a QL-criteria string for the filter. The returned string is
-     * surrounded by curved brackets.
-     * 
-     * @return the QL-string (never null).
-     */
-    public String toQLString();
+    public StringLikeFilter(Object propertyId, Object value,
+            boolean caseSensitive) {
+        super(propertyId, value, caseSensitive);
+    }
+
+    @Override
+    public String toQLString(PropertyIdPreprocessor propertyIdPreprocessor) {
+        String s;
+        if (isCaseSensitive()) {
+            s = "(%s like :%s)";
+        } else {
+            s = "(upper(%s) like upper(:%s))";
+        }
+        return String.format(s, propertyIdPreprocessor.process(
+                getPropertyId()), getQLParameterName());
+    }
 }

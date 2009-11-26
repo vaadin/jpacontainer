@@ -29,7 +29,8 @@ public class IsNotEmptyFilter extends AbstractPropertyFilter {
     }
 
     @Override
-    public String toQLString() {
-        return String.format("(%s is not empty)", getPropertyId());
+    public String toQLString(PropertyIdPreprocessor propertyIdPreprocessor) {
+        return String.format("(%s is not empty)", propertyIdPreprocessor.process(
+                getPropertyId()));
     }
 }
