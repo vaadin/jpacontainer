@@ -61,7 +61,7 @@ public final class Filters {
      */
     public static ValueFilter eq(Object propertyId, String value,
             boolean caseSensitive) {
-        return new StringEqFilter(propertyId, value, caseSensitive);
+        return new StringComparisionFilter(propertyId, value, caseSensitive, "=");
     }
 
     /**
@@ -70,39 +70,63 @@ public final class Filters {
      */
     public static ValueFilter like(Object propertyId, String value,
             boolean caseSensitive) {
-        return new StringLikeFilter(propertyId, value, caseSensitive);
+        return new StringComparisionFilter(propertyId, value, caseSensitive,
+                "like");
     }
 
+    /**
+     * Creates a new filter that includes all items whose value of <code>propertyId</code> is equal to <code>value</code>.
+     */
     public static ValueFilter eq(Object propertyId, Object value) {
-        return null;
+        return new ComparisionFilter(propertyId, value, "=");
     }
 
+    /**
+     * Creates a new filter that includes all items whose value of <code>propertyId</code> is greater than or equal to <code>value</code>.
+     */
     public static ValueFilter gteq(Object propertyId, Object value) {
-        return null;
+        return new ComparisionFilter(propertyId, value, ">=");
     }
 
+    /**
+     * Creates a new filter that includes all items whose value of <code>propertyId</code> is greater than <code>value</code>.
+     */
     public static ValueFilter gt(Object propertyId, Object value) {
-        return null;
+        return new ComparisionFilter(propertyId, value, ">");
     }
 
+    /**
+     * Creates a new filter that includes all items whose value of <code>propertyId</code> is less than or equal to <code>value</code>.
+     */
     public static ValueFilter lteq(Object propertyId, Object value) {
-        return null;
+        return new ComparisionFilter(propertyId, value, "<=");
     }
 
+    /**
+     * Creates a new filter that includes all items whose value of <code>propertyId</code> is less than <code>value</code>.
+     */
     public static ValueFilter lt(Object propertyId, Object value) {
-        return null;
+        return new ComparisionFilter(propertyId, value, "<");
     }
 
-    public static IntervalFilter between(Object propertyId, Object startValue,
-            Object stopValue, boolean includeStartValue,
-            boolean includeStopValue) {
-        return null;
+    /**
+     * Creates a new filter that includes all items whose value of <code>propertyId</code> is between <code>startingPoint</code> and <code>endingPoint</code>.
+     */
+    public static IntervalFilter between(Object propertyId, Object startingPoint,
+            Object endingPoint, boolean includeStartingPoint,
+            boolean includeEndingPoint) {
+        return new BetweenFilter(propertyId, startingPoint, includeEndingPoint,
+                endingPoint, includeEndingPoint);
     }
 
-    public static IntervalFilter outside(Object propertyId, Object startValue,
-            Object stopValue, boolean includeStartValue,
-            boolean includeStopValue) {
-        return null;
+    /**
+     * Creates a new filter that includes all items whose value of <code>propertyId</code> is outside <code>startingPoint</code> and <code>endingPoint</code>.
+     */
+    public static IntervalFilter outside(Object propertyId, Object startingPoint,
+            Object endingPoint, boolean includeStartingPoint,
+            boolean includeEndingPoint) {
+        return new OutsideFilter(propertyId, startingPoint, includeStartingPoint,
+                endingPoint, includeEndingPoint);
     }
 
     /**

@@ -18,27 +18,39 @@
 package com.vaadin.addons.jpacontainer.filter;
 
 /**
- * Filter that includes all items for which the filtered (String)-property matches the filter value. The precent-sign (%)
+ * Filter that compares the filtered (String)-property to the filter value using
+ * a binary comparision operator. When using the <code>like</code> operator, the precent-sign (%)
  * may be used as wildcard.
  *
  * @author Petter Holmström (IT Mill)
  */
-public class StringLikeFilter extends AbstractStringFilter {
+public class StringComparisionFilter extends AbstractStringFilter {
 
-    public StringLikeFilter(Object propertyId, Object value,
-            boolean caseSensitive) {
+    private String operator;
+
+    protected StringComparisionFilter(Object propertyId, String value,
+            boolean caseSensitive, String operator) {
         super(propertyId, value, caseSensitive);
+        assert operator != null : "operator must not be null";
+        this.operator = operator;
+    }
+
+    /**
+     * Gets the operator that is used for comparision.
+     */
+    public String getOperator() {
+        return operator;
     }
 
     @Override
     public String toQLString(PropertyIdPreprocessor propertyIdPreprocessor) {
         String s;
         if (isCaseSensitive()) {
-            s = "(%s like :%s)";
+            s = "(%s %s :%s)";
         } else {
-            s = "(upper(%s) like upper(:%s))";
+            s = "(upper(%s) %s upper(:%s))";
         }
         return String.format(s, propertyIdPreprocessor.process(
-                getPropertyId()), getQLParameterName());
+                getPropertyId()), operator, getQLParameterName());
     }
 }

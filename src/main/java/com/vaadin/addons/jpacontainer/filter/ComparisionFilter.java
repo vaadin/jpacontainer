@@ -18,26 +18,31 @@
 package com.vaadin.addons.jpacontainer.filter;
 
 /**
- * Filter that includes all items for which the filtered (String)-property equals the filter value.
+ * Filter that matches the items to a value using a binary comparision operator <code>(=, >=, <=, <, >)</code>.
  *
  * @author Petter Holmström (IT Mill)
  */
-public class StringEqFilter extends AbstractStringFilter {
+public class ComparisionFilter extends AbstractValueFilter {
 
-    protected StringEqFilter(Object propertyId, String value,
-            boolean caseSensitive) {
-        super(propertyId, value, caseSensitive);
+    private String operator;
+
+    protected ComparisionFilter(Object propertyId, Object value, String operator) {
+        super(propertyId, value);
+        assert operator != null : "operator must not be null";
+        this.operator = operator;
+    }
+
+    /**
+     * Gets the operator that is used for comparision.
+     */
+    public String getOperator() {
+        return operator;
     }
 
     @Override
     public String toQLString(PropertyIdPreprocessor propertyIdPreprocessor) {
-        String s;
-        if (isCaseSensitive()) {
-            s = "(%s = :%s)";
-        } else {
-            s = "(upper(%s) = upper(:%s))";
-        }
-        return String.format(s, propertyIdPreprocessor.process(
-                getPropertyId()), getQLParameterName());
+        return String.format("(%s %s :%s)",
+                propertyIdPreprocessor.process(getPropertyId()), operator,
+                getValue());
     }
 }
