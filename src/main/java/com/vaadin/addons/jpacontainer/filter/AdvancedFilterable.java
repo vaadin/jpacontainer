@@ -30,8 +30,6 @@ import java.util.List;
  */
 public interface AdvancedFilterable extends Container {
 
-    // TODO Improve documentation
-    
     /**
      * Gets the IDs of all the properties that are filterable.
      *
@@ -50,6 +48,9 @@ public interface AdvancedFilterable extends Container {
     /**
      * Adds <code>filter</code> to the end of the list of filters to apply.
      * If it already exists in the list of filters, it will be applied a second time.
+     * <p>
+     * If {@link #isApplyFiltersImmediately() } returns true, the filter will be applied
+     * immediately and the container updated.
      *
      * @param filter the filter to add (must not be null).
      * @throws IllegalArgumentException if the filter could not be added (e.g. due to a nonfilterable property ID).
@@ -60,10 +61,20 @@ public interface AdvancedFilterable extends Container {
      * Removes <code>filter</code> from the list of filters to apply. If the filter
      * has been added several times, the first occurence will be removed. If the filter
      * has not been added, nothing happens.
+     * <p>
+     * If {@link #isApplyFiltersImmediately() } returns true, the container will be
+     * updated immediately.
      *
      * @param filter the filter to remove (must not be null).
      */
     public void removeFilter(Filter filter);
+
+    /**
+     * Removes all filters.
+     * <p>
+     * If {@link #isApplyFiltersImmediately() } returns true, the container will be updated immediately.
+     */
+    public void removeAllFilters();
 
     /**
      * Gets the list of filters to apply. The filters will be applied as a conjunction
@@ -72,4 +83,37 @@ public interface AdvancedFilterable extends Container {
      * @return an unmodifiable list of filters (never null).
      */
     public List<Filter> getFilters();
+
+    /**
+     * Sets whether the filters should be applied immediately when a filter is added or removed.
+     *
+     * @see #isApplyFiltersImmediately()
+     * @param applyFiltersImmediately true to apply filters immediately, false to apply when {@link #applyFilters() } is called.
+     */
+    public void setApplyFiltersImmediately(boolean applyFiltersImmediately);
+
+    /**
+     * Returns whether the filters should be applied immediately when a filter is added or removed.
+     * Default is true. If false, {@link #applyFilters() } has to be called to apply the filters
+     * and update the container.
+     * 
+     * @see #setApplyFiltersImmediately(boolean)
+     * @return true if the filters are applied immediately, false otherwise.
+     */
+    public boolean isApplyFiltersImmediately();
+
+    /**
+     * Applies the filters to the data, possibly causing the items in the container
+     * to change.
+     */
+    public void applyFilters();
+
+    /**
+     * Checks if there are filters that have not yet been applied. If {@link #isApplyFiltersImmediately() } is true,
+     * this method always returns false.
+     *
+     * @see #applyFilters() 
+     * @return true if there are unapplied filters, false otherwise.
+     */
+    public boolean hasUnappliedFilters();
 }
