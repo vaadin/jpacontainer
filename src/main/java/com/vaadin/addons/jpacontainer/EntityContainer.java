@@ -26,6 +26,7 @@ import com.vaadin.data.Container;
  * are stored in some kind of persistence storage.
  * 
  * @author Petter Holmström (IT Mill)
+ * @since 1.0
  */
 public interface EntityContainer<T> extends Container, Container.Indexed,
         Container.Sortable, AdvancedFilterable,
@@ -36,6 +37,7 @@ public interface EntityContainer<T> extends Container, Container.Indexed,
      * retrieved from the persistence storage.
      *
      * @auhtor Petter Holmström (IT Mill)
+     * @since 1.0
      */
     public interface Caching<T> extends EntityContainer<T> {
 
@@ -74,6 +76,7 @@ public interface EntityContainer<T> extends Container, Container.Indexed,
      * persistence storage before they are actually needed.
      * 
      * @auhtor Petter Holmström (IT Mill)
+     * @since 1.0
      */
     public interface PreLoading<T> extends Caching<T> {
 
