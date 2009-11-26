@@ -22,6 +22,7 @@ package com.vaadin.addons.jpacontainer.filter;
  * {@link #toQLString(com.vaadin.addons.jpacontainer.filter.PropertyFilter.PropertyIdPreprocessor) }.
  *
  * @author Petter Holmström (IT Mill)
+ * @since 1.0
  */
 public abstract class AbstractPropertyFilter implements PropertyFilter {
 

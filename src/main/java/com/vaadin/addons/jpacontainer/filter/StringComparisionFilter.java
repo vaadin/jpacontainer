@@ -23,6 +23,7 @@ package com.vaadin.addons.jpacontainer.filter;
  * may be used as wildcard.
  *
  * @author Petter Holmström (IT Mill)
+ * @since 1.0
  */
 public class StringComparisionFilter extends AbstractStringFilter {
 

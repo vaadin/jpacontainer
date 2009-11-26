@@ -21,6 +21,7 @@ package com.vaadin.addons.jpacontainer.filter;
  * Interface to be implemented by filters that are applied to a single property.
  * 
  * @author Petter Holmström (IT Mill)
+ * @since 1.0
  */
 public interface PropertyFilter extends Filter {
 
@@ -29,6 +30,7 @@ public interface PropertyFilter extends Filter {
      *
      * @see PropertyFilter#toQLString(com.vaadin.addons.jpacontainer.filter.PropertyFilter.PropertyIdPreprocessor)
      * @author Petter Holmström (IT Mill)
+     * @since 1.0
      */
     public static interface PropertyIdPreprocessor {
 

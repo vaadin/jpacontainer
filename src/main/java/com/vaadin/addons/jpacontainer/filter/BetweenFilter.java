@@ -22,6 +22,7 @@ package com.vaadin.addons.jpacontainer.filter;
  * a specified interval.
  *
  * @author Petter Holmström (IT Mill)
+ * @since 1.0
  */
 public class BetweenFilter extends AbstractIntervalFilter {
 

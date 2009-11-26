@@ -22,6 +22,7 @@ package com.vaadin.addons.jpacontainer.filter;
  * to perform the filtering (e.g. between).
  * 
  * @author Petter Holmström (IT Mill)
+ * @since 1.0
  */
 public interface IntervalFilter extends PropertyFilter {
 

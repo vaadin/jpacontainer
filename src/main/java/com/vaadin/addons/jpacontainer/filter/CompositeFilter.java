@@ -24,6 +24,7 @@ import java.util.List;
  * one other filter.
  *
  * @author Petter Holmström (IT Mill)
+ * @since 1.0
  */
 public interface CompositeFilter extends Filter {
 

@@ -21,6 +21,7 @@ package com.vaadin.addons.jpacontainer.filter;
  * Utility class for creating filter instances.
  *
  * @author Petter Holmström (IT Mill)
+ * @since 1.0
  */
 public final class Filters {
 

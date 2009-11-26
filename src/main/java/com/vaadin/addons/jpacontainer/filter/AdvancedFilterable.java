@@ -26,6 +26,7 @@ import java.util.List;
  * Container that supports a bit more advanced filtering than {@link Filterable}.
  *
  * @author Petter Holmström (IT Mill)
+ * @since 1.0
  */
 public interface AdvancedFilterable extends Container {
 

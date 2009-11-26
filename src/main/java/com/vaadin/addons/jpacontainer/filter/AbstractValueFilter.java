@@ -24,6 +24,7 @@ import java.util.Random;
  * by appending a random integer to the property ID.
  *
  * @author Petter Holmström (IT Mill)
+ * @since 1.0
  */
 public abstract class AbstractValueFilter extends AbstractPropertyFilter
         implements ValueFilter {

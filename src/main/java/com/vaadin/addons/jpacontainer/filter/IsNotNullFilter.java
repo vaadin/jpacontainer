@@ -21,6 +21,7 @@ package com.vaadin.addons.jpacontainer.filter;
  * Filter that includes all items for which the filtered property is not null.
  *
  * @author Petter Holmström (IT Mill)
+ * @since 1.0
  */
 public class IsNotNullFilter extends AbstractPropertyFilter {
 

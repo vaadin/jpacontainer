@@ -24,6 +24,7 @@ package com.vaadin.addons.jpacontainer.filter;
  * use {@link IsNullFilter} instead.
  *
  * @author Petter Holmström (IT Mill)
+ * @since 1.0
  */
 public interface ValueFilter extends PropertyFilter {
 

@@ -23,7 +23,8 @@ import java.util.Iterator;
  * A filter that groups other filters together in a single disjunction (A or B or C...).
  *
  * @author Petter Holmström (IT Mill)
- */
+ * @since 1.0
+*/
 public class Disjunction extends AbstractJunction {
 
     protected Disjunction(Filter[] filters) {

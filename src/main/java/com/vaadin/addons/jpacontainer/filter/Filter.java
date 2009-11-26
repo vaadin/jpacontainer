@@ -23,6 +23,7 @@ import java.io.Serializable;
  * Base interface to be implemented by all filters.
  *
  * @author Petter Holmström (IT Mill)
+ * @since 1.0
  */
 public interface Filter extends Serializable {
 

@@ -21,6 +21,7 @@ package com.vaadin.addons.jpacontainer.filter;
  * A filter that groups other filters together using some associative logical operator.
  *
  * @author Petter Holmström (IT Mill)
+ * @since 1.0
  */
 public interface Junction extends CompositeFilter {
 

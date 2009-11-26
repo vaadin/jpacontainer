@@ -21,6 +21,7 @@ package com.vaadin.addons.jpacontainer.filter;
  * Abstract base class for filters that filter string properties.
  *
  * @author Petter Holmström (IT Mill)
+ * @since 1.0
  */
 public abstract class AbstractStringFilter extends AbstractValueFilter {
 
