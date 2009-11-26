@@ -141,6 +141,7 @@ public class AdvancedFilterableSupportTest {
         assertFalse(testObject.getFilters().contains(filterMock));
         testObject.addFilter(filterMock);
         assertTrue(testObject.getFilters().contains(filterMock));
+        assertEquals(testObject.getAppliedFilters(), testObject.getFilters());
         assertFalse(testObject.hasUnappliedFilters());
 
         verify(listenerMock);
@@ -159,9 +160,11 @@ public class AdvancedFilterableSupportTest {
         assertFalse(testObject.getFilters().contains(filterMock));
         testObject.addFilter(filterMock);
         assertTrue(testObject.getFilters().contains(filterMock));
+        assertFalse(testObject.getAppliedFilters().contains(filterMock));
         assertTrue(testObject.hasUnappliedFilters());
         testObject.applyFilters();
         assertFalse(testObject.hasUnappliedFilters());
+        assertEquals(testObject.getAppliedFilters(), testObject.getFilters());
         verify(listenerMock);
     }
 
@@ -207,7 +210,9 @@ public class AdvancedFilterableSupportTest {
         assertTrue(testObject.getFilters().contains(filterMock));
         assertFalse(testObject.hasUnappliedFilters());
         testObject.removeFilter(filterMock);
+        assertFalse(testObject.getFilters().contains(filterMock));
         assertFalse(testObject.hasUnappliedFilters());
+        assertEquals(testObject.getAppliedFilters(), testObject.getFilters());
 
         verify(listenerMock);
     }
@@ -228,9 +233,12 @@ public class AdvancedFilterableSupportTest {
         assertTrue(testObject.getFilters().contains(filterMock));
         assertFalse(testObject.hasUnappliedFilters());
         testObject.removeFilter(filterMock);
+        assertFalse(testObject.getFilters().contains(filterMock));
         assertTrue(testObject.hasUnappliedFilters());
+        assertTrue(testObject.getAppliedFilters().contains(filterMock));
         testObject.applyFilters();
         assertFalse(testObject.hasUnappliedFilters());
+        assertEquals(testObject.getAppliedFilters(), testObject.getFilters());
 
         verify(listenerMock);
     }
@@ -248,7 +256,9 @@ public class AdvancedFilterableSupportTest {
         assertTrue(testObject.getFilters().contains(filterMock));
         assertFalse(testObject.hasUnappliedFilters());
         testObject.removeAllFilters();
+        assertTrue(testObject.getFilters().isEmpty());
         assertFalse(testObject.hasUnappliedFilters());
+        assertEquals(testObject.getAppliedFilters(), testObject.getFilters());
 
         verify(listenerMock);
     }
@@ -269,9 +279,12 @@ public class AdvancedFilterableSupportTest {
         assertTrue(testObject.getFilters().contains(filterMock));
         assertFalse(testObject.hasUnappliedFilters());
         testObject.removeAllFilters();
+        assertTrue(testObject.getFilters().isEmpty());
+        assertFalse(testObject.getAppliedFilters().isEmpty());
         assertTrue(testObject.hasUnappliedFilters());
         testObject.applyFilters();
         assertFalse(testObject.hasUnappliedFilters());
+        assertEquals(testObject.getAppliedFilters(), testObject.getFilters());
 
         verify(listenerMock);
     }
