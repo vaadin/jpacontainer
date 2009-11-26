@@ -32,53 +32,74 @@ import java.lang.annotation.Annotation;
  */
 public interface PropertyMetadata extends Serializable {
 
-    // TODO Improve the documentation
     /**
-     * The name of the property.
+     * Gets the name of the property.
      */
     public String getName();
 
     /**
-     * The type of the property.
+     * Gets the type of the property.
      */
     public Class<?> getType();
 
     /**
-     * If the property is embedded.
+     * Returns whether this property is embedded or not. An embedded property is not
+     * a member of the entity class itself, but a member of a member.
+     * <p>
+     * An example of an embedded property is <code>address.street</code>. You will
+     * not be able to access the <code>street</code> property directly from the entity class.
+     * Rather, you have to access the <code>address</code> property first, from which
+     * you will then be able to access the <code>street</code> property.
+     *
+     * @see javax.persistence.Embeddable
+     * @see javax.persistence.Embedded
      */
     public boolean isEmbedded();
 
     /**
-     * If the property is a reference or not.
+     * Returns whether this property is a reference or not.
+     * 
+     * @see javax.persistence.OneToOne
+     * @see javax.persistence.ManyToOne
      */
     public boolean isReference();
 
     /**
-     * If the property is a collection or not.
+     * Returns whether this property is a collection or not.
+     *
+     * @see javax.persistence.OneToMany
+     * @see javax.persistence.ManyToMany
      */
     public boolean isCollection();
 
     /**
-     * How the property is accessed (as a JavaBean property or as a field).
+     * Returns the way the property value is accessed (as a JavaBean property or as a field).
      */
     public AccessType getAccessType();
 
     /**
-     * The annotations of the property.
+     * Gets the annotations of the property. If the access type is {@link AccessType#FIELD}, these
+     * are the annotations of the field. If the access type is {@link AccessType#METHOD}, these
+     * are the annotations of the getter method.
+     *
+     * @see #getAnnotation(java.lang.Class) 
      */
     public Annotation[] getAnnotations();
 
     /**
-     * TODO Document me!
+     * Gets the annotation of the specified annotation class, if available.
      *
-     * @param <T>
-     * @param annotationClass
-     * @return
+     * @see #getAnnotations() tA
+     * @see Class#getAnnotation(java.lang.Class) 
+     * @param annotationClass the annotation class.
+     * @return the annotation, or null if not found.
      */
     public <T extends Annotation> T getAnnotation(Class<T> annotationClass);
 
     /**
      * Enumeration defining the property access types.
+     *
+     * @author Petter Holmström (IT Mill)
      */
     public enum AccessType {
 
