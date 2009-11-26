@@ -91,7 +91,9 @@ public class AdvancedFilterableSupport implements Serializable {
 
     private LinkedList<Listener> listeners = new LinkedList<Listener>();
 
-    private List<Filter> filters = new LinkedList<Filter>();
+    private LinkedList<Filter> appliedFilters = new LinkedList<Filter>();
+
+    private LinkedList<Filter> filters = new LinkedList<Filter>();
 
     private boolean applyFiltersImmediately = true;
 
@@ -203,6 +205,14 @@ public class AdvancedFilterableSupport implements Serializable {
     }
 
     /**
+     * @see AdvancedFilterable#getAppliedFilters() 
+     */
+    public List<Filter> getAppliedFilters() {
+        return isApplyFiltersImmediately() ? getFilters() : Collections.
+                unmodifiableList(appliedFilters);
+    }
+
+    /**
      * @see AdvancedFilterable#setApplyFiltersImmediately(boolean)
      */
     public void setApplyFiltersImmediately(boolean applyFiltersImmediately) {
@@ -220,8 +230,10 @@ public class AdvancedFilterableSupport implements Serializable {
      * @see AdvancedFilterable#applyFilters()
      */
     public void applyFilters() {
-        fireListeners();
         unappliedFilters = false;
+        appliedFilters.clear();
+        appliedFilters.addAll(filters);
+        fireListeners();
     }
 
     /**

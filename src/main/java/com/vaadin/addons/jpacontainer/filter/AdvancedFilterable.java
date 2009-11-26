@@ -85,6 +85,14 @@ public interface AdvancedFilterable extends Container {
     public List<Filter> getFilters();
 
     /**
+     * Gets the list of filters that are currently applied. If {@link #isApplyFiltersImmediately() } returns true,
+     * this list will be the same as the one returned by {@link #getFilters() }.
+     * 
+     * @return an unmodifiable list of filters (never null).
+     */
+    public List<Filter> getAppliedFilters();
+
+    /**
      * Sets whether the filters should be applied immediately when a filter is added or removed.
      *
      * @see #isApplyFiltersImmediately()
