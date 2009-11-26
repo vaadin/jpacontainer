@@ -21,6 +21,7 @@ import com.vaadin.addons.jpacontainer.filter.AdvancedFilterable;
 import com.vaadin.addons.jpacontainer.filter.CompositeFilter;
 import com.vaadin.addons.jpacontainer.filter.Filter;
 import com.vaadin.addons.jpacontainer.filter.PropertyFilter;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,7 +36,7 @@ import java.util.List;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public class AdvancedFilterableSupport {
+public class AdvancedFilterableSupport implements Serializable {
 
     /**
      * Listener interface to be implemented by classes that want to be
