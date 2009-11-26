@@ -29,6 +29,7 @@ import java.lang.annotation.Annotation;
  * <code>embedded</code> flag set to true.
  *
  * @author Petter Holmström (IT Mill)
+ * @since 1.0
  */
 public interface PropertyMetadata extends Serializable {
 

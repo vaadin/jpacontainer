@@ -30,6 +30,7 @@ import javax.persistence.Version;
  * Default implementation of {@link ClassMetadata}.
  *
  * @author Petter Holmström (IT Mill)
+ * @since 1.0
  */
 public final class ClassMetadataImpl<T> implements ClassMetadata<T> {
 

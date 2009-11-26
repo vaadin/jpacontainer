@@ -21,7 +21,8 @@ package com.vaadin.addons.jpacontainer.metadata;
  * Interface that defines a factory for {@link ClassMetadata} implementations.
  * 
  * @author Petter Holmström (IT Mill)
- */
+ * @since 1.0
+*/
 public interface MetadataFactory {
 
     /**

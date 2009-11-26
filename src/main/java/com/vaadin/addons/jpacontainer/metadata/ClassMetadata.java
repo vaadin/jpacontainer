@@ -24,6 +24,7 @@ import java.util.Collection;
  * Interface that exposes entity class metadata to the application.
  *
  * @author Petter Holmström (IT Mill)
+ * @since 1.0
  */
 public interface ClassMetadata<T> extends Serializable {
 

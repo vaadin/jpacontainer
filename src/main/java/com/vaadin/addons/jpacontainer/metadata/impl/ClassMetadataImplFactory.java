@@ -43,6 +43,7 @@ import javax.persistence.Transient;
  * Factory for {@link ClassMetadataImpl}.
  *
  * @author Petter Holmström (IT Mill)
+ * @since 1.0
  */
 public final class ClassMetadataImplFactory implements MetadataFactory {
 

@@ -27,6 +27,7 @@ import java.lang.reflect.Method;
  * Default implementation of {@link PropertyMetadata}.
  * 
  * @author Petter Holmström (IT Mill)
+ * @since 1.0
  */
 public final class PropertyMetadataImpl implements PropertyMetadata {
 
