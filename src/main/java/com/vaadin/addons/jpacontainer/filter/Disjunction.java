@@ -18,6 +18,7 @@
 package com.vaadin.addons.jpacontainer.filter;
 
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * A filter that groups other filters together in a single disjunction (A or B or C...).
@@ -28,6 +29,10 @@ import java.util.Iterator;
 public class Disjunction extends AbstractJunction {
 
     protected Disjunction(Filter[] filters) {
+        super(filters);
+    }
+
+    protected Disjunction(List<Filter> filters) {
         super(filters);
     }
 

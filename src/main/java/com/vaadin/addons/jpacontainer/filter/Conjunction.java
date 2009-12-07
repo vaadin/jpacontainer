@@ -18,6 +18,7 @@
 package com.vaadin.addons.jpacontainer.filter;
 
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * A filter that groups other filters together in a single conjunction (A and B and C...).
@@ -28,6 +29,10 @@ import java.util.Iterator;
 public class Conjunction extends AbstractJunction {
 
     protected Conjunction(Filter[] filters) {
+        super(filters);
+    }
+
+    protected Conjunction(List<Filter> filters) {
         super(filters);
     }
 

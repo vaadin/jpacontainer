@@ -39,6 +39,15 @@ public abstract class AbstractJunction implements Junction {
         }
     }
 
+    protected AbstractJunction(List<Filter> filters) {
+        assert filters != null : "filters must not be null";
+        // We do not copy the filters instance directly, as we have
+        // to make sure the internal list instance is writable, etc.
+        for (Filter f : filters) {
+            this.filters.add(f);
+        }
+    }
+
     @Override
     public Junction add(Filter filter) {
         assert filter != null : "filter must not be null";

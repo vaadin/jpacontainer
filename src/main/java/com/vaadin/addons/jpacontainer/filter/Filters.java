@@ -17,6 +17,8 @@
  */
 package com.vaadin.addons.jpacontainer.filter;
 
+import java.util.List;
+
 /**
  * Utility class for creating filter instances.
  *
@@ -145,9 +147,23 @@ public final class Filters {
     }
 
     /**
+     * Creates a filter that groups <code>filters</code> together in a single conjunction.
+     */
+    public static Junction and(List<Filter> filters) {
+        return new Conjunction(filters);
+    }
+
+    /**
      * Creates a filter that groups <code>filters</code> together in a single disjunction.
      */
     public static Junction or(Filter... filters) {
+        return new Disjunction(filters);
+    }
+
+    /**
+     * Creates a filter that groups <code>filters</code> together in a single disjunction.
+     */
+    public static Junction or(List<Filter> filters) {
         return new Disjunction(filters);
     }
 }
