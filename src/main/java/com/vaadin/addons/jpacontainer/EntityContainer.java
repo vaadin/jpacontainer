@@ -39,4 +39,20 @@ public interface EntityContainer<T> extends Container, Container.Indexed,
      * @return the entity meta data (never null).
      */
     public ClassMetadata<T> getEntityClassMetaData();
+
+    /**
+     * Returns whether the container is read only or writable.
+     *
+     * @return true if read only, false if writable.
+     */
+    public boolean isReadOnly();
+
+    /**
+     * Changes the read only state of the container, if possible.
+     *
+     * @param readOnly true to make the container read only, false to make it writable.
+     * @throws UnsupportedOperationException if the read only state cannot be changed.
+     */
+    public void setReadOnly(boolean readOnly) throws
+            UnsupportedOperationException;
 }
