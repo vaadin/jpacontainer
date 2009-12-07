@@ -17,26 +17,33 @@
  */
 package com.vaadin.addons.jpacontainer;
 
-import com.vaadin.addons.jpacontainer.filter.AdvancedFilterable;
-import com.vaadin.addons.jpacontainer.metadata.ClassMetadata;
-import com.vaadin.data.Container;
-
 /**
- * This interface defines a container for entities, i.e. objects that
- * are stored in some kind of persistence storage.
- * 
- * @author Petter Holmström (IT Mill)
+ * Caching entity containter that preloads entities in chunks from the
+ * persistence storage before they are actually needed.
+ *
+ * @auhtor Petter Holmström (IT Mill)
  * @since 1.0
  */
-public interface EntityContainer<T> extends Container, Container.Indexed,
-        Container.Sortable, AdvancedFilterable,
-        Container.ItemSetChangeNotifier {
+public interface PreLoadingCachingEntityContainer<T> extends
+        CachingEntityContainer<T> {
 
     /**
-     * Gets the entity class meta data of the entities contained in this 
-     * container.
-     *
-     * @return the entity meta data (never null).
+     * The default chunk size ({@value }).
      */
-    public ClassMetadata<T> getEntityClassMetaData();
+    public static final int DEFAULT_CHUNK_SIZE = 15;
+
+    /**
+     * Gets the number of entities to load at a time.
+     *
+     * @see #DEFAULT_CHUNK_SIZE
+     * @return the chunk size.
+     */
+    public int getChunkSize();
+
+    /**
+     * Sets the number of entities to load at a time.
+     *
+     * @param chunkSize the chunk size to set (must be greater than 0).
+     */
+    public void setChunkSize(int chunkSize);
 }
