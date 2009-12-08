@@ -101,6 +101,8 @@ public interface ClassMetadata<T> extends Serializable {
      */
     public Collection<PropertyMetadata> getEmbeddedIdentifierProperties();
 
+    // TODO Add a way of retrieving the embedded identifier as an Embeddable class instance.
+
     /**
      * Gets the value of <code>property</code> from <code>object</code>.
      *
