@@ -27,7 +27,7 @@ import com.vaadin.data.util.BeanItem;
 import java.util.Collection;
 
 /**
- * Abstract implementation of {@link EntityContainer} that uses a {@link EntityContainerDataSource}
+ * Implementation of {@link EntityContainer} that uses an {@link EntityContainerDataSource}
  * to fetch the items. A {@link MutableEntityContainerDataSource} can be used
  * to make the container writable.<p>
  * As the data source is responsible for sorting the items, new items
@@ -37,8 +37,10 @@ import java.util.Collection;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public abstract class AbstractEntityContainer<T> extends AbstractContainer
+public class DataSourceEntityContainer<T> extends AbstractContainer
         implements EntityContainer<T> {
+
+    // TODO Improve documentation of DataSourceEntityContainer
 
     private ClassMetadata<T> entityClassMetadata;
 
@@ -47,13 +49,13 @@ public abstract class AbstractEntityContainer<T> extends AbstractContainer
     private boolean readOnly = false;
 
     /**
-     * Initializing constructor for <code>AbstractEntityContainer</code>.
+     * Creates a new <code>DataSourceEntityContainer</code>.
      *
      * @param entityClassMetadata the class metadata of the entities that this container will handle (must not be null).
      * @param dataSource the data source from which to fetch the entities (must not be null).
      * @throws IllegalArgumentException if <code>entityClass</code> is not a valid entity class.
      */
-    protected AbstractEntityContainer(ClassMetadata<T> entityClassMetadata,
+    public DataSourceEntityContainer(ClassMetadata<T> entityClassMetadata,
             EntityContainerDataSource<T> dataSource) throws
             IllegalArgumentException {
         assert entityClassMetadata != null :
@@ -173,6 +175,16 @@ public abstract class AbstractEntityContainer<T> extends AbstractContainer
         checkReadOnly();
         // TODO Implement addItem
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * <strong>This method is not supported by this implementation.</strong>
+     * <p>
+     * {@inheritDoc }
+     */
+    @Override
+    public Item addItem(Object itemId) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
     }
 
     @Override
