@@ -24,10 +24,8 @@ import com.vaadin.data.Container;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * An abstract base class for containers that implement some of the more general,
@@ -40,50 +38,9 @@ public abstract class AbstractContainer implements Container, Container.Indexed,
         Container.Sortable, AdvancedFilterable,
         Container.ItemSetChangeNotifier, AdvancedFilterableSupport.Listener {
 
-    /**
-     * Internal data structure class representing a sort instruction.
-     *
-     * @author Petter Holmström (IT Mill)
-     * @since 1.0
-     */
-    protected static final class SortBy {
-
-        /**
-         * The property ID to sort by.
-         */
-        public final Object propertyId;
-
-        /**
-         * True to sort ascendingly, false to sort descendingly.
-         */
-        public final boolean ascending;
-
-        protected SortBy(Object propertyId, boolean ascending) {
-            this.propertyId = propertyId;
-            this.ascending = ascending;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj.getClass() == getClass()) {
-                SortBy o = (SortBy) obj;
-                return o.propertyId.equals(propertyId)
-                        && o.ascending == ascending;
-            }
-            return false;
-        }
-
-        @Override
-        public int hashCode() {
-            int hash = propertyId.hashCode();
-            hash = hash * 7 + new Boolean(ascending).hashCode();
-            return hash;
-        }
-    }
-
     private LinkedList<ItemSetChangeListener> listeners;
 
-    private Set<SortBy> sortBySet;
+    private List<SortBy> sortByList;
 
     private Collection<Object> containerPropertyIds;
 
@@ -95,14 +52,14 @@ public abstract class AbstractContainer implements Container, Container.Indexed,
     /**
      * Gets all the properties that the items should be sorted by, if any.
      *
-     * @return an unmodifiable, possible empty set of <code>SortBy</code>
+     * @return an unmodifiable, possible empty list of <code>SortBy</code>
      *      instances (never null).
      */
-    protected Set<SortBy> getSortBy() {
-        if (sortBySet == null) {
-            return Collections.emptySet();
+    protected List<SortBy> getSortBy() {
+        if (sortByList == null) {
+            return Collections.emptyList();
         } else {
-            return sortBySet;
+            return sortByList;
         }
     }
 
@@ -176,20 +133,28 @@ public abstract class AbstractContainer implements Container, Container.Indexed,
     }
 
     @Override
+    public void filtersApplied(AdvancedFilterableSupport sender) {
+        if (sender == filterSupport) {
+            fireContainerItemSetChange(new ContainerFilteredEvent());
+        }
+    }
+
+    @Override
     public void sort(Object[] propertyId, boolean[] ascending) {
         assert propertyId != null : "propertyId must not be null";
         assert ascending != null : "ascending must not be null";
         assert propertyId.length == ascending.length :
                 "propertyId and ascending must have the same length";
-        sortBySet = new LinkedHashSet<SortBy>((int) (propertyId.length / 0.75));
+        sortByList = new LinkedList<SortBy>();
         for (int i = 0; i < propertyId.length; ++i) {
             if (!getSortableContainerPropertyIds().contains(propertyId[i])) {
                 throw new IllegalArgumentException(
                         "No such sortable property ID: " + propertyId[i]);
             }
-            sortBySet.add(new SortBy(propertyId[i], ascending[i]));
+            sortByList.add(new SortBy(propertyId[i], ascending[i]));
         }
         fireContainerItemSetChange(new ContainerSortedEvent());
+        sortByList = Collections.unmodifiableList(sortByList);
     }
 
     @Override
@@ -294,6 +259,23 @@ public abstract class AbstractContainer implements Container, Container.Indexed,
     public final class ContainerSortedEvent implements ItemSetChangeEvent {
 
         protected ContainerSortedEvent() {
+        }
+
+        @Override
+        public Container getContainer() {
+            return AbstractContainer.this;
+        }
+    }
+
+    /**
+     * Event indicating that the container has been filtered.
+     *
+     * @author Petter Holmström (IT Mill)
+     * @since 1.0
+     */
+    public final class ContainerFilteredEvent implements ItemSetChangeEvent {
+
+        protected ContainerFilteredEvent() {
         }
 
         @Override
