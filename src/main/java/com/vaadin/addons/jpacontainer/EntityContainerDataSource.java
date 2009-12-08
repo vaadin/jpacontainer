@@ -106,29 +106,4 @@ public interface EntityContainerDataSource<T> {
      * @return the number of matches.
      */
     public int getEntityCount(Filter filter);
-
-    /**
-     * Gets the identifier of the entity at position <code>index</code> in the list
-     * of entities determined by <code>filter</code> and <code>sortBy</code>.
-     *
-     * @param index the index of the entity.
-     * @param filter the filter that should be used to filter the entities (may be null).
-     * @param sortBy the properties to sort by, if any (never null, but may be empty).
-     * @return the entity identifier (never null).
-     * @throws IndexOutOfBoundsException if index is invalid (&lt; 0 or &gt;= {@link #getEntityCount(com.vaadin.addons.jpacontainer.filter.Filter) }).
-     */
-    public Object getEntityIdByIndex(int index, Filter filter,
-            List<SortBy> sortBy) throws IndexOutOfBoundsException;
-
-    /**
-     * Gets the index of the entity identified by <code>entityId</code> in the list
-     * of entities determined by <code>filter</code> and <code>sortBy</code>.
-     *
-     * @param entityId the entity identifier (must not be null).
-     * @param filter the filter that should be used to filter the entities (may be null).
-     * @param sortBy the properties to sort by, if any (never null, but may be empty).
-     * @return the index of the entity, or -1 if it could not be found.
-     */
-    public int getIndexOfEntityId(Object entityId, Filter filter,
-            List<SortBy> sortBy);
 }

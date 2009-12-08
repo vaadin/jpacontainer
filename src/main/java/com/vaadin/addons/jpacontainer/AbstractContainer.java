@@ -34,9 +34,9 @@ import java.util.List;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public abstract class AbstractContainer implements Container, Container.Indexed,
-        Container.Sortable, AdvancedFilterable,
-        Container.ItemSetChangeNotifier, AdvancedFilterableSupport.Listener {
+public abstract class AbstractContainer implements Container.Sortable,
+        AdvancedFilterable, Container.ItemSetChangeNotifier,
+        AdvancedFilterableSupport.Listener {
 
     private LinkedList<ItemSetChangeListener> listeners;
 

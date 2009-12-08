@@ -28,9 +28,8 @@ import com.vaadin.data.Container;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public interface EntityContainer<T> extends Container, Container.Indexed,
-        Container.Sortable, AdvancedFilterable,
-        Container.ItemSetChangeNotifier {
+public interface EntityContainer<T> extends Container.Sortable,
+        AdvancedFilterable, Container.ItemSetChangeNotifier {
 
     /**
      * Gets the entity class meta data of the entities contained in this 

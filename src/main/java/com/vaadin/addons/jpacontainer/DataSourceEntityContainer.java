@@ -41,7 +41,7 @@ public class DataSourceEntityContainer<T> extends AbstractContainer
         implements EntityContainer<T> {
 
     // TODO Improve documentation of DataSourceEntityContainer
-
+    
     private ClassMetadata<T> entityClassMetadata;
 
     private EntityContainerDataSource<T> dataSource;
@@ -227,39 +227,6 @@ public class DataSourceEntityContainer<T> extends AbstractContainer
         checkReadOnly();
         // TODO Implement removeItem
         throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    /**
-     * <strong>This method is not supported by this implementation.</strong>
-     * <p>
-     * {@inheritDoc }
-     */
-    @Override
-    public Object addItemAt(int index) throws UnsupportedOperationException {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * <strong>This method is not supported by this implementation.</strong>
-     * <p>
-     * {@inheritDoc }
-     */
-    @Override
-    public Item addItemAt(int index, Object newItemId) throws
-            UnsupportedOperationException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Object getIdByIndex(int index) {
-        return getDataSource().getEntityIdByIndex(index,
-                getAppliedFiltersAsConjunction(), getSortBy());
-    }
-
-    @Override
-    public int indexOfId(Object itemId) {
-        return getDataSource().getIndexOfEntityId(itemId,
-                getAppliedFiltersAsConjunction(), getSortBy());
     }
 
     /**
