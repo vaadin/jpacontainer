@@ -37,7 +37,7 @@ public interface EntityContainer<T> extends Container.Sortable,
      *
      * @return the entity meta data (never null).
      */
-    public ClassMetadata<T> getEntityClassMetaData();
+    public ClassMetadata<T> getEntityClassMetadata();
 
     /**
      * Returns whether the container is read only or writable.

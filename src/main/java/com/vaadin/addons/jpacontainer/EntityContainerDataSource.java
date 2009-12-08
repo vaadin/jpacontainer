@@ -91,12 +91,14 @@ public interface EntityContainerDataSource<T> {
             List<SortBy> sortBy);
 
     /**
-     * Checks if the data source contains an entity identified by <code>entityId</code>.
+     * Checks if the data source contains an entity identified by <code>entityId</code>
+     * that is also matched by <code>filter</code>.
      *
      * @param entityId the entity identifier (must not be null).
+     * @param filter the filter that the entity should match (may be null).
      * @return true if the entity exists, false if not.
      */
-    public boolean containsEntity(Object entityId);
+    public boolean containsEntity(Object entityId, Filter filter);
 
     /**
      * Gets the number of entities that are matched by <code>filter</code>. If no filter

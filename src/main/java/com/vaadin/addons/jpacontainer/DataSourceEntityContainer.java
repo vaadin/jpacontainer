@@ -53,11 +53,9 @@ public class DataSourceEntityContainer<T> extends AbstractContainer
      *
      * @param entityClassMetadata the class metadata of the entities that this container will handle (must not be null).
      * @param dataSource the data source from which to fetch the entities (must not be null).
-     * @throws IllegalArgumentException if <code>entityClass</code> is not a valid entity class.
      */
     public DataSourceEntityContainer(ClassMetadata<T> entityClassMetadata,
-            EntityContainerDataSource<T> dataSource) throws
-            IllegalArgumentException {
+            EntityContainerDataSource<T> dataSource) {
         assert entityClassMetadata != null :
                 "entityClassMetadata must not be null";
         assert dataSource != null : "dataSource must not be null";
@@ -155,7 +153,8 @@ public class DataSourceEntityContainer<T> extends AbstractContainer
 
     @Override
     public boolean containsId(Object itemId) {
-        return getDataSource().containsEntity(itemId);
+        return getDataSource().containsEntity(itemId,
+                getAppliedFiltersAsConjunction());
     }
 
     /**
@@ -198,7 +197,7 @@ public class DataSourceEntityContainer<T> extends AbstractContainer
     @Override
     public Class<?> getType(Object propertyId) {
         assert propertyId != null : "propertyId must not be null";
-        PropertyMetadata pm = getEntityClassMetaData().getMappedProperty(propertyId.
+        PropertyMetadata pm = getEntityClassMetadata().getMappedProperty(propertyId.
                 toString());
         return pm == null ? null : pm.getType();
     }
@@ -252,7 +251,7 @@ public class DataSourceEntityContainer<T> extends AbstractContainer
     }
 
     @Override
-    public ClassMetadata<T> getEntityClassMetaData() {
+    public ClassMetadata<T> getEntityClassMetadata() {
         return entityClassMetadata;
     }
 
