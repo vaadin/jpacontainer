@@ -17,15 +17,12 @@
  */
 package com.vaadin.addons.jpacontainer.metadata.impl;
 
+import com.vaadin.addons.jpacontainer.metadata.NestedPropertyMetadata;
 import com.vaadin.addons.jpacontainer.metadata.PropertyMetadata;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import javax.persistence.Version;
-import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
+import static com.vaadin.addons.jpacontainer.metadata.impl.TestClasses.*;
+import static org.junit.Assert.*;
 
 /**
  * Test case for {@link ClassMetadataImpl}.
@@ -34,182 +31,174 @@ import org.junit.Test;
  */
 public class ClassMetadataImplTest {
 
-    private Collection<PropertyMetadata> idProperties;
+    @Test
+    public void testAddProperty() throws Exception {
+        ClassMetadataImpl metadata = new ClassMetadataImpl(
+                Person_F.class);
 
-    private Map<String, PropertyMetadata> properties;
-
-    private String property1;
-
-    private Integer property2;
-
-    private Integer property3;
-
-    static class Entity_F {
-
-        @Version
-        Integer version;
-    }
-
-    static class Entity_M {
-
-        Integer version;
-
-        @Version
-        public Integer getVersion() {
-            return version;
-        }
-
-        public void setVersion(Integer version) {
-            this.version = version;
-        }
-    }
-
-    @Before
-    public void setUp() throws Exception {
-        properties = new HashMap<String, PropertyMetadata>();
-        properties.put("property1", new PropertyMetadataImpl("property1",
-                String.class, false, false, false, getClass().getDeclaredField(
-                "property1"), null, null));
-        properties.put("property2", new PropertyMetadataImpl("property2",
-                Integer.class, false, false, false, getClass().getDeclaredField(
-                "property2"), null, null));
-        properties.put("property3", new PropertyMetadataImpl("property3",
-                Integer.class, false, false, false, getClass().getDeclaredField(
-                "property3"), null, null));
-        idProperties = new LinkedList<PropertyMetadata>();
+        PropertyMetadata pm = metadata.addProperty("firstName", String.class, Person_F.class.
+                getDeclaredField("firstName"), null, null);
+        assertFalse(pm.isCollection());
+        assertFalse(pm.isEmbedded());
+        assertFalse(pm.isReference());
+        assertEquals("firstName", pm.getName());
+        assertSame(String.class, pm.getType());
+        assertNull(pm.getTypeMetadata());
+        assertEquals(PropertyMetadata.AccessType.FIELD, pm.getAccessType());
+        assertSame(metadata, pm.getOwner());
     }
 
     @Test
-    public void testSimpleGetters() throws Exception {
-        ClassMetadataImpl<Object> metadata = new ClassMetadataImpl<Object>(
-                "entityName", Object.class, properties, idProperties);
+    public void testAddCollectionProperty() throws Exception {
+        ClassMetadataImpl metadata = new ClassMetadataImpl(
+                Person_F.class);
 
-        Assert.assertEquals("entityName", metadata.getEntityName());
-        Assert.assertEquals(Object.class, metadata.getEntityClass());
-        Assert.assertFalse(metadata.hasVersionProperty());
-        Assert.assertTrue(properties.get("property1") == metadata.
-                getMappedProperty("property1"));
-        Assert.assertTrue(properties.get("property2") == metadata.
-                getMappedProperty("property2"));
-        Assert.assertTrue(properties.get("property3") == metadata.
-                getMappedProperty("property3"));
-        try {
-            metadata.getMappedProperties().add(new PropertyMetadataImpl(
-                    "property3", Integer.class, false, false, false,
-                    getClass().getDeclaredField("property3"), null, null));
-            Assert.fail("No exception thrown");
-        } catch (UnsupportedOperationException e) {
-            Assert.assertEquals(3, metadata.getMappedProperties().size());
-        }
+        PropertyMetadata pm = metadata.addCollectionProperty("children",
+                Collection.class, Person_F.class.getDeclaredField("children"),
+                null, null);
+        assertTrue(pm.isCollection());
+        assertFalse(pm.isEmbedded());
+        assertFalse(pm.isReference());
+        assertEquals("children", pm.getName());
+        assertSame(Collection.class, pm.getType());
+        assertNull(pm.getTypeMetadata());
+        assertEquals(PropertyMetadata.AccessType.FIELD, pm.getAccessType());
+        assertSame(metadata, pm.getOwner());
     }
 
     @Test
-    public void testSingleIdProperty() {
-        idProperties.add(properties.get("property1"));
-        ClassMetadataImpl<Object> metadata = new ClassMetadataImpl<Object>(
-                "entityName", Object.class, properties, idProperties);
+    public void testAddReferenceProperty() throws Exception {
+        ClassMetadataImpl metadata = new ClassMetadataImpl(
+                Person_F.class);
 
-        Assert.assertTrue(metadata.hasIdentifierProperty());
-        Assert.assertFalse(metadata.hasEmbeddedIdentifier());
-        Assert.assertSame(properties.get("property1"), metadata.
-                getIdentifierProperty());
-        Assert.assertTrue(metadata.getEmbeddedIdentifierProperties().isEmpty());
+        PropertyMetadata pm = metadata.addReferenceProperty("parent", metadata, Person_F.class.
+                getDeclaredField("parent"),
+                null, null);
+        assertFalse(pm.isCollection());
+        assertFalse(pm.isEmbedded());
+        assertTrue(pm.isReference());
+        assertEquals("parent", pm.getName());
+        assertSame(Person_F.class, pm.getType());
+        assertSame(metadata, pm.getTypeMetadata());
+        assertEquals(PropertyMetadata.AccessType.FIELD, pm.getAccessType());
+        assertSame(metadata, pm.getOwner());
     }
 
     @Test
-    public void testMultipleIdProperties() {
-        idProperties.add(properties.get("property1"));
-        idProperties.add(properties.get("property2"));
-        ClassMetadataImpl<Object> metadata = new ClassMetadataImpl<Object>(
-                "entityName", Object.class, properties, idProperties);
+    public void testAddEmbeddedProperty() throws Exception {
+        ClassMetadataImpl metadata = new ClassMetadataImpl(
+                Person_F.class);
+        ClassMetadataImpl addressMetadata = new ClassMetadataImpl(
+                Address_F.class);
+        addressMetadata.addProperty("street", String.class, Address_F.class.
+                getDeclaredField("street"), null, null);
 
-        Assert.assertFalse(metadata.hasIdentifierProperty());
-        Assert.assertTrue(metadata.hasEmbeddedIdentifier());
-        Assert.assertNull(metadata.getIdentifierProperty());
-        Assert.assertTrue(metadata.getEmbeddedIdentifierProperties().contains(properties.
-                get("property1")));
-        Assert.assertTrue(metadata.getEmbeddedIdentifierProperties().contains(properties.
-                get("property2")));
-        Assert.assertEquals(2, metadata.getEmbeddedIdentifierProperties().size());
-    }
+        PropertyMetadata pm = metadata.addEmbeddedProperty("address",
+                addressMetadata, Person_F.class.getDeclaredField("address"),
+                null, null);
+        assertFalse(pm.isCollection());
+        assertTrue(pm.isEmbedded());
+        assertFalse(pm.isReference());
+        assertEquals("address", pm.getName());
+        assertSame(Address_F.class, pm.getType());
+        assertSame(addressMetadata, pm.getTypeMetadata());
+        assertEquals(PropertyMetadata.AccessType.FIELD, pm.getAccessType());
+        assertSame(metadata, pm.getOwner());
 
-    @Test
-    public void testVersionProperty() throws Exception {
-        properties.put("version", new PropertyMetadataImpl("version",
-                Integer.class, false,
-                false, false, Entity_F.class.getDeclaredField(
-                "version"), null, null));
-        ClassMetadataImpl<Object> metadata = new ClassMetadataImpl<Object>(
-                "entityName", Object.class, properties, idProperties);
-
-        Assert.assertTrue(metadata.hasVersionProperty());
-        Assert.assertSame(properties.get("version"),
-                metadata.getVersionProperty());
+        NestedPropertyMetadata nested = (NestedPropertyMetadata) metadata.
+                getMappedProperty("address.street");
+        assertNotNull(nested);
+        assertEquals("address.street", nested.getName());
+        assertSame(pm, nested.getParentProperty());
+        assertSame(metadata, nested.getOwner());
     }
 
     @Test
     public void testGetPropertyValue_Field() throws Exception {
-        Entity_F entity_f = new Entity_F();
-        entity_f.version = 123;
+        ClassMetadataImpl metadata = new ClassMetadataImpl(
+                Person_F.class);
+        metadata.addProperty("firstName", String.class, Person_F.class.
+                getDeclaredField("firstName"), null, null);
 
-        properties.put("version", new PropertyMetadataImpl("version",
-                Integer.class, false,
-                false, false, Entity_F.class.getDeclaredField("version"),
-                null, null));
-        ClassMetadataImpl<Entity_F> metadata = new ClassMetadataImpl<Entity_F>(
-                "entityName", Entity_F.class, properties, idProperties);
-
-        Assert.assertEquals(123, metadata.getPropertyValue(entity_f, metadata.
-                getVersionProperty()));
-    }
-
-    @Test
-    public void testGetPropertyValue_Method() throws Exception {
-        Entity_M entity_m = new Entity_M();
-        entity_m.setVersion(123);
-
-        properties.put("version", new PropertyMetadataImpl("version",
-                Integer.class, false,
-                false, false, null, Entity_M.class.getDeclaredMethod(
-                "getVersion"),
-                Entity_M.class.getDeclaredMethod("setVersion", Integer.class)));
-        ClassMetadataImpl<Entity_M> metadata = new ClassMetadataImpl<Entity_M>(
-                "entityName", Entity_M.class, properties, idProperties);
-
-        Assert.assertEquals(123, metadata.getPropertyValue(entity_m, metadata.
-                getVersionProperty()));
+        Person_F person = new Person_F();
+        person.firstName = "Hello World";
+        assertEquals("Hello World", metadata.getPropertyValue(person,
+                "firstName"));
     }
 
     @Test
     public void testSetPropertyValue_Field() throws Exception {
-        Entity_F entity_f = new Entity_F();
-        entity_f.version = 123;
+        ClassMetadataImpl metadata = new ClassMetadataImpl(
+                Person_F.class);
+        metadata.addProperty("firstName", String.class, Person_F.class.
+                getDeclaredField("firstName"), null, null);
 
-        properties.put("version", new PropertyMetadataImpl("version",
-                Integer.class, false,
-                false, false, Entity_F.class.getDeclaredField("version"),
-                null, null));
-        ClassMetadataImpl<Entity_F> metadata = new ClassMetadataImpl<Entity_F>(
-                "entityName", Entity_F.class, properties, idProperties);
+        Person_F person = new Person_F();
+        metadata.setPropertyValue(person, "firstName", "Hello World");
+        assertEquals("Hello World", person.firstName);
+    }
 
-        metadata.setPropertyValue(entity_f, metadata.getVersionProperty(), 456);
-        Assert.assertEquals(new Integer(456), entity_f.version);
+    @Test
+    public void testGetPropertyValue_Method() throws Exception {
+        ClassMetadataImpl metadata = new ClassMetadataImpl(
+                Person_M.class);
+        metadata.addProperty("firstName", String.class, null, Person_M.class.
+                getDeclaredMethod("getFirstName"), Person_M.class.
+                getDeclaredMethod("setFirstName", String.class));
+
+        Person_M person = new Person_M();
+        person.setFirstName("Hello World");
+        assertEquals("Hello World", metadata.getPropertyValue(person,
+                "firstName"));
     }
 
     @Test
     public void testSetPropertyValue_Method() throws Exception {
-        Entity_M entity_m = new Entity_M();
-        entity_m.setVersion(123);
+        ClassMetadataImpl metadata = new ClassMetadataImpl(
+                Person_M.class);
+        metadata.addProperty("firstName", String.class, null, Person_M.class.
+                getDeclaredMethod("getFirstName"), Person_M.class.
+                getDeclaredMethod("setFirstName", String.class));
 
-        properties.put("version", new PropertyMetadataImpl("version",
-                Integer.class, false,
-                false, false, null, Entity_M.class.getDeclaredMethod(
-                "getVersion"),
-                Entity_M.class.getDeclaredMethod("setVersion", Integer.class)));
-        ClassMetadataImpl<Entity_M> metadata = new ClassMetadataImpl<Entity_M>(
-                "entityName", Entity_M.class, properties, idProperties);
+        Person_M person = new Person_M();
+        metadata.setPropertyValue(person, "firstName", "Hello World");
+        assertEquals("Hello World", person.getFirstName());
+    }
 
-        metadata.setPropertyValue(entity_m, metadata.getVersionProperty(), 456);
-        Assert.assertEquals(new Integer(456), entity_m.getVersion());
+    @Test
+    public void testGetNestedPropertyValue() throws Exception {
+        ClassMetadataImpl metadata = new ClassMetadataImpl(
+                Person_F.class);
+        ClassMetadataImpl addressMetadata = new ClassMetadataImpl(
+                Address_F.class);
+        addressMetadata.addProperty("street", String.class, Address_F.class.
+                getDeclaredField("street"), null, null);
+        metadata.addEmbeddedProperty("address",
+                addressMetadata, Person_F.class.getDeclaredField("address"),
+                null, null);
+
+        Person_F person = new Person_F();
+        person.address = new Address_F();
+        person.address.street = "Hello World";
+        assertEquals("Hello World", metadata.getPropertyValue(person,
+                "address.street"));
+    }
+
+    @Test
+    public void testSetNestedPropertyValue() throws Exception {
+        ClassMetadataImpl metadata = new ClassMetadataImpl(
+                Person_F.class);
+        ClassMetadataImpl addressMetadata = new ClassMetadataImpl(
+                Address_F.class);
+        addressMetadata.addProperty("street", String.class, Address_F.class.
+                getDeclaredField("street"), null, null);
+        metadata.addEmbeddedProperty("address",
+                addressMetadata, Person_F.class.getDeclaredField("address"),
+                null, null);
+
+        Person_F person = new Person_F();
+        person.address = new Address_F();
+        metadata.setPropertyValue(person, "address.street", "Hello World");
+        assertEquals("Hello World", person.address.street);
     }
 }

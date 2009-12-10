@@ -39,8 +39,8 @@ public class PropertyMetadataImplTest {
     PropertyMetadata pmd;
     PropertyMetadata pmd2;
 
-    ClassMetadata<PropertyMetadataImplTest> cmd;
-    ClassMetadata<Long> cmd2;
+    ClassMetadata cmd;
+    ClassMetadata cmd2;
 
     @Version
     public Integer getDummyField() {
@@ -53,8 +53,8 @@ public class PropertyMetadataImplTest {
 
     @Before
     public void setUp() throws Exception {
-        cmd = new ClassMetadataImpl<PropertyMetadataImplTest>(PropertyMetadataImplTest.class);
-        cmd2 = new ClassMetadataImpl<Long>(Long.class);
+        cmd = new ClassMetadataImpl(PropertyMetadataImplTest.class);
+        cmd2 = new ClassMetadataImpl(Long.class);
         
         pmd = new PropertyMetadataImpl("name", Long.class, cmd, true,
                 false, false, cmd2, getClass().getField("dummyField"), null, null);
