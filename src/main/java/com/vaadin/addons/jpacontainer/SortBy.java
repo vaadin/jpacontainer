@@ -37,7 +37,8 @@ public final class SortBy implements Serializable {
      */
     public final boolean ascending;
 
-    protected SortBy(Object propertyId, boolean ascending) {
+    public SortBy(Object propertyId, boolean ascending) {
+        assert propertyId != null : "propertyId must not be null";
         this.propertyId = propertyId;
         this.ascending = ascending;
     }

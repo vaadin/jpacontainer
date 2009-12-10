@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Data source that provides data to an {@link EntityContainer}.
+ * Data source that provides data to a {@link DataSourceEntityContainer}.
  *
  * @author Petter Holmström (IT Mill)
  * @since 1.0
@@ -107,5 +107,5 @@ public interface EntityContainerDataSource<T> {
      * @param filter the filter that should be used to filter the entities (may be null).
      * @return the number of matches.
      */
-    public int getEntityCount(Filter filter);
+    public long getEntityCount(Filter filter);
 }

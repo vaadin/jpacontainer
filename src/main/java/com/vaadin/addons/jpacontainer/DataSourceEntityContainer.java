@@ -19,7 +19,7 @@ package com.vaadin.addons.jpacontainer;
 
 import com.vaadin.addons.jpacontainer.filter.CompositeFilter;
 import com.vaadin.addons.jpacontainer.filter.Filters;
-import com.vaadin.addons.jpacontainer.metadata.ClassMetadata;
+import com.vaadin.addons.jpacontainer.metadata.EntityClassMetadata;
 import com.vaadin.addons.jpacontainer.metadata.PropertyMetadata;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
@@ -42,7 +42,7 @@ public class DataSourceEntityContainer<T> extends AbstractContainer
 
     // TODO Improve documentation of DataSourceEntityContainer
     
-    private ClassMetadata<T> entityClassMetadata;
+    private EntityClassMetadata<T> entityClassMetadata;
 
     private EntityContainerDataSource<T> dataSource;
 
@@ -54,7 +54,7 @@ public class DataSourceEntityContainer<T> extends AbstractContainer
      * @param entityClassMetadata the class metadata of the entities that this container will handle (must not be null).
      * @param dataSource the data source from which to fetch the entities (must not be null).
      */
-    public DataSourceEntityContainer(ClassMetadata<T> entityClassMetadata,
+    public DataSourceEntityContainer(EntityClassMetadata<T> entityClassMetadata,
             EntityContainerDataSource<T> dataSource) {
         assert entityClassMetadata != null :
                 "entityClassMetadata must not be null";
@@ -148,7 +148,7 @@ public class DataSourceEntityContainer<T> extends AbstractContainer
 
     @Override
     public int size() {
-        return getDataSource().getEntityCount(getAppliedFiltersAsConjunction());
+        return new Long(getDataSource().getEntityCount(getAppliedFiltersAsConjunction())).intValue();
     }
 
     @Override
@@ -251,7 +251,7 @@ public class DataSourceEntityContainer<T> extends AbstractContainer
     }
 
     @Override
-    public ClassMetadata<T> getEntityClassMetadata() {
+    public EntityClassMetadata<T> getEntityClassMetadata() {
         return entityClassMetadata;
     }
 

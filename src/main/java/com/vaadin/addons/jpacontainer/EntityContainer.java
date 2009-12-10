@@ -18,7 +18,7 @@
 package com.vaadin.addons.jpacontainer;
 
 import com.vaadin.addons.jpacontainer.filter.AdvancedFilterable;
-import com.vaadin.addons.jpacontainer.metadata.ClassMetadata;
+import com.vaadin.addons.jpacontainer.metadata.EntityClassMetadata;
 import com.vaadin.data.Container;
 
 /**
@@ -37,7 +37,7 @@ public interface EntityContainer<T> extends Container.Sortable,
      *
      * @return the entity meta data (never null).
      */
-    public ClassMetadata<T> getEntityClassMetadata();
+    public EntityClassMetadata<T> getEntityClassMetadata();
 
     /**
      * Returns whether the container is read only or writable.
