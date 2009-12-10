@@ -44,6 +44,6 @@ public class ComparisionFilter extends AbstractValueFilter {
     public String toQLString(PropertyIdPreprocessor propertyIdPreprocessor) {
         return String.format("(%s %s :%s)",
                 propertyIdPreprocessor.process(getPropertyId()), operator,
-                getValue());
+                getQLParameterName());
     }
 }

@@ -18,6 +18,7 @@
 package com.vaadin.addons.jpacontainer.filter;
 
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -30,7 +31,7 @@ public class Negation implements CompositeFilter {
 
     private Filter filter;
 
-    private List<Filter> filterList;
+    private List<Filter> filterList = new LinkedList<Filter>();
 
     protected Negation(Filter filter) {
         assert filter != null : "filter must not be null";
