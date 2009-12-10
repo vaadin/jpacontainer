@@ -215,7 +215,7 @@ abstract class TestClasses {
     static class EmbeddedIdEntity_F implements Serializable {
 
         @EmbeddedId
-        private Address_F address;
+        Address_F address;
     }
 
     @Entity
