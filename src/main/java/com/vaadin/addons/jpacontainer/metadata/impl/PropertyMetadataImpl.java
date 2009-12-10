@@ -17,6 +17,7 @@
  */
 package com.vaadin.addons.jpacontainer.metadata.impl;
 
+import com.vaadin.addons.jpacontainer.metadata.ClassMetadata;
 import com.vaadin.addons.jpacontainer.metadata.PropertyMetadata;
 import com.vaadin.addons.jpacontainer.metadata.PropertyMetadata.AccessType;
 import java.lang.annotation.Annotation;
@@ -43,17 +44,26 @@ public final class PropertyMetadataImpl implements PropertyMetadata {
 
     private final AccessType accessType;
 
+    private final ClassMetadata<?> typeMetadata;
+
+    private final ClassMetadata<?> owner;
+
     final Field field;
 
     final Method getter;
 
     final Method setter;
 
-    PropertyMetadataImpl(String name, Class<?> type, boolean embedded,
-            boolean reference, boolean collection, Field field, Method getter,
+    PropertyMetadataImpl(String name, Class<?> type, ClassMetadata<?> owner,
+            boolean embedded,
+            boolean reference, boolean collection,
+            ClassMetadata<?> typeMetadata, Field field, Method getter,
             Method setter) {
         assert name != null : "name must not be null";
         assert type != null : "type must not be null";
+        assert owner != null : "owner must not be null";
+        assert (typeMetadata != null) == (embedded || reference) :
+                "typeMetadata must be specified if the property is embedded or a reference";
         assert (field != null && getter == null && setter == null) || (field
                 == null && getter != null && setter != null) :
                 "field or getter/setter must be specified";
@@ -66,6 +76,8 @@ public final class PropertyMetadataImpl implements PropertyMetadata {
         this.field = field;
         this.getter = getter;
         this.setter = setter;
+        this.typeMetadata = typeMetadata;
+        this.owner = owner;
         if (field != null) {
             this.accessType = AccessType.FIELD;
         } else {
@@ -120,5 +132,15 @@ public final class PropertyMetadataImpl implements PropertyMetadata {
             }
         }
         return null;
+    }
+
+    @Override
+    public ClassMetadata<?> getOwner() {
+        return owner;
+    }
+
+    @Override
+    public ClassMetadata<?> getTypeMetadata() {
+        return typeMetadata;
     }
 }

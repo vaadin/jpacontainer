@@ -17,6 +17,7 @@
  */
 package com.vaadin.addons.jpacontainer.metadata.impl;
 
+import com.vaadin.addons.jpacontainer.metadata.ClassMetadata;
 import com.vaadin.addons.jpacontainer.metadata.PropertyMetadata;
 import com.vaadin.addons.jpacontainer.metadata.PropertyMetadata.AccessType;
 import javax.persistence.Id;
@@ -38,6 +39,9 @@ public class PropertyMetadataImplTest {
     PropertyMetadata pmd;
     PropertyMetadata pmd2;
 
+    ClassMetadata<PropertyMetadataImplTest> cmd;
+    ClassMetadata<Long> cmd2;
+
     @Version
     public Integer getDummyField() {
         return dummyField;
@@ -49,10 +53,13 @@ public class PropertyMetadataImplTest {
 
     @Before
     public void setUp() throws Exception {
-        pmd = new PropertyMetadataImpl("name", Long.class, true,
-                false, false, getClass().getField("dummyField"), null, null);
-        pmd2 = new PropertyMetadataImpl("name", Long.class, true,
-                false, false, null, getClass().getMethod("getDummyField"),
+        cmd = new ClassMetadataImpl<PropertyMetadataImplTest>(PropertyMetadataImplTest.class);
+        cmd2 = new ClassMetadataImpl<Long>(Long.class);
+        
+        pmd = new PropertyMetadataImpl("name", Long.class, cmd, true,
+                false, false, cmd2, getClass().getField("dummyField"), null, null);
+        pmd2 = new PropertyMetadataImpl("name", Long.class, cmd, false,
+                false, false, null, null, getClass().getMethod("getDummyField"),
                 getClass().getMethod("setDummyField", Integer.class));
     }
 
@@ -63,6 +70,8 @@ public class PropertyMetadataImplTest {
         Assert.assertTrue(pmd.isEmbedded());
         Assert.assertFalse(pmd.isReference());
         Assert.assertFalse(pmd.isCollection());
+        Assert.assertSame(cmd, pmd.getOwner());
+        Assert.assertSame(cmd2, pmd.getTypeMetadata());
         Assert.assertEquals(AccessType.FIELD, pmd.getAccessType());
         Assert.assertArrayEquals(getClass().getField("dummyField").
                 getAnnotations(), pmd.getAnnotations());
@@ -72,9 +81,11 @@ public class PropertyMetadataImplTest {
     public void testGetters2() throws Exception {
         Assert.assertEquals("name", pmd2.getName());
         Assert.assertEquals(Long.class, pmd2.getType());
-        Assert.assertTrue(pmd2.isEmbedded());
+        Assert.assertFalse(pmd2.isEmbedded());
         Assert.assertFalse(pmd2.isReference());
         Assert.assertFalse(pmd2.isCollection());
+        Assert.assertSame(cmd, pmd2.getOwner());
+        Assert.assertNull(pmd2.getTypeMetadata());
         Assert.assertEquals(AccessType.METHOD, pmd2.getAccessType());
         Assert.assertArrayEquals(getClass().getMethod("getDummyField").
                 getAnnotations(), pmd2.getAnnotations());
