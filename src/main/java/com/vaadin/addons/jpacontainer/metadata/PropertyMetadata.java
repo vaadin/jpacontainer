@@ -21,12 +21,7 @@ import java.io.Serializable;
 import java.lang.annotation.Annotation;
 
 /**
- * Interface defining the metadata of a persistent property. Persistent
- * properties can be embedded. For example, if the entity class has an
- * embedded property named <code>address</code> and the address class has
- * a property named <code>street</code>, the metadata for the entity class
- * will include a property named <code>address.street</code> which has the
- * <code>embedded</code> flag set to true.
+ * Interface defining the metadata of a persistent property.
  *
  * @author Petter Holmström (IT Mill)
  * @since 1.0
@@ -34,26 +29,38 @@ import java.lang.annotation.Annotation;
 public interface PropertyMetadata extends Serializable {
 
     /**
-     * Gets the name of the property.
+     * The name of the property.
      */
     public String getName();
 
     /**
-     * Gets the type of the property.
+     * The type of the property.
      */
     public Class<?> getType();
 
     /**
-     * Returns whether this property is embedded or not. An embedded property is not
-     * a member of the entity class itself, but a member of a member.
-     * <p>
-     * An example of an embedded property is <code>address.street</code>. You will
-     * not be able to access the <code>street</code> property directly from the entity class.
-     * Rather, you have to access the <code>address</code> property first, from which
-     * you will then be able to access the <code>street</code> property.
+     * The metadata of the property type, if it is embedded or a reference.
+     * Otherwise, this method returns null.
+     *
+     * @see #getType() 
+     * @see #isEmbedded()
+     * @see #isReference() 
+     */
+    public ClassMetadata<?> getTypeMetadata();
+
+    /**
+     * The metadata of the class that owns this property.
+     * 
+     * @see ClassMetadata#getMappedProperties() 
+     */
+    public ClassMetadata<?> getOwner();
+
+    /**
+     * Returns whether this property is an embedded property or not.
      *
      * @see javax.persistence.Embeddable
      * @see javax.persistence.Embedded
+     * @see #getTypeMetadata()
      */
     public boolean isEmbedded();
 
@@ -62,6 +69,7 @@ public interface PropertyMetadata extends Serializable {
      * 
      * @see javax.persistence.OneToOne
      * @see javax.persistence.ManyToOne
+     * @see #getTypeMetadata() 
      */
     public boolean isReference();
 
@@ -74,12 +82,12 @@ public interface PropertyMetadata extends Serializable {
     public boolean isCollection();
 
     /**
-     * Returns the way the property value is accessed (as a JavaBean property or as a field).
+     * The way the property value is accessed (as a JavaBean property or as a field).
      */
     public AccessType getAccessType();
 
     /**
-     * Gets the annotations of the property. If the access type is {@link AccessType#FIELD}, these
+     * The annotations of the property. If the access type is {@link AccessType#FIELD}, these
      * are the annotations of the field. If the access type is {@link AccessType#METHOD}, these
      * are the annotations of the getter method.
      *

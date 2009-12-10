@@ -17,21 +17,25 @@
  */
 package com.vaadin.addons.jpacontainer.metadata;
 
+import javax.persistence.Embeddable;
+
 /**
  * Interface that defines a factory for {@link ClassMetadata} implementations.
  * 
  * @author Petter Holmström (IT Mill)
  * @since 1.0
-*/
+ */
 public interface MetadataFactory {
 
     /**
-     * Extracts the class metadata from <code>entityClass</code>.
+     * Extracts the class metadata from <code>mappedClass</code>. If <code>mappedClass</code>
+     * is {@link Embeddable}, the result will be an instance of {@link ClassMetadata}. If
+     * <code>mappedClass</code> is an {@link Entity}, the result will be an instance of {@link EntityClassMetadata}.
      * 
-     * @param entityClass the entity class (must not be null).
+     * @param mappedClass the mapped class (must not be null).
      * @return the class metadata.
      * @throws IllegalArgumentException if no metadata could be extracted.
      */
-    public <T> ClassMetadata<T> getClassMetadata(Class<T> entityClass)
+    public <T> ClassMetadata<T> getClassMetadata(Class<T> mappedClass)
             throws IllegalArgumentException;
 }
