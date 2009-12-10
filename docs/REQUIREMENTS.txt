@@ -1,0 +1,92 @@
+REQUIREMENTS for JPAContainer 1.0
+=================================
+
+- Dual-license: GPL 3.0 and commercial
+
+- Compatible with any standard compliant JPA implementation
+
+    - only uses standard EJB-QL queries
+    - may still impose requirements on the features of the RDBMS
+    - does not rely on any particular implementation
+
+- Possible to communicate directly with an Entity Manager or via a custom
+  data source
+
+    - makes it possible to have the Entity Manager and Container on different
+      servers
+    - makes it possible to apply security rules to the data before it reaches
+      the container
+
+- Advanced filtering mechanism
+
+    - all data types
+    - supported operators: =, <, >, <=, >=, like, isNull, isNotNull, isEmpty
+                           isNotEmpty, between, outside
+    - string type: case sensitive and case insensitive versions of = and like
+                   operators.
+    - possible to combine filters: and, or, not
+
+- Primary keys
+
+    - works with both single primary keys (@Id) and embedded
+      primary keys (@EmbeddedId)
+    - @IdClass is not supported
+    - first priority is to get the container working with single primary keys,
+      support for embedded keys is added afterwards
+
+- Nested fields
+
+    - nested fields can be used to access properties of embedded components
+      (e.g. "address.street")
+
+- Sorting
+
+    - sorting is done entirely in the database. Thus, any fields that can be
+      included in an 'order by' clause are sortable
+
+- Three different container variants
+
+    - all variants use lazy loading
+    - all variants are filterable and sortable (but not indexed)
+
+    - Default container
+        - the container loads all information on demand directly from the entity
+          manager (or data source)
+        - no internal caching is done
+
+    - Caching container
+        - the container maintains an internal cache of items loaded from the
+          entity manager
+        - the cache can be manually flushed
+
+    - Preloading caching container
+        - the container maintains an internal cache of items loaded from the
+          entity manager
+        - items are loaded as chunks and cached => reduced number of database
+          roundtrips
+        - the cache can be manually flushed
+
+- Write support
+
+    - custom properties cannot be added
+    - new items are not stored until a specific commit (or rollback) operation
+      has been performed
+    - filtering and sorting is not applied to new items until they have been
+      persisted
+    - write support can be turned off by marking the container as read only
+
+- Form
+
+    - a specialized form for editing items is created
+
+- Testing
+
+    - unit tests are written for all nontrivial classes
+    - integration tests are written for Hibernate and EclipseLink, using
+      HSQLDB as the RDBMS
+
+- Documentation
+
+    - public API classes and interfaces are carefully documented using JavaDoc
+    - the features of the JPA Container and some use cases are presented in
+      an article to be published on the Vaadin wiki
