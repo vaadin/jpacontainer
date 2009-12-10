@@ -18,13 +18,16 @@
 package com.vaadin.addons.jpacontainer.metadata.impl;
 
 import com.vaadin.addons.jpacontainer.metadata.ClassMetadata;
+import com.vaadin.addons.jpacontainer.metadata.NestedPropertyMetadata;
 import com.vaadin.addons.jpacontainer.metadata.PropertyMetadata;
 import com.vaadin.addons.jpacontainer.metadata.PropertyMetadata.AccessType;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
-import javax.persistence.Version;
 
 /**
  * Default implementation of {@link ClassMetadata}.
@@ -32,103 +35,105 @@ import javax.persistence.Version;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public final class ClassMetadataImpl<T> implements ClassMetadata<T> {
+public class ClassMetadataImpl implements ClassMetadata {
 
-    private final String entityName;
-
-    private final Class<T> entityClass;
+    private final Class<?> mappedClass;
 
     private final Map<String, PropertyMetadata> properties;
 
-    private final Collection<PropertyMetadata> idProperties;
+    ClassMetadataImpl(Class<?> mappedClass) {
+        assert mappedClass != null : "mappedClass must not be null";
+        this.mappedClass = mappedClass;
+        this.properties = new HashMap<String, PropertyMetadata>();
+    }
 
-    private final PropertyMetadata versionProperty;
-
-    ClassMetadataImpl(String entityName, Class<T> entityClass,
-            Map<String, PropertyMetadata> properties,
-            Collection<PropertyMetadata> idProperties) {
-        this.entityName = entityName;
-        this.entityClass = entityClass;
-        this.properties = Collections.unmodifiableMap(properties);
-        this.idProperties = Collections.unmodifiableCollection(idProperties);
-        PropertyMetadata verP = null;
-        for (PropertyMetadata pm : properties.values()) {
-            if (pm.getAnnotation(Version.class) != null) {
-                verP = pm;
-                break;
-            }
+    private PropertyMetadata doAddProperty(PropertyMetadata pm) {
+        if (this.properties.containsKey(pm.getName())) {
+            throw new IllegalArgumentException("A property named "
+                    + pm.getName()
+                    + " already exists!");
         }
-        versionProperty = verP;
+        this.properties.put(pm.getName(), pm);
+        return pm;
+    }
+
+    final PropertyMetadata addProperty(String name, Class<?> type, Field field,
+            Method getter, Method setter) {
+        PropertyMetadata pm = new PropertyMetadataImpl(name, type, this, false,
+                false, false, null, field, getter, setter);
+        return doAddProperty(pm);
+    }
+
+    final PropertyMetadata addEmbeddedProperty(String name,
+            ClassMetadata type, Field field, Method getter, Method setter) {
+        PropertyMetadata pm = new PropertyMetadataImpl(name,
+                type.getMappedClass(), this, true, false, false, type,
+                field, getter, setter);
+        doAddProperty(pm);
+        // Add nested properties
+        for (PropertyMetadata nestedProperty : pm.getTypeMetadata().
+                getMappedProperties()) {
+            doAddProperty(new NestedPropertyMetadataImpl(nestedProperty, pm));
+        }
+        return pm;
+    }
+
+    final PropertyMetadata addCollectionProperty(String name, Class<?> type,
+            Field field, Method getter, Method setter) {
+        PropertyMetadata pm = new PropertyMetadataImpl(name, type, this, false,
+                false, true, null, field, getter, setter);
+        return doAddProperty(pm);
+    }
+
+    final PropertyMetadata addReferenceProperty(String name,
+            ClassMetadata type, Field field, Method getter, Method setter) {
+        PropertyMetadata pm = new PropertyMetadataImpl(name,
+                type.getMappedClass(), this, false, true, false, type,
+                field, getter, setter);
+        return doAddProperty(pm);
     }
 
     @Override
-    public String getEntityName() {
-        return entityName;
+    public final Class<?> getMappedClass() {
+        return mappedClass;
     }
 
     @Override
-    public Class<T> getEntityClass() {
-        return entityClass;
+    public final Collection<PropertyMetadata> getMappedProperties() {
+        return Collections.unmodifiableCollection(properties.values());
     }
 
     @Override
-    public Collection<PropertyMetadata> getMappedProperties() {
-        return properties.values();
-    }
-
-    @Override
-    public PropertyMetadata getMappedProperty(String propertyName) {
+    public final PropertyMetadata getMappedProperty(String propertyName) {
         return properties.get(propertyName);
     }
 
     @Override
-    public boolean hasVersionProperty() {
-        return versionProperty != null;
-    }
-
-    @Override
-    public PropertyMetadata getVersionProperty() {
-        return versionProperty;
-    }
-
-    @Override
-    public boolean hasIdentifierProperty() {
-        return idProperties.size() == 1;
-    }
-
-    @Override
-    public PropertyMetadata getIdentifierProperty() {
-        return !hasIdentifierProperty() ? null : idProperties.iterator().next();
-    }
-
-    @Override
-    public boolean hasEmbeddedIdentifier() {
-        return idProperties.size() > 1;
-    }
-
-    @Override
-    public Collection<PropertyMetadata> getEmbeddedIdentifierProperties() {
-        if (hasEmbeddedIdentifier()) {
-            return idProperties;
-        } else {
-            return Collections.emptyList();
-        }
-    }
-
-    @Override
-    public Object getPropertyValue(T object,
-            PropertyMetadata property) throws IllegalArgumentException {
+    public final Object getPropertyValue(Object object,
+            String propertyName) throws IllegalArgumentException {
         try {
-            PropertyMetadataImpl prop = (PropertyMetadataImpl) property;
-            if (prop.getAccessType() == AccessType.FIELD) {
-                prop.field.setAccessible(true);
-                return prop.field.get(object);
+            PropertyMetadata prop = getMappedProperty(
+                    propertyName);
+            if (prop == null) {
+                throw new IllegalArgumentException("Invalid property name: "
+                        + propertyName);
+            } else if (prop instanceof NestedPropertyMetadata) {
+                NestedPropertyMetadata nestedProp =
+                        (NestedPropertyMetadata) prop;
+                Object embedded = getPropertyValue(object, nestedProp.
+                        getParentProperty().getName());
+                return nestedProp.getActualProperty().getOwner().
+                        getPropertyValue(embedded, nestedProp.getActualProperty().
+                        getName());
             } else {
-                return prop.getter.invoke(object);
+                PropertyMetadataImpl propImpl = (PropertyMetadataImpl) prop;
+                if (propImpl.getAccessType() == AccessType.FIELD) {
+                    propImpl.field.setAccessible(true);
+                    return propImpl.field.get(object);
+                } else {
+                    return propImpl.getter.invoke(object);
+                }
             }
-        } catch (ClassCastException e) {
-            throw new IllegalArgumentException(
-                    "Unsupported PropertyMetadata implementation", e);
         } catch (IllegalAccessException e) {
             throw new IllegalArgumentException("Cannot access the field value",
                     e);
@@ -138,19 +143,31 @@ public final class ClassMetadataImpl<T> implements ClassMetadata<T> {
     }
 
     @Override
-    public void setPropertyValue(T object, PropertyMetadata property,
+    public final void setPropertyValue(Object object, String propertyName,
             Object value) throws IllegalArgumentException {
         try {
-            PropertyMetadataImpl prop = (PropertyMetadataImpl) property;
-            if (prop.getAccessType() == AccessType.FIELD) {
-                prop.field.setAccessible(true);
-                prop.field.set(object, value);
+            PropertyMetadata prop = getMappedProperty(
+                    propertyName);
+            if (prop == null) {
+                throw new IllegalArgumentException("Invalid property name: "
+                        + propertyName);
+            } else if (prop instanceof NestedPropertyMetadata) {
+                NestedPropertyMetadata nestedProp =
+                        (NestedPropertyMetadata) prop;
+                Object embedded = getPropertyValue(object, nestedProp.
+                        getParentProperty().getName());
+                nestedProp.getActualProperty().getOwner().
+                        setPropertyValue(embedded, nestedProp.getActualProperty().
+                        getName(), value);
             } else {
-                prop.setter.invoke(object, value);
+                PropertyMetadataImpl propImpl = (PropertyMetadataImpl) prop;
+                if (propImpl.getAccessType() == AccessType.FIELD) {
+                    propImpl.field.setAccessible(true);
+                    propImpl.field.set(object, value);
+                } else {
+                    propImpl.setter.invoke(object, value);
+                }
             }
-        } catch (ClassCastException e) {
-            throw new IllegalArgumentException(
-                    "Unsupported PropertyMetadata implementation", e);
         } catch (IllegalAccessException e) {
             throw new IllegalArgumentException("Cannot access the field value",
                     e);

@@ -44,9 +44,9 @@ public final class PropertyMetadataImpl implements PropertyMetadata {
 
     private final AccessType accessType;
 
-    private final ClassMetadata<?> typeMetadata;
+    private final ClassMetadata typeMetadata;
 
-    private final ClassMetadata<?> owner;
+    private final ClassMetadata owner;
 
     final Field field;
 
@@ -54,10 +54,10 @@ public final class PropertyMetadataImpl implements PropertyMetadata {
 
     final Method setter;
 
-    PropertyMetadataImpl(String name, Class<?> type, ClassMetadata<?> owner,
+    PropertyMetadataImpl(String name, Class<?> type, ClassMetadata owner,
             boolean embedded,
             boolean reference, boolean collection,
-            ClassMetadata<?> typeMetadata, Field field, Method getter,
+            ClassMetadata typeMetadata, Field field, Method getter,
             Method setter) {
         assert name != null : "name must not be null";
         assert type != null : "type must not be null";
@@ -135,12 +135,12 @@ public final class PropertyMetadataImpl implements PropertyMetadata {
     }
 
     @Override
-    public ClassMetadata<?> getOwner() {
+    public ClassMetadata getOwner() {
         return owner;
     }
 
     @Override
-    public ClassMetadata<?> getTypeMetadata() {
+    public ClassMetadata getTypeMetadata() {
         return typeMetadata;
     }
 }

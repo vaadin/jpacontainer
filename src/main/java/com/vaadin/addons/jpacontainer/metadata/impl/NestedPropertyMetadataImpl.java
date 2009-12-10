@@ -75,7 +75,7 @@ public final class NestedPropertyMetadataImpl implements NestedPropertyMetadata 
     }
 
     @Override
-    public ClassMetadata<?> getOwner() {
+    public ClassMetadata getOwner() {
         return parentProperty.getOwner();
     }
 
@@ -85,7 +85,7 @@ public final class NestedPropertyMetadataImpl implements NestedPropertyMetadata 
     }
 
     @Override
-    public ClassMetadata<?> getTypeMetadata() {
+    public ClassMetadata getTypeMetadata() {
         return actualProperty.getTypeMetadata();
     }
 
