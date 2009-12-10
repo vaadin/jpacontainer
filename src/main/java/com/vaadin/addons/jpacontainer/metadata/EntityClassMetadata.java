@@ -27,7 +27,7 @@ import javax.persistence.Entity;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public interface EntityClassMetadata<T> extends ClassMetadata<T> {
+public interface EntityClassMetadata extends ClassMetadata {
 
     /**
      * The name of the entity.

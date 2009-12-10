@@ -46,14 +46,14 @@ public interface PropertyMetadata extends Serializable {
      * @see #isEmbedded()
      * @see #isReference() 
      */
-    public ClassMetadata<?> getTypeMetadata();
+    public ClassMetadata getTypeMetadata();
 
     /**
      * The metadata of the class that owns this property.
      * 
      * @see ClassMetadata#getMappedProperties() 
      */
-    public ClassMetadata<?> getOwner();
+    public ClassMetadata getOwner();
 
     /**
      * Returns whether this property is an embedded property or not.

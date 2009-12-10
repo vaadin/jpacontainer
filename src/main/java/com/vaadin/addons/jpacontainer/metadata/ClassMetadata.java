@@ -29,14 +29,14 @@ import javax.persistence.Entity;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public interface ClassMetadata<T> extends Serializable {
+public interface ClassMetadata extends Serializable {
 
     // TODO Improve the documentation
     
     /**
      * The mapped class.
      */
-    public Class<T> getMappedClass();
+    public Class<?> getMappedClass();
 
     /**
      * The mapped (persistent) properties.
@@ -61,7 +61,7 @@ public interface ClassMetadata<T> extends Serializable {
      * @return the property value.
      * @throws IllegalArgumentException if the property value could not be fetched.
      */
-    public Object getPropertyValue(T object, String propertyName) throws
+    public Object getPropertyValue(Object object, String propertyName) throws
             IllegalArgumentException;
 
     /**
@@ -73,6 +73,6 @@ public interface ClassMetadata<T> extends Serializable {
      * @param value the value to set (must not be null).
      * @throws IllegalArgumentException if the value could not be set.
      */
-    public void setPropertyValue(T object, String propertyName,
+    public void setPropertyValue(Object object, String propertyName,
             Object value) throws IllegalArgumentException;
 }

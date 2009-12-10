@@ -36,6 +36,6 @@ public interface MetadataFactory {
      * @return the class metadata.
      * @throws IllegalArgumentException if no metadata could be extracted.
      */
-    public <T> ClassMetadata<T> getClassMetadata(Class<T> mappedClass)
+    public ClassMetadata getClassMetadata(Class<?> mappedClass)
             throws IllegalArgumentException;
 }
