@@ -24,7 +24,7 @@ package com.vaadin.addons.jpacontainer;
  * @auhtor Petter Holmström (IT Mill)
  * @since 1.0
  */
-public interface CachingEntityContainer<T> extends EntityContainer<T> {
+public interface CachingEntityContainer extends EntityContainer {
 
     /**
      * The default maximum size of the cache ({@value }).

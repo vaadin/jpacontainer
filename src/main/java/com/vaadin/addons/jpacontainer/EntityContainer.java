@@ -28,7 +28,7 @@ import com.vaadin.data.Container;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public interface EntityContainer<T> extends Container.Sortable,
+public interface EntityContainer extends Container.Sortable,
         AdvancedFilterable, Container.ItemSetChangeNotifier {
 
     /**
@@ -37,7 +37,7 @@ public interface EntityContainer<T> extends Container.Sortable,
      *
      * @return the entity meta data (never null).
      */
-    public EntityClassMetadata<T> getEntityClassMetadata();
+    public EntityClassMetadata getEntityClassMetadata();
 
     /**
      * Returns whether the container is read only or writable.

@@ -38,11 +38,11 @@ import java.util.Collection;
  * @since 1.0
  */
 public class DataSourceEntityContainer<T> extends AbstractContainer
-        implements EntityContainer<T> {
+        implements EntityContainer {
 
     // TODO Improve documentation of DataSourceEntityContainer
     
-    private EntityClassMetadata<T> entityClassMetadata;
+    private EntityClassMetadata entityClassMetadata;
 
     private EntityContainerDataSource<T> dataSource;
 
@@ -54,7 +54,7 @@ public class DataSourceEntityContainer<T> extends AbstractContainer
      * @param entityClassMetadata the class metadata of the entities that this container will handle (must not be null).
      * @param dataSource the data source from which to fetch the entities (must not be null).
      */
-    public DataSourceEntityContainer(EntityClassMetadata<T> entityClassMetadata,
+    public DataSourceEntityContainer(EntityClassMetadata entityClassMetadata,
             EntityContainerDataSource<T> dataSource) {
         assert entityClassMetadata != null :
                 "entityClassMetadata must not be null";
@@ -251,7 +251,7 @@ public class DataSourceEntityContainer<T> extends AbstractContainer
     }
 
     @Override
-    public EntityClassMetadata<T> getEntityClassMetadata() {
+    public EntityClassMetadata getEntityClassMetadata() {
         return entityClassMetadata;
     }
 

@@ -24,8 +24,8 @@ package com.vaadin.addons.jpacontainer;
  * @auhtor Petter Holmström (IT Mill)
  * @since 1.0
  */
-public interface PreLoadingCachingEntityContainer<T> extends
-        CachingEntityContainer<T> {
+public interface PreLoadingCachingEntityContainer extends
+        CachingEntityContainer {
 
     /**
      * The default chunk size ({@value }).
