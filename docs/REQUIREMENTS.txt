@@ -127,4 +127,3 @@ M3
 M4
     - Completed
     - Stable 1.0 release
-        - Lots of cash, angry feedback
