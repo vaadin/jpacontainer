@@ -17,6 +17,7 @@
  */
 package com.vaadin.addons.jpacontainer.filter;
 
+import com.vaadin.addons.jpacontainer.Filter;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
