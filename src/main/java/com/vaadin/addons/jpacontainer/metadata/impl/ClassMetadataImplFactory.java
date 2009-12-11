@@ -18,16 +18,18 @@
 package com.vaadin.addons.jpacontainer.metadata.impl;
 
 import com.vaadin.addons.jpacontainer.metadata.ClassMetadata;
+import com.vaadin.addons.jpacontainer.metadata.EntityClassMetadata;
 import com.vaadin.addons.jpacontainer.metadata.MetadataFactory;
 import com.vaadin.addons.jpacontainer.metadata.PropertyMetadata;
+import com.vaadin.addons.jpacontainer.metadata.PropertyMetadata.AccessType;
 import java.beans.Introspector;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.Map;
+import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
@@ -38,6 +40,7 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
+import javax.persistence.Version;
 
 /**
  * Factory for {@link ClassMetadataImpl}.
@@ -47,114 +50,121 @@ import javax.persistence.Transient;
  */
 public final class ClassMetadataImplFactory implements MetadataFactory {
 
-    // TODO Document this class a bit better to make maintenance easier
+    private Map<Class<?>, ClassMetadataImpl> metadataMap =
+            new HashMap<Class<?>, ClassMetadataImpl>();
+
     @Override
-    public <T> ClassMetadata<T> getClassMetadata(Class<T> entityClass) {
-        assert entityClass != null : "entityClass must not be null";
-        // Check that the class is actually an entity class
-        Entity entity = entityClass.getAnnotation(Entity.class);
-        if (entity == null) {
+    public ClassMetadata getClassMetadata(Class<?> mappedClass,
+            AccessType accessType) throws IllegalArgumentException {
+        assert mappedClass != null : "mappedClass must not be null";
+        assert accessType != null : "accessType must not be null";
+
+        // Check if we already have the metadata in cache
+        ClassMetadataImpl metadata = metadataMap.get(mappedClass);
+        if (metadata != null) {
+            return metadata;
+        }
+
+        // Check if we are dealing with an entity class or an embeddable class
+        Entity entity = mappedClass.getAnnotation(Entity.class);
+        Embeddable embeddable = mappedClass.getAnnotation(Embeddable.class);
+        if (entity != null) {
+            // We have an entity class
+            String entityName = entity.name().isEmpty()
+                    ? mappedClass.getSimpleName() : entity.name();
+            metadata = new EntityClassMetadataImpl(
+                    mappedClass, entityName);
+            // Put the metadata instance in the cache in case it is referenced
+            // from loadProperties()
+            metadataMap.put(mappedClass, metadata);
+            loadProperties(mappedClass, metadata, accessType);
+
+            // Locate the version and identifier properties
+            EntityClassMetadataImpl entityMetadata =
+                    (EntityClassMetadataImpl) metadata;
+            for (PropertyMetadata pm : entityMetadata.getMappedProperties()) {
+                if (pm.getAnnotation(Version.class) != null) {
+                    entityMetadata.setVersionProperty(
+                            pm.getName());
+                } else if (pm.getAnnotation(Id.class) != null || pm.
+                        getAnnotation(EmbeddedId.class) != null) {
+                    entityMetadata.setIdentifierProperty(
+                            pm.getName());
+                }
+                if (entityMetadata.hasIdentifierProperty() && entityMetadata.
+                        hasVersionProperty()) {
+                    // No use continuing the loop if both the version
+                    // and the identifier property have already been found.
+                    break;
+                }
+            }
+        } else if (embeddable != null) {
+            // We have an embeddable class
+            metadata = new ClassMetadataImpl(mappedClass);
+            // Put the metadata instance in the cache in case it is referenced
+            // from loadProperties()
+            metadataMap.put(mappedClass, metadata);
+            loadProperties(mappedClass, metadata, accessType);
+        } else {
             throw new IllegalArgumentException(
-                    "The class is not an entity class");
+                    "The class is nether an entity nor embeddable");
         }
 
-        // Get identifier properties
-        Collection<PropertyMetadata> identifierProperties = getIdentifierProperties(
-                entityClass);
-        if (identifierProperties.isEmpty()) {
-            throw new IllegalArgumentException("No identifier properties found");
-        }
-
-        // Get the rest of the properties
-        Collection<PropertyMetadata> otherProperties =
-                new LinkedList<PropertyMetadata>();
-        loadProperties(entityClass, otherProperties,
-                identifierProperties.iterator().next().getAccessType());
-
-        // Create map of properties
-        HashMap<String, PropertyMetadata> properties =
-                new HashMap<String, PropertyMetadata>();
-        for (PropertyMetadata idProp : identifierProperties) {
-            properties.put(idProp.getName(), idProp);
-        }
-        for (PropertyMetadata prop : otherProperties) {
-            properties.put(prop.getName(), prop);
-        }
-
-        // Create metadata instance
-        String entityName = entity.name().isEmpty()
-                ? entityClass.getSimpleName() : entity.name();
-        ClassMetadataImpl<T> metadata = new ClassMetadataImpl<T>(entityName,
-                entityClass, properties, identifierProperties);
         return metadata;
     }
 
-    static void loadProperties(Class<?> type,
-            Collection<PropertyMetadata> properties,
-            PropertyMetadata.AccessType accessType) {
-
-        if (accessType == PropertyMetadata.AccessType.FIELD) {
-            extractPropertiesFromFields(type, properties, null, true);
-        } else {
-            extractPropertiesFromMethods(type, properties, null, true);
+    @Override
+    public EntityClassMetadata getEntityClassMetadata(Class<?> mappedClass)
+            throws IllegalArgumentException {
+        assert mappedClass != null : "mappedClass must not be null";
+        if (mappedClass.getAnnotation(Entity.class) == null) {
+            throw new IllegalArgumentException("The class is not an entity");
         }
-
-        Class<?> superclass = type.getSuperclass();
-        if (superclass != null && (superclass.getAnnotation(
-                MappedSuperclass.class) != null || superclass.getAnnotation(
-                Entity.class) != null)) {
-            loadProperties(superclass, properties, accessType);
+        PropertyMetadata.AccessType accessType =
+                determineAccessType(mappedClass);
+        if (accessType == null) {
+            throw new IllegalArgumentException(
+                    "The access type could not be determined");
+        } else {
+            return (EntityClassMetadata) getClassMetadata(mappedClass,
+                    accessType);
         }
     }
 
-    static Collection<PropertyMetadata> getIdentifierProperties(
-            Class<?> type) {
+    void loadProperties(Class<?> type,
+            ClassMetadataImpl metadata,
+            PropertyMetadata.AccessType accessType) {
+
+        if (accessType == PropertyMetadata.AccessType.FIELD) {
+            extractPropertiesFromFields(type, metadata);
+        } else {
+            extractPropertiesFromMethods(type, metadata);
+        }
+
+        // Also check superclass for metadata
+        Class<?> superclass = type.getSuperclass();
+        if (superclass != null && (superclass.getAnnotation(
+                MappedSuperclass.class) != null || superclass.getAnnotation(
+                Entity.class) != null) || superclass.getAnnotation(
+                Embeddable.class) != null) {
+            loadProperties(superclass, metadata, accessType);
+        }
+    }
+
+    PropertyMetadata.AccessType determineAccessType(Class<?> type) {
         // Start by looking for annotated fields
         for (Field f : type.getDeclaredFields()) {
-            if (f.getAnnotation(Id.class) != null) {
-                // We have a single ID property
-                LinkedList<PropertyMetadata> l =
-                        new LinkedList<PropertyMetadata>();
-                l.add(new PropertyMetadataImpl(f.getName(), f.getType(), false,
-                        false, false, f, null, null));
-                return l;
-            } else if (f.getAnnotation(EmbeddedId.class) != null) {
-                // We have an embedded ID
-                LinkedList<PropertyMetadata> l =
-                        new LinkedList<PropertyMetadata>();
-                extractPropertiesFromFields(f.getType(), l, f.getName(), true);
-                return l;
+            if (f.getAnnotation(Id.class) != null || f.getAnnotation(
+                    EmbeddedId.class) != null) {
+                return AccessType.FIELD;
             }
         }
 
         // Then look for annotated getter methods
         for (Method m : type.getDeclaredMethods()) {
-            if (m.getName().startsWith("get") && m.getReturnType() != Void.TYPE) {
-                if (m.getAnnotation(Id.class) != null) {
-                    // We have a single ID property
-                    try {
-                        LinkedList<PropertyMetadata> l =
-                                new LinkedList<PropertyMetadata>();
-                        Method setter = type.getDeclaredMethod("set" + m.getName().
-                                substring(3), m.getReturnType());
-                        l.add(new PropertyMetadataImpl(Introspector.decapitalize(
-                                m.getName().substring(3)), m.getReturnType(),
-                                false,
-                                false, false, null, m, setter));
-                        return l;
-                    } catch (NoSuchMethodException e) {
-                        // We have no corresponding setter method!
-                        return null;
-                    }
-                } else if (m.getAnnotation(EmbeddedId.class) != null) {
-                    // We have an embedded ID
-                    LinkedList<PropertyMetadata> l =
-                            new LinkedList<PropertyMetadata>();
-                    extractPropertiesFromMethods(m.getReturnType(), l, Introspector.
-                            decapitalize(
-                            m.getName().substring(3)), true);
-                    return l;
-                }
+            if (m.getAnnotation(Id.class) != null || m.getAnnotation(
+                    EmbeddedId.class) != null) {
+                return AccessType.METHOD;
             }
         }
 
@@ -163,102 +173,86 @@ public final class ClassMetadataImplFactory implements MetadataFactory {
         if (superclass != null && (superclass.getAnnotation(
                 MappedSuperclass.class) != null || superclass.getAnnotation(
                 Entity.class) != null)) {
-            return getIdentifierProperties(superclass);
+            return determineAccessType(superclass);
         }
+
+        // The access type could not be determined;
         return null;
     }
 
-    static boolean isReference(AccessibleObject ab) {
+    boolean isReference(AccessibleObject ab) {
         return (ab.getAnnotation(OneToOne.class) != null || ab.getAnnotation(
                 ManyToOne.class) != null);
     }
 
-    static boolean isCollection(AccessibleObject ab) {
+    boolean isCollection(AccessibleObject ab) {
         return (ab.getAnnotation(OneToMany.class) != null || ab.getAnnotation(
                 ManyToMany.class) != null);
     }
 
-    static void extractPropertiesFromFields(Class<?> type,
-            Collection<PropertyMetadata> properties, String owner,
-            boolean ignoreIdentifier) {
+    boolean isEmbedded(AccessibleObject ab) {
+        return (ab.getAnnotation(Embedded.class) != null || ab.getAnnotation(
+                EmbeddedId.class) != null);
+    }
+
+    void extractPropertiesFromFields(Class<?> type,
+            ClassMetadataImpl metadata) {
         for (Field f : type.getDeclaredFields()) {
             int mod = f.getModifiers();
             if (!Modifier.isFinal(mod) && !Modifier.isStatic(mod) && !Modifier.
                     isTransient(mod) && f.getAnnotation(Transient.class) == null) {
-
-                if (!ignoreIdentifier || (f.getAnnotation(Id.class) == null && f.
-                        getAnnotation(EmbeddedId.class) == null)) {
-
-                    String name;
-                    if (owner == null) {
-                        name = f.getName();
-                    } else {
-                        name = owner + "." + f.getName();
-                    }
-
-                    if (f.getAnnotation(Embedded.class) != null) {
-                        // The field is embedded
-                        extractPropertiesFromFields(f.getType(), properties,
-                                name, ignoreIdentifier);
-                    } else {
-                        // Are we dealing with a reference?
-                        boolean reference = isReference(f);
-                        // Are we dealing with a collection?
-                        boolean collection = isCollection(f);
-
-                        properties.add(
-                                new PropertyMetadataImpl(name,
-                                f.getType(), owner
-                                != null, reference, collection, f, null, null));
-                    }
+                if (isEmbedded(f)) {
+                    ClassMetadata cm = getClassMetadata(f.getType(),
+                            AccessType.FIELD);
+                    metadata.addEmbeddedProperty(f.getName(), cm, f, null, null);
+                } else if (isReference(f)) {
+                    ClassMetadata cm = getClassMetadata(f.getType(),
+                            AccessType.FIELD);
+                    metadata.addReferenceProperty(f.getName(), cm, f, null, null);
+                } else if (isCollection(f)) {
+                    metadata.addCollectionProperty(f.getName(), f.getType(), f,
+                            null, null);
+                } else {
+                    metadata.addProperty(f.getName(), f.getType(), f, null, null);
                 }
             }
         }
     }
 
-    static void extractPropertiesFromMethods(Class<?> type,
-            Collection<PropertyMetadata> properties, String owner,
-            boolean ignoreIdentifier) {
+    void extractPropertiesFromMethods(Class<?> type,
+            ClassMetadataImpl metadata) {
         for (Method m : type.getDeclaredMethods()) {
             int mod = m.getModifiers();
             if (m.getName().startsWith("get") && !Modifier.isStatic(mod) && m.
                     getAnnotation(Transient.class) == null && m.getReturnType()
                     != Void.TYPE) {
-                if (!ignoreIdentifier || (m.getAnnotation(Id.class) == null && m.
-                        getAnnotation(EmbeddedId.class) == null)) {
-                    try {
-                        // Check if we have a setter
-                        Method setter = type.getDeclaredMethod("set" + m.getName().
-                                substring(3), m.getReturnType());
+                try {
+                    // Check if we have a setter
+                    Method setter = type.getDeclaredMethod("set" + m.getName().
+                            substring(3), m.getReturnType());
 
-                        String name;
-                        if (owner == null) {
-                            name = Introspector.decapitalize(
-                                    m.getName().substring(3));
-                        } else {
-                            name = owner + "." + Introspector.decapitalize(m.
-                                    getName().
-                                    substring(3));
-                        }
-
-                        if (m.getAnnotation(Embedded.class) != null) {
-                            // The property is embedded
-                            extractPropertiesFromMethods(m.getReturnType(),
-                                    properties,
-                                    name, ignoreIdentifier);
-                        } else {
-                            // Are we dealing with a reference?
-                            boolean reference = isReference(m);
-                            // Are we dealing with a collection?
-                            boolean collection = isCollection(m);
-
-                            properties.add(new PropertyMetadataImpl(name, m.
-                                    getReturnType(), owner != null, reference,
-                                    collection, null, m, setter));
-                        }
-                    } catch (NoSuchMethodException ignoreit) {
-                        // No setter <=> no persistent property
+                    String name = Introspector.decapitalize(m.getName().
+                            substring(3));
+                    if (isEmbedded(m)) {
+                        ClassMetadata cm = getClassMetadata(m.getReturnType(),
+                                AccessType.METHOD);
+                        metadata.addEmbeddedProperty(name, cm, null, m,
+                                setter);
+                    } else if (isReference(m)) {
+                        ClassMetadata cm = getClassMetadata(m.getReturnType(),
+                                AccessType.METHOD);
+                        metadata.addReferenceProperty(name, cm, null, m,
+                                setter);
+                    } else if (isCollection(m)) {
+                        metadata.addCollectionProperty(name, m.getReturnType(),
+                                null, m,
+                                setter);
+                    } else {
+                        metadata.addProperty(name, m.getReturnType(), null, m,
+                                setter);
                     }
+                } catch (NoSuchMethodException ignoreit) {
+                    // No setter <=> transient property
                 }
             }
         }

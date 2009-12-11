@@ -18,6 +18,9 @@
 package com.vaadin.addons.jpacontainer.metadata;
 
 import javax.persistence.Embeddable;
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
 /**
  * Interface that defines a factory for {@link ClassMetadata} implementations.
@@ -28,14 +31,32 @@ import javax.persistence.Embeddable;
 public interface MetadataFactory {
 
     /**
-     * Extracts the class metadata from <code>mappedClass</code>. If <code>mappedClass</code>
-     * is {@link Embeddable}, the result will be an instance of {@link ClassMetadata}. If
-     * <code>mappedClass</code> is an {@link Entity}, the result will be an instance of {@link EntityClassMetadata}.
+     * Extracts the entity class metadata from <code>mappedClass</code>. The access type
+     * (field or method) will be determined from the location of the {@link Id} or {@link EmbeddedId} annotation.
+     * If both of these are missing, this method will fail. This method will also fail  if <code>mappedClass</code>
+     * lacks the {@link Entity} annotation.
      * 
      * @param mappedClass the mapped class (must not be null).
      * @return the class metadata.
      * @throws IllegalArgumentException if no metadata could be extracted.
      */
-    public ClassMetadata getClassMetadata(Class<?> mappedClass)
+    public EntityClassMetadata getEntityClassMetadata(Class<?> mappedClass)
             throws IllegalArgumentException;
+
+    /**
+     * Extracts the class metadata from <code>mappedClass</code>. If <code>mappedClass</code>
+     * is {@link Embeddable}, the result will be an instance of {@link ClassMetadata}. If
+     * <code>mappedClass</code> is an {@link Entity}, the result will be an instance of {@link EntityClassMetadata}.
+     * <p>
+     * <code>accessType</code> instructs the factory where to look for annotations and which defaults to assume
+     * if there are no annotations.
+     *
+     * @param mappedClass the mapped class (must not be null).
+     * @param accessType the location where to look for annotations (must not be null).
+     * @return the class metadata.
+     * @throws IllegalArgumentException if no metadata could be extracted.
+     */
+    public ClassMetadata getClassMetadata(Class<?> mappedClass,
+            PropertyMetadata.AccessType accessType) throws
+            IllegalArgumentException;
 }
