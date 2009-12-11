@@ -49,11 +49,11 @@ REQUIREMENTS for JPAContainer 1.0
     - @IdClass should be included in a later version
 
 - Nested fields
-    - container.addNestedProperty(ãcompany.boss.nameä);
-    - container.addNestedProperty(ãaddress.*ä);
-    - container.addNestedProperty(ãaddress.streetaddress.numberä);
-    - container.removeContainerProperty(ãaddress.idä);
-    - container.removeContainerProperty(ãnameä);
+    - container.addNestedProperty("company.boss.name");
+    - container.addNestedProperty("address.*");
+    - container.addNestedProperty("address.streetaddress.number");
+    - container.removeContainerProperty("address.id");
+    - container.removeContainerProperty("name");
 
 - Sorting
     - sorting is done entirely in the database.
