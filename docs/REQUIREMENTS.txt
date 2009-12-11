@@ -3,90 +3,128 @@ REQUIREMENTS for JPAContainer 1.0
 
 - Dual-license: GPL 3.0 and commercial
 
-- Compatible with any standard compliant JPA implementation
-
-    - only uses standard EJB-QL queries
+- Strives to be compatible with standard compliant JPA implementations
+    - Compatible with JPA specification version 1.0
+    - Only uses standard EJB-QL queries
     - may still impose requirements on the features of the RDBMS
     - does not rely on any particular implementation
 
-- Possible to communicate directly with an Entity Manager or via a custom
-  data source
+- Supported JPA implementations
+    - Hibernate (>x.y.z)
+    - EclipseLink (>x.y.z)
 
-    - makes it possible to have the Entity Manager and Container on different
-      servers
-    - makes it possible to apply security rules to the data before it reaches
-      the container
+- Entity Manager communication takes place through an EntityProvider interface
+    - EntityProvider provides entities for the container
+    - EntityProvider may implement caching, remote lookups, etc.
+        - makes it possible to have the Entity Manager and Container on different servers
+    - EntityProvider may apply security rules to the data
+    - Two default implementations
+        - LocalEntityProvider
+            - Based on a local EntityManager
+            - Relies on the cache in the JPA implementation
+        - CachingLocalEntityProvider
+«           - Maintains an internal cache of loaded entities
+            - items are loaded as chunks and cached => reduced number of database
+              roundtrips
+            - the cache can be manually flushed
+            - Maintains an internal cache also for filter/sortby combinations
+            - Provides a method for limiting cache max size
+
+- Only one container implementation
+    - Uses lazy loading
+    - Supports filtering, sorting (Container.Sortable) and indexes (Container.Indexed)
+    - One container per user. Containers cannot be shared. EntityProvider can be shared.
 
 - Advanced filtering mechanism
-
     - all data types
     - supported operators: =, <, >, <=, >=, like, isNull, isNotNull, isEmpty
                            isNotEmpty, between, outside
     - string type: case sensitive and case insensitive versions of = and like
                    operators.
     - possible to combine filters: and, or, not
+    - Custom filter that allows user to use EJB-QL directly
 
 - Primary keys
-
-    - works with both single primary keys (@Id) and embedded
-      primary keys (@EmbeddedId)
-    - @IdClass is not supported
-    - first priority is to get the container working with single primary keys,
-      support for embedded keys is added afterwards
+    - Version 1.0 supports @Id and @EmbeddedId
+    - @IdClass should be included in a later version
 
 - Nested fields
-
-    - nested fields can be used to access properties of embedded components
-      (e.g. "address.street")
+    - container.addNestedProperty(ãcompany.boss.nameä);
+    - container.addNestedProperty(ãaddress.*ä);
+    - container.addNestedProperty(ãaddress.streetaddress.numberä);
+    - container.removeContainerProperty(ãaddress.idä);
+    - container.removeContainerProperty(ãnameä);
 
 - Sorting
-
-    - sorting is done entirely in the database. Thus, any fields that can be
-      included in an 'order by' clause are sortable
-
-- Three different container variants
-
-    - all variants use lazy loading
-    - all variants are filterable and sortable (but not indexed)
-
-    - Default container
-        - the container loads all information on demand directly from the entity
-          manager (or data source)
-        - no internal caching is done
-
-    - Caching container
-        - the container maintains an internal cache of items loaded from the
-          entity manager
-        - the cache can be manually flushed
-
-    - Preloading caching container
-        - the container maintains an internal cache of items loaded from the
-          entity manager
-        - items are loaded as chunks and cached => reduced number of database
-          roundtrips
-        - the cache can be manually flushed
+    - sorting is done entirely in the database.
+    - any persistent property can be used for sorting, including nested
+    - sort can use multiple properties
 
 - Write support
+    - addContainerProperty throws UnsupportedOperationException
+    - Container handles items/item ids internally
+        - addItem(Object itemId) should throw UnsupportedOperationException
+        - addItem() should throw UnsupportedOperationException
+    - addEntity(TYPE  entity) is used for adding new entities
+    - implement Buffered
+        - setReadThrough() throws UnsupportedOperationException
+        - isReadThrough() asks EntityProvider if a cache is in use
+        - writeThrough controls the autocommit feature
+    - setAutoCommit(boolean autoCommit)
+        - setWriteThrough(autoCommit)
+    - default is not to use autoCommit
+    - when in writeThrough mode:
+        - new items are directly stored
+        - updated values are directly stored
+    - not in writeThrough mode
+        - commit/discard controls when values are stored
 
-    - custom properties cannot be added
-    - new items are not stored until a specific commit (or rollback) operation
-      has been performed
-    - filtering and sorting is not applied to new items until they have been
-      persisted
-    - write support can be turned off by marking the container as read only
-
-- Form
-
-    - a specialized form for editing items is created
+    - Filtering and sorting is based on EntityProvider, not on non-commited changes
+    - Write support can be turned off by marking the container as read only
 
 - Testing
-
-    - unit tests are written for all nontrivial classes
+    - Unit tests are written for all nontrivial classes
+    - Tests for concurrent usage of containers/EntityProvider
+    - Tests which include Table and Combobox that uses JPAContainer (simulate real use cases)
+    - Test that JPAContainer can be serialized and deserialized (EntityProvider reference)
     - integration tests are written for Hibernate and EclipseLink, using
       HSQLDB as the RDBMS
 
-- Documentation
+- Performance testing
+    - CachingLocalEntityProvider cache hit rate
+    - Real world CRUD example which includes nested properties
+        - Memory footprint (per user)
+        - How many simultaneous users using a single EC2 low-end server?
 
+- Code review
+    - Code review of the CRUD example
+
+- Future improvements
+    - Listeners/Notifiers when data is updated/added
+    - Container.Hierarchical support
+
+- Documentation
     - public API classes and interfaces are carefully documented using JavaDoc
-    - the features of the JPA Container and some use cases are presented in
-      an article to be published on the Vaadin wiki
+    - the features of the JPA Container and some use cases are documented in the project
+    - An article to be published on the Vaadin wiki
+
+Milestone 1
+    - API proposal
+    - Working prototype
+    - Experimental Directory release
+        - feedback
+M2
+    - Improved prototype
+    - Tests done
+    - Performance tests
+    - Alpha Directory release
+        - feedback
+M3
+    - Optimization
+    - Beta Directory release
+        - feedback
+
+M4
+    - Completed
+    - Stable 1.0 release
+        - Lots of cash, angry feedback
