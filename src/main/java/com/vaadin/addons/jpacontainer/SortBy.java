@@ -20,7 +20,9 @@ package com.vaadin.addons.jpacontainer;
 import java.io.Serializable;
 
 /**
- * Internal data structure class representing a sort instruction.
+ * Data structure class representing a field to sort by and the direction
+ * of the sort (ascending or descending). Once created, the instances
+ * of this class are immutable.
  *
  * @author Petter Holmström (IT Mill)
  * @since 1.0

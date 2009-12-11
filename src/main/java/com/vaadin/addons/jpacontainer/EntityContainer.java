@@ -17,27 +17,58 @@
  */
 package com.vaadin.addons.jpacontainer;
 
-import com.vaadin.addons.jpacontainer.filter.AdvancedFilterable;
-import com.vaadin.addons.jpacontainer.metadata.EntityClassMetadata;
+import com.vaadin.data.Buffered;
 import com.vaadin.data.Container;
 
 /**
- * This interface defines a container for entities, i.e. objects that
- * are stored in some kind of persistence storage.
+ * TODO Write documentation!
  * 
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public interface EntityContainer extends Container.Sortable,
-        AdvancedFilterable, Container.ItemSetChangeNotifier {
+public interface EntityContainer<T> extends Container.Sortable,
+        AdvancedFilterable, Container.ItemSetChangeNotifier, Container.Indexed,
+        Buffered {
 
     /**
-     * Gets the entity class meta data of the entities contained in this 
-     * container.
+     * Gets the entity provider that is used for fetching and storing entities.
      *
-     * @return the entity meta data (never null).
+     * @return the entity provider, or null if this container has not yet been properly initialized.
      */
-    public EntityClassMetadata getEntityClassMetadata();
+    public EntityProvider<T> getEntityProvider();
+
+    /**
+     * Sets the entity provider to use for fetching and storing entities.
+     *
+     * @param entityProvider the entity provider to use (must not be null).
+     */
+    public void setEntityProvider(EntityProvider<T> entityProvider);
+
+    /**
+     * Gets the class of the entities that are/can be contained in this container.
+     * @return the entity class.
+     */
+    public Class<T> getEntityClass();
+
+    /**
+     * TODO Document this method!
+     * 
+     * @param nestedProperty the nested property to add.
+     * @throws UnsupportedOperationException if nested properties are not supported by the container.
+     */
+    public void addNestedContainerProperty(String nestedProperty) throws
+            UnsupportedOperationException;
+
+    /**
+     * Adds a new entity to the container.
+     *
+     * @param entity the entity to add (must not be null).
+     * @return the added entity (may or may not be the same instance as <code>entity</code>).
+     * @throws UnsupportedOperationException if the container does not support adding new entities at all.
+     * @throws IllegalStateException if the container supports adding entities, but is currently in read only mode.
+     */
+    public T addEntity(T entity) throws UnsupportedOperationException,
+            IllegalStateException;
 
     /**
      * Returns whether the container is read only or writable.

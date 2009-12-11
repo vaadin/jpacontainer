@@ -27,8 +27,8 @@ import com.vaadin.data.util.BeanItem;
 import java.util.Collection;
 
 /**
- * Implementation of {@link EntityContainer} that uses an {@link EntityContainerDataSource}
- * to fetch the items. A {@link MutableEntityContainerDataSource} can be used
+ * Implementation of {@link EntityContainer} that uses an {@link EntityProvider}
+ * to fetch the items. A {@link MutableEntityProvider} can be used
  * to make the container writable.<p>
  * As the data source is responsible for sorting the items, new items
  * cannot be added to a specific location in the list. Rather, the implementation
@@ -37,25 +37,25 @@ import java.util.Collection;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public class DataSourceEntityContainer<T> extends AbstractContainer
+public class JPAContainer<T> extends AbstractContainer
         implements EntityContainer {
 
-    // TODO Improve documentation of DataSourceEntityContainer
+    // TODO Improve documentation of JPAContainer
     
     private EntityClassMetadata entityClassMetadata;
 
-    private EntityContainerDataSource<T> dataSource;
+    private EntityProvider<T> dataSource;
 
     private boolean readOnly = false;
 
     /**
-     * Creates a new <code>DataSourceEntityContainer</code>.
+     * Creates a new <code>JPAContainer</code>.
      *
      * @param entityClassMetadata the class metadata of the entities that this container will handle (must not be null).
      * @param dataSource the data source from which to fetch the entities (must not be null).
      */
-    public DataSourceEntityContainer(EntityClassMetadata entityClassMetadata,
-            EntityContainerDataSource<T> dataSource) {
+    public JPAContainer(EntityClassMetadata entityClassMetadata,
+            EntityProvider<T> dataSource) {
         assert entityClassMetadata != null :
                 "entityClassMetadata must not be null";
         assert dataSource != null : "dataSource must not be null";
@@ -74,7 +74,7 @@ public class DataSourceEntityContainer<T> extends AbstractContainer
      * 
      * @return the data source (never null).
      */
-    protected EntityContainerDataSource<T> getDataSource() {
+    protected EntityProvider<T> getDataSource() {
         return dataSource;
     }
 
@@ -263,14 +263,14 @@ public class DataSourceEntityContainer<T> extends AbstractContainer
 
     @Override
     public boolean isReadOnly() {
-        return !(getDataSource() instanceof MutableEntityContainerDataSource)
+        return !(getDataSource() instanceof MutableEntityProvider)
                 || readOnly;
     }
 
     @Override
     public void setReadOnly(boolean readOnly) throws
             UnsupportedOperationException {
-        if (getDataSource() instanceof MutableEntityContainerDataSource) {
+        if (getDataSource() instanceof MutableEntityProvider) {
             this.readOnly = readOnly;
         }
         throw new UnsupportedOperationException(

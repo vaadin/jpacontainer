@@ -17,20 +17,24 @@
  */
 package com.vaadin.addons.jpacontainer;
 
-import com.vaadin.addons.jpacontainer.filter.Filter;
-import java.util.Collection;
 import java.util.List;
 
 /**
- * Data source that provides data to a {@link DataSourceEntityContainer}.
+ * Like the name suggests, the purpose of the <code>EntityProvider</code> is to
+ * provide entities to {@link EntityContainer}s. All entities provided by this
+ * interface should be detached from the persistence storage. That is, any changes
+ * made to an entity instance returned from this provider may not be automatically
+ * propagated back to the persistence storage.
  *
+ * @see MutableEntityProvider
+ * @see CachingEntityProvider
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public interface EntityContainerDataSource<T> {
+public interface EntityProvider<T> {
 
     /**
-     * Loads the entity identified by <code>entityId</code> from the data source.
+     * Loads the entity identified by <code>entityId</code> from the persistence storage.
      *
      * @param entityId the entity identifier (must not be null).
      * @return the entity, or null if not found.
@@ -38,15 +42,15 @@ public interface EntityContainerDataSource<T> {
     public T getEntity(Object entityId);
 
     /**
-     * Gets the identifiers of all entities currently in the data source.
-     * 
+     * Gets the entity at position <code>index</code> in the result set determined
+     * from <code>filter</code> and <code>sortBy</code>.
+     *
      * @param filter the filter that should be used to filter the entities (may be null).
-     * @return an unmodifiable collection of entity identifiers (never null).
-     * @deprecated The use of this method is not encouraged, as it ruins the idea of lazy loading. This method
-     * is only present as long as the {@link com.vaadin.data.Container#getItemIds() } method requires it.
+     * @param sortBy the properties to sort by, if any (never null, but may be empty).
+     * @param index the index of the entity to fetch.
+     * @return the entity, or null if not found.
      */
-    @Deprecated
-    public Collection<Object> getEntityIdentifiers(Filter filter);
+    public T getEntityAt(Filter filter, List<SortBy> sortBy, int index);
 
     /**
      * Gets the identifier of the first item in the list of entities determined
@@ -91,7 +95,7 @@ public interface EntityContainerDataSource<T> {
             List<SortBy> sortBy);
 
     /**
-     * Checks if the data source contains an entity identified by <code>entityId</code>
+     * Checks if the persistence storage contains an entity identified by <code>entityId</code>
      * that is also matched by <code>filter</code>.
      *
      * @param entityId the entity identifier (must not be null).
