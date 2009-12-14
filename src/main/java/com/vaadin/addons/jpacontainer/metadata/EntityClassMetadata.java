@@ -17,20 +17,20 @@
  */
 package com.vaadin.addons.jpacontainer.metadata;
 
-import java.util.Collection;
 import javax.persistence.Entity;
 
 /**
- * An extended version of {@link ClassMetadata} that is designed for
+ * An extended version of {@link ClassMetadata} that provides additional information about
  * classes annotated with the {@link Entity} annotation.
  *
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public interface EntityClassMetadata extends ClassMetadata {
+public interface EntityClassMetadata<T> extends ClassMetadata<T> {
 
     /**
-     * The name of the entity.
+     * The name of the entity. If no explicit entity name has been given,
+     * this is the simple class name.
      */
     public String getEntityName();
 
@@ -54,14 +54,12 @@ public interface EntityClassMetadata extends ClassMetadata {
      * 
      * @see #getIdentifierProperty()
      * @see #hasEmbeddedIdentifier()
-     * @see #getEmbeddedIdentifierProperties() 
      */
     public boolean hasIdentifierProperty();
 
     /**
      * Gets the identifier property, if it exists. If {@link #hasEmbeddedIdentifier() } returns true,
-     * this property is the embedded identifier. The nested properties of the embedded identifier
-     * can be accessed using the {@link #getEmbeddedIdentifierProperties() } method.
+     * this property is the embedded identifier.
      *
      * @see #hasIdentifierProperty()
      * @see #hasEmbeddedIdentifier() 
@@ -72,17 +70,6 @@ public interface EntityClassMetadata extends ClassMetadata {
     /**
      * If the entity has an embedded identifier. This property cannot be
      * true unless {@link #hasIdentifierProperty() } also returns true.
-     *
-     * @see #getEmbeddedIdentifierProperties() 
      */
     public boolean hasEmbeddedIdentifier();
-
-    /**
-     * The nested properties that constitute the embedded identifier.
-     *
-     * @see #hasEmbeddedIdentifier() 
-     * @return the embedded identifier properties, or an empty collection if
-     * the entity does not have an embedded identifier.
-     */
-    public Collection<NestedPropertyMetadata> getEmbeddedIdentifierProperties();
 }

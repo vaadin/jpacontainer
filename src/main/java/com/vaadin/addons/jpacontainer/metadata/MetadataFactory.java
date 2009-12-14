@@ -40,7 +40,7 @@ public interface MetadataFactory {
      * @return the class metadata.
      * @throws IllegalArgumentException if no metadata could be extracted.
      */
-    public EntityClassMetadata getEntityClassMetadata(Class<?> mappedClass)
+    public <T> EntityClassMetadata<T> getEntityClassMetadata(Class<T> mappedClass)
             throws IllegalArgumentException;
 
     /**
@@ -56,7 +56,7 @@ public interface MetadataFactory {
      * @return the class metadata.
      * @throws IllegalArgumentException if no metadata could be extracted.
      */
-    public ClassMetadata getClassMetadata(Class<?> mappedClass,
-            PropertyMetadata.AccessType accessType) throws
+    public <T> ClassMetadata<T> getClassMetadata(Class<T> mappedClass,
+            PersistentPropertyMetadata.AccessType accessType) throws
             IllegalArgumentException;
 }
