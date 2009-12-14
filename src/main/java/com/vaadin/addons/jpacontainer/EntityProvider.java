@@ -111,5 +111,5 @@ public interface EntityProvider<T> {
      * @param filter the filter that should be used to filter the entities (may be null).
      * @return the number of matches.
      */
-    public long getEntityCount(Filter filter);
+    public int getEntityCount(Filter filter);
 }
