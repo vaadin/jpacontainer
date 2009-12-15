@@ -17,6 +17,10 @@
  */
 package com.vaadin.addons.jpacontainer.metadata;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+
 /**
  * An extended version of {@link PropertyMetadata} that provides additional
  * information about persistent properties.
@@ -24,7 +28,41 @@ package com.vaadin.addons.jpacontainer.metadata;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public interface PersistentPropertyMetadata extends PropertyMetadata {
+public class PersistentPropertyMetadata extends PropertyMetadata {
+
+    /**
+     * Enumeration defining the property kind.
+     *
+     * @author Petter Holmström (IT Mill)
+     */
+    public enum PropertyKind {
+
+        /**
+         * The property is embedded.
+         * 
+         * @see javax.persistence.Embeddable
+         * @see javax.persistence.Embedded
+         */
+        EMBEDDED,
+        /**
+         * The property is a reference.
+         * 
+         * @see javax.persistence.OneToOne
+         * @see javax.persistence.ManyToOne
+         */
+        REFERENCE,
+        /**
+         * The property is a collection.
+         * 
+         * @see javax.persistence.OneToMany
+         * @see javax.persistence.ManyToMany
+         */
+        COLLECTION,
+        /**
+         * The property is of a simple datatype.
+         */
+        SIMPLE
+    }
 
     /**
      * Enumeration defining the property access types.
@@ -42,45 +80,133 @@ public interface PersistentPropertyMetadata extends PropertyMetadata {
          */
         FIELD
     }
+    private final PropertyKind propertyKind;
+    private final ClassMetadata<?> typeMetadata;
+    final Field field;
+
+    /**
+     * Creates a new instance of <code>PersistentPropertyMetadata</code>.
+     *
+     * @param name the name of the property (must not be null).
+     * @param type the type of the property (must not be null).
+     * @param propertyKind the kind of the property, must be either {@link PropertyKind#COLLECTION} or {@link PropertyKind#SIMPLE}.
+     * @param field the field that can be used to access the property (must not be null).
+     */
+    PersistentPropertyMetadata(String name, Class<?> type, PropertyKind propertyKind, Field field) {
+        super(name, type, null, null);
+        assert propertyKind == PropertyKind.COLLECTION || propertyKind == PropertyKind.SIMPLE : "propertyKind must be COLLECTION or SIMPLE";
+        assert field != null : "field must not be null";
+        this.propertyKind = propertyKind;
+        this.typeMetadata = null;
+        this.field = field;
+    }
+
+    /**
+     * Creates a new instance of <code>PersistentPropertyMetadata</code>.
+     *
+     * @param name the name of the property (must not be null).
+     * @param type type type of the property (must not be null).
+     * @param propertyKind the kind of the property, must be either {@link PropertyKind#COLLECTION} or {@link PropertyKind#SIMPLE}.
+     * @param getter the getter method that can be used to read the property value (must not be null).
+     * @param setter the setter method that can be used to set the property value (must not be null).
+     */
+    PersistentPropertyMetadata(String name, Class<?> type, PropertyKind propertyKind, Method getter, Method setter) {
+        super(name, type, getter, setter);
+        assert propertyKind == PropertyKind.COLLECTION || propertyKind == PropertyKind.SIMPLE : "propertyKind must be COLLECTION or SIMPLE";
+        assert getter != null : "getter must not be null";
+        assert setter != null : "setter must not be null";
+        this.propertyKind = propertyKind;
+        this.typeMetadata = null;
+        this.field = null;
+    }
+
+    /**
+     * Creates a new instance of <code>PersistentPropertyMetadata</code>.
+     *
+     * @param name the name of the property (must not be null).
+     * @param type the type metadata of the property (must not be null).
+     * @param propertyKind the kind of the property, must be either {@link PropertyKind#REFERENCE} or {@link PropertyKind#EMBEDDED}.
+     * @param field the field that can be used to access the property (must not be null).
+     */
+    PersistentPropertyMetadata(String name, ClassMetadata<?> type, PropertyKind propertyKind, Field field) {
+        super(name, type.getMappedClass(), null, null);
+        assert type != null : "type must not be null";
+        assert propertyKind == PropertyKind.REFERENCE || propertyKind == PropertyKind.EMBEDDED : "propertyKind must be REFERENCE or EMBEDDED";
+        assert field != null : "field must not be null";
+        this.propertyKind = propertyKind;
+        this.typeMetadata = type;
+        this.field = field;
+    }
+
+    /**
+     * Creates a new instance of <code>PersistentPropertyMetadata</code>.
+     *
+     * @param name the name of the property  (must not be null).
+     * @param type the type metadata of the property (must not be null).
+     * @param propertyKind the kind of the property, must be either {@link PropertyKind#REFERENCE} or {@link PropertyKind#EMBEDDED}.
+     * @param getter the getter method that can be used to read the property value (must not be null).
+     * @param setter the setter method that can be used to set the property value (must not be null).
+     */
+    PersistentPropertyMetadata(String name, ClassMetadata<?> type, PropertyKind propertyKind, Method getter, Method setter) {
+        super(name, type.getMappedClass(), getter, setter);
+        assert type != null : "type must not be null";
+        assert propertyKind == PropertyKind.REFERENCE || propertyKind == PropertyKind.EMBEDDED : "propertyKind must be REFERENCE or EMBEDDED";
+        assert getter != null : "getter must not be null";
+        assert setter != null : "setter must not be null";
+        this.propertyKind = propertyKind;
+        this.typeMetadata = type;
+        this.field = null;
+    }
 
     /**
      * The metadata of the property type, if it is embedded or a reference.
      * Otherwise, this method returns null.
      *
-     * @see #getType()
-     * @see #isEmbedded()
-     * @see #isReference()
+     * @see #getPropertyKind() 
      */
-    public ClassMetadata<?> getTypeMetadata();
+    public ClassMetadata<?> getTypeMetadata() {
+        return typeMetadata;
+    }
+
+    /**
+     * The kind of the property.
+     */
+    public PropertyKind getPropertyKind() {
+        return propertyKind;
+    }
 
     /**
      * The way the property value is accessed (as a JavaBean property or as a field).
      */
-    public AccessType getAccessType();
+    public AccessType getAccessType() {
+        return field != null ? AccessType.FIELD : AccessType.METHOD;
+    }
+
+    @Override
+    public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
+        if (field != null) {
+            return field.getAnnotation(annotationClass);
+        } else {
+            return super.getAnnotation(annotationClass);
+        }
+    }
+
+    @Override
+    public Annotation[] getAnnotations() {
+        if (field != null) {
+            return field.getAnnotations();
+        } else {
+            return super.getAnnotations();
+        }
+    }
 
     /**
-     * Returns whether this property is an embedded property or not.
-     *
-     * @see javax.persistence.Embeddable
-     * @see javax.persistence.Embedded
-     * @see #getTypeMetadata()
+     * Persistent properties are always writable.
+     * <p>
+     * {@inheritDoc }.
      */
-    public boolean isEmbedded();
-
-    /**
-     * Returns whether this property is a reference or not.
-     *
-     * @see javax.persistence.OneToOne
-     * @see javax.persistence.ManyToOne
-     * @see #getTypeMetadata()
-     */
-    public boolean isReference();
-
-    /**
-     * Returns whether this property is a collection or not.
-     *
-     * @see javax.persistence.OneToMany
-     * @see javax.persistence.ManyToMany
-     */
-    public boolean isCollection();
+    @Override
+    public boolean isWritable() {
+        return true; //field != null || super.isWritable();
+    }
 }
