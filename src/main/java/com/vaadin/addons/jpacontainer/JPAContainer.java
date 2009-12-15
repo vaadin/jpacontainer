@@ -17,14 +17,17 @@
  */
 package com.vaadin.addons.jpacontainer;
 
-import com.vaadin.addons.jpacontainer.filter.CompositeFilter;
-import com.vaadin.addons.jpacontainer.filter.Filters;
+import com.vaadin.addons.jpacontainer.filter.util.AdvancedFilterableSupport;
 import com.vaadin.addons.jpacontainer.metadata.EntityClassMetadata;
-import com.vaadin.addons.jpacontainer.metadata.PropertyMetadata;
+import com.vaadin.addons.jpacontainer.metadata.MetadataFactory;
+import com.vaadin.data.Buffered.SourceException;
+import com.vaadin.data.Container.ItemSetChangeListener;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
-import com.vaadin.data.util.BeanItem;
+import com.vaadin.data.Validator.InvalidValueException;
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Implementation of {@link EntityContainer} that uses an {@link EntityProvider}
@@ -37,243 +40,315 @@ import java.util.Collection;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public class JPAContainer<T> extends AbstractContainer
-        implements EntityContainer {
+public class JPAContainer<T> implements EntityContainer<T> {
 
-    // TODO Improve documentation of JPAContainer
-    
-    private EntityClassMetadata entityClassMetadata;
-
-    private EntityProvider<T> dataSource;
-
-    private boolean readOnly = false;
+    private EntityProvider<T> entityProvider;
+    private AdvancedFilterableSupport filterSupport = new AdvancedFilterableSupport();
+    private LinkedList<ItemSetChangeListener> listeners;
+    private EntityClassMetadata<T> entityClassMetadata;
 
     /**
-     * Creates a new <code>JPAContainer</code>.
+     * 
+     * @param entityClass
+     */
+    public JPAContainer(Class<T> entityClass) {
+        assert entityClass != null : "entityClass must not be null";
+        this.entityClassMetadata = getClassMetadataFactory().getEntityClassMetadata(entityClass);
+    }
+
+    /**
      *
-     * @param entityClassMetadata the class metadata of the entities that this container will handle (must not be null).
-     * @param dataSource the data source from which to fetch the entities (must not be null).
+     * @return
      */
-    public JPAContainer(EntityClassMetadata entityClassMetadata,
-            EntityProvider<T> dataSource) {
-        assert entityClassMetadata != null :
-                "entityClassMetadata must not be null";
-        assert dataSource != null : "dataSource must not be null";
-        this.entityClassMetadata = entityClassMetadata;
-        this.dataSource = dataSource;
-
-        if (entityClassMetadata.hasEmbeddedIdentifier()) {
-            // TODO Add support for embedded identifiers
-            throw new IllegalArgumentException(
-                    "Embedded identifiers are currently not supported!");
-        }
+    protected MetadataFactory getClassMetadataFactory() {
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     /**
-     * Gets the data source of this container.
-     * 
-     * @return the data source (never null).
+     *
+     * @return
      */
-    protected EntityProvider<T> getDataSource() {
-        return dataSource;
-    }
-
-    @Override
-    public Item getItem(Object itemId) {
-        T entity = getDataSource().getEntity(itemId);
-        if (entity != null) {
-            // TODO I think we need a separate EntityItem class.
-            return new BeanItem(entity);
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Returns the applied filters as a conjuction.
-     * 
-     * @return the conjunction, or null if there are no applied filters.
-     */
-    protected CompositeFilter getAppliedFiltersAsConjunction() {
-        if (getAppliedFilters().isEmpty()) {
-            return null;
-        } else {
-            return Filters.and(getAppliedFilters());
-        }
-    }
-
-    @Override
-    public Collection<?> getItemIds() {
-        return getDataSource().getEntityIdentifiers(
-                getAppliedFiltersAsConjunction());
-    }
-
-    @Override
-    public Object firstItemId() {
-        return getDataSource().getFirstEntityIdentifier(
-                getAppliedFiltersAsConjunction(), getSortBy());
-    }
-
-    @Override
-    public boolean isFirstId(Object itemId) {
-        assert itemId != null : "itemId must not be null";
-        Object firstItemId = firstItemId();
-        return firstItemId != null ? firstItemId.equals(itemId) : false;
-    }
-
-    @Override
-    public Object lastItemId() {
-        return getDataSource().getLastEntityIdentifier(
-                getAppliedFiltersAsConjunction(), getSortBy());
-    }
-
-    @Override
-    public boolean isLastId(Object itemId) {
-        assert itemId != null : "itemId must not be null";
-        Object lastItemId = lastItemId();
-        return lastItemId != null ? lastItemId.equals(itemId) : false;
-    }
-
-    @Override
-    public Object nextItemId(Object itemId) {
-        return getDataSource().getNextEntityIdentifier(itemId,
-                getAppliedFiltersAsConjunction(), getSortBy());
-    }
-
-    @Override
-    public Object prevItemId(Object itemId) {
-        return getDataSource().getPreviousEntityIdentifier(itemId,
-                getAppliedFiltersAsConjunction(), getSortBy());
-    }
-
-    @Override
-    public int size() {
-        return new Long(getDataSource().getEntityCount(getAppliedFiltersAsConjunction())).intValue();
-    }
-
-    @Override
-    public boolean containsId(Object itemId) {
-        return getDataSource().containsEntity(itemId,
-                getAppliedFiltersAsConjunction());
-    }
-
-    /**
-     * <strong>This method is not supported by this implementation.</strong>
-     * <p>
-     * {@inheritDoc }
-     */
-    @Override
-    public boolean addContainerProperty(Object propertyId,
-            Class<?> type, Object defaultValue) throws
-            UnsupportedOperationException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Object addItem() throws UnsupportedOperationException {
-        checkReadOnly();
-        // TODO Implement addItem
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    /**
-     * <strong>This method is not supported by this implementation.</strong>
-     * <p>
-     * {@inheritDoc }
-     */
-    @Override
-    public Item addItem(Object itemId) throws UnsupportedOperationException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Property getContainerProperty(Object itemId, Object propertyId) {
-        assert itemId != null : "itemId must not be null";
-        assert propertyId != null : "propertyId must not be null";
-        Item item = getItem(itemId);
-        return item == null ? null : item.getItemProperty(propertyId);
-    }
-
-    @Override
-    public Class<?> getType(Object propertyId) {
-        assert propertyId != null : "propertyId must not be null";
-        PropertyMetadata pm = getEntityClassMetadata().getMappedProperty(propertyId.
-                toString());
-        return pm == null ? null : pm.getType();
-    }
-
-    @Override
-    public boolean removeAllItems() throws UnsupportedOperationException {
-        // TODO Implement removeAllItems
-        checkReadOnly();
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    /**
-     * <strong>This method is not supported by this implementation.</strong>
-     * <p>
-     * {@inheritDoc }
-     */
-    @Override
-    public boolean removeContainerProperty(Object propertyId) throws
-            UnsupportedOperationException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean removeItem(Object itemId) throws
-            UnsupportedOperationException {
-        checkReadOnly();
-        // TODO Implement removeItem
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    /**
-     * <strong>This method is not supported by this implementation.</strong>
-     * <p>
-     * {@inheritDoc }
-     */
-    @Override
-    public Object addItemAfter(Object previousItemId) throws
-            UnsupportedOperationException {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * <strong>This method is not supported by this implementation.</strong>
-     * <p>
-     * {@inheritDoc }
-     */
-    @Override
-    public Item addItemAfter(Object previousItemId, Object newItemId) throws
-            UnsupportedOperationException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public EntityClassMetadata getEntityClassMetadata() {
+    protected EntityClassMetadata<T> getEntityClassMetadata() {
         return entityClassMetadata;
     }
 
-    private void checkReadOnly() throws UnsupportedOperationException {
-        if (isReadOnly()) {
-            throw new UnsupportedOperationException("Container is read only");
+    @Override
+    public void addListener(ItemSetChangeListener listener) {
+        if (listener == null) {
+            return;
         }
+        if (listeners == null) {
+            listeners = new LinkedList<ItemSetChangeListener>();
+        }
+        listeners.add(listener);
+    }
+
+    @Override
+    public void removeListener(ItemSetChangeListener listener) {
+        if (listener != null && listeners != null) {
+            listeners.remove(listener);
+        }
+    }
+
+    @Override
+    public T addEntity(T entity) throws UnsupportedOperationException, IllegalStateException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void addNestedContainerProperty(String nestedProperty) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Class<T> getEntityClass() {
+        return getEntityClassMetadata().getMappedClass();
+    }
+
+    @Override
+    public EntityProvider<T> getEntityProvider() {
+        return entityProvider;
     }
 
     @Override
     public boolean isReadOnly() {
-        return !(getDataSource() instanceof MutableEntityProvider)
-                || readOnly;
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public void setReadOnly(boolean readOnly) throws
-            UnsupportedOperationException {
-        if (getDataSource() instanceof MutableEntityProvider) {
-            this.readOnly = readOnly;
-        }
-        throw new UnsupportedOperationException(
-                "Data source is not mutable");
+    public void setEntityProvider(EntityProvider<T> entityProvider) {
+        assert entityProvider != null : "entityProvider must not be null";
+        this.entityProvider = entityProvider;
+    }
+
+    @Override
+    public void setReadOnly(boolean readOnly) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Collection<?> getSortableContainerPropertyIds() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void sort(Object[] propertyId, boolean[] ascending) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Object addItemAfter(Object previousItemId) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Item addItemAfter(Object previousItemId, Object newItemId) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Object firstItemId() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public boolean isFirstId(Object itemId) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public boolean isLastId(Object itemId) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Object lastItemId() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Object nextItemId(Object itemId) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Object prevItemId(Object itemId) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public boolean addContainerProperty(Object propertyId, Class<?> type, Object defaultValue) throws UnsupportedOperationException {
+        // This functionality is not supported
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Item addItem(Object itemId) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Object addItem() throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public boolean containsId(Object itemId) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Property getContainerProperty(Object itemId, Object propertyId) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Collection<?> getContainerPropertyIds() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Item getItem(Object itemId) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Collection<?> getItemIds() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Class<?> getType(Object propertyId) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public boolean removeAllItems() throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public boolean removeContainerProperty(Object propertyId) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public boolean removeItem(Object itemId) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public int size() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void addFilter(Filter filter) throws IllegalArgumentException {
+        filterSupport.addFilter(filter);
+    }
+
+    @Override
+    public void applyFilters() {
+        filterSupport.applyFilters();
+    }
+
+    @Override
+    public List<Filter> getAppliedFilters() {
+        return filterSupport.getAppliedFilters();
+    }
+
+    @Override
+    public Collection<Object> getFilterablePropertyIds() {
+        return filterSupport.getFilterablePropertyIds();
+    }
+
+    @Override
+    public List<Filter> getFilters() {
+        return filterSupport.getFilters();
+    }
+
+    @Override
+    public boolean hasUnappliedFilters() {
+        return filterSupport.hasUnappliedFilters();
+    }
+
+    @Override
+    public boolean isApplyFiltersImmediately() {
+        return filterSupport.isApplyFiltersImmediately();
+    }
+
+    @Override
+    public boolean isFilterable(Object propertyId) {
+        return filterSupport.isFilterable(propertyId);
+    }
+
+    @Override
+    public void removeAllFilters() {
+        filterSupport.removeAllFilters();
+    }
+
+    @Override
+    public void removeFilter(Filter filter) {
+        filterSupport.removeFilter(filter);
+    }
+
+    @Override
+    public void setApplyFiltersImmediately(boolean applyFiltersImmediately) {
+        filterSupport.setApplyFiltersImmediately(applyFiltersImmediately);
+    }
+
+    @Override
+    public Object addItemAt(int index) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Item addItemAt(int index, Object newItemId) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Object getIdByIndex(int index) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public int indexOfId(Object itemId) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void commit() throws SourceException, InvalidValueException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void discard() throws SourceException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public boolean isModified() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public boolean isReadThrough() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public boolean isWriteThrough() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void setReadThrough(boolean readThrough) throws SourceException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void setWriteThrough(boolean writeThrough) throws SourceException, InvalidValueException {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }
