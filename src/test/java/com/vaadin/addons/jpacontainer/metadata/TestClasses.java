@@ -72,6 +72,18 @@ abstract class TestClasses {
 
         @ManyToOne
         Person_F parent;
+
+        public String getTransientField3() {
+            return null;
+        }
+
+        public String getTransientField4() {
+            return null;
+        }
+
+        public void setTransientField4(String value) {
+            
+        }
     }
 
     @Embeddable

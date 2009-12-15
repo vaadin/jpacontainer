@@ -53,7 +53,8 @@ public class ClassMetadata<T> implements Serializable {
     }
 
     /**
-     * Adds the specified property metadata to the class.
+     * Adds the specified property metadata to the class. Any existing
+     * properties with the same names will be overwritten.
      * 
      * @param properties an array of properties to add.
      */
@@ -64,6 +65,10 @@ public class ClassMetadata<T> implements Serializable {
             if (pm instanceof PersistentPropertyMetadata) {
                 persistentProperties.put(pm.getName(),
                         (PersistentPropertyMetadata) pm);
+            } else {
+                // If we have a previous property and want to overwrite
+                // it with another that is not persistent
+                persistentProperties.remove(pm.getName());
             }
         }
     }
