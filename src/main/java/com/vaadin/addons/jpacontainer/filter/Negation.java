@@ -31,7 +31,6 @@ import java.util.List;
 public class Negation implements CompositeFilter {
 
     private Filter filter;
-
     private List<Filter> filterList = new LinkedList<Filter>();
 
     protected Negation(Filter filter) {
@@ -54,5 +53,15 @@ public class Negation implements CompositeFilter {
     @Override
     public List<Filter> getFilters() {
         return filterList;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj.getClass() == getClass() && ((Negation) obj).filter.equals(this.filter);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode() + 7 * filter.hashCode();
     }
 }

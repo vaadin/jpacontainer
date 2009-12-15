@@ -42,4 +42,14 @@ public abstract class AbstractPropertyFilter implements PropertyFilter {
     public String toQLString() {
         return toQLString(PropertyIdPreprocessor.DEFAULT);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj.getClass() == getClass() && ((AbstractPropertyFilter) obj).propertyId.equals(propertyId);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode() + 7 * propertyId.hashCode();
+    }
 }

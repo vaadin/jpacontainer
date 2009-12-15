@@ -67,4 +67,15 @@ public abstract class AbstractJunction implements Junction {
     public List<Filter> getFilters() {
         return Collections.unmodifiableList(filters);
     }
+
+    @Override
+    @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
+    public boolean equals(Object obj) {
+        return super.equals(obj) && ((AbstractJunction) obj).filters.equals(filters);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode() + 7 * filters.hashCode();
+    }
 }

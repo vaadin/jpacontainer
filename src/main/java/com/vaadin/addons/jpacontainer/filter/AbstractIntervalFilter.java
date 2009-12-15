@@ -29,15 +29,10 @@ public abstract class AbstractIntervalFilter extends AbstractPropertyFilter
         implements IntervalFilter {
 
     private Object endingPoint;
-
     private boolean endingPointIncluded;
-
     private String endingPointQLParameter;
-
     private Object startingPoint;
-
     private boolean startingPointIncluded;
-
     private String startingPointQLParameter;
 
     protected AbstractIntervalFilter(Object propertyId, Object startingPoint,
@@ -83,5 +78,25 @@ public abstract class AbstractIntervalFilter extends AbstractPropertyFilter
     @Override
     public boolean isStartingPointIncluded() {
         return startingPointIncluded;
+    }
+
+    @Override
+    @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
+    public boolean equals(Object obj) {
+        if (super.equals(obj)) {
+            AbstractIntervalFilter o = (AbstractIntervalFilter) obj;
+            return o.endingPointIncluded == endingPointIncluded
+                    && o.startingPointIncluded == startingPointIncluded
+                    && o.endingPoint.equals(endingPoint)
+                    && o.startingPoint.equals(startingPoint);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode() + 7 * new Boolean(endingPointIncluded).hashCode()
+                + 11 * new Boolean(startingPointIncluded).hashCode()
+                + 3 * endingPoint.hashCode() + 5 * startingPoint.hashCode();
     }
 }

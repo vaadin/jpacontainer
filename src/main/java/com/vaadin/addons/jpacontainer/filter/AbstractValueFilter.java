@@ -49,4 +49,20 @@ public abstract class AbstractValueFilter extends AbstractPropertyFilter
     public String getQLParameterName() {
         return qlParameterName;
     }
+
+    // qlParameterName is not included in equality check, as it is randomly generated.
+
+    @Override
+    @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
+    public boolean equals(Object obj) {
+        return super.equals(obj) && ((AbstractValueFilter) obj).value.equals(value);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode() + 7 * value.hashCode();
+    }
+
+
+
 }

@@ -39,4 +39,15 @@ public abstract class AbstractStringFilter extends AbstractValueFilter {
     public boolean isCaseSensitive() {
         return caseSensitive;
     }
+
+    @Override
+    @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
+    public boolean equals(Object obj) {
+        return super.equals(obj) && ((AbstractStringFilter) obj).caseSensitive == caseSensitive;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode() + 7 * new Boolean(caseSensitive).hashCode();
+    }
 }

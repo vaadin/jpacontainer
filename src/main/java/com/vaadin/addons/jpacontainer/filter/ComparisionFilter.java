@@ -46,4 +46,15 @@ public class ComparisionFilter extends AbstractValueFilter {
                 propertyIdPreprocessor.process(getPropertyId()), operator,
                 getQLParameterName());
     }
+
+    @Override
+    @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
+    public boolean equals(Object obj) {
+        return super.equals(obj) && ((ComparisionFilter) obj).operator.equals(operator);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode() + 7 * operator.hashCode();
+    }
 }
