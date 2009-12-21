@@ -37,7 +37,7 @@ public abstract class AbstractValueFilter extends AbstractPropertyFilter
         super(propertyId);
         assert value != null : "value must not be null";
         this.value = value;
-        this.qlParameterName = propertyId.toString() + Math.abs(new Random().nextInt());
+        this.qlParameterName = propertyId.toString().replace('.', '_') + Math.abs(new Random().nextInt());
     }
 
     @Override
