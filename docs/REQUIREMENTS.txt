@@ -23,7 +23,7 @@ REQUIREMENTS for JPAContainer 1.0
             - Based on a local EntityManager
             - Relies on the cache in the JPA implementation
         - CachingLocalEntityProvider
-«           - Maintains an internal cache of loaded entities
+            - Maintains an internal cache of loaded entities
             - items are loaded as chunks and cached => reduced number of database
               roundtrips
             - the cache can be manually flushed
