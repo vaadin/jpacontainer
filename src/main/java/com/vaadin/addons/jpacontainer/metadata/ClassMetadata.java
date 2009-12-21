@@ -19,10 +19,12 @@ package com.vaadin.addons.jpacontainer.metadata;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.StringTokenizer;
 import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 
@@ -113,7 +115,131 @@ public class ClassMetadata<T> implements Serializable {
     }
 
     /**
-     * Gets the value of <code>object.propertyName</code>.
+     * Gets the value of <code>property</code> from <code>object</code>.
+     *
+     * @param object the object from which the property will be retrieved (must not be null).
+     * @param property the metadata of the property (must not be null).
+     * @return the property value.
+     * @throws IllegalArgumentException if the property could not be retrieved.
+     */
+    protected Object getPropertyValue(T object, PropertyMetadata property) throws
+            IllegalArgumentException {
+        assert object != null : "object must not be null";
+        assert property != null : "property must not be null";
+        try {
+            if (property instanceof PersistentPropertyMetadata) {
+                PersistentPropertyMetadata ppmd = (PersistentPropertyMetadata) property;
+                if (ppmd.field != null) {
+                    try {
+                        ppmd.field.setAccessible(true);
+                        return ppmd.field.get(object);
+                    } finally {
+                        ppmd.field.setAccessible(false);
+                    }
+                }
+            }
+            return property.getter.invoke(object);
+        } catch (IllegalAccessException e) {
+            throw new IllegalArgumentException(
+                    "Cannot access the property value",
+                    e);
+        } catch (InvocationTargetException e) {
+            throw new IllegalArgumentException(
+                    "Cannot access the property value",
+                    e);
+        }
+    }
+
+    /**
+     * Sets the value of <code>property</code> to <code>value</code> on <code>object</code>.
+     * 
+     * @param object the object to which the property will be set (must not be null).
+     * @param property the metadata of the property (must not be null).
+     * @param value the property value.
+     * @throws IllegalArgumentException if the property could not be set.
+     */
+    protected void setPropertyValue(T object, PropertyMetadata property,
+            Object value) throws IllegalArgumentException {
+        assert object != null : "object must not be null";
+        assert property != null : "property must not be null";
+        if (property != null && property.isWritable()) {
+            try {
+                if (property instanceof PersistentPropertyMetadata) {
+                    PersistentPropertyMetadata ppmd = (PersistentPropertyMetadata) property;
+                    if (ppmd.field != null) {
+                        try {
+                            ppmd.field.setAccessible(true);
+                            ppmd.field.set(object, value);
+                            return;
+                        } finally {
+                            ppmd.field.setAccessible(false);
+                        }
+                    }
+                }
+                property.setter.invoke(object, value);
+            } catch (IllegalAccessException e) {
+                throw new IllegalArgumentException(
+                        "Cannot set the property value",
+                        e);
+            } catch (InvocationTargetException e) {
+                throw new IllegalArgumentException(
+                        "Cannot set the property value",
+                        e);
+            }
+        } else {
+            throw new IllegalArgumentException(
+                    "No such writable property: " + property.getName());
+        }
+    }
+
+    /**
+     * Gets the getter method for <code>propertyName</code> from <code>parent</code>.
+     *
+     * @param propertyName the JavaBean property name (must not be null).
+     * @param parent the class from which to get the getter method (must not be null).
+     * @return the getter method, or null if not found.
+     */
+    protected Method getGetterMethod(String propertyName, Class<?> parent) {
+        String methodName = "get" + propertyName.substring(0, 1).toUpperCase() + propertyName.
+                substring(1);
+        try {
+            Method m = parent.getMethod(methodName);
+            if (m.getReturnType() != Void.TYPE) {
+                return m;
+            } else {
+                return null;
+            }
+        } catch (NoSuchMethodException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Gets the setter method for <code>propertyName</code> from <code>parent</code>.
+     *
+     * @param propertyName the JavaBean property name (must not be null).
+     * @param parent the class from which to get the setter method (must not be null).
+     * @param propertyType the type of the property (must not be null).
+     * @return the setter method, or null if not found.
+     */
+    protected Method getSetterMethod(String propertyName, Class<?> parent,
+            Class<?> propertyType) {
+        String methodName = "set" + propertyName.substring(0, 1).toUpperCase() + propertyName.
+                substring(1);
+        try {
+            Method m = parent.getMethod(methodName, propertyType);
+            if (m.getReturnType() == Void.TYPE) {
+                return m;
+            } else {
+                return null;
+            }
+        } catch (NoSuchMethodException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Gets the value of <code>object.propertyName</code>. The property name may be nested.
      *
      * @param object the entity object from which the property value should be
      * fetched (must not be null).
@@ -126,75 +252,132 @@ public class ClassMetadata<T> implements Serializable {
         assert object != null : "object must not be null";
         assert propertyName != null : "propertyName must not be null";
 
-        PropertyMetadata pmd = getProperty(propertyName);
-        if (pmd != null) {
-            try {
-                if (pmd instanceof PersistentPropertyMetadata) {
-                    PersistentPropertyMetadata ppmd = (PersistentPropertyMetadata) pmd;
-                    if (ppmd.field != null) {
-                        try {
-                            ppmd.field.setAccessible(true);
-                            return ppmd.field.get(object);
-                        } finally {
-                            ppmd.field.setAccessible(false);
-                        }
-                    }
+        StringTokenizer st = new StringTokenizer(propertyName, ".");
+        ClassMetadata<Object> typeMetadata = (ClassMetadata<Object>) this;
+        Class<?> type = null;
+        Object currentObject = object;
+        while (st.hasMoreTokens()) {
+            String propName = st.nextToken();
+            if (typeMetadata != null) {
+                PropertyMetadata pmd = typeMetadata.getProperty(propName);
+                if (pmd == null) {
+                    throw new IllegalArgumentException("Invalid property name");
                 }
-                return pmd.getter.invoke(object);
-            } catch (IllegalAccessException e) {
-                throw new IllegalArgumentException(
-                        "Cannot access the property value",
-                        e);
-            } catch (InvocationTargetException e) {
-                throw new IllegalArgumentException(
-                        "Cannot access the property value",
-                        e);
+                currentObject = typeMetadata.getPropertyValue(currentObject, pmd);
+                if (currentObject == null) {
+                    return null;
+                }
+                if (pmd instanceof PersistentPropertyMetadata) {
+                    typeMetadata = (ClassMetadata<Object>) ((PersistentPropertyMetadata) pmd).
+                            getTypeMetadata();
+                } else {
+                    typeMetadata = null;
+                }
+                if (typeMetadata == null) {
+                    type = pmd.getType();
+                } else {
+                    type = null;
+                }
+            } else if (type != null) {
+                Method getter = getGetterMethod(propName, type);
+                if (getter == null) {
+                    throw new IllegalArgumentException("Invalid property name");
+                }
+                try {
+                    currentObject = getter.invoke(currentObject);
+                    if (currentObject == null) {
+                        return null;
+                    }
+                    type = getter.getReturnType();
+                } catch (Exception e) {
+                    throw new IllegalArgumentException(
+                            "Could not access a nested property", e);
+                }
             }
-        } else {
-            throw new IllegalArgumentException("No such property: " + propertyName);
         }
+        return currentObject;
     }
 
     /**
-     * Sets the value of <code>object.propertyName</code> to <code>value</code>.
+     * Sets the value of <code>object.propertyName</code> to <code>value</code>. The property name may be nested.
      *
      * @param object the object whose property should be set (must not be null).
      * @param propertyName the name of the property to set (must not be null).
      * @param value the value to set.
      * @throws IllegalArgumentException if the value could not be set, e.g. due to <code>propertyName</code> being invalid or the property being read only.
+     * @throws IllegalStateException if a nested property name is used and one of the nested properties (other than the last one) is null.
      */
     public void setPropertyValue(T object, String propertyName,
-            Object value) throws IllegalArgumentException {
+            Object value) throws IllegalArgumentException, IllegalStateException {
         assert object != null : "object must not be null";
         assert propertyName != null : "propertyName must not be null";
 
-        PropertyMetadata pmd = getProperty(propertyName);
-        if (pmd != null && pmd.isWritable()) {
-            try {
-                if (pmd instanceof PersistentPropertyMetadata) {
-                    PersistentPropertyMetadata ppmd = (PersistentPropertyMetadata) pmd;
-                    if (ppmd.field != null) {
-                        try {
-                            ppmd.field.setAccessible(true);
-                            ppmd.field.set(object, value);
-                            return;
-                        } finally {
-                            ppmd.field.setAccessible(false);
-                        }
+        StringTokenizer st = new StringTokenizer(propertyName, ".");
+        ClassMetadata<Object> typeMetadata = (ClassMetadata<Object>) this;
+        Class<?> type = null;
+        Object currentObject = object;
+        while (st.hasMoreTokens()) {
+            String propName = st.nextToken();
+            if (typeMetadata != null) {
+                PropertyMetadata pmd = typeMetadata.getProperty(propName);
+                if (pmd == null) {
+                    throw new IllegalArgumentException("Invalid property name");
+                }
+                if (!st.hasMoreTokens()) {
+                    // We have reached the end of the chain
+                    typeMetadata.setPropertyValue(currentObject, pmd, value);
+                } else {
+                    currentObject = typeMetadata.getPropertyValue(currentObject,
+                            pmd);
+                    if (currentObject == null) {
+                        throw new IllegalStateException(
+                                "A null value was found in the chain of nested properties");
+                    }
+                    if (pmd instanceof PersistentPropertyMetadata) {
+                        typeMetadata = (ClassMetadata<Object>) ((PersistentPropertyMetadata) pmd).
+                                getTypeMetadata();
+                    } else {
+                        typeMetadata = null;
+                    }
+                    if (typeMetadata == null) {
+                        type = pmd.getType();
+                    } else {
+                        type = null;
                     }
                 }
-                pmd.setter.invoke(object, value);
-            } catch (IllegalAccessException e) {
-                throw new IllegalArgumentException(
-                        "Cannot set the property value",
-                        e);
-            } catch (InvocationTargetException e) {
-                throw new IllegalArgumentException(
-                        "Cannot set the property value",
-                        e);
+            } else if (type != null) {
+                Method getter = getGetterMethod(propName, type);
+                if (getter == null) {
+                    throw new IllegalArgumentException("Invalid property name");
+                }
+                if (!st.hasMoreTokens()) {
+                    // We have reached the end of the chain
+                    Method setter = getSetterMethod(propName, type, getter.
+                            getReturnType());
+                    if (setter == null) {
+                        throw new IllegalArgumentException(
+                                "Property is read only");
+                    }
+                    try {
+                        setter.invoke(currentObject, value);
+                    } catch (Exception e) {
+                        throw new IllegalArgumentException(
+                                "Could not set the value");
+                    }
+                } else {
+                    try {
+                        currentObject = getter.invoke(currentObject);
+                        if (currentObject == null) {
+                            throw new IllegalStateException(
+                                    "A null value was found in the chain of nested properties");
+                        }
+                        type = getter.getReturnType();
+                    } catch (Exception e) {
+                        throw new IllegalArgumentException(
+                                "Could not access a nested property", e);
+                    }
+                }
             }
-        } else {
-            throw new IllegalArgumentException("No such writable property: " + propertyName);
         }
     }
 }
