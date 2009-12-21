@@ -17,7 +17,6 @@
  */
 package com.vaadin.addons.jpacontainer.metadata;
 
-import com.vaadin.addons.jpacontainer.metadata.impl.*;
 import java.io.Serializable;
 import java.util.Collection;
 import javax.persistence.Embeddable;
@@ -50,6 +49,10 @@ abstract class TestClasses {
 
         @Version
         Integer version;
+
+        public Integer getTransientBaseField() {
+            return null;
+        }
     }
 
     @Entity
@@ -122,6 +125,11 @@ abstract class TestClasses {
         public void setVersion(Integer version) {
             this.version = version;
         }
+
+        public Integer getTransientBaseField() {
+            return null;
+        }
+
     }
 
     @Entity

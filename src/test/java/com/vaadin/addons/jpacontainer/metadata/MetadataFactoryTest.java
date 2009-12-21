@@ -140,9 +140,17 @@ public class MetadataFactoryTest {
             assertTrue(prop.isWritable());
         }
 
+        // These fields do not have getter methods, hence they cannot be present
+        // in the metadata
         assertNull(metadata.getProperty("transientField"));
         assertNull(metadata.getProperty("transientField2"));
 
+        {
+            PropertyMetadata prop = metadata.getProperty("transientBaseField");
+            assertEquals("transientBaseField", prop.getName());
+            assertEquals(Integer.class, prop.getType());
+            assertFalse(prop.isWritable());
+        }
         {
             PropertyMetadata prop = metadata.getProperty("transientField3");
             assertEquals("transientField3", prop.getName());
@@ -155,6 +163,8 @@ public class MetadataFactoryTest {
             assertEquals(String.class, prop.getType());
             assertTrue(prop.isWritable());
         }
+
+        assertEquals(10, metadata.getProperties().size());
     }
 
     @Test
@@ -257,6 +267,12 @@ public class MetadataFactoryTest {
             assertTrue(prop.isWritable());
         }
         {
+            PropertyMetadata prop = metadata.getProperty("transientBaseField");
+            assertEquals("transientBaseField", prop.getName());
+            assertEquals(Integer.class, prop.getType());
+            assertFalse(prop.isWritable());
+        }
+        {
             PropertyMetadata prop = metadata.getProperty("transientField");
             assertEquals("transientField", prop.getName());
             assertEquals(String.class, prop.getType());
@@ -268,6 +284,7 @@ public class MetadataFactoryTest {
             assertEquals(String.class, prop.getType());
             assertTrue(prop.isWritable());
         }
+        assertEquals(10, metadata.getProperties().size());
     }
 
     @Test
