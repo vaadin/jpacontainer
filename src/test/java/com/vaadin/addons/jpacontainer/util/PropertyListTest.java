@@ -258,7 +258,6 @@ public class PropertyListTest {
     @Test
     public void testGetPropertyValue_Invalid() {
         Person p = new Person();
-        // TODO Write test!
         try {
             propertyList.getPropertyValue(p, "nonexistent");
             fail("No exception thrown");
@@ -309,9 +308,7 @@ public class PropertyListTest {
 
     @Test
     public void testSetPropertyValue_Invalid() {
-        // TODO Write test
         Person p = new Person();
-        // TODO Write test!
         try {
             propertyList.setPropertyValue(p, "nonexistent", "Hello");
             fail("No exception thrown");
