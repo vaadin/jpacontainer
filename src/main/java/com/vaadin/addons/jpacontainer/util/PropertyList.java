@@ -64,6 +64,16 @@ public final class PropertyList<T> implements Serializable {
     }
 
     /**
+     * Gets the metadata for the class from which the properties should
+     * be fetched.
+     *
+     * @return the class metadata (never null).
+     */
+    public ClassMetadata<T> getClassMetadata() {
+        return metadata;
+    }
+
+    /**
      * Adds the nested property <code>propertyName</code> to the set of properties.
      * An asterisk can be used as a wildcard to indicate all leaf-properties.
      * <p>
@@ -131,6 +141,13 @@ public final class PropertyList<T> implements Serializable {
         }
     }
 
+    /*
+     * TODO The current way of handlign nested properties was designed
+     * to also support getting and setting values of nested properties. However,
+     * this responsibility was later moved to ClassMetadata. Therefore,
+     * this design may be more complex than would actually be required. In
+     * a future version it should be fixed up.
+     */
     private static enum NestedPropertyKind {
 
         PERSISTENT,
@@ -143,7 +160,6 @@ public final class PropertyList<T> implements Serializable {
         private final String name;
         final ClassMetadata<? extends Object> parentClassMetadata;
         final Method propertyGetterMethod;
-        final Method propertySetterMethod;
 
         NestedProperty(String name,
                 ClassMetadata<? extends Object> parentClassMetadata) {
@@ -151,16 +167,13 @@ public final class PropertyList<T> implements Serializable {
             this.parentClassMetadata = parentClassMetadata;
             this.parent = null;
             this.propertyGetterMethod = null;
-            this.propertySetterMethod = null;
         }
 
-        NestedProperty(String name, Method propertyGetterMethod,
-                Method propertySetterMethod) {
+        NestedProperty(String name, Method propertyGetterMethod) {
             this.name = name;
             this.parentClassMetadata = null;
             this.parent = null;
             this.propertyGetterMethod = propertyGetterMethod;
-            this.propertySetterMethod = propertySetterMethod;
         }
 
         NestedProperty(String name,
@@ -170,68 +183,14 @@ public final class PropertyList<T> implements Serializable {
             this.parentClassMetadata = parentClassMetadata;
             this.parent = parent;
             this.propertyGetterMethod = null;
-            this.propertySetterMethod = null;
         }
 
         NestedProperty(String name, Method propertyGetterMethod,
-                Method propertySetterMethod,
                 NestedProperty parent) {
             this.name = name;
             this.parentClassMetadata = null;
             this.parent = parent;
             this.propertyGetterMethod = propertyGetterMethod;
-            this.propertySetterMethod = propertySetterMethod;
-        }
-
-        Object getValue(Object object) throws IllegalArgumentException {
-            /*
-             * First, we backtrack until we reach the root property and retrieve
-             * its value. Then, we move back up the recursive invokation chain,
-             * retrieving the property values until the intended value
-             * has been returned.
-             */
-            if (parent != null) {
-                object = parent.getValue(object);
-            }
-            if (object == null) {
-                return null;
-            }
-            if (parentClassMetadata != null) {
-                return ((ClassMetadata<Object>) parentClassMetadata).
-                        getPropertyValue(object, name);
-            } else {
-                try {
-                    return propertyGetterMethod.invoke(object);
-                } catch (Exception e) {
-                    throw new IllegalArgumentException(
-                            "Could not access property", e);
-                }
-            }
-        }
-
-        void setValue(Object object, Object value) throws
-                IllegalArgumentException, IllegalStateException {
-            /*
-             * Algorithm similar to getValue()
-             */
-            if (parent != null) {
-                object = parent.getValue(object);
-            }
-            if (object == null) {
-                throw new IllegalStateException(
-                        "A null value was found somewhere in the chain of nested properties");
-            }
-            if (parentClassMetadata != null) {
-                ((ClassMetadata<Object>) parentClassMetadata).setPropertyValue(
-                        object, name, value);
-            } else {
-                try {
-                    propertySetterMethod.invoke(object, value);
-                } catch (Exception e) {
-                    throw new IllegalArgumentException(
-                            "Could not set property value", e);
-                }
-            }
         }
 
         String getName() {
@@ -300,9 +259,8 @@ public final class PropertyList<T> implements Serializable {
                         throw new IllegalArgumentException(
                                 "Invalid property name");
                     } else {
-                        property = new NestedProperty(name, getter, getSetterMethod(
-                                name, parentProperty.getType(), getter.
-                                getReturnType()), parentProperty);
+                        property = new NestedProperty(name, getter,
+                                parentProperty);
                     }
                 }
                 nestedPropertyMap.put(propertyName, property);
@@ -337,33 +295,19 @@ public final class PropertyList<T> implements Serializable {
         }
     }
 
-    private Method getSetterMethod(String prop, Class<?> parent,
-            Class<?> propertyType) {
-        String propertyName = prop.substring(0, 1).toUpperCase() + prop.
-                substring(1);
-        try {
-            Method m = parent.getMethod("set" + propertyName, propertyType);
-            if (m.getReturnType() == Void.TYPE) {
-                return m;
-            } else {
-                return null;
-            }
-        } catch (NoSuchMethodException e) {
-            return null;
-        }
-    }
-
     /**
      * Removes <code>propertyName</code> from the set of properties.
      *
      * @param propertyName the property name to remove, must not be null.
+     * @return true if a property was removed, false if not (i.e. it did not exist in the first place).
      */
-    public void removeProperty(String propertyName) {
+    public boolean removeProperty(String propertyName) {
         assert propertyName != null : "propertyName must not be null";
-        propertyNames.remove(propertyName);
+        boolean result = propertyNames.remove(propertyName);
         persistentPropertyNames.remove(propertyName);
         // Do not remove from map of nested properties in case the property
         // is referenced by other nested properties.
+        return result;
     }
 
     /**
@@ -402,14 +346,7 @@ public final class PropertyList<T> implements Serializable {
             throw new IllegalArgumentException(
                     "Illegal property name: " + propertyName);
         }
-        if (propertyName.indexOf('.') == -1) {
-            // Simple property
-            return metadata.getPropertyValue(object, propertyName);
-        } else {
-            // Nested property
-            NestedProperty np = getNestedProperty(propertyName);
-            return np.getValue(object);
-        }
+        return metadata.getPropertyValue(object, propertyName);
     }
 
     /**
@@ -429,13 +366,6 @@ public final class PropertyList<T> implements Serializable {
             throw new IllegalArgumentException(
                     "Illegal property name: " + propertyName);
         }
-        if (propertyName.indexOf('.') == -1) {
-            // Simple property
-            metadata.setPropertyValue(object, propertyName, propertyValue);
-        } else {
-            // Nested property
-            NestedProperty np = getNestedProperty(propertyName);
-            np.setValue(object, propertyValue);
-        }
+        metadata.setPropertyValue(object, propertyName, propertyValue);
     }
 }

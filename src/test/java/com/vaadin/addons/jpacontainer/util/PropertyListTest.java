@@ -65,16 +65,18 @@ public class PropertyListTest {
     @Test
     public void testRemoveProperty() {
         assertTrue(propertyList.getPropertyNames().contains("fullName"));
-        propertyList.removeProperty("fullName");
+        assertTrue(propertyList.removeProperty("fullName"));
         assertFalse(propertyList.getPropertyNames().contains("fullName"));
 
         assertTrue(propertyList.getPropertyNames().contains("firstName"));
         assertTrue(propertyList.getPersistentPropertyNames().contains(
                 "firstName"));
-        propertyList.removeProperty("firstName");
+        assertTrue(propertyList.removeProperty("firstName"));
         assertFalse(propertyList.getPropertyNames().contains("firstName"));
         assertFalse(propertyList.getPersistentPropertyNames().contains(
                 "firstName"));
+
+        assertFalse(propertyList.removeProperty("nonexistent"));
     }
 
     @Test
