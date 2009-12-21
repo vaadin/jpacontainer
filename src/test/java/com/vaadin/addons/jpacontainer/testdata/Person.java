@@ -38,26 +38,23 @@ import org.apache.commons.lang.ObjectUtils;
  * @author Petter Holmström (IT Mill)
  */
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"lastName",
+@Table(uniqueConstraints =
+@UniqueConstraint(columnNames = {"lastName",
     "firstName"}))
 public class Person implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
     @Version
     private Long version;
-
     private String firstName;
-
     private String lastName;
-
     @Temporal(TemporalType.DATE)
     private Date dateOfBirth;
-
     @Embedded
     private Address address;
+    private transient String tempData;
 
     public Address getAddress() {
         return address;
@@ -99,6 +96,22 @@ public class Person implements Serializable {
         return version;
     }
 
+    public String getFullName() {
+        return getFirstName() + " " + getLastName();
+    }
+
+    public Address getTransientAddress() {
+        return address;
+    }
+
+    public String getTempData() {
+        return tempData;
+    }
+
+    public void setTempData(String tempData) {
+        this.tempData = tempData;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj.getClass() == getClass()) {
@@ -121,7 +134,11 @@ public class Person implements Serializable {
 
     @Override
     public String toString() {
-        return lastName + ", " + firstName + ", " + DateFormat.getDateInstance(
-                DateFormat.SHORT).format(dateOfBirth) + ", " + address + " (ID: " + id + ")";
+        String dob = null;
+        if (dateOfBirth != null) {
+            dob = DateFormat.getDateInstance(
+                    DateFormat.SHORT).format(dateOfBirth);
+        }
+        return lastName + ", " + firstName + ", " + dob + ", " + address + " (ID: " + id + ")";
     }
 }

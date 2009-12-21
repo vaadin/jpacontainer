@@ -30,10 +30,9 @@ import org.apache.commons.lang.ObjectUtils;
 public class Address implements Serializable {
 
     private String street;
-
     private String postalCode;
-
     private String postOffice;
+    private transient String tempData;
 
     public String getPostOffice() {
         return postOffice;
@@ -59,6 +58,18 @@ public class Address implements Serializable {
         this.street = street;
     }
 
+    public String getFullAddress() {
+        return street + " " + postalCode + " " + postOffice;
+    }
+
+    public String getTempData() {
+        return tempData;
+    }
+
+    public void setTempData(String tempData) {
+        this.tempData = tempData;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj.getClass() == getClass()) {
@@ -81,5 +92,4 @@ public class Address implements Serializable {
     public String toString() {
         return street + ", " + postalCode + " " + postOffice;
     }
-
 }
