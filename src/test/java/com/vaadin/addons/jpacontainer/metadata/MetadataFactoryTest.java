@@ -163,8 +163,14 @@ public class MetadataFactoryTest {
             assertEquals(String.class, prop.getType());
             assertTrue(prop.isWritable());
         }
+        {
+            PropertyMetadata prop = metadata.getProperty("transientAddress");
+            assertEquals("transientAddress", prop.getName());
+            assertEquals(Address_M.class, prop.getType());
+            assertTrue(prop.isWritable());
+        }
 
-        assertEquals(10, metadata.getProperties().size());
+        assertEquals(11, metadata.getProperties().size());
     }
 
     @Test

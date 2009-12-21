@@ -40,13 +40,11 @@ abstract class TestClasses {
     /*
      * Test classes that use field annotations
      */
-    
     @MappedSuperclass
     static abstract class BaseEntity_F implements Serializable {
 
         @Id
         Integer id;
-
         @Version
         Integer version;
 
@@ -59,22 +57,17 @@ abstract class TestClasses {
     static class Person_F extends BaseEntity_F {
 
         String firstName;
-
         String lastName;
-
         @Embedded
         Address_F address;
-
         transient String transientField;
-
         @Transient
         String transientField2;
-
         @OneToMany(mappedBy = "parent")
         Collection<Person_F> children;
-
         @ManyToOne
         Person_F parent;
+        transient Address_M transientAddress;
 
         public String getTransientField3() {
             return null;
@@ -85,7 +78,14 @@ abstract class TestClasses {
         }
 
         public void setTransientField4(String value) {
-            
+        }
+
+        public Address_M getTransientAddress() {
+            return transientAddress;
+        }
+
+        public void setTransientAddress(Address_M transientAddress) {
+            this.transientAddress = transientAddress;
         }
     }
 
@@ -93,19 +93,16 @@ abstract class TestClasses {
     static class Address_F implements Serializable {
 
         String street;
-
         String postalCode;
     }
 
     /*
      * Test classes that use method annotations
      */
-
     @MappedSuperclass
     static abstract class BaseEntity_M implements Serializable {
 
         private Integer id;
-
         private Integer version;
 
         @Id
@@ -129,22 +126,16 @@ abstract class TestClasses {
         public Integer getTransientBaseField() {
             return null;
         }
-
     }
 
     @Entity
     static class Person_M extends BaseEntity_M {
 
         private String firstName;
-
         private String lastName;
-
         private Address_M address;
-
         private String transientField2;
-
         private Collection<Person_M> children;
-
         private Person_M parent;
 
         public String getFirstName() {
@@ -208,7 +199,6 @@ abstract class TestClasses {
     static class Address_M implements Serializable {
 
         private String street;
-
         private String postalCode;
 
         public String getStreet() {
@@ -231,7 +221,6 @@ abstract class TestClasses {
     /*
      * Test classes for embedded IDs
      */
-
     @Entity
     static class EmbeddedIdEntity_F implements Serializable {
 
