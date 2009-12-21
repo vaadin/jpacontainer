@@ -151,7 +151,7 @@ public class ClassMetadata<T> implements Serializable {
                         e);
             }
         } else {
-            throw new IllegalArgumentException("No such property");
+            throw new IllegalArgumentException("No such property: " + propertyName);
         }
     }
 
@@ -194,7 +194,7 @@ public class ClassMetadata<T> implements Serializable {
                         e);
             }
         } else {
-            throw new IllegalArgumentException("No such writable property");
+            throw new IllegalArgumentException("No such writable property: " + propertyName);
         }
     }
 }
