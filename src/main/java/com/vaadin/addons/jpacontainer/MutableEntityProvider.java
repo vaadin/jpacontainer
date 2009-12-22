@@ -51,7 +51,8 @@ public interface MutableEntityProvider<T> extends EntityProvider<T> {
     public T updateEntity(T entity);
 
     /**
-     * Updates a single property value of a specific entity.
+     * Updates a single property value of a specific entity. If the entity is not found,
+     * nothing happens.
      *
      * @param entityId the identifier of the entity (must not be null).
      * @param propertyName the name of the property to update (must not be null).
