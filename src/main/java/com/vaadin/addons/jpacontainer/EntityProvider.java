@@ -42,15 +42,16 @@ public interface EntityProvider<T> {
     public T getEntity(Object entityId);
 
     /**
-     * Gets the entity at position <code>index</code> in the result set determined
+     * Gets the identifier of the entity at position <code>index</code> in the result set determined
      * from <code>filter</code> and <code>sortBy</code>.
      *
      * @param filter the filter that should be used to filter the entities (may be null).
      * @param sortBy the properties to sort by, if any (never null, but may be empty).
      * @param index the index of the entity to fetch.
-     * @return the entity, or null if not found.
+     * @return the entity identifier, or null if not found.
      */
-    public T getEntityAt(Filter filter, List<SortBy> sortBy, int index);
+    public Object getEntityIdentifierAt(Filter filter, List<SortBy> sortBy,
+            int index);
 
     /**
      * Gets the identifier of the first item in the list of entities determined
