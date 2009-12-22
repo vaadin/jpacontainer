@@ -31,6 +31,7 @@ import static org.easymock.EasyMock.*;
  * Test case for {@link AdvancedFilterableSupport}.
  *
  * @author Petter Holmström (IT Mill)
+ * @since 1.0
  */
 public class AdvancedFilterableSupportTest {
 

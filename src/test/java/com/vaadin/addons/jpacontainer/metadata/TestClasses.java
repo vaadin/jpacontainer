@@ -34,6 +34,7 @@ import javax.persistence.Version;
  * Test classes used by different unit tests in this package.
  *
  * @author Petter Holmström (IT Mill)
+ * @since 1.0
  */
 abstract class TestClasses {
 

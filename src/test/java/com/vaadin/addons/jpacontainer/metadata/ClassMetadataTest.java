@@ -25,6 +25,7 @@ import static org.junit.Assert.*;
  * Test case for {@link ClassMetadata}.
  *
  * @author Petter Holmström (IT Mill)
+ * @since 1.0
  */
 public class ClassMetadataTest {
 

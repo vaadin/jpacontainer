@@ -27,6 +27,7 @@ import static org.junit.Assert.*;
  * Test case for {@link PropertyMetadata}.
  *
  * @author Petter Holmström (IT Mill)
+ * @since 1.0
  */
 public class PropertyMetadataTest {
 

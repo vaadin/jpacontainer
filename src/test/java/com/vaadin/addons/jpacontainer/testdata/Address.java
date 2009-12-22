@@ -25,6 +25,7 @@ import org.apache.commons.lang.ObjectUtils;
  * Embeddable Java bean for testing.
  * 
  * @author Petter Holmström (IT Mill)
+ * @since 1.0
  */
 @Embeddable
 public class Address implements Serializable {
@@ -72,7 +73,7 @@ public class Address implements Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj.getClass() == getClass()) {
+        if (obj instanceof Address) {
             Address o = (Address) obj;
             return ObjectUtils.equals(street, o.street)
                     && ObjectUtils.equals(postalCode, o.postalCode)

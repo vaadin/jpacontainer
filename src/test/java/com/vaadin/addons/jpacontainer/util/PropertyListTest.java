@@ -29,6 +29,7 @@ import static org.junit.Assert.*;
  * Test case for {@link PropertyList}.
  *
  * @author Petter Holmström (IT Mill)
+ * @since 1.0
  */
 public class PropertyListTest {
 

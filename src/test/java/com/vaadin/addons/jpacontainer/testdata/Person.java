@@ -31,11 +31,13 @@ import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 import javax.persistence.Version;
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.time.DateUtils;
 
 /**
  * Entity Java bean for testing.
  *
  * @author Petter Holmström (IT Mill)
+ * @since 1.0
  */
 @Entity
 @Table(uniqueConstraints =
@@ -114,13 +116,14 @@ public class Person implements Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj.getClass() == getClass()) {
+        if (obj instanceof Person) {
             Person p = (Person) obj;
             return ObjectUtils.equals(address, p.address)
-                    && ObjectUtils.equals(dateOfBirth, p.dateOfBirth)
+                    && DateUtils.isSameDay(dateOfBirth, p.dateOfBirth)
                     && ObjectUtils.equals(firstName, p.firstName)
                     && ObjectUtils.equals(lastName, p.lastName);
         }
+
         return super.equals(obj);
     }
 
