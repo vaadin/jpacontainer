@@ -20,6 +20,7 @@ package com.vaadin.addons.jpacontainer.provider;
 import com.vaadin.addons.jpacontainer.EntityProvider;
 import com.vaadin.addons.jpacontainer.Filter;
 import com.vaadin.addons.jpacontainer.Filter.PropertyIdPreprocessor;
+import com.vaadin.addons.jpacontainer.MutableEntityProvider;
 import com.vaadin.addons.jpacontainer.SortBy;
 import com.vaadin.addons.jpacontainer.filter.CompositeFilter;
 import com.vaadin.addons.jpacontainer.filter.Filters;
@@ -27,6 +28,10 @@ import com.vaadin.addons.jpacontainer.filter.Junction;
 import com.vaadin.addons.jpacontainer.filter.ValueFilter;
 import com.vaadin.addons.jpacontainer.metadata.EntityClassMetadata;
 import com.vaadin.addons.jpacontainer.metadata.MetadataFactory;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,23 +41,35 @@ import java.util.List;
 import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
+import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
 
 /**
- * Document me!
+ * A mutable entity provider that works with a local {@link EntityManager}. Most important
+ * features and limitations:
+ * <ul>
+ *   <li>Does not do any internal caching, all information is always accessed directly from the EntityManager</li>
+ *   <li>Uses lazy-loading</li>
+ *   <li>Performs a serialize-deserialize cycle to clone entities in order to detach them from the persistence context</li>
+ *   <li>Once the entity manager has been set, it cannot be changed</li>
+ *   <li>Supports both internal and external transaction handling</li>
+ *   <li><strong>Does NOT currently support embedded identifiers!</strong></li>
+ * </ul>
  *
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
+public class LocalEntityProvider<T> implements EntityProvider<T>,
+        MutableEntityProvider<T>, Serializable {
 
     private EntityManager entityManager;
     private EntityClassMetadata<T> entityClassMetadata;
 
     /**
+     * Creates a new <code>LocalEntityProvider</code>.
      *
-     * @param entityClass
-     * @param entityManager
+     * @param entityClass the entity class (must not be null).
+     * @param entityManager the entity manager to use (must not be null).
      */
     public LocalEntityProvider(Class<T> entityClass, EntityManager entityManager) {
         assert entityClass != null : "entityClass must not be null";
@@ -69,25 +86,29 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
     }
 
     /**
+     * Gets the metadata for the entity class.
      *
-     * @return
+     * @return the metadata (never null).
      */
     protected EntityClassMetadata<T> getEntityClassMetadata() {
         return this.entityClassMetadata;
     }
 
     /**
+     * Gets the entity manager.
      *
-     * @return
+     * @return the entity manager (never null).
      */
     protected EntityManager getEntityManager() {
         return this.entityManager;
     }
 
     /**
+     * Creates a copy of <code>original</code> and adds an entry for the primary key
+     * to the end of the list.
      *
-     * @param original
-     * @return
+     * @param original the original list of sorting instructions (must not be null, but may be empty).
+     * @return a new list with the added entry for the primary key.
      */
     protected List<SortBy> addPrimaryKeyToSortList(List<SortBy> original) {
         ArrayList<SortBy> newList = new ArrayList<SortBy>();
@@ -98,12 +119,14 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
     }
 
     /**
-     *
-     * @param fieldsToSelect
-     * @param entityAlias
-     * @param filter
-     * @param propertyIdPreprocessor
-     * @return
+     * Creates a filtered query that does not do any sorting.
+     * 
+     * @see #createFilteredQuery(java.lang.String, java.lang.String, com.vaadin.addons.jpacontainer.Filter, java.util.List, boolean, com.vaadin.addons.jpacontainer.Filter.PropertyIdPreprocessor)
+     * @param fieldsToSelect the fields to select (must not be null).
+     * @param entityAlias the alias of the entity (must not be null).
+     * @param filter the filter to apply, or null if no filters should be applied.
+     * @param propertyIdPreprocessor the property ID preprocessor (may be null).
+     * @return the query (never null).
      */
     protected Query createUnsortedFilteredQuery(String fieldsToSelect,
             String entityAlias, Filter filter,
@@ -113,9 +136,10 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
     }
 
     /**
+     * Creates a filtered, optionally sorted, query.
      *
-     * @param fieldsToSelect
-     * @param entityAlias
+     * @param fieldsToSelect the fields to select (must not be null).
+     * @param entityAlias the alias of the entity (must not be null).
      * @param filter the filter to apply, or null if no filters should be applied.
      * @param sortBy the fields to sort by (must include at least one field), or null if the result should not be sorted at all.
      * @param swapSortOrder true to swap the sort order, false to use the sort order specified in <code>sortBy</code>. Only applies if <code>sortBy</code> is not null.
@@ -212,14 +236,27 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
     @Override
     public T getEntity(Object entityId) {
         assert entityId != null : "entityId must not be null";
-        return getEntityManager().find(getEntityClassMetadata().getMappedClass(),
+        T entity = getEntityManager().find(getEntityClassMetadata().
+                getMappedClass(),
                 entityId);
+        return detachEntity(entity);
     }
 
     @Override
-    public T getEntityAt(Filter filter,
+    public Object getEntityIdentifierAt(Filter filter,
             List<SortBy> sortBy, int index) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        assert sortBy != null : "sortBy must not be null";
+        Query query = createFilteredQuery("obj." + getEntityClassMetadata().
+                getIdentifierProperty().getName(), "obj", filter, addPrimaryKeyToSortList(
+                sortBy), false, null);
+        query.setMaxResults(1);
+        query.setFirstResult(index);
+        List<?> result = query.getResultList();
+        if (result.isEmpty()) {
+            return null;
+        } else {
+            return result.get(0);
+        }
     }
 
     @Override
@@ -264,12 +301,16 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
     }
 
     /**
-     * 
-     * @param entityId
-     * @param filter
-     * @param sortBy
-     * @param backwards
-     * @return
+     * If <code>backwards</code> is false, this method will return the identifier of the entity
+     * next to the entity identified by <code>entityId</code>. If true, this method will return the identifier
+     * of the entity previous to the entity identified by <code>entityId</code>. <code>filter</code> and <code>sortBy</code>
+     * is used to define and limit the list of entities to be used for determining the sibling.
+     *
+     * @param entityId the identifier of the entity whose sibling to retrieve (must not be null).
+     * @param filter an optional filter to limit the entities (may be null).
+     * @param sortBy the order in which the list should be sorted (must not be null).
+     * @param backwards true to fetch the previous sibling, false to fetch the next sibling.
+     * @return the identifier of the "sibling".
      */
     protected Object getSibling(Object entityId, Filter filter,
             List<SortBy> sortBy, boolean backwards) {
@@ -305,6 +346,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
             limitingFilter = Filters.or();
             for (int i = sortBy.size() - 1; i >= 0; i--) {
                 // TODO Document this code snippet once it works
+                // TODO What happens with null values?
                 Junction caseFilter = Filters.and();
                 SortBy sb;
                 for (int j = 0; j < i; j++) {
@@ -352,5 +394,164 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
     public Object getPreviousEntityIdentifier(Object entityId, Filter filter,
             List<SortBy> sortBy) {
         return getSibling(entityId, filter, sortBy, true);
+    }
+    private boolean transactionsHandled = false;
+
+    /**
+     * Specifies whether the entity provider should handle transactions
+     * itself or whether they should be handled outside (e.g. if declarative
+     * transactions are used).
+     * 
+     * @param transactionsHandled true to handle the transactions internally,
+     * false to rely on external transaction handling.
+     */
+    public void setTransactionsHandled(boolean transactionsHandled) {
+        this.transactionsHandled = transactionsHandled;
+    }
+
+    /**
+     * Returns whether the entity provider is handling transactions internally
+     * or relies on external transaction handling (the default).
+     *
+     * @return true if transactions are handled internally, false if not.
+     */
+    public boolean isTransactionsHandled() {
+        return transactionsHandled;
+    }
+
+    /**
+     * If {@link #isTransactionsHandled() } is true, <code>operation</code> will
+     * be executed inside a transaction that is commited after the operation is completed.
+     * Otherwise, <code>operation</code> will just be executed.
+     * 
+     * @param operation the operation to run (must not be null).
+     */
+    protected void runInTransaction(Runnable operation) {
+        assert operation != null : "operation must not be null";
+        if (isTransactionsHandled()) {
+            EntityTransaction et = getEntityManager().getTransaction();
+            try {
+                et.begin();
+                operation.run();
+                et.commit();
+            } finally {
+                if (et.isActive()) {
+                    et.rollback();
+                }
+            }
+        } else {
+            operation.run();
+        }
+    }
+
+    /**
+     * Detaches <code>entity</code> from the entity manager (until JPA 2.0 arrives).
+     * If <code>entity</code> is null, then null is returned.
+     *
+     * @param entity the entity to detach.
+     * @return the detached entity.
+     */
+    protected T detachEntity(T entity) {
+        if (entity == null) {
+            return null;
+        }
+        // TODO Replace with more efficient code, or a call to JPA 2.0
+        if (entity instanceof Serializable) {
+            /*
+             * What we do here is basically a clone, but we are using
+             * the Java serialization API. Thus, the entity parameter
+             * will be managed, but the returned entity will be a detached
+             * exact (well, more or less) copy of the entity.
+             *
+             * As of JPA 2.0, we can remove this code and just ask JPA
+             * to detach the object for us.
+             */
+            try {
+                ByteArrayOutputStream os = new ByteArrayOutputStream();
+                ObjectOutputStream oos = new ObjectOutputStream(os);
+                oos.writeObject(entity);
+                ByteArrayInputStream is = new ByteArrayInputStream(os.
+                        toByteArray());
+                ObjectInputStream ois = new ObjectInputStream(is);
+                return getEntityClassMetadata().getMappedClass().cast(ois.
+                        readObject());
+            } catch (Exception e) {
+                // Do nothing, entity manager will be cleared
+            }
+        }
+        System.out.println(
+                "WARNING: Clearing EntityManager in order to detach the entities in it");
+        getEntityManager().clear();
+        return entity;
+    }
+
+    @Override
+    public T addEntity(final T entity) {
+        assert entity != null;
+        runInTransaction(new Runnable() {
+
+            @Override
+            public void run() {
+                EntityManager em = getEntityManager();
+                em.persist(entity);
+                em.flush();
+            }
+        });
+        return detachEntity(entity);
+    }
+
+    @Override
+    public void removeEntity(final Object entityId) {
+        assert entityId != null;
+        runInTransaction(new Runnable() {
+
+            @Override
+            public void run() {
+                EntityManager em = getEntityManager();
+                T entity = em.find(getEntityClassMetadata().getMappedClass(),
+                        entityId);
+                if (entity != null) {
+                    em.remove(entity);
+                    em.flush();
+                }
+            }
+        });
+    }
+
+    @Override
+    public T updateEntity(final T entity) {
+        assert entity != null : "entity must not be null";
+        runInTransaction(new Runnable() {
+
+            @Override
+            public void run() {
+                EntityManager em = getEntityManager();
+                em.merge(entity);
+                em.flush();
+            }
+        });
+        return detachEntity(entity);
+    }
+
+    @Override
+    public void updateEntityProperty(final Object entityId,
+            final String propertyName,
+            final Object propertyValue) throws IllegalArgumentException {
+        assert entityId != null : "entityId must not be null";
+        assert propertyName != null : "propertyName must not be null";
+        runInTransaction(new Runnable() {
+
+            @Override
+            public void run() {
+                EntityManager em = getEntityManager();
+                T entity = em.find(getEntityClassMetadata().getMappedClass(),
+                        entityId);
+                if (entity != null) {
+                    getEntityClassMetadata().setPropertyValue(entity,
+                            propertyName, propertyValue);
+                    em.flush();
+                }
+            }
+        });
     }
 }
