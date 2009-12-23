@@ -17,15 +17,19 @@
  */
 package com.vaadin.addons.jpacontainer;
 
+import com.vaadin.addons.jpacontainer.filter.Filters;
 import com.vaadin.addons.jpacontainer.filter.util.AdvancedFilterableSupport;
 import com.vaadin.addons.jpacontainer.metadata.EntityClassMetadata;
 import com.vaadin.addons.jpacontainer.metadata.MetadataFactory;
+import com.vaadin.addons.jpacontainer.util.PropertyList;
 import com.vaadin.data.Buffered.SourceException;
+import com.vaadin.data.Container;
 import com.vaadin.data.Container.ItemSetChangeListener;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Validator.InvalidValueException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -43,28 +47,41 @@ import java.util.List;
 public class JPAContainer<T> implements EntityContainer<T> {
 
     private EntityProvider<T> entityProvider;
-    private AdvancedFilterableSupport filterSupport = new AdvancedFilterableSupport();
+    private AdvancedFilterableSupport filterSupport;
     private LinkedList<ItemSetChangeListener> listeners;
     private EntityClassMetadata<T> entityClassMetadata;
+    private List<SortBy> sortByList;
+    private PropertyList<T> propertyList;
 
     /**
+     * TODO Document me!
      * 
      * @param entityClass
      */
     public JPAContainer(Class<T> entityClass) {
         assert entityClass != null : "entityClass must not be null";
-        this.entityClassMetadata = getClassMetadataFactory().getEntityClassMetadata(entityClass);
+        this.entityClassMetadata = MetadataFactory.getInstance().
+                getEntityClassMetadata(entityClass);
+        this.propertyList = new PropertyList(entityClassMetadata);
+        this.filterSupport = new AdvancedFilterableSupport();
+        /*
+         * Add a listener to filterSupport, so that we can notify all
+         * clients that use our container that the data has been filtered.
+         */
+        this.filterSupport.addListener(new AdvancedFilterableSupport.Listener() {
+
+            @Override
+            public void filtersApplied(AdvancedFilterableSupport sender) {
+                fireContainerItemSetChange(new FiltersAppliedEvent(
+                        JPAContainer.this));
+            }
+        });
+        this.filterSupport.setFilterablePropertyIds(propertyList.
+                getPersistentPropertyNames());
     }
 
     /**
-     *
-     * @return
-     */
-    protected MetadataFactory getClassMetadataFactory() {
-        throw new UnsupportedOperationException("Not implemented yet");
-    }
-
-    /**
+     * TODO Document me!
      *
      * @return
      */
@@ -90,14 +107,33 @@ public class JPAContainer<T> implements EntityContainer<T> {
         }
     }
 
+    /**
+     * Publishes <code>event</code> to all registered
+     * <code>ItemSetChangeListener</code>s.
+     *
+     * @param event the event to publish (must not be null).
+     */
+    protected void fireContainerItemSetChange(final ItemSetChangeEvent event) {
+        assert event != null : "event must not be null";
+        LinkedList<ItemSetChangeListener> list =
+                (LinkedList<ItemSetChangeListener>) listeners.clone();
+        for (ItemSetChangeListener l : list) {
+            l.containerItemSetChange(event);
+        }
+    }
+
     @Override
-    public T addEntity(T entity) throws UnsupportedOperationException, IllegalStateException {
+    public T addEntity(T entity) throws UnsupportedOperationException,
+            IllegalStateException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public void addNestedContainerProperty(String nestedProperty) throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void addNestedContainerProperty(String nestedProperty) throws
+            UnsupportedOperationException {
+        propertyList.addNestedProperty(nestedProperty);
+        this.filterSupport.setFilterablePropertyIds(propertyList.
+                getPersistentPropertyNames());
     }
 
     @Override
@@ -107,6 +143,20 @@ public class JPAContainer<T> implements EntityContainer<T> {
 
     @Override
     public EntityProvider<T> getEntityProvider() {
+        return entityProvider;
+    }
+
+    /**
+     * TODO Document me!
+     * 
+     * @return
+     * @throws IllegalStateException
+     */
+    protected EntityProvider<T> doGetEntityProvider() throws
+            IllegalStateException {
+        if (entityProvider == null) {
+            throw new IllegalStateException("No EntityProvider has been set");
+        }
         return entityProvider;
     }
 
@@ -122,79 +172,144 @@ public class JPAContainer<T> implements EntityContainer<T> {
     }
 
     @Override
-    public void setReadOnly(boolean readOnly) throws UnsupportedOperationException {
+    public void setReadOnly(boolean readOnly) throws
+            UnsupportedOperationException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public Collection<?> getSortableContainerPropertyIds() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return propertyList.getPersistentPropertyNames();
     }
 
     @Override
+    @SuppressWarnings("element-type-mismatch")
     public void sort(Object[] propertyId, boolean[] ascending) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        assert propertyId != null : "propertyId must not be null";
+        assert ascending != null : "ascending must not be null";
+        assert propertyId.length == ascending.length :
+                "propertyId and ascending must have the same length";
+        sortByList = new LinkedList<SortBy>();
+        for (int i = 0; i < propertyId.length; ++i) {
+            if (!getSortableContainerPropertyIds().contains(propertyId[i])) {
+                throw new IllegalArgumentException(
+                        "No such sortable property ID: " + propertyId[i]);
+            }
+            sortByList.add(new SortBy(propertyId[i], ascending[i]));
+        }
+        sortByList = Collections.unmodifiableList(sortByList);
+        fireContainerItemSetChange(new ContainerSortedEvent());
     }
 
-    @Override
-    public Object addItemAfter(Object previousItemId) throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("Not supported yet.");
+    /**
+     * Gets all the properties that the items should be sorted by, if any.
+     *
+     * @return an unmodifiable, possible empty list of <code>SortBy</code>
+     *      instances (never null).
+     */
+    protected List<SortBy> getSortByList() {
+        if (sortByList == null) {
+            return Collections.emptyList();
+        } else {
+            return sortByList;
+        }
     }
 
+    /**
+     * <strong>This functionality is not supported by this implementation.</strong>
+     * <p>
+     * {@inheritDoc }
+     */
     @Override
-    public Item addItemAfter(Object previousItemId, Object newItemId) throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public Object addItemAfter(Object previousItemId) throws
+            UnsupportedOperationException {
+        throw new UnsupportedOperationException();
     }
 
+    /**
+     * <strong>This functionality is not supported by this implementation.</strong>
+     * <p>
+     * {@inheritDoc }
+     */
     @Override
-    public Object firstItemId() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public boolean isFirstId(Object itemId) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public boolean isLastId(Object itemId) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public Object lastItemId() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public Object nextItemId(Object itemId) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public Object prevItemId(Object itemId) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public boolean addContainerProperty(Object propertyId, Class<?> type, Object defaultValue) throws UnsupportedOperationException {
-        // This functionality is not supported
+    public Item addItemAfter(Object previousItemId, Object newItemId) throws
+            UnsupportedOperationException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Item addItem(Object itemId) throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public Object firstItemId() {
+        return doGetEntityProvider().getFirstEntityIdentifier(
+                getAppliedFiltersAsConjunction(), getSortByList());
     }
 
     @Override
+    public boolean isFirstId(Object itemId) {
+        assert itemId != null : "itemId must not be null";
+        return itemId.equals(firstItemId());
+    }
+
+    @Override
+    public boolean isLastId(Object itemId) {
+        assert itemId != null : "itemId must not be null";
+        return itemId.equals(lastItemId());
+    }
+
+    @Override
+    public Object lastItemId() {
+        return doGetEntityProvider().getLastEntityIdentifier(
+                getAppliedFiltersAsConjunction(), getSortByList());
+    }
+
+    @Override
+    public Object nextItemId(Object itemId) {
+        return doGetEntityProvider().getNextEntityIdentifier(itemId,
+                getAppliedFiltersAsConjunction(),
+                getSortByList());
+    }
+
+    @Override
+    public Object prevItemId(Object itemId) {
+        return doGetEntityProvider().getPreviousEntityIdentifier(itemId,
+                getAppliedFiltersAsConjunction(),
+                getSortByList());
+    }
+
+    /**
+     * <strong>This functionality is not supported by this implementation.</strong>
+     * <p>
+     * {@inheritDoc }
+     */
+    @Override
+    public boolean addContainerProperty(Object propertyId, Class<?> type,
+            Object defaultValue) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * <strong>This functionality is not supported by this implementation.</strong>
+     * <p>
+     * {@inheritDoc }
+     */
+    @Override
+    public Item addItem(Object itemId) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * <strong>This functionality is not supported by this implementation.</strong>
+     * <p>
+     * {@inheritDoc }
+     */
+    @Override
     public Object addItem() throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean containsId(Object itemId) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return doGetEntityProvider().containsEntity(itemId,
+                getAppliedFiltersAsConjunction());
     }
 
     @Override
@@ -204,17 +319,24 @@ public class JPAContainer<T> implements EntityContainer<T> {
 
     @Override
     public Collection<?> getContainerPropertyIds() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return propertyList.getPropertyNames();
     }
 
     @Override
     public Item getItem(Object itemId) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        T entity = doGetEntityProvider().getEntity(itemId);
+        return entity != null ? new EntityItem(getEntityClassMetadata(), entity) : null;
     }
 
+    /**
+     * <strong>This impementation does not use lazy loading and performs bad when the number of items is large!
+     * Do not use unless you absolutely have to!</strong>
+     * <p>
+     * {@inheritDoc }
+     */
     @Override
     public Collection<?> getItemIds() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException("Not supported yet");
     }
 
     @Override
@@ -228,18 +350,21 @@ public class JPAContainer<T> implements EntityContainer<T> {
     }
 
     @Override
-    public boolean removeContainerProperty(Object propertyId) throws UnsupportedOperationException {
+    public boolean removeContainerProperty(Object propertyId) throws
+            UnsupportedOperationException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public boolean removeItem(Object itemId) throws UnsupportedOperationException {
+    public boolean removeItem(Object itemId) throws
+            UnsupportedOperationException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public int size() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return doGetEntityProvider().getEntityCount(
+                getAppliedFiltersAsConjunction());
     }
 
     @Override
@@ -255,6 +380,19 @@ public class JPAContainer<T> implements EntityContainer<T> {
     @Override
     public List<Filter> getAppliedFilters() {
         return filterSupport.getAppliedFilters();
+    }
+
+    /**
+     * TODO Document me!
+     * 
+     * @return
+     */
+    protected Filter getAppliedFiltersAsConjunction() {
+        if (getAppliedFilters().isEmpty()) {
+            return null;
+        } else {
+            return Filters.and(getAppliedFilters());
+        }
     }
 
     @Override
@@ -297,24 +435,51 @@ public class JPAContainer<T> implements EntityContainer<T> {
         filterSupport.setApplyFiltersImmediately(applyFiltersImmediately);
     }
 
+    /**
+     * <strong>This functionality is not supported by this implementation.</strong>
+     * <p>
+     * {@inheritDoc }
+     */
     @Override
     public Object addItemAt(int index) throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException();
     }
 
+    /**
+     * <strong>This functionality is not supported by this implementation.</strong>
+     * <p>
+     * {@inheritDoc }
+     */
     @Override
-    public Item addItemAt(int index, Object newItemId) throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public Item addItemAt(int index, Object newItemId) throws
+            UnsupportedOperationException {
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Object getIdByIndex(int index) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return doGetEntityProvider().getEntityIdentifierAt(
+                getAppliedFiltersAsConjunction(), getSortByList(), index);
     }
 
+    /**
+     * <strong>This impementation does not use lazy loading and performs bad when the number of items is large!
+     * Do not use unless you absolutely have to!</strong>
+     * <p>
+     * {@inheritDoc }
+     */
     @Override
     public int indexOfId(Object itemId) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        /*
+         * This is intentionally an ugly implementation! This method
+         * should not be used!
+         */
+        for (int i = 0; i < size(); i++) {
+            if (getIdByIndex(i).equals(itemId)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     @Override
@@ -348,7 +513,25 @@ public class JPAContainer<T> implements EntityContainer<T> {
     }
 
     @Override
-    public void setWriteThrough(boolean writeThrough) throws SourceException, InvalidValueException {
+    public void setWriteThrough(boolean writeThrough) throws SourceException,
+            InvalidValueException {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * Event indicating that the container has been resorted.
+     *
+     * @author Petter Holmström (IT Mill)
+     * @since 1.0
+     */
+    public final class ContainerSortedEvent implements ItemSetChangeEvent {
+
+        protected ContainerSortedEvent() {
+        }
+
+        @Override
+        public Container getContainer() {
+            return JPAContainer.this;
+        }
     }
 }

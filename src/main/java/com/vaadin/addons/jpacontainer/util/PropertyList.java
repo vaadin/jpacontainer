@@ -329,6 +329,27 @@ public final class PropertyList<T> implements Serializable {
     }
 
     /**
+     * Gets the type of <code>propertyName</code>. Nested properties are supported.
+     *
+     * @param propertyName the name of the property (must not be null).
+     * @return the type of the property (never null).
+     * @throws IllegalArgumentException if <code>propertyName</code> is illegal.
+     */
+    public Class<?> getPropertyType(String propertyName) throws
+            IllegalArgumentException {
+        assert propertyName != null : "propertyName must not be null";
+        if (!getPropertyNames().contains(propertyName)) {
+            throw new IllegalArgumentException(
+                    "Illegal property name: " + propertyName);
+        }
+        if (propertyName.indexOf('.') != -1) {
+            return getNestedProperty(propertyName).getType();
+        } else {
+            return metadata.getProperty(propertyName).getType();
+        }
+    }
+
+    /**
      * Gets the value of <code>propertyName</code> from the instance <code>object</code>.
      * The property name may be nested, but must be in the {@link #getPropertyNames() } set.
      * <p>
@@ -342,6 +363,8 @@ public final class PropertyList<T> implements Serializable {
      */
     public Object getPropertyValue(T object, String propertyName) throws
             IllegalArgumentException {
+        assert propertyName != null : "propertyName must not be null";
+        assert object != null : "object must not be null";
         if (!getPropertyNames().contains(propertyName)) {
             throw new IllegalArgumentException(
                     "Illegal property name: " + propertyName);
@@ -362,6 +385,8 @@ public final class PropertyList<T> implements Serializable {
     public void setPropertyValue(T object, String propertyName,
             Object propertyValue) throws IllegalArgumentException,
             IllegalStateException {
+        assert propertyName != null : "propertyName must not be null";
+        assert object != null : "object must not be null";
         if (!getPropertyNames().contains(propertyName)) {
             throw new IllegalArgumentException(
                     "Illegal property name: " + propertyName);

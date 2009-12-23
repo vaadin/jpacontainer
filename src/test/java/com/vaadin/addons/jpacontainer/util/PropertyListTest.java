@@ -21,6 +21,7 @@ import com.vaadin.addons.jpacontainer.metadata.ClassMetadata;
 import com.vaadin.addons.jpacontainer.metadata.MetadataFactory;
 import com.vaadin.addons.jpacontainer.testdata.Address;
 import com.vaadin.addons.jpacontainer.testdata.Person;
+import java.util.Date;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -339,4 +340,16 @@ public class PropertyListTest {
         }
     }
     
+    @Test
+    public void testGetPropertyType_SingleProperty() {
+        Person p = new Person();
+        assertSame(Date.class, propertyList.getPropertyType("dateOfBirth"));
+    }
+
+    @Test
+    public void testGetPropertyType_NestedProperty() {
+        Person p = new Person();
+        propertyList.addNestedProperty("address.street");
+        assertSame(String.class, propertyList.getPropertyType("address.street"));
+    }
 }

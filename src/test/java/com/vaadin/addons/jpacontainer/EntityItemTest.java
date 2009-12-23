@@ -15,32 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.vaadin.addons.jpacontainer.util;
-
-import com.vaadin.addons.jpacontainer.metadata.MetadataFactory;
-import com.vaadin.addons.jpacontainer.metadata.impl.ClassMetadataImplFactory;
+package com.vaadin.addons.jpacontainer;
 
 /**
- * Utility class that provides access to the default {@link MetadataFactory} implementation
- * that is used by all other JPAContainer classes.
+ * Test case for {@link EntityItem}.
  *
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public final class DefaultMetadataFactory {
+public class EntityItemTest {
 
-    private static MetadataFactory factory = new ClassMetadataImplFactory();
-
-    private DefaultMetadataFactory() {
-        // NOP
-    }
-
-    /**
-     * Gets the metadata factory instance.
-     * 
-     * @return the factory instance (never null).
-     */
-    public static MetadataFactory getInstance() {
-        return factory;
-    }
 }

@@ -17,10 +17,8 @@
  */
 package com.vaadin.addons.jpacontainer.util;
 
-import com.vaadin.addons.jpacontainer.CachingEntityContainer;
 import com.vaadin.addons.jpacontainer.EntityContainer;
-import com.vaadin.addons.jpacontainer.EntityContainerDataSource;
-import com.vaadin.addons.jpacontainer.PreLoadingCachingEntityContainer;
+import com.vaadin.addons.jpacontainer.EntityProvider;
 import javax.persistence.EntityManager;
 
 /**
@@ -35,32 +33,18 @@ public final class EntityContainerFactory {
     // TODO Implement factory methods
 
     public static <T> EntityContainer<T> createEntityContainer(
-            Class<T> entityClass, EntityContainerDataSource<T> dataSource) {
+            Class<T> entityClass, EntityProvider<T> dataSource) {
         throw new UnsupportedOperationException("Not implemented yet!");
     }
 
-    public static <T> EntityContainer<T> createJPAContainer(Class<T> entityClass,
+    public static EntityContainer createJPAContainer(Class<?> entityClass,
             EntityManager entityManager) {
         throw new UnsupportedOperationException("Not implemented yet!");
     }
 
-    public static <T> CachingEntityContainer<T> createCachingEntityContainer(
-            Class<T> entityClass, EntityContainerDataSource<T> dataSource) {
+    public static EntityContainer createCachingJPAContainer(
+            Class<?> entityClass, EntityManager entityManager) {
         throw new UnsupportedOperationException("Not implemented yet!");
     }
 
-    public static <T> CachingEntityContainer<T> createCachingJPAContainer(
-            Class<T> entityClass, EntityManager entityManager) {
-        throw new UnsupportedOperationException("Not implemented yet!");
-    }
-
-    public static <T> PreLoadingCachingEntityContainer<T> createPreLoadingCachingEntityContainer(
-            Class<T> entityClass, EntityContainerDataSource<T> dataSource) {
-        throw new UnsupportedOperationException("Not implemented yet!");
-    }
-
-    public static <T> PreLoadingCachingEntityContainer<T> createPreLoadingCachingJPAContainer(
-            Class<T> entityClass, EntityManager entityManager) {
-        throw new UnsupportedOperationException("Not implemented yet!");
-    }
 }
