@@ -94,6 +94,16 @@ public class ClassMetadata<T> implements Serializable {
     }
 
     /**
+     * Gets the names of all persistent properties of this class.
+     * 
+     * @see #getPersistentProperties() 
+     * @return an unmodifiable collection of property names.
+     */
+    public Collection<String> getPersistentPropertyNames() {
+        return Collections.unmodifiableCollection(persistentProperties.keySet());
+    }
+
+    /**
      * Gets all the properties of the class. In addition to the persistent properties,
      * all public JavaBean properties are also included (even those who do not have
      * setter methods).
@@ -102,6 +112,16 @@ public class ClassMetadata<T> implements Serializable {
      */
     public Collection<PropertyMetadata> getProperties() {
         return Collections.unmodifiableCollection(allProperties.values());
+    }
+
+    /**
+     * Gets the names of all the properties of this class.
+     * 
+     * @see #getProperties()
+     * @return an unmodifiable collection of property names.
+     */
+    public Collection<String> getPropertyNames() {
+        return Collections.unmodifiableCollection(allProperties.keySet());
     }
 
     /**

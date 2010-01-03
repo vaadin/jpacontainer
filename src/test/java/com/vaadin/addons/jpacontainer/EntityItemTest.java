@@ -17,6 +17,17 @@
  */
 package com.vaadin.addons.jpacontainer;
 
+import com.vaadin.addons.jpacontainer.metadata.MetadataFactory;
+import com.vaadin.addons.jpacontainer.testdata.Address;
+import com.vaadin.addons.jpacontainer.testdata.Person;
+import com.vaadin.addons.jpacontainer.util.PropertyList;
+import com.vaadin.data.Property.ReadOnlyException;
+import java.util.Collection;
+import java.util.Date;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
+
 /**
  * Test case for {@link EntityItem}.
  *
@@ -25,4 +36,78 @@ package com.vaadin.addons.jpacontainer;
  */
 public class EntityItemTest {
 
+    private EntityItem<Person> item;
+    private Person entity;
+    private PropertyList<Person> propertyList;
+
+    @Before
+    public void setUp() {
+        propertyList = new PropertyList<Person>(MetadataFactory.getInstance().getEntityClassMetadata(Person.class));
+        propertyList.addNestedProperty("address.street");
+        propertyList.addNestedProperty("address.fullAddress");
+        entity = new Person();
+        entity.setAddress(new Address());
+        item = new EntityItem<Person>(propertyList, entity);
+    }
+
+    @Test
+    public void testGetItemPropertyIds() {
+        Collection<String> propertyIds = (Collection<String>) item.getItemPropertyIds();
+        assertTrue(propertyIds.containsAll(propertyList.getNestedPropertyNames()));
+        assertTrue(propertyIds.containsAll(propertyList.getClassMetadata().getPropertyNames()));
+        assertEquals(propertyList.getNestedPropertyNames().size() + propertyList.getClassMetadata().getPropertyNames().size(), propertyIds.size());
+    }
+
+    @Test
+    public void testGetItemProperty() {
+        assertNotNull(item.getItemProperty("firstName"));
+        assertNull(item.getItemProperty("nonexistent"));
+    }
+
+    @Test
+    public void testPropertyType() {
+        assertEquals(String.class, item.getItemProperty("firstName").getType());
+        assertEquals(Date.class, item.getItemProperty("dateOfBirth").getType());
+        assertEquals(String.class, item.getItemProperty("address.street").getType());
+        assertEquals(Address.class, item.getItemProperty("address").getType());
+    }
+
+    @Test
+    public void testPropertyReadOnly() {
+        assertFalse(item.getItemProperty("firstName").isReadOnly());
+        assertFalse(item.getItemProperty("address.street").isReadOnly());
+        assertTrue(item.getItemProperty("fullName").isReadOnly());
+        assertTrue(item.getItemProperty("address.fullAddress").isReadOnly());
+    }
+
+    @Test
+    public void testPropertyValuesAndModified() {
+        assertFalse(item.isModified());
+        assertNull(item.getItemProperty("firstName").getValue());
+        item.getItemProperty("firstName").setValue("Hello");
+        assertEquals("Hello", item.getItemProperty("firstName").getValue());
+        assertEquals("Hello", entity.getFirstName());
+        assertTrue(item.isModified());
+
+        item.setModified(false);
+
+        assertFalse(item.isModified());
+        assertNull(item.getItemProperty("address.street").getValue());
+        item.getItemProperty("address.street").setValue("World");
+        assertEquals("World", item.getItemProperty("address.street").getValue());
+        assertEquals("World", entity.getAddress().getStreet());
+        assertTrue(item.isModified());
+    }
+
+    @Test
+    public void testPropertyValues_ReadOnly() {
+        entity.setFirstName("Joe");
+        entity.setLastName("Cool");
+        try {
+            item.getItemProperty("fullName").setValue("Blah");
+            fail("No exception thrown");
+        } catch (ReadOnlyException e) {
+            assertEquals("Joe Cool", item.getItemProperty("fullName").getValue());
+        }
+    }
 }

@@ -52,6 +52,7 @@ public class JPAContainer<T> implements EntityContainer<T> {
     private EntityClassMetadata<T> entityClassMetadata;
     private List<SortBy> sortByList;
     private PropertyList<T> propertyList;
+    private boolean readOnly = false;
 
     /**
      * TODO Document me!
@@ -76,7 +77,9 @@ public class JPAContainer<T> implements EntityContainer<T> {
                         JPAContainer.this));
             }
         });
-        this.filterSupport.setFilterablePropertyIds(propertyList.
+        // This list instance will remain the same, which means that any changes
+        // made to propertyList will automatically show up in filterSupport as well.
+        this.filterSupport.setFilterablePropertyIds((Collection) propertyList.
                 getPersistentPropertyNames());
     }
 
@@ -115,6 +118,9 @@ public class JPAContainer<T> implements EntityContainer<T> {
      */
     protected void fireContainerItemSetChange(final ItemSetChangeEvent event) {
         assert event != null : "event must not be null";
+        if (listeners == null) {
+            return;
+        }
         LinkedList<ItemSetChangeListener> list =
                 (LinkedList<ItemSetChangeListener>) listeners.clone();
         for (ItemSetChangeListener l : list) {
@@ -123,17 +129,9 @@ public class JPAContainer<T> implements EntityContainer<T> {
     }
 
     @Override
-    public T addEntity(T entity) throws UnsupportedOperationException,
-            IllegalStateException {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
     public void addNestedContainerProperty(String nestedProperty) throws
             UnsupportedOperationException {
         propertyList.addNestedProperty(nestedProperty);
-        this.filterSupport.setFilterablePropertyIds(propertyList.
-                getPersistentPropertyNames());
     }
 
     @Override
@@ -162,7 +160,7 @@ public class JPAContainer<T> implements EntityContainer<T> {
 
     @Override
     public boolean isReadOnly() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return !(doGetEntityProvider() instanceof MutableEntityProvider) || readOnly;
     }
 
     @Override
@@ -174,11 +172,16 @@ public class JPAContainer<T> implements EntityContainer<T> {
     @Override
     public void setReadOnly(boolean readOnly) throws
             UnsupportedOperationException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (doGetEntityProvider() instanceof MutableEntityProvider) {
+            this.readOnly = readOnly;
+        } else {
+            throw new UnsupportedOperationException(
+                    "EntityProvider is not mutable");
+        }
     }
 
     @Override
-    public Collection<?> getSortableContainerPropertyIds() {
+    public Collection<String> getSortableContainerPropertyIds() {
         return propertyList.getPersistentPropertyNames();
     }
 
@@ -314,18 +317,19 @@ public class JPAContainer<T> implements EntityContainer<T> {
 
     @Override
     public Property getContainerProperty(Object itemId, Object propertyId) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        Item item = getItem(itemId);
+        return item == null ? null : item.getItemProperty(propertyId);
     }
 
     @Override
-    public Collection<?> getContainerPropertyIds() {
+    public Collection<String> getContainerPropertyIds() {
         return propertyList.getPropertyNames();
     }
 
     @Override
     public Item getItem(Object itemId) {
         T entity = doGetEntityProvider().getEntity(itemId);
-        return entity != null ? new EntityItem(getEntityClassMetadata(), entity) : null;
+        return entity != null ? new EntityItem(propertyList, entity) : null;
     }
 
     /**
@@ -335,30 +339,21 @@ public class JPAContainer<T> implements EntityContainer<T> {
      * {@inheritDoc }
      */
     @Override
-    public Collection<?> getItemIds() {
+    public Collection<Object> getItemIds() {
         throw new UnsupportedOperationException("Not supported yet");
     }
 
     @Override
     public Class<?> getType(Object propertyId) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public boolean removeAllItems() throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        assert propertyId != null : "propertyId must not be null";
+        return propertyList.getPropertyType(propertyId.toString());
     }
 
     @Override
     public boolean removeContainerProperty(Object propertyId) throws
             UnsupportedOperationException {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public boolean removeItem(Object itemId) throws
-            UnsupportedOperationException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        assert propertyId != null : "propertyId must not be null";
+        return propertyList.removeProperty(propertyId.toString());
     }
 
     @Override
@@ -475,11 +470,31 @@ public class JPAContainer<T> implements EntityContainer<T> {
          * should not be used!
          */
         for (int i = 0; i < size(); i++) {
-            if (getIdByIndex(i).equals(itemId)) {
+            Object id = getIdByIndex(i);
+            if (id == null) {
+                return -1;
+            } else if (id.equals(itemId)) {
                 return i;
             }
         }
         return -1;
+    }
+
+    @Override
+    public T addEntity(T entity) throws UnsupportedOperationException,
+            IllegalStateException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public boolean removeAllItems() throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public boolean removeItem(Object itemId) throws
+            UnsupportedOperationException {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override

@@ -71,7 +71,7 @@ public abstract class AbstractJunction implements Junction {
     @Override
     @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
     public boolean equals(Object obj) {
-        return super.equals(obj) && ((AbstractJunction) obj).filters.equals(filters);
+        return obj.getClass() == getClass() && ((AbstractJunction) obj).filters.equals(filters);
     }
 
     @Override
