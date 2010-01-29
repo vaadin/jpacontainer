@@ -164,14 +164,90 @@ public class JPAContainerTest {
                 getEntityClassMetadata().getPersistentPropertyNames()));
     }
 
+    @Test
     public void testApplyFilters_Delayed() {
-        // TODO Implement test
-        fail("Test not implemented yet");
+        final boolean[] listenerCalled = new boolean[1];
+        container.addListener(new ItemSetChangeListener() {
+
+            @Override
+            public void containerItemSetChange(ItemSetChangeEvent event) {
+                assertTrue(event instanceof JPAContainer.FiltersAppliedEvent);
+                listenerCalled[0] = true;
+            }
+        });
+        // Applied filters should not result in any direct calls to the entity provider
+        replay(entityProviderMock);
+        container.setEntityProvider(entityProviderMock);
+
+        container.setApplyFiltersImmediately(false);
+        assertFalse(container.isApplyFiltersImmediately());
+        assertFalse(listenerCalled[0]);
+        container.addFilter(Filters.eq("firstName", "Hello", false));
+
+        assertFalse(listenerCalled[0]);
+        assertTrue(container.getFilters().contains(Filters.eq("firstName",
+                "Hello", false)));
+        assertTrue(container.getAppliedFilters().isEmpty());
+        assertTrue(container.hasUnappliedFilters());
+
+        container.applyFilters();
+        assertTrue(listenerCalled[0]);
+        assertEquals(container.getFilters(), container.getAppliedFilters());
+        assertTrue(container.getFilters().contains(Filters.eq("firstName",
+                "Hello", false)));
+        assertFalse(container.hasUnappliedFilters());
+
+        // Try to remove the filters
+        listenerCalled[0] = false;
+
+        container.removeAllFilters();
+        assertTrue(container.getFilters().isEmpty());
+        assertFalse(container.getAppliedFilters().isEmpty());
+        assertTrue(container.hasUnappliedFilters());
+
+        container.applyFilters();
+        assertTrue(listenerCalled[0]);
+        assertTrue(container.getAppliedFilters().isEmpty());
+        assertFalse(container.hasUnappliedFilters());
+
+        verify(entityProviderMock);
     }
 
+    @Test
     public void testApplyFilters_Immediately() {
-        // TODO Implement test
-        fail("Test not implemented yet");
+        final boolean[] listenerCalled = new boolean[1];
+        container.addListener(new ItemSetChangeListener() {
+
+            @Override
+            public void containerItemSetChange(ItemSetChangeEvent event) {
+                assertTrue(event instanceof JPAContainer.FiltersAppliedEvent);
+                listenerCalled[0] = true;
+            }
+        });
+        // Applied filters should not result in any direct calls to the entity provider
+        replay(entityProviderMock);
+        container.setEntityProvider(entityProviderMock);
+
+        assertTrue(container.isApplyFiltersImmediately());
+        assertFalse(listenerCalled[0]);
+        container.addFilter(Filters.eq("firstName", "Hello", false));
+
+        assertEquals(container.getFilters(), container.getAppliedFilters());
+        assertTrue(container.getFilters().contains(Filters.eq("firstName",
+                "Hello", false)));
+        assertTrue(listenerCalled[0]);
+        assertFalse(container.hasUnappliedFilters());
+
+        // Tro to remove all the filters
+        listenerCalled[0] = false;
+
+        container.removeAllFilters();
+        assertTrue(container.getFilters().isEmpty());
+        assertTrue(container.getAppliedFilters().isEmpty());
+        assertTrue(listenerCalled[0]);
+        assertFalse(container.hasUnappliedFilters());
+
+        verify(entityProviderMock);
     }
 
     @Test
@@ -204,11 +280,16 @@ public class JPAContainerTest {
     @Test
     public void testIndexOfId() {
         expect(entityProviderMock.getEntityCount(null)).andStubReturn(5);
-        expect(entityProviderMock.getEntityIdentifierAt(null, new LinkedList<SortBy>(), 0)).andStubReturn("id1");
-        expect(entityProviderMock.getEntityIdentifierAt(null, new LinkedList<SortBy>(), 1)).andStubReturn("id2");
-        expect(entityProviderMock.getEntityIdentifierAt(null, new LinkedList<SortBy>(), 2)).andStubReturn("id3");
-        expect(entityProviderMock.getEntityIdentifierAt(null, new LinkedList<SortBy>(), 3)).andStubReturn("id4");
-        expect(entityProviderMock.getEntityIdentifierAt(null, new LinkedList<SortBy>(), 4)).andStubReturn(null);
+        expect(entityProviderMock.getEntityIdentifierAt(null,
+                new LinkedList<SortBy>(), 0)).andStubReturn("id1");
+        expect(entityProviderMock.getEntityIdentifierAt(null,
+                new LinkedList<SortBy>(), 1)).andStubReturn("id2");
+        expect(entityProviderMock.getEntityIdentifierAt(null,
+                new LinkedList<SortBy>(), 2)).andStubReturn("id3");
+        expect(entityProviderMock.getEntityIdentifierAt(null,
+                new LinkedList<SortBy>(), 3)).andStubReturn("id4");
+        expect(entityProviderMock.getEntityIdentifierAt(null,
+                new LinkedList<SortBy>(), 4)).andStubReturn(null);
         replay(entityProviderMock);
 
         container.setEntityProvider(entityProviderMock);
@@ -281,11 +362,13 @@ public class JPAContainerTest {
 
         container.setEntityProvider(entityProviderMock);
 
-        assertEquals("Joe", container.getContainerProperty("myId", "firstName").getValue());
+        assertEquals("Joe", container.getContainerProperty("myId", "firstName").
+                getValue());
         assertNull(container.getContainerProperty("myId", "nonExistentProperty"));
         assertNull(container.getContainerProperty("nonExistent", "firstName"));
 
-        verify(entityProviderMock);    }
+        verify(entityProviderMock);
+    }
 
     @Test
     public void testContainsId() {
@@ -447,7 +530,8 @@ public class JPAContainerTest {
 
         assertFalse(listenerCalled[0]);
         assertTrue(container.getSortByList().isEmpty());
-        container.sort(new Object[]{"firstName","lastName"}, new boolean[]{true,false});
+        container.sort(new Object[]{"firstName", "lastName"}, new boolean[]{true,
+                    false});
         assertTrue(listenerCalled[0]);
         assertEquals(2, container.getSortByList().size());
         assertEquals("firstName", container.getSortByList().get(0).propertyId);
@@ -457,8 +541,76 @@ public class JPAContainerTest {
 
         verify(entityProviderMock);
     }
-    
-    // TODO Test all unsupported operations.
 
+    @Test
+    public void testUnsupportedOperations() {
+        try {
+            container.addItemAfter(null);
+            fail("No exception thrown");
+        } catch (UnsupportedOperationException ok) {
+        }
+        try {
+            container.addItemAfter(null, null);
+            fail("No exception thrown");
+        } catch (UnsupportedOperationException ok) {
+        }
+        try {
+            container.addContainerProperty("test", String.class, "");
+            fail("No exception thrown");
+        } catch (UnsupportedOperationException ok) {
+        }
+        try {
+            container.addItem("id");
+            fail("No exception thrown");
+        } catch (UnsupportedOperationException ok) {
+        }
+        try {
+            container.addItem();
+            fail("No exception thrown");
+        } catch (UnsupportedOperationException ok) {
+        }
+        try {
+            container.addItemAt(2);
+            fail("No exception thrown");
+        } catch (UnsupportedOperationException ok) {
+        }
+        try {
+            container.addItemAt(2, "id");
+            fail("No exception thrown");
+        } catch (UnsupportedOperationException ok) {
+        }
+        try {
+            container.setReadThrough(true);
+            fail("No exception thrown");
+        } catch (UnsupportedOperationException ok) {
+        }
+    }
+
+    @Test
+    public void testReadThrough_NoCachingProvider() {
+        replay(entityProviderMock);
+
+        // No cache -> read through always true
+        container.setEntityProvider(entityProviderMock);
+        assertTrue(container.isReadThrough());
+
+        verify(entityProviderMock);
+    }
+
+    @Test
+    public void testReadThrough_CachingProvider() {
+        expect(cachingEntityProviderMock.isCacheInUse()).andReturn(true);
+        expect(cachingEntityProviderMock.isCacheInUse()).andReturn(false);
+        replay(cachingEntityProviderMock);
+
+        // Caching container -> read through depends on the cache
+        container.setEntityProvider(cachingEntityProviderMock);
+
+        assertFalse(container.isReadThrough()); // Cache is on
+        assertTrue(container.isReadThrough()); // Cache is off
+
+        verify(cachingEntityProviderMock);
+    }
+    
     // TODO Test all modification operations.
 }

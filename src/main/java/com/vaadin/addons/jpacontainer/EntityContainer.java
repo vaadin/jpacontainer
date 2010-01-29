@@ -19,6 +19,7 @@ package com.vaadin.addons.jpacontainer;
 
 import com.vaadin.data.Buffered;
 import com.vaadin.data.Container;
+import com.vaadin.data.Validator.InvalidValueException;
 
 /**
  * TODO Write documentation!
@@ -85,4 +86,15 @@ public interface EntityContainer<T> extends Container.Sortable,
      */
     public void setReadOnly(boolean readOnly) throws
             UnsupportedOperationException;
+
+    /**
+     * Alias of {@link Buffered#setWriteThrough(boolean) }.
+     */
+    public void setAutoCommit(boolean autoCommit) throws SourceException,
+            InvalidValueException;
+
+    /**
+     * Alias of {@link Buffered#isWriteThrough() }.
+     */
+    public boolean isAutoCommit();
 }

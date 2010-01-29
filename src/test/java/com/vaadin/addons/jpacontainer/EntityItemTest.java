@@ -17,10 +17,8 @@
  */
 package com.vaadin.addons.jpacontainer;
 
-import com.vaadin.addons.jpacontainer.metadata.MetadataFactory;
 import com.vaadin.addons.jpacontainer.testdata.Address;
 import com.vaadin.addons.jpacontainer.testdata.Person;
-import com.vaadin.addons.jpacontainer.util.PropertyList;
 import com.vaadin.data.Property.ReadOnlyException;
 import java.util.Collection;
 import java.util.Date;
@@ -38,24 +36,22 @@ public class EntityItemTest {
 
     private EntityItem<Person> item;
     private Person entity;
-    private PropertyList<Person> propertyList;
+    private JPAContainer<Person> container;
 
     @Before
     public void setUp() {
-        propertyList = new PropertyList<Person>(MetadataFactory.getInstance().getEntityClassMetadata(Person.class));
-        propertyList.addNestedProperty("address.street");
-        propertyList.addNestedProperty("address.fullAddress");
+        container = new JPAContainer<Person>(Person.class);
+        container.addNestedContainerProperty("address.street");
+        container.addNestedContainerProperty("address.fullAddress");
         entity = new Person();
         entity.setAddress(new Address());
-        item = new EntityItem<Person>(propertyList, entity);
+        item = new EntityItem<Person>(container, entity);
     }
 
     @Test
     public void testGetItemPropertyIds() {
         Collection<String> propertyIds = (Collection<String>) item.getItemPropertyIds();
-        assertTrue(propertyIds.containsAll(propertyList.getNestedPropertyNames()));
-        assertTrue(propertyIds.containsAll(propertyList.getClassMetadata().getPropertyNames()));
-        assertEquals(propertyList.getNestedPropertyNames().size() + propertyList.getClassMetadata().getPropertyNames().size(), propertyIds.size());
+        assertEquals(container.getPropertyList().getAllAvailablePropertyNames(), propertyIds);
     }
 
     @Test

@@ -21,7 +21,6 @@ import com.vaadin.addons.jpacontainer.filter.Filters;
 import com.vaadin.addons.jpacontainer.filter.util.AdvancedFilterableSupport;
 import com.vaadin.addons.jpacontainer.metadata.EntityClassMetadata;
 import com.vaadin.addons.jpacontainer.metadata.MetadataFactory;
-import com.vaadin.addons.jpacontainer.util.PropertyList;
 import com.vaadin.data.Buffered.SourceException;
 import com.vaadin.data.Container;
 import com.vaadin.data.Container.ItemSetChangeListener;
@@ -326,10 +325,20 @@ public class JPAContainer<T> implements EntityContainer<T> {
         return propertyList.getPropertyNames();
     }
 
+    /**
+     * Method used by {@link EntityItem} to gain access to the property list.
+     * Not to be used by clients directly.
+     * @return the property list.
+     */
+    PropertyList<T> getPropertyList() {
+        // TODO Not sure whether this is a good idea, maybe the property list could be passed to EntityItem as a constructor parameter?
+        return propertyList;
+    }
+
     @Override
     public Item getItem(Object itemId) {
         T entity = doGetEntityProvider().getEntity(itemId);
-        return entity != null ? new EntityItem(propertyList, entity) : null;
+        return entity != null ? new EntityItem(this, entity) : null;
     }
 
     /**
@@ -514,7 +523,11 @@ public class JPAContainer<T> implements EntityContainer<T> {
 
     @Override
     public boolean isReadThrough() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        EntityProvider<T> ep = doGetEntityProvider();
+        if (ep instanceof CachingEntityProvider) {
+            return !((CachingEntityProvider) ep).isCacheInUse();
+        }
+        return true; // There is no cache at all
     }
 
     @Override
@@ -522,15 +535,31 @@ public class JPAContainer<T> implements EntityContainer<T> {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    /**
+     * <strong>This functionality is not supported by this implementation.</strong>
+     * <p>
+     * {@inheritDoc }
+     */
     @Override
     public void setReadThrough(boolean readThrough) throws SourceException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void setWriteThrough(boolean writeThrough) throws SourceException,
             InvalidValueException {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void setAutoCommit(boolean autoCommit) throws SourceException,
+            InvalidValueException {
+        setWriteThrough(autoCommit);
+    }
+
+    @Override
+    public boolean isAutoCommit() {
+        return isWriteThrough();
     }
 
     /**
