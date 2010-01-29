@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.vaadin.addons.jpacontainer.util;
+package com.vaadin.addons.jpacontainer;
 
 import com.vaadin.addons.jpacontainer.metadata.ClassMetadata;
 import com.vaadin.addons.jpacontainer.metadata.MetadataFactory;

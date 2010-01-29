@@ -15,9 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.vaadin.addons.jpacontainer.util;
+package com.vaadin.addons.jpacontainer;
 
-import com.vaadin.addons.jpacontainer.JPAContainer;
 import com.vaadin.addons.jpacontainer.metadata.ClassMetadata;
 import com.vaadin.addons.jpacontainer.metadata.PersistentPropertyMetadata;
 import com.vaadin.addons.jpacontainer.metadata.PropertyMetadata;
@@ -39,7 +38,7 @@ import java.util.Set;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public final class PropertyList<T> implements Serializable {
+final class PropertyList<T> implements Serializable {
 
     private ClassMetadata<T> metadata;
     private Set<String> propertyNames = new HashSet<String>();
