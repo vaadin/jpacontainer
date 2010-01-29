@@ -45,6 +45,7 @@ public final class PropertyList<T> implements Serializable {
     private Set<String> propertyNames = new HashSet<String>();
     private Set<String> persistentPropertyNames = new HashSet<String>();
     private Set<String> nestedPropertyNames = new HashSet<String>();
+    private Set<String> allPropertyNames = new HashSet<String>();
 
     /**
      * Creates a new <code>PropertyList</code> for the specified metadata.
@@ -58,6 +59,7 @@ public final class PropertyList<T> implements Serializable {
         this.metadata = metadata;
         for (PropertyMetadata pm : metadata.getProperties()) {
             propertyNames.add(pm.getName());
+            allPropertyNames.add(pm.getName());
             if (pm instanceof PersistentPropertyMetadata) {
                 persistentPropertyNames.add(pm.getName());
             }
@@ -103,7 +105,8 @@ public final class PropertyList<T> implements Serializable {
 
         if (propertyName.endsWith("*")) {
             // We add a whole bunch of properties
-            String parentPropertyName = propertyName.substring(0, propertyName.length() - 2);
+            String parentPropertyName = propertyName.substring(0, propertyName.
+                    length() - 2);
             NestedProperty parentProperty = getNestedProperty(parentPropertyName);
             if (parentProperty.getMetadata() != null) {
                 // The parent property is persistent and contains metadataq
@@ -114,17 +117,21 @@ public final class PropertyList<T> implements Serializable {
                         persistentPropertyNames.add(newName);
                     }
                     propertyNames.add(newName);
+                    allPropertyNames.add(newName);
                     nestedPropertyNames.add(newName);
                 }
             } else {
                 // The parent property is transient or is a simple property that does not contain any nestable properties
                 for (Method m : parentProperty.getType().getMethods()) {
                     if (m.getName().startsWith("get") && !Modifier.isStatic(
-                            m.getModifiers()) && m.getReturnType() != Void.TYPE && m.getDeclaringClass() != Object.class) {
-                        String newName = parentPropertyName + "." + Introspector.decapitalize(m.getName().substring(
+                            m.getModifiers()) && m.getReturnType() != Void.TYPE && m.
+                            getDeclaringClass() != Object.class) {
+                        String newName = parentPropertyName + "." + Introspector.
+                                decapitalize(m.getName().substring(
                                 3));
                         propertyNames.add(newName);
                         nestedPropertyNames.add(newName);
+                        allPropertyNames.add(newName);
                     }
                 }
             }
@@ -137,15 +144,16 @@ public final class PropertyList<T> implements Serializable {
             // Transient property
             propertyNames.add(propertyName);
             nestedPropertyNames.add(propertyName);
+            allPropertyNames.add(propertyName);
         }
     }
 
     /*
-     * TODO The current way of handlign nested properties was designed
+     * TODO The current way of handling nested properties was designed
      * to also support getting and setting values of nested properties. However,
      * this responsibility was later moved to ClassMetadata. Therefore,
      * this design may be more complex than would actually be required. In
-     * a future version it should be fixed up.
+     * a future version it should be cleaned up.
      */
     private static enum NestedPropertyKind {
 
@@ -236,7 +244,8 @@ public final class PropertyList<T> implements Serializable {
                  * if the setter is declared in a subclass.
                  */
                 try {
-                    propertyGetterMethod.getDeclaringClass().getMethod("s" + propertyGetterMethod.getName().substring(1), getType());
+                    propertyGetterMethod.getDeclaringClass().getMethod("s" + propertyGetterMethod.
+                            getName().substring(1), getType());
                     return true;
                 } catch (NoSuchMethodException e) {
                     return false;
@@ -265,7 +274,8 @@ public final class PropertyList<T> implements Serializable {
                         throw new IllegalArgumentException(
                                 "Invalid property name");
                     } else {
-                        property = new NestedProperty(pm.getName(), parentProperty.getMetadata(), parentProperty);
+                        property = new NestedProperty(pm.getName(), parentProperty.
+                                getMetadata(), parentProperty);
                     }
                 } else {
                     Method getter = getGetterMethod(name,
@@ -296,7 +306,8 @@ public final class PropertyList<T> implements Serializable {
     }
 
     private Method getGetterMethod(String prop, Class<?> parent) {
-        String propertyName = prop.substring(0, 1).toUpperCase() + prop.substring(1);
+        String propertyName = prop.substring(0, 1).toUpperCase() + prop.
+                substring(1);
         try {
             Method m = parent.getMethod("get" + propertyName);
             if (m.getReturnType() != Void.TYPE) {
@@ -319,10 +330,22 @@ public final class PropertyList<T> implements Serializable {
         assert propertyName != null : "propertyName must not be null";
         boolean result = propertyNames.remove(propertyName);
         persistentPropertyNames.remove(propertyName);
-        nestedPropertyNames.remove(propertyName);
+        if (nestedPropertyNames.remove(propertyName)) {
+            allPropertyNames.remove(propertyName);
+        }
         // Do not remove from map of nested properties in case the property
         // is referenced by other nested properties.
         return result;
+    }
+
+    /**
+     * Gets the set of all available property names, i.e. the union of
+     * {@link ClassMetadata#getPropertyNames() } and {@link #getNestedPropertyNames() }.
+     * Only nested property names can be added to or removed from this set.
+     * @return an unmodifiable set of property names (never null).
+     */
+    public Set<String> getAllAvailablePropertyNames() {
+        return Collections.unmodifiableSet(allPropertyNames);
     }
 
     /**
@@ -381,7 +404,8 @@ public final class PropertyList<T> implements Serializable {
      * @return true if the property is writable, false otherwise.
      * @throws IllegalArgumentException if <code>propertyName</code> is illegal.
      */
-    public boolean isPropertyWritable(String propertyName) throws IllegalArgumentException {
+    public boolean isPropertyWritable(String propertyName) throws
+            IllegalArgumentException {
         assert propertyName != null : "propertyName must not be null";
         if (!getPropertyNames().contains(propertyName)) {
             throw new IllegalArgumentException(
