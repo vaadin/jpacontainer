@@ -611,6 +611,22 @@ public class JPAContainerTest {
 
         verify(cachingEntityProviderMock);
     }
-    
+
+    public void testWriteThrough_NoBatchableProvider() {
+
+    }
+
+    public void testWriteThrough_BatchableProvider() {
+
+    }
+
+    public void testAddEntity_WriteThrough() {
+
+    }
+
+    public void testRemoveItem_WriteThrough() {
+        
+    }
+
     // TODO Test all modification operations.
 }

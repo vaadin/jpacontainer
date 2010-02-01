@@ -20,9 +20,7 @@ package com.vaadin.addons.jpacontainer;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 /**
@@ -112,6 +110,9 @@ public final class EntityItem<T> implements Item {
                             propertyId, newValue);
                 }
                 modified = true;
+                // Finally, notify the container
+                container.containerItemPropertyModified(EntityItem.this,
+                        propertyId);
             } catch (Exception e) {
                 throw new ConversionException(e);
             }
@@ -121,12 +122,12 @@ public final class EntityItem<T> implements Item {
     private JPAContainer<T> container;
     private Map<Object, EntityItemProperty> propertyMap;
     private boolean modified = false;
+    private boolean persistent = true;
 
-    // TODO Add a reference to JPAContainer
-    // - update modified state of container when item is modified
-    
     /**
-     * Creates a new <code>EntityItem</code>.
+     * Creates a new <code>EntityItem</code>. This constructor assumes that
+     * <code>entity</code> is persistent. If not, the <code>persistent</code> flag
+     * should be changed using {@link #isPersistent() }.
      *
      * @param container the container that holds the item (must not be null).
      * @param entity the entity for which the item should be created (must not be null).
@@ -197,5 +198,24 @@ public final class EntityItem<T> implements Item {
      */
     void setModified(boolean modified) {
         this.modified = modified;
+    }
+
+    /**
+     * Checks if this entity item has been persisted
+     *
+     * @return true if the item is persistent, false if not.
+     */
+    public boolean isPersistent() {
+        return persistent;
+    }
+
+    /**
+     * Changes the <code>persistent</code> flag of this item.
+     * 
+     * @see #isPersistent() 
+     * @param persistent true to mark the item as persistent, false to mark it as transient.
+     */
+    void setPersistent(boolean persistent) {
+        this.persistent = persistent;
     }
 }

@@ -52,6 +52,7 @@ public class JPAContainer<T> implements EntityContainer<T> {
     private List<SortBy> sortByList;
     private PropertyList<T> propertyList;
     private boolean readOnly = false;
+    private boolean writeThrough = false;
 
     /**
      * TODO Document me!
@@ -171,11 +172,15 @@ public class JPAContainer<T> implements EntityContainer<T> {
     @Override
     public void setReadOnly(boolean readOnly) throws
             UnsupportedOperationException {
-        if (doGetEntityProvider() instanceof MutableEntityProvider) {
+        if (readOnly) {
             this.readOnly = readOnly;
         } else {
-            throw new UnsupportedOperationException(
-                    "EntityProvider is not mutable");
+            if (doGetEntityProvider() instanceof MutableEntityProvider) {
+                this.readOnly = readOnly;
+            } else {
+                throw new UnsupportedOperationException(
+                        "EntityProvider is not mutable");
+            }
         }
     }
 
@@ -335,6 +340,13 @@ public class JPAContainer<T> implements EntityContainer<T> {
         return propertyList;
     }
 
+    /**
+     * {@inheritDoc }
+     * <p>
+     * Please note, that this method will create a new instance of {@link EntityItem} upon every execution. That is,
+     * two subsequent calls to this method with the same <code>itemId</code> will <b>not</b> return the same {@link EntityItem} instance.
+     * The actual entity instance may still be the same though, depending on the implementation of the entity provider.
+     */
     @Override
     public Item getItem(Object itemId) {
         T entity = doGetEntityProvider().getEntity(itemId);
@@ -349,6 +361,7 @@ public class JPAContainer<T> implements EntityContainer<T> {
      */
     @Override
     public Collection<Object> getItemIds() {
+        // TODO Implement me!
         throw new UnsupportedOperationException("Not supported yet");
     }
 
@@ -489,35 +502,95 @@ public class JPAContainer<T> implements EntityContainer<T> {
         return -1;
     }
 
+    /**
+     * TODO Document me!
+     * 
+     * @throws IllegalStateException
+     */
+    protected void requireWritableContainer() throws IllegalStateException,
+            UnsupportedOperationException {
+        if (!(entityProvider instanceof MutableEntityProvider)) {
+            throw new UnsupportedOperationException(
+                    "EntityProvider does not support editing");
+        }
+        if (readOnly) {
+            throw new IllegalStateException("Container is read only");
+        }
+    }
+
     @Override
     public T addEntity(T entity) throws UnsupportedOperationException,
             IllegalStateException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        assert entity != null : "entity must not be null";
+        requireWritableContainer();
+
+        if (isWriteThrough()) {
+            T result = ((MutableEntityProvider<T>) getEntityProvider()).
+                    addEntity(entity);
+            Object id = getEntityClassMetadata().getPropertyValue(result, getEntityClassMetadata().
+                    getIdentifierProperty().getName());
+            fireContainerItemSetChange(new ItemAddedEvent(id));
+            return result;
+        } else {
+            // TODO Implement me!
+            throw new UnsupportedOperationException(
+                    "Buffered mode not supported yet.");
+        }
     }
 
     @Override
     public boolean removeAllItems() throws UnsupportedOperationException {
+        // TODO Implement me!
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public boolean removeItem(Object itemId) throws
             UnsupportedOperationException {
+        assert itemId != null : "itemId must not be null";
+        requireWritableContainer();
+
+        if (isWriteThrough()) {
+            if (getEntityProvider().containsEntity(itemId, null)) {
+                ((MutableEntityProvider) getEntityProvider()).removeEntity(
+                        itemId);
+                fireContainerItemSetChange(new ItemRemovedEvent(itemId));
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            // TODO Implement me!
+            throw new UnsupportedOperationException(
+                    "Buffered mode not supported yet.");
+        }
+    }
+
+    /**
+     * TODO Document me!
+     * @param item
+     * @param propertyId
+     */
+    protected void containerItemPropertyModified(Item item, String propertyId) {
+        // TODO Implement me!
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public void commit() throws SourceException, InvalidValueException {
+        // TODO Implement me!
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public void discard() throws SourceException {
+        // TODO Implement me!
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public boolean isModified() {
+        // TODO Implement me!
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -532,7 +605,7 @@ public class JPAContainer<T> implements EntityContainer<T> {
 
     @Override
     public boolean isWriteThrough() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return (doGetEntityProvider() instanceof BatchableEntityProvider) && writeThrough;
     }
 
     /**
@@ -548,7 +621,17 @@ public class JPAContainer<T> implements EntityContainer<T> {
     @Override
     public void setWriteThrough(boolean writeThrough) throws SourceException,
             InvalidValueException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (writeThrough) {
+            this.writeThrough = writeThrough;
+            commit();
+        } else {
+            if (doGetEntityProvider() instanceof BatchableEntityProvider) {
+                this.writeThrough = writeThrough;
+            } else {
+                throw new UnsupportedOperationException(
+                        "EntityProvider is not batchable");
+            }
+        }
     }
 
     @Override
@@ -576,6 +659,129 @@ public class JPAContainer<T> implements EntityContainer<T> {
         @Override
         public Container getContainer() {
             return JPAContainer.this;
+        }
+    }
+
+    /**
+     * Event indicating that the changes have been committed. It will be fired when the container
+     * has write-through/auto-commit turned off and {@link JPAContainer#commit()} is called.
+     *
+     * @author Petter Holmström (IT Mill)
+     * @since 1.0
+     */
+    public final class ChangesCommittedEvent implements ItemSetChangeEvent {
+
+        protected ChangesCommittedEvent() {
+        }
+
+        @Override
+        public Container getContainer() {
+            return JPAContainer.this;
+        }
+    }
+
+    /**
+     * Event indicating that the changes have been discarded. This event is fired when the container
+     * has write-through/auto-commit turned off and {@link JPAContainer#discard() } is called.
+     *
+     * @author Petter Holmström (IT Mill)
+     * @since 1.0
+     */
+    public final class ChangesDiscardedEvent implements ItemSetChangeEvent {
+
+        protected ChangesDiscardedEvent() {
+        }
+
+        @Override
+        public Container getContainer() {
+            return JPAContainer.this;
+        }
+    }
+
+    /**
+     * Event indicating that all the items have been removed from the container. This event is
+     * fired by {@link JPAContainer#removeAllItems() }.
+     *
+     * @author Petter Holmström (IT Mill)
+     * @since 1.0
+     */
+    public final class AllItemsRemovedEvent implements ItemSetChangeEvent {
+
+        protected AllItemsRemovedEvent() {
+        }
+
+        @Override
+        public Container getContainer() {
+            return JPAContainer.this;
+        }
+    }
+
+    /**
+     * Abstract base class for events concerning single {@link EntityItem}s.
+     *
+     * @author Petter Holmström (IT Mill)
+     * @since 1.0
+     */
+    public abstract class ItemEvent implements ItemSetChangeEvent {
+
+        protected final Object itemId;
+
+        protected ItemEvent(Object itemId) {
+            this.itemId = itemId;
+        }
+
+        @Override
+        public Container getContainer() {
+            return JPAContainer.this;
+        }
+
+        /**
+         * Gets the ID of the item that this event concerns.
+         * @return the item ID.
+         */
+        public Object getItemId() {
+            return itemId;
+        }
+    }
+
+    /**
+     * Event indicating that an item has been added to the container. This event
+     * is fired by {@link JPAContainer#addEntity(java.lang.Object) }.
+     *
+     * @author Petter Holmström (IT Mill)
+     * @since 1.0
+     */
+    public final class ItemAddedEvent extends ItemEvent {
+
+        protected ItemAddedEvent(Object itemId) {
+            super(itemId);
+        }
+    }
+
+    /**
+     * Event indicating that an item has been updated inside the container.
+     *
+     * @author Petter Holmström (IT Mill)
+     * @since 1.0
+     */
+    public final class ItemUpdatedEvent extends ItemEvent {
+
+        protected ItemUpdatedEvent(Object itemId) {
+            super(itemId);
+        }
+    }
+
+    /**
+     * Event indicating that an item has been removed from the container. This
+     * event is fired by {@link JPAContainer#removeItem(java.lang.Object) }.
+     *
+     * @author Petter Holmström (IT Mill)
+     * @since 1.0
+     */
+    public final class ItemRemovedEvent extends ItemEvent {
+
+        protected ItemRemovedEvent(Object itemId) {
+            super(itemId);
         }
     }
 }

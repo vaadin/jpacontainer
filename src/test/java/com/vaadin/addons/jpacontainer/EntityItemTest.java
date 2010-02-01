@@ -19,6 +19,7 @@ package com.vaadin.addons.jpacontainer;
 
 import com.vaadin.addons.jpacontainer.testdata.Address;
 import com.vaadin.addons.jpacontainer.testdata.Person;
+import com.vaadin.data.Item;
 import com.vaadin.data.Property.ReadOnlyException;
 import java.util.Collection;
 import java.util.Date;
@@ -37,10 +38,23 @@ public class EntityItemTest {
     private EntityItem<Person> item;
     private Person entity;
     private JPAContainer<Person> container;
+    private Item modifiedItem;
+    private String modifiedPropertyId;
 
     @Before
     public void setUp() {
-        container = new JPAContainer<Person>(Person.class);
+        container = new JPAContainer<Person>(Person.class) {
+
+            @Override
+            protected void containerItemPropertyModified(Item item,
+                    String propertyId) {
+                modifiedItem = item;
+                modifiedPropertyId = propertyId;
+            }
+            
+        };
+        modifiedItem = null;
+        modifiedPropertyId = null;
         container.addNestedContainerProperty("address.street");
         container.addNestedContainerProperty("address.fullAddress");
         entity = new Person();
@@ -58,6 +72,13 @@ public class EntityItemTest {
     public void testGetItemProperty() {
         assertNotNull(item.getItemProperty("firstName"));
         assertNull(item.getItemProperty("nonexistent"));
+    }
+
+    @Test
+    public void testIsPersistent() {
+        assertTrue(item.isPersistent());
+        item.setPersistent(false);
+        assertFalse(item.isPersistent());
     }
 
     @Test
@@ -84,8 +105,14 @@ public class EntityItemTest {
         assertEquals("Hello", item.getItemProperty("firstName").getValue());
         assertEquals("Hello", entity.getFirstName());
         assertTrue(item.isModified());
+        // Check that the container has been notified of the updated value
+        assertEquals("firstName", modifiedPropertyId);
+        assertSame(item, modifiedItem);
 
         item.setModified(false);
+        // Reset container
+        modifiedItem = null;
+        modifiedPropertyId = null;
 
         assertFalse(item.isModified());
         assertNull(item.getItemProperty("address.street").getValue());
@@ -93,6 +120,9 @@ public class EntityItemTest {
         assertEquals("World", item.getItemProperty("address.street").getValue());
         assertEquals("World", entity.getAddress().getStreet());
         assertTrue(item.isModified());
+        // Check that the container has been notified of the updated value
+        assertEquals("address.street", modifiedPropertyId);
+        assertSame(item, modifiedItem);
     }
 
     @Test
