@@ -32,6 +32,10 @@ public interface MutableEntityProvider<T> extends EntityProvider<T> {
      * that depending on the implementation of the entity provider,
      * this may or may not be the same instance as <code>entity</code>. Therefore,
      * clients should always assume that <code>entity != returnedEntity</code>.
+     * <p>
+     * This method is expected to be run inside a transaction. If the method
+     * completes successfully, the transaction should be committed. If the method
+     * fails, the transaction should be rolled back and an exception thrown.
      * 
      * @param entity the entity to add (must not be null).
      * @return the added entity.
@@ -44,6 +48,10 @@ public interface MutableEntityProvider<T> extends EntityProvider<T> {
      * that depending on the implementation of the entity provider, this may or may
      * not be the same instance as <code>entity</code>. Therefore, clients should
      * always assume that <code>entity != returnedEntity</code>.
+     * <p>
+     * This method is expected to be run inside a transaction. If the method
+     * completes successfully, the transaction should be committed. If the method
+     * fails, the transaction should be rolled back and an exception thrown.
      *
      * @param entity the entity to update (must not be null).
      * @return the updated entity.
@@ -53,6 +61,10 @@ public interface MutableEntityProvider<T> extends EntityProvider<T> {
     /**
      * Updates a single property value of a specific entity. If the entity is not found,
      * nothing happens.
+     * <p>
+     * This method is expected to be run inside a transaction. If the method
+     * completes successfully, the transaction should be committed. If the method
+     * fails, the transaction should be rolled back and an exception thrown.
      *
      * @param entityId the identifier of the entity (must not be null).
      * @param propertyName the name of the property to update (must not be null).
@@ -65,6 +77,10 @@ public interface MutableEntityProvider<T> extends EntityProvider<T> {
     /**
      * Removes the entity identified by <code>entityId</code>. If
      * no entity is found, nothing happens.
+     * <p>
+     * This method is expected to be run inside a transaction. If the method
+     * completes successfully, the transaction should be committed. If the method
+     * fails, the transaction should be rolled back and an exception thrown.
      * 
      * @param entityId the identifier of the entity to remove.
      */

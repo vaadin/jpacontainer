@@ -24,10 +24,18 @@ import java.util.List;
  * provide entities to {@link EntityContainer}s. All entities provided by this
  * interface should be detached from the persistence storage. That is, any changes
  * made to an entity instance returned from this provider may not be automatically
- * propagated back to the persistence storage.
+ * propagated back to the persistence storage.<p>
+ * The same goes for lazy loading: either all the references should be loaded before
+ * the entity is returned, or the implementation should make sure that the lazy loading
+ * also works for detached entities.
+ * <p>
+ * The reason for these restrictions is that it makes it possible to deploy the entity provider
+ * and the container on two different Java VMs and use a stateless remote invocation protocol
+ * for communication between them.
  *
  * @see MutableEntityProvider
  * @see CachingEntityProvider
+ * @see BatchableEntityProvider
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
