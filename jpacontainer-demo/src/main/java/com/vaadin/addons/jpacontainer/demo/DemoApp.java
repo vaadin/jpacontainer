@@ -19,7 +19,12 @@ package com.vaadin.addons.jpacontainer.demo;
 
 import com.vaadin.Application;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.Window;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 /**
  * Main demo application.
@@ -27,12 +32,25 @@ import com.vaadin.ui.Window;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
+@Component(value = "demoApplication")
+@Scope(value = "prototype")
 public class DemoApp extends Application {
+
+    private TabSheet tabs;
+    @PersistenceContext
+    private transient EntityManager entityManager;
 
     @Override
     public void init() {
+        tabs = new TabSheet();
+        tabs.setSizeFull();
+
+        tabs.addTab(new CustomerView(), "Customers", null);
+        tabs.addTab(new Label("Orders"), "Orders", null); // TODO Add OrdersView
+        tabs.addTab(new Label("Invoices"), "Invoices", null); // TODO Add InvoicesView
+
         Window mainWindow = new Window("JPAContainer Demo Application");
-        mainWindow.addComponent(new Label("Hello world"));
+        mainWindow.addComponent(tabs);
         setMainWindow(mainWindow);
     }
 }
