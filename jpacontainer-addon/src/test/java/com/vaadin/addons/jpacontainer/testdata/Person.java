@@ -86,6 +86,10 @@ public class Person implements Serializable {
         return id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public String getLastName() {
         return lastName;
     }
@@ -96,6 +100,10 @@ public class Person implements Serializable {
 
     public Long getVersion() {
         return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     public String getFullName() {

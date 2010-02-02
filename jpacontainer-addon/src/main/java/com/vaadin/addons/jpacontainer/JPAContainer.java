@@ -35,7 +35,9 @@ import java.util.List;
 /**
  * Implementation of {@link EntityContainer} that uses an {@link EntityProvider}
  * to fetch the items. A {@link MutableEntityProvider} can be used
- * to make the container writable.<p>
+ * to make the container writable. Buffered mode (write through turned off) can
+ * be used if the entity provider implements the {@link BatchableEntityProvider} interface.
+ * <p>
  * As the data source is responsible for sorting the items, new items
  * cannot be added to a specific location in the list. Rather, the implementation
  * decides where to put new items.
@@ -55,9 +57,12 @@ public class JPAContainer<T> implements EntityContainer<T> {
     private boolean writeThrough = false;
 
     /**
-     * TODO Document me!
+     * Creates a new <code>JPAContainer</code> instance for entities of class
+     * <code>entityClass</code>. An entity provider must be provided using
+     * the {@link #setEntityProvider(com.vaadin.addons.jpacontainer.EntityProvider) }
+     * before the container can be used.
      * 
-     * @param entityClass
+     * @param entityClass the class of the entities that will reside in this container (must not be null).
      */
     public JPAContainer(Class<T> entityClass) {
         assert entityClass != null : "entityClass must not be null";
@@ -84,9 +89,10 @@ public class JPAContainer<T> implements EntityContainer<T> {
     }
 
     /**
-     * TODO Document me!
+     * Gets the mapping metadata of the entity class.
+     * @see EntityClassMetadata
      *
-     * @return
+     * @return the metadata (never null).
      */
     protected EntityClassMetadata<T> getEntityClassMetadata() {
         return entityClassMetadata;
@@ -145,10 +151,10 @@ public class JPAContainer<T> implements EntityContainer<T> {
     }
 
     /**
-     * TODO Document me!
+     * Checks that the entity provider is not null and returns it.
      * 
-     * @return
-     * @throws IllegalStateException
+     * @return the entity provider (never null).
+     * @throws IllegalStateException if the entity provider was null.
      */
     protected EntityProvider<T> doGetEntityProvider() throws
             IllegalStateException {
@@ -361,8 +367,17 @@ public class JPAContainer<T> implements EntityContainer<T> {
      */
     @Override
     public Collection<Object> getItemIds() {
-        // TODO Implement me!
-        throw new UnsupportedOperationException("Not supported yet");
+        /*
+         * This is intentionally an ugly implementation! This method
+         * should not be used!
+         */
+        LinkedList<Object> idList = new LinkedList<Object>();
+        Object id = firstItemId();
+        while (id != null) {
+            idList.add(id);
+            id = nextItemId(id);
+        }
+        return idList;
     }
 
     @Override
@@ -400,9 +415,11 @@ public class JPAContainer<T> implements EntityContainer<T> {
     }
 
     /**
-     * TODO Document me!
-     * 
-     * @return
+     * Returns a conjunction (filter1 AND filter2 AND ... AND filterN) of all the applied filters.
+     * If there are no applied filters, this method returns null.
+     * @see #getAppliedFilters()
+     * @see Filters#and(com.vaadin.addons.jpacontainer.Filter[]) 
+     * @return a conjunction filter or null.
      */
     protected Filter getAppliedFiltersAsConjunction() {
         if (getAppliedFilters().isEmpty()) {
@@ -503,9 +520,12 @@ public class JPAContainer<T> implements EntityContainer<T> {
     }
 
     /**
-     * TODO Document me!
+     * Checks that the container is writable, i.e. the entity provider implements
+     * the {@link MutableEntityProvider} interface and the container is not marked
+     * as read only.
      * 
-     * @throws IllegalStateException
+     * @throws IllegalStateException if the container is read only.
+     * @throws UnsupportedOperationException if the entity provider does not support editing.
      */
     protected void requireWritableContainer() throws IllegalStateException,
             UnsupportedOperationException {
@@ -567,9 +587,17 @@ public class JPAContainer<T> implements EntityContainer<T> {
     }
 
     /**
-     * TODO Document me!
-     * @param item
-     * @param propertyId
+     * Notifies the container that the specified property of <code>item</code>
+     * has been modified. The container will then take appropriate actions
+     * to pass the changes on to the entity provider, depending on the state
+     * of the <code>writeThrough</code> property.
+     * <p>
+     * This method is used by the {@link EntityItem} class
+     * and should not be used by other classes.
+     *
+     * @see #isWriteThrough()
+     * @param item the item that has been modified (must not be null).
+     * @param propertyId the ID of the modified property (must not be null).
      */
     protected void containerItemPropertyModified(Item item, String propertyId)
             throws UnsupportedOperationException {
@@ -607,7 +635,8 @@ public class JPAContainer<T> implements EntityContainer<T> {
             return false;
         } else {
             // TODO Implement me!
-            throw new UnsupportedOperationException("Buffered mode not supported yet.");
+            throw new UnsupportedOperationException(
+                    "Buffered mode not supported yet.");
         }
     }
 

@@ -23,6 +23,7 @@ import com.vaadin.addons.jpacontainer.testdata.Person;
 import com.vaadin.data.Container.ItemSetChangeEvent;
 import com.vaadin.data.Container.ItemSetChangeListener;
 import com.vaadin.data.Item;
+import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
 import org.junit.Before;
@@ -328,9 +329,29 @@ public class JPAContainerTest {
         verify(entityProviderMock);
     }
 
+    @Test
     public void testGetItemIds() {
-        // TODO Implement test
-        fail("Test not implemented yet");
+        LinkedList<SortBy> orderby = new LinkedList<SortBy>();
+        orderby.add(new SortBy("firstName", true));
+        expect(entityProviderMock.getFirstEntityIdentifier(null, orderby)).andStubReturn("id1");
+        expect(entityProviderMock.getNextEntityIdentifier("id1", null, orderby)).andStubReturn("id2");
+        expect(entityProviderMock.getNextEntityIdentifier("id2", null, orderby)).andStubReturn("id3");
+        expect(entityProviderMock.getNextEntityIdentifier("id3", null, orderby)).andStubReturn("id4");
+        expect(entityProviderMock.getNextEntityIdentifier("id4", null, orderby)).andStubReturn(null);
+
+        replay(entityProviderMock);
+
+        container.setEntityProvider(entityProviderMock);
+        container.sort(new Object[] {"firstName"}, new boolean[]{true});
+
+        Collection<Object> ids = container.getItemIds();
+        assertEquals(4, ids.size());
+        assertTrue(ids.contains("id1"));
+        assertTrue(ids.contains("id2"));
+        assertTrue(ids.contains("id3"));
+        assertTrue(ids.contains("id4"));
+
+        verify(entityProviderMock);
     }
 
     @Test
@@ -629,24 +650,68 @@ public class JPAContainerTest {
     }
 
     public void testWriteThrough_BatchableProvider() {
-
+        // TODO Requires buffered mode
     }
 
     @Test
     public void testAddEntity_WriteThrough() {
         Person newEntity = new Person();
+        Person persistentEntity = new Person();
+        persistentEntity.setId(123l);
+        persistentEntity.setVersion(1l);
         expect(mutableEntityProviderMock.addEntity(newEntity)).andReturn(
-                newEntity);
+                persistentEntity);
         replay(mutableEntityProviderMock);
         container.setEntityProvider(mutableEntityProviderMock);
 
-        assertSame(newEntity, container.addEntity(newEntity));
+        final boolean[] listenerCalled = new boolean[1];
+        container.addListener(new ItemSetChangeListener() {
+
+            @Override
+            public void containerItemSetChange(ItemSetChangeEvent event) {
+                assertTrue(event instanceof JPAContainer.ItemAddedEvent);
+                assertEquals(123l, ((JPAContainer.ItemAddedEvent) event).getItemId());
+                listenerCalled[0] = true;
+            }
+        });
+
+        assertFalse(listenerCalled[0]);
+        assertSame(persistentEntity, container.addEntity(newEntity));
+        assertTrue(listenerCalled[0]);
 
         verify(mutableEntityProviderMock);
     }
 
+    @Test
     public void testRemoveItem_WriteThrough() {
-        
+        expect(mutableEntityProviderMock.containsEntity(123l, null)).andReturn(
+                true);
+        mutableEntityProviderMock.removeEntity(123l);
+        expect(mutableEntityProviderMock.containsEntity(456l, null)).andReturn(
+                false);
+        replay(mutableEntityProviderMock);
+        container.setEntityProvider(mutableEntityProviderMock);
+
+        final boolean[] listenerCalled = new boolean[1];
+        container.addListener(new ItemSetChangeListener() {
+
+            @Override
+            public void containerItemSetChange(ItemSetChangeEvent event) {
+                assertTrue(event instanceof JPAContainer.ItemRemovedEvent);
+                assertEquals(123l, ((JPAContainer.ItemRemovedEvent) event).getItemId());
+                listenerCalled[0] = true;
+            }
+        });
+
+        assertFalse(listenerCalled[0]);
+        assertTrue(container.removeItem(123l));
+        assertTrue(listenerCalled[0]);
+
+        listenerCalled[0] = false;
+        assertFalse(container.removeItem(456l));
+        assertFalse(listenerCalled[0]);
+
+        verify(mutableEntityProviderMock);
     }
 
     public void testRemoveAllItems_WriteThrough() {
@@ -657,5 +722,5 @@ public class JPAContainerTest {
 
     }
 
-    // TODO Test all modification operations.
+    // TODO Test all buffered mode operations.
 }
