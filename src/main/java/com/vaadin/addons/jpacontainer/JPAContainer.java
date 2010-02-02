@@ -571,9 +571,22 @@ public class JPAContainer<T> implements EntityContainer<T> {
      * @param item
      * @param propertyId
      */
-    protected void containerItemPropertyModified(Item item, String propertyId) {
-        // TODO Implement me!
-        throw new UnsupportedOperationException("Not supported yet.");
+    protected void containerItemPropertyModified(Item item, String propertyId)
+            throws UnsupportedOperationException {
+        assert item != null : "item must not be null";
+        assert propertyId != null : "propertyId must not be null";
+        requireWritableContainer();
+
+        if (isWriteThrough()) {
+            ((MutableEntityProvider) getEntityProvider()).updateEntityProperty(
+                    item.getItemProperty(getEntityClassMetadata().
+                    getIdentifierProperty().getName()).getValue(), propertyId, item.
+                    getItemProperty(propertyId).getValue());
+        } else {
+            // TODO Implement me!
+            throw new UnsupportedOperationException(
+                    "Buffered mode not supported yet.");
+        }
     }
 
     @Override
@@ -590,8 +603,12 @@ public class JPAContainer<T> implements EntityContainer<T> {
 
     @Override
     public boolean isModified() {
-        // TODO Implement me!
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (isWriteThrough()) {
+            return false;
+        } else {
+            // TODO Implement me!
+            throw new UnsupportedOperationException("Buffered mode not supported yet.");
+        }
     }
 
     @Override
@@ -605,7 +622,7 @@ public class JPAContainer<T> implements EntityContainer<T> {
 
     @Override
     public boolean isWriteThrough() {
-        return (doGetEntityProvider() instanceof BatchableEntityProvider) && writeThrough;
+        return !(doGetEntityProvider() instanceof BatchableEntityProvider) || writeThrough;
     }
 
     /**
@@ -618,6 +635,12 @@ public class JPAContainer<T> implements EntityContainer<T> {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * {@inheritDoc }
+     * <p>
+     * <b>Note</b>, that write-through mode can only be turned off if the entity
+     * provider implements the {@link BatchableEntityProvider} interface.
+     */
     @Override
     public void setWriteThrough(boolean writeThrough) throws SourceException,
             InvalidValueException {

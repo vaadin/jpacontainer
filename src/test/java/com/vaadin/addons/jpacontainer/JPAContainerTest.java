@@ -42,12 +42,14 @@ public class JPAContainerTest {
     private EntityProvider<Person> entityProviderMock;
     private CachingEntityProvider<Person> cachingEntityProviderMock;
     private MutableEntityProvider<Person> mutableEntityProviderMock;
+    private BatchableEntityProvider<Person> batchableEntityProviderMock;
 
     @Before
     public void setUp() throws Exception {
         entityProviderMock = createMock(EntityProvider.class);
         cachingEntityProviderMock = createMock(CachingEntityProvider.class);
         mutableEntityProviderMock = createMock(MutableEntityProvider.class);
+        batchableEntityProviderMock = createMock(BatchableEntityProvider.class);
 
         container = new JPAContainer<Person>(Person.class);
     }
@@ -612,20 +614,47 @@ public class JPAContainerTest {
         verify(cachingEntityProviderMock);
     }
 
+    @Test
     public void testWriteThrough_NoBatchableProvider() {
+        replay(mutableEntityProviderMock);
+        container.setEntityProvider(mutableEntityProviderMock);
 
+        assertTrue(container.isWriteThrough());
+        try {
+            container.setWriteThrough(false);
+            fail("No exception thrown");
+        } catch (UnsupportedOperationException e) {
+            assertTrue(container.isWriteThrough());
+        }
     }
 
     public void testWriteThrough_BatchableProvider() {
 
     }
 
+    @Test
     public void testAddEntity_WriteThrough() {
+        Person newEntity = new Person();
+        expect(mutableEntityProviderMock.addEntity(newEntity)).andReturn(
+                newEntity);
+        replay(mutableEntityProviderMock);
+        container.setEntityProvider(mutableEntityProviderMock);
 
+        assertSame(newEntity, container.addEntity(newEntity));
+
+        verify(mutableEntityProviderMock);
     }
 
     public void testRemoveItem_WriteThrough() {
         
+    }
+
+    public void testRemoveAllItems_WriteThrough() {
+        
+    }
+
+    public void testContainerItemPropertyModified_WriteThrough() {
+
     }
 
     // TODO Test all modification operations.

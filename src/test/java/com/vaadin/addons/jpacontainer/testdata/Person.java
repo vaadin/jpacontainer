@@ -119,7 +119,8 @@ public class Person implements Serializable {
         if (obj instanceof Person) {
             Person p = (Person) obj;
             return ObjectUtils.equals(address, p.address)
-                    && DateUtils.isSameDay(dateOfBirth, p.dateOfBirth)
+                    && (ObjectUtils.equals(dateOfBirth, p.dateOfBirth) || (dateOfBirth != null && p.dateOfBirth != null && DateUtils.
+                    isSameDay(dateOfBirth, p.dateOfBirth)))
                     && ObjectUtils.equals(firstName, p.firstName)
                     && ObjectUtils.equals(lastName, p.lastName);
         }

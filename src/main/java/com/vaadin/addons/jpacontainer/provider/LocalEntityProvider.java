@@ -49,8 +49,8 @@ import javax.persistence.Query;
  * features and limitations:
  * <ul>
  *   <li>Does not do any internal caching, all information is always accessed directly from the EntityManager</li>
- *   <li>Uses lazy-loading</li>
- *   <li>Performs a serialize-deserialize cycle to clone entities in order to detach them from the persistence context</li>
+ *   <li>Uses lazy-loading of entities (references and collections within the entities should be configured to be fetched eagerly, though)</li>
+ *   <li>Performs a serialize-deserialize cycle to clone entities in order to detach them from the persistence context (<b>This is ugly!</b<)</li>
  *   <li>Once the entity manager has been set, it cannot be changed</li>
  *   <li>Supports both internal and external transaction handling</li>
  *   <li><strong>Does NOT currently support embedded identifiers!</strong></li>
