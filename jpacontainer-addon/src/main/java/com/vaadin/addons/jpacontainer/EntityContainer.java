@@ -1,0 +1,100 @@
+/*
+ * JPAContainer
+ * Copyright (C) 2009 Oy IT Mill Ltd
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package com.vaadin.addons.jpacontainer;
+
+import com.vaadin.data.Buffered;
+import com.vaadin.data.Container;
+import com.vaadin.data.Validator.InvalidValueException;
+
+/**
+ * TODO Write documentation!
+ * 
+ * @author Petter Holmström (IT Mill)
+ * @since 1.0
+ */
+public interface EntityContainer<T> extends Container.Sortable,
+        AdvancedFilterable, Container.ItemSetChangeNotifier, Container.Indexed,
+        Buffered {
+
+    /**
+     * Gets the entity provider that is used for fetching and storing entities.
+     *
+     * @return the entity provider, or null if this container has not yet been properly initialized.
+     */
+    public EntityProvider<T> getEntityProvider();
+
+    /**
+     * Sets the entity provider to use for fetching and storing entities.
+     *
+     * @param entityProvider the entity provider to use (must not be null).
+     */
+    public void setEntityProvider(EntityProvider<T> entityProvider);
+
+    /**
+     * Gets the class of the entities that are/can be contained in this container.
+     * @return the entity class.
+     */
+    public Class<T> getEntityClass();
+
+    /**
+     * TODO Document this method!
+     * 
+     * @param nestedProperty the nested property to add.
+     * @throws UnsupportedOperationException if nested properties are not supported by the container.
+     */
+    public void addNestedContainerProperty(String nestedProperty) throws
+            UnsupportedOperationException;
+
+    /**
+     * Adds a new entity to the container.
+     *
+     * @param entity the entity to add (must not be null).
+     * @return the added entity (may or may not be the same instance as <code>entity</code>).
+     * @throws UnsupportedOperationException if the container does not support adding new entities at all.
+     * @throws IllegalStateException if the container supports adding entities, but is currently in read only mode.
+     */
+    public T addEntity(T entity) throws UnsupportedOperationException,
+            IllegalStateException;
+
+    /**
+     * Returns whether the container is read only or writable.
+     *
+     * @return true if read only, false if writable.
+     */
+    public boolean isReadOnly();
+
+    /**
+     * Changes the read only state of the container, if possible.
+     *
+     * @param readOnly true to make the container read only, false to make it writable.
+     * @throws UnsupportedOperationException if the read only state cannot be changed.
+     */
+    public void setReadOnly(boolean readOnly) throws
+            UnsupportedOperationException;
+
+    /**
+     * Alias of {@link Buffered#setWriteThrough(boolean) }.
+     */
+    public void setAutoCommit(boolean autoCommit) throws SourceException,
+            InvalidValueException;
+
+    /**
+     * Alias of {@link Buffered#isWriteThrough() }.
+     */
+    public boolean isAutoCommit();
+}
