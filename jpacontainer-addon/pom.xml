@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.vaadin.addons</groupId>
         <artifactId>jpacontainer</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>${jpacontainer.version}</version>
     </parent>
     <artifactId>jpacontainer-addon</artifactId>
     <packaging>jar</packaging>

@@ -5,7 +5,7 @@
     <groupId>com.vaadin.addons</groupId>
     <artifactId>jpacontainer</artifactId>
     <packaging>pom</packaging>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>${jpacontainer.version}</version>
     <name>JPAContainer</name>
 
     <modules>
@@ -36,26 +36,12 @@
             <artifactId>persistence-api</artifactId>
             <version>1.0</version>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>org.apache.openjpa</groupId>
-            <artifactId>openjpa</artifactId>
-            <version>2.0.0-beta</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.persistence</groupId>
-            <artifactId>eclipselink</artifactId>
-            <version>2.0.0</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.persistence</groupId>
-            <artifactId>javax.persistence</artifactId>
-            <version>2.0.0</version>
-            <scope>compile</scope>
-        </dependency>-->
     </dependencies>
+
+    <properties>
+        <jpacontainer.version>0.0.1-SNAPSHOT</jpacontainer.version>
+    </properties>
+
     <build>
         <pluginManagement>
             <plugins>
