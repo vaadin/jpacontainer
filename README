@@ -7,6 +7,13 @@ PREREQUISITES
   - Maven 2.2
   - A working internet connection
 
+CHECKING OUT THE CODE
+
+  The source code is maintained in the Vaadin Subversion repository. To check
+  out the latest development version, use the following command:
+
+    $ svn co http://dev.vaadin.com/svn/addons/JPAContainer/trunk JPAContainer
+
 EDITING THE CODE IN AN IDE
 
   JPAContainer currently contains configuration data for NetBeans 6.8, but any
