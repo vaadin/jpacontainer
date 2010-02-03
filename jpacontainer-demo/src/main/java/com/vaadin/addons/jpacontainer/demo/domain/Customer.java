@@ -50,7 +50,7 @@ public class Customer implements Serializable {
     @Column(unique = true, nullable = false)
     private Integer custNo;
     @Column(nullable = false)
-    private String customerName;
+    private String customerName = "";
     @Embedded
     @AttributeOverrides({
         @AttributeOverride(name = "streetOrBox", column =
@@ -79,7 +79,7 @@ public class Customer implements Serializable {
     private Date lastInvoiceDate;
     @Temporal(TemporalType.DATE)
     private Date lastOrderDate;
-    private String notes;
+    private String notes = "";
 
     public Long getId() {
         return id;
@@ -135,6 +135,14 @@ public class Customer implements Serializable {
 
     public Address getShippingAddress() {
         return shippingAddress;
+    }
+
+    @Override
+    public String toString() {
+        return String.format(
+                "Customer(no=%d,name=%s,billingAddr=(%s),shippingAddr=(%s),lastInvoiceDate=%s,lastOrderDate=%s,notes=%s)",
+                custNo, customerName, billingAddress, shippingAddress,
+                lastInvoiceDate, lastOrderDate, notes);
     }
 
     @Override

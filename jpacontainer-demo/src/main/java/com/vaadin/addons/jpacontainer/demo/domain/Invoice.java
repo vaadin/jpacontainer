@@ -19,10 +19,10 @@ package com.vaadin.addons.jpacontainer.demo.domain;
 
 import com.vaadin.addons.jpacontainer.demo.util.DateUtils;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -67,7 +67,7 @@ public class Invoice implements Serializable {
     private Date paidDate;
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL,
     mappedBy = "invoice")
-    private List<InvoiceItem> items = new ArrayList();
+    private Set<InvoiceItem> items = new HashSet();
 
     public Date getDueDate() {
         return dueDate;
@@ -97,8 +97,8 @@ public class Invoice implements Serializable {
         this.invoiceNo = invoiceNo;
     }
 
-    public List<InvoiceItem> getItems() {
-        return Collections.unmodifiableList(items);
+    public Set<InvoiceItem> getItems() {
+        return Collections.unmodifiableSet(items);
     }
 
     public void addItem(InvoiceItem item) {

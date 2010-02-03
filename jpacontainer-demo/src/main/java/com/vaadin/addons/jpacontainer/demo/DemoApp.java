@@ -20,9 +20,9 @@ package com.vaadin.addons.jpacontainer.demo;
 import com.vaadin.Application;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TabSheet;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -37,20 +37,30 @@ import org.springframework.stereotype.Component;
 public class DemoApp extends Application {
 
     private TabSheet tabs;
-    @PersistenceContext
-    private transient EntityManager entityManager;
+    @Autowired
+    private ProviderFactory providerFactory;
 
     @Override
     public void init() {
+        VerticalLayout layout = new VerticalLayout();
+        layout.setMargin(true);
+        layout.setSizeFull();
+        Label header = new Label("JPAContainer Demo Application");
+        header.setStyleName("h1");
+        layout.addComponent(header);
+
         tabs = new TabSheet();
         tabs.setSizeFull();
+        layout.addComponent(tabs);
+        layout.setExpandRatio(tabs, 1);
 
-        tabs.addTab(new CustomerView(), "Customers", null);
+        tabs.addTab(
+                new CustomerView(providerFactory.getCustomerEntityProvider()),
+                "Customers", null);
         tabs.addTab(new Label("Orders"), "Orders", null); // TODO Add OrdersView
         tabs.addTab(new Label("Invoices"), "Invoices", null); // TODO Add InvoicesView
 
-        Window mainWindow = new Window("JPAContainer Demo Application");
-        mainWindow.addComponent(tabs);
+        Window mainWindow = new Window("JPAContainer Demo Application", layout);
         setMainWindow(mainWindow);
     }
 }

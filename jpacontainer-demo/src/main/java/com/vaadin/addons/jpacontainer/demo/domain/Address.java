@@ -30,10 +30,10 @@ import org.apache.commons.lang.ObjectUtils;
 @Embeddable
 public class Address implements Serializable {
 
-    private String streetOrBox;
-    private String postalCode;
-    private String postOffice;
-    private String country;
+    private String streetOrBox = "";
+    private String postalCode = "";
+    private String postOffice = "";
+    private String country = "";
 
     public String getCountry() {
         return country;
@@ -65,6 +65,12 @@ public class Address implements Serializable {
 
     public void setStreetOrBox(String streetOrBox) {
         this.streetOrBox = streetOrBox;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s, %s %s, %s", streetOrBox, postalCode,
+                postOffice, country);
     }
 
     @Override

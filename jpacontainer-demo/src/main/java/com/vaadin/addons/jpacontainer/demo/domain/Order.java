@@ -19,10 +19,10 @@ package com.vaadin.addons.jpacontainer.demo.domain;
 
 import com.vaadin.addons.jpacontainer.demo.util.DateUtils;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
 import javax.persistence.CascadeType;
@@ -47,7 +47,7 @@ import org.apache.commons.lang.ObjectUtils;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-@Entity
+@Entity(name="CustomerOrder")
 public class Order implements Serializable {
 
     @Id
@@ -95,7 +95,7 @@ public class Order implements Serializable {
     private Date billedDate;
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL,
     mappedBy = "order")
-    private List<OrderItem> items = new ArrayList();
+    private Set<OrderItem> items = new HashSet();
 
     public Long getId() {
         return id;
@@ -133,8 +133,8 @@ public class Order implements Serializable {
         this.customerReference = customerReference;
     }
 
-    public List<OrderItem> getItems() {
-        return Collections.unmodifiableList(items);
+    public Set<OrderItem> getItems() {
+        return Collections.unmodifiableSet(items);
     }
 
     public void addItem(OrderItem item) {

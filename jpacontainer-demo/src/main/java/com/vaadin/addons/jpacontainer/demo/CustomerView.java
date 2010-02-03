@@ -17,7 +17,13 @@
  */
 package com.vaadin.addons.jpacontainer.demo;
 
+import com.vaadin.addons.jpacontainer.EntityProvider;
+import com.vaadin.addons.jpacontainer.JPAContainer;
+import com.vaadin.addons.jpacontainer.demo.domain.Customer;
+import com.vaadin.addons.jpacontainer.provider.LocalEntityProvider;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 
@@ -29,24 +35,48 @@ import com.vaadin.ui.VerticalLayout;
  */
 public class CustomerView extends CustomComponent {
 
-    public CustomerView() {
+    public CustomerView(EntityProvider<Customer> entityProvider) {
+        this.entityProvider = entityProvider;
         init();
     }
 
-    protected void init() {
+    private EntityProvider<Customer> entityProvider;
+    private Button newCustomer = new Button("New Customer");
+    private Button editCustomer = new Button("Edit Customer");
+    private Button deleteCustomer = new Button("Delete Customer");
+    private Button search = new Button("Search");
+    private JPAContainer<Customer> customerContainer = new JPAContainer(Customer.class);
+
+    private void init() {
         VerticalLayout layout = new VerticalLayout();
+        layout.setSizeFull();
+        layout.setMargin(true);
 
-        // TODO Complete me!
-
-        Table customerTable = new Table("Customers");
+        HorizontalLayout toolbar = new HorizontalLayout();
         {
-            customerTable.setSizeFull();
+            toolbar.addComponent(newCustomer);
+            toolbar.addComponent(editCustomer);
+            toolbar.addComponent(deleteCustomer);
+            toolbar.addComponent(search);
+        }
+        layout.addComponent(toolbar);
 
+        Table customerTable = new Table();
+        {
+            customerContainer.setEntityProvider(entityProvider);
+            customerTable.setSizeFull();
+            customerTable.setContainerDataSource(customerContainer);
+            customerTable.setVisibleColumns(new String[] {"custNo","customerName","billingAddress","shippingAddress"});
+            customerTable.setColumnHeaders(new String[] {"CustNo", "Name", "Billing Address", "Shipping Address"});
+            customerTable.setSelectable(true);
+            customerTable.setImmediate(true);
         }
         layout.addComponent(customerTable);
-        layout.setSizeFull();
+        layout.setExpandRatio(customerTable, 1);
 
         setCompositionRoot(layout);
+        setSizeFull();
+
     }
     
 }
