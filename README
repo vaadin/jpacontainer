@@ -1,0 +1,25 @@
+JPAContainer README
+===================
+
+Prerequisites:
+
+- Java 6
+- Maven 2.2
+- A working internet connection
+
+Trying out the demo:
+
+1. Compile and install the entire project:
+
+    $ mvn install
+
+2. Start the built-in Jetty web server:
+
+    $ cd jpacontainer-demo
+    $ mvn jetty:run
+
+3. Open your favorite web browser and point it to:
+
+    http://localhost:8080/jpacontainer-demo/
+
+More instructions will be added later.
