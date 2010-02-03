@@ -355,6 +355,7 @@ public class JPAContainer<T> implements EntityContainer<T> {
      */
     @Override
     public Item getItem(Object itemId) {
+        // TODO This is slow! Is there some way of optimizing this?
         T entity = doGetEntityProvider().getEntity(itemId);
         return entity != null ? new EntityItem(this, entity) : null;
     }
