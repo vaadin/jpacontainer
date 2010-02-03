@@ -41,7 +41,7 @@ public abstract class AbstractIntervalFilter extends AbstractPropertyFilter
         super(propertyId);
         assert startingPoint != null : "startingPoint must not be null";
         assert endingPoint != null : "endingPoint must not be null";
-        int rnd = new Random().nextInt();
+        int rnd = Math.abs(new Random().nextInt());
         this.startingPoint = startingPoint;
         this.startingPointIncluded = startingPointIncluded;
         this.startingPointQLParameter = propertyId.toString() + "_start" + rnd;

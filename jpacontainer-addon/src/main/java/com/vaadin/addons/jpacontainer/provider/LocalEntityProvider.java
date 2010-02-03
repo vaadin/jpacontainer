@@ -24,6 +24,7 @@ import com.vaadin.addons.jpacontainer.MutableEntityProvider;
 import com.vaadin.addons.jpacontainer.SortBy;
 import com.vaadin.addons.jpacontainer.filter.CompositeFilter;
 import com.vaadin.addons.jpacontainer.filter.Filters;
+import com.vaadin.addons.jpacontainer.filter.IntervalFilter;
 import com.vaadin.addons.jpacontainer.filter.Junction;
 import com.vaadin.addons.jpacontainer.filter.ValueFilter;
 import com.vaadin.addons.jpacontainer.metadata.EntityClassMetadata;
@@ -207,9 +208,14 @@ public class LocalEntityProvider<T> implements EntityProvider<T>,
     }
 
     private void setQueryParameters(Query query, Filter filter) {
+        // TODO Add test that detects if any specific filter type is missing!
         if (filter instanceof ValueFilter) {
             ValueFilter vf = (ValueFilter) filter;
             query.setParameter(vf.getQLParameterName(), vf.getValue());
+        } else if (filter instanceof IntervalFilter) {
+            IntervalFilter intf = (IntervalFilter) filter;
+            query.setParameter(intf.getEndingPointQLParameterName(), intf.getEndingPoint());
+            query.setParameter(intf.getStartingPointQLParameterName(), intf.getStartingPoint());
         } else if (filter instanceof CompositeFilter) {
             for (Filter f : ((CompositeFilter) filter).getFilters()) {
                 setQueryParameters(query, f);
