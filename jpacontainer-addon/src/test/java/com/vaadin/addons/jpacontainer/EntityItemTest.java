@@ -103,6 +103,7 @@ public class EntityItemTest {
         assertNull(item.getItemProperty("firstName").getValue());
         item.getItemProperty("firstName").setValue("Hello");
         assertEquals("Hello", item.getItemProperty("firstName").getValue());
+        assertEquals("Hello", item.getItemProperty("firstName").toString());
         assertEquals("Hello", entity.getFirstName());
         assertTrue(item.isModified());
         // Check that the container has been notified of the updated value
@@ -118,6 +119,7 @@ public class EntityItemTest {
         assertNull(item.getItemProperty("address.street").getValue());
         item.getItemProperty("address.street").setValue("World");
         assertEquals("World", item.getItemProperty("address.street").getValue());
+        assertEquals("World", item.getItemProperty("address.street").toString());
         assertEquals("World", entity.getAddress().getStreet());
         assertTrue(item.isModified());
         // Check that the container has been notified of the updated value
@@ -136,4 +138,6 @@ public class EntityItemTest {
             assertEquals("Joe Cool", item.getItemProperty("fullName").getValue());
         }
     }
+
+    // TODO Add tests for ValueChangeListeners & setValue(String)
 }

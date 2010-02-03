@@ -19,8 +19,12 @@ package com.vaadin.addons.jpacontainer;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
+import java.lang.reflect.Constructor;
 import java.util.Collection;
+import java.util.EventObject;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -39,7 +43,8 @@ public final class EntityItem<T> implements Item {
      * @author Petter Holmström (IT Mill)
      * @since 1.0
      */
-    public final class EntityItemProperty implements Property {
+    public final class EntityItemProperty implements Property,
+            Property.ValueChangeNotifier {
 
         private String propertyId;
         private boolean isNested;
@@ -77,6 +82,15 @@ public final class EntityItem<T> implements Item {
         }
 
         @Override
+        public String toString() {
+            final Object value = getValue();
+            if (value == null) {
+                return null;
+            }
+            return value.toString();
+        }
+
+        @Override
         public boolean isReadOnly() {
             return isNested ? !container.getPropertyList().isPropertyWritable(
                     propertyId) : !container.getPropertyList().
@@ -100,6 +114,27 @@ public final class EntityItem<T> implements Item {
             if (isReadOnly()) {
                 throw new ReadOnlyException();
             }
+
+            if (newValue != null && !getType().isAssignableFrom(newValue.
+                    getClass())) {
+                /*
+                 * The type we try to set is incompatible with the type of
+                 * the property. We therefore try to convert the value
+                 * to a string and see if there is a constructor that takes
+                 * a single string argument. If this fails, we throw
+                 * an exception.
+                 */
+                Object value;
+                try {
+                    // Gets the string constructor
+                    final Constructor constr = getType().getConstructor(
+                            new Class[]{String.class});
+
+                    value = constr.newInstance(new Object[]{newValue.toString()});
+                } catch (Exception e) {
+                    throw new ConversionException(e);
+                }
+            }
             try {
                 if (isNested) {
                     container.getPropertyList().setPropertyValue(entity,
@@ -110,11 +145,60 @@ public final class EntityItem<T> implements Item {
                             propertyId, newValue);
                 }
                 modified = true;
-                // Finally, notify the container
+                // Notify the listeners
+                notifyListeners();
+                // Finally, notify the container directly. We do this
+                // in order to avoid having the container registering with
+                // each and every item property.
                 container.containerItemPropertyModified(EntityItem.this,
                         propertyId);
             } catch (Exception e) {
                 throw new ConversionException(e);
+            }
+        }
+        private List<ValueChangeListener> listeners;
+
+        private class ValueChangeEvent extends EventObject implements
+                Property.ValueChangeEvent {
+
+            private ValueChangeEvent(EntityItemProperty source) {
+                super(source);
+            }
+
+            @Override
+            public Property getProperty() {
+                return (Property) getSource();
+            }
+        }
+
+        private void notifyListeners() {
+            if (listeners != null) {
+                final Object[] l = listeners.toArray();
+                final Property.ValueChangeEvent event = new ValueChangeEvent(
+                        this);
+                for (int i = 0; i < l.length; i++) {
+                    ((Property.ValueChangeListener) l[i]).valueChange(event);
+                }
+            }
+        }
+
+        @Override
+        public void addListener(ValueChangeListener listener) {
+            assert listener != null : "listener must not be null";
+            if (listeners == null) {
+                listeners = new LinkedList<ValueChangeListener>();
+            }
+            listeners.add(listener);
+        }
+
+        @Override
+        public void removeListener(ValueChangeListener listener) {
+            assert listener != null : "listener must not be null";
+            if (listeners != null) {
+                listeners.remove(listener);
+                if (listeners.isEmpty()) {
+                    listeners = null;
+                }
             }
         }
     }
