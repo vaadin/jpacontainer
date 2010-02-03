@@ -20,7 +20,6 @@ package com.vaadin.addons.jpacontainer.demo;
 import com.vaadin.addons.jpacontainer.EntityProvider;
 import com.vaadin.addons.jpacontainer.JPAContainer;
 import com.vaadin.addons.jpacontainer.demo.domain.Customer;
-import com.vaadin.addons.jpacontainer.provider.LocalEntityProvider;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
@@ -28,7 +27,7 @@ import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 
 /**
- * View for browsing and editing customers
+ * View for browsing and editing customers.
  *
  * @author Petter Holmström (IT Mill)
  * @since 1.0
@@ -39,13 +38,13 @@ public class CustomerView extends CustomComponent {
         this.entityProvider = entityProvider;
         init();
     }
-
     private EntityProvider<Customer> entityProvider;
     private Button newCustomer = new Button("New Customer");
-    private Button editCustomer = new Button("Edit Customer");
+    private Button openCustomer = new Button("Open Customer");
     private Button deleteCustomer = new Button("Delete Customer");
     private Button search = new Button("Search");
-    private JPAContainer<Customer> customerContainer = new JPAContainer(Customer.class);
+    private JPAContainer<Customer> customerContainer = new JPAContainer(
+            Customer.class);
 
     private void init() {
         VerticalLayout layout = new VerticalLayout();
@@ -54,29 +53,86 @@ public class CustomerView extends CustomComponent {
 
         HorizontalLayout toolbar = new HorizontalLayout();
         {
+            // TODO Remove these lines:
+            newCustomer.setEnabled(false);
+            openCustomer.setEnabled(false);
+            deleteCustomer.setEnabled(false);
+            // ---
+
             toolbar.addComponent(newCustomer);
-            toolbar.addComponent(editCustomer);
+            toolbar.addComponent(openCustomer);
             toolbar.addComponent(deleteCustomer);
             toolbar.addComponent(search);
+            toolbar.setSpacing(true);
+            toolbar.setMargin(false, false, true, false);
         }
         layout.addComponent(toolbar);
 
         Table customerTable = new Table();
         {
             customerContainer.setEntityProvider(entityProvider);
+            // Remove unused properties
+            customerContainer.removeContainerProperty("billingAddress");
+            customerContainer.removeContainerProperty("shippingAddress");
+            customerContainer.removeContainerProperty("id");
+            customerContainer.removeContainerProperty("version");
+            // Add some nested properties
+            customerContainer.addNestedContainerProperty("billingAddress.*");
+            customerContainer.addNestedContainerProperty("shippingAddress.*");
+
             customerTable.setSizeFull();
             customerTable.setContainerDataSource(customerContainer);
-            customerTable.setVisibleColumns(new String[] {"custNo","customerName","billingAddress","shippingAddress"});
-            customerTable.setColumnHeaders(new String[] {"CustNo", "Name", "Billing Address", "Shipping Address"});
+            customerTable.setVisibleColumns(
+                    new String[]{"custNo",
+                        "customerName",
+                        "billingAddress.streetOrBox",
+                        "billingAddress.postalCode",
+                        "billingAddress.postOffice",
+                        "billingAddress.country",
+                        "shippingAddress.streetOrBox",
+                        "shippingAddress.postalCode",
+                        "shippingAddress.postOffice",
+                        "shippingAddress.country",
+                        "lastInvoiceDate",
+                        "lastOrderDate",
+                        "notes"});
+            customerTable.setColumnHeaders(
+                    new String[]{"Cust No",
+                        "Name",
+                        "BillTo Address",
+                        "BillTo Postal Code",
+                        "BillTo Post Office",
+                        "BillTo Country",
+                        "ShipTo Address",
+                        "ShipTo Postal Code",
+                        "ShipTo Post Office",
+                        "ShipTo Country",
+                        "Last Invoice Date",
+                        "Last Order Date",
+                        "Notes"});
+            customerTable.setColumnCollapsingAllowed(true);
             customerTable.setSelectable(true);
             customerTable.setImmediate(true);
+            try {
+                customerTable.setColumnCollapsed("shippingAddress.streetOrBox",
+                        true);
+                customerTable.setColumnCollapsed("shippingAddress.postalCode",
+                        true);
+                customerTable.setColumnCollapsed("shippingAddress.postOffice",
+                        true);
+                customerTable.setColumnCollapsed("shippingAddress.country",
+                        true);
+                customerTable.setColumnCollapsed("notes",
+                        true);
+            } catch (IllegalAccessException e) {
+                // Ignore it
+            }
+            customerTable.setSortContainerPropertyId("custNo");
         }
         layout.addComponent(customerTable);
         layout.setExpandRatio(customerTable, 1);
 
         setCompositionRoot(layout);
         setSizeFull();
-
     }
-    
 }

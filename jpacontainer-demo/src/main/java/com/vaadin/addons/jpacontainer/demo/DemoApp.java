@@ -57,7 +57,8 @@ public class DemoApp extends Application {
         tabs.addTab(
                 new CustomerView(providerFactory.getCustomerEntityProvider()),
                 "Customers", null);
-        tabs.addTab(new Label("Orders"), "Orders", null); // TODO Add OrdersView
+        tabs.addTab(new OrderView(providerFactory.getOrderEntityProvider()),
+                "Orders", null);
         tabs.addTab(new Label("Invoices"), "Invoices", null); // TODO Add InvoicesView
 
         Window mainWindow = new Window("JPAContainer Demo Application", layout);

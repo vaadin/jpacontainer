@@ -19,6 +19,7 @@ package com.vaadin.addons.jpacontainer.demo;
 
 import com.vaadin.addons.jpacontainer.EntityProvider;
 import com.vaadin.addons.jpacontainer.demo.domain.Customer;
+import com.vaadin.addons.jpacontainer.demo.domain.Order;
 import com.vaadin.addons.jpacontainer.provider.LocalEntityProvider;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -38,6 +39,7 @@ public class ProviderFactory {
     @PersistenceContext
     private EntityManager entityManager;
     private EntityProvider<Customer> customerEntityProvider;
+    private EntityProvider<Order> orderEntityProvider;
 
     /**
      * Gets the {@link EntityProvider} for {@link Customer}s.
@@ -53,5 +55,21 @@ public class ProviderFactory {
                     Customer.class, entityManager);
         }
         return customerEntityProvider;
+    }
+
+    /**
+     * Gets the {@link EntityProvider} for {@link Order}s.
+     *
+     * @return the entity provider (never null).
+     */
+    public EntityProvider<Order> getOrderEntityProvider() {
+        if (entityManager == null) {
+            throw new IllegalStateException("No EntityManager provided");
+        }
+        if (orderEntityProvider == null) {
+            orderEntityProvider = new LocalEntityProvider<Order>(Order.class,
+                    entityManager);
+        }
+        return orderEntityProvider;
     }
 }
