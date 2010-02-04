@@ -58,7 +58,6 @@ public class TestDataGenerator implements
     private EntityManager entityManager;
     private ArrayList<Long> customerIds;
 
-    @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
         if (logger.isInfoEnabled()) {
             logger.info("Received ContextRefreshedEvent, creating test data");

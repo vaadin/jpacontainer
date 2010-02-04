@@ -64,7 +64,6 @@ public class CustomerView extends CustomComponent {
 
             openCustomer.addListener(new Button.ClickListener() {
 
-                @Override
                 public void buttonClick(ClickEvent event) {
                     Object itemId = customerTable.getValue();
                     EntityItem<Customer> customerItem = customerContainer.getItem(itemId);

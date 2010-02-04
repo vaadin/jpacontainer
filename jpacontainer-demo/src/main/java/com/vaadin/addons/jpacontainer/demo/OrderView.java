@@ -78,7 +78,6 @@ public class OrderView extends CustomComponent {
 
             filterBtn.addListener(new Button.ClickListener() {
 
-                @Override
                 public void buttonClick(Button.ClickEvent event) {
                     Date from = (Date) filterFrom.getValue();
                     Date to = (Date) filterTo.getValue();
@@ -113,7 +112,6 @@ public class OrderView extends CustomComponent {
 
             resetBtn.addListener(new Button.ClickListener() {
 
-                @Override
                 public void buttonClick(ClickEvent event) {
                     filterTo.setValue(null);
                     filterFrom.setValue(null);

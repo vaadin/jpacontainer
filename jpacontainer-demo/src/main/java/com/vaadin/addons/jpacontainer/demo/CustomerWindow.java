@@ -148,7 +148,6 @@ public class CustomerWindow extends Window {
             buttons.setSpacing(true);
             Button applyBtn = new Button("Apply and Close", new Button.ClickListener() {
 
-                @Override
                 public void buttonClick(ClickEvent event) {
                     try {
                         generalForm.validate();
@@ -173,7 +172,6 @@ public class CustomerWindow extends Window {
 
             Button discardBtn = new Button("Discard and Close", new Button.ClickListener() {
 
-                @Override
                 public void buttonClick(ClickEvent event) {
                     customer.discard();
                     ((Window) getParent()).removeWindow(CustomerWindow.this);

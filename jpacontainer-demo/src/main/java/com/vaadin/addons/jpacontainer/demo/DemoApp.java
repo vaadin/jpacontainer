@@ -18,6 +18,8 @@
 package com.vaadin.addons.jpacontainer.demo;
 
 import com.vaadin.Application;
+import com.vaadin.addons.jpacontainer.demo.providers.CustomerProvider;
+import com.vaadin.addons.jpacontainer.demo.providers.OrderProvider;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.VerticalLayout;
@@ -38,7 +40,9 @@ public class DemoApp extends Application {
 
     private TabSheet tabs;
     @Autowired
-    private ProviderFactory providerFactory;
+    private CustomerProvider customerProvider;
+    @Autowired
+    private OrderProvider orderProvider;
 
     @Override
     public void init() {
@@ -55,9 +59,9 @@ public class DemoApp extends Application {
         layout.setExpandRatio(tabs, 1);
 
         tabs.addTab(
-                new CustomerView(providerFactory.getCustomerEntityProvider()),
+                new CustomerView(customerProvider),
                 "Customers", null);
-        tabs.addTab(new OrderView(providerFactory.getOrderEntityProvider()),
+        tabs.addTab(new OrderView(orderProvider),
                 "Orders", null);
         tabs.addTab(new Label("Invoices"), "Invoices", null); // TODO Add InvoicesView
 
