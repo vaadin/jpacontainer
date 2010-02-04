@@ -676,7 +676,7 @@ public class JPAContainerTest {
         });
 
         assertFalse(listenerCalled[0]);
-        assertSame(persistentEntity, container.addEntity(newEntity));
+        assertEquals(123l, container.addEntity(newEntity));
         assertTrue(listenerCalled[0]);
 
         verify(mutableEntityProviderMock);
@@ -720,6 +720,10 @@ public class JPAContainerTest {
 
     public void testContainerItemPropertyModified_WriteThrough() {
 
+    }
+
+    public void testContainerItemModified_WriteThrough() {
+        
     }
 
     // TODO Test all buffered mode operations.

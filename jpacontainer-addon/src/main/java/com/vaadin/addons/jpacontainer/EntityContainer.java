@@ -47,6 +47,7 @@ public interface EntityContainer<T> extends Container.Sortable,
 
     /**
      * Gets the class of the entities that are/can be contained in this container.
+     * 
      * @return the entity class.
      */
     public Class<T> getEntityClass();
@@ -61,15 +62,27 @@ public interface EntityContainer<T> extends Container.Sortable,
             UnsupportedOperationException;
 
     /**
-     * Adds a new entity to the container.
+     * Adds a new entity to the container. The corresponding {@link EntityItem} can
+     * then be accessed by calling {@link #getItem(java.lang.Object) } using the
+     * entity identifier returned by this method.
+     * <p>
+     * If {@link #isAutoCommit() } is activated, the returned identifier is always the actual entity ID.
+     * Otherwise, the returned identifier may, depending on the ID generation strategy, be either the actual entity ID or
+     * a temporary ID that is changed to the real ID once the changes have been committed using {@link #commit() }.
      *
      * @param entity the entity to add (must not be null).
-     * @return the added entity (may or may not be the same instance as <code>entity</code>).
+     * @return the identifier of the entity (never null).
      * @throws UnsupportedOperationException if the container does not support adding new entities at all.
      * @throws IllegalStateException if the container supports adding entities, but is currently in read only mode.
      */
-    public T addEntity(T entity) throws UnsupportedOperationException,
+    public Object addEntity(T entity) throws UnsupportedOperationException,
             IllegalStateException;
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public EntityItem<T> getItem(Object itemId);
 
     /**
      * Returns whether the container is read only or writable.

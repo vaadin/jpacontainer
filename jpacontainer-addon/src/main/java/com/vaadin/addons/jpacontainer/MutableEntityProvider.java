@@ -19,6 +19,8 @@ package com.vaadin.addons.jpacontainer;
 
 /**
  * Entity provider that also supports adding, updating and removing entities.
+ * Implementations should pay special attention to the usage of the
+ * {@link #isEntitiesDetached() } property.
  * 
  * @author Petter Holmström (IT Mill)
  * @since 1.0
@@ -29,9 +31,11 @@ public interface MutableEntityProvider<T> extends EntityProvider<T> {
      * Adds <code>entity</code> to the persistence storage. This method
      * returns the same entity after adding to make it possible
      * for the client to access the entity identifier. Note, however,
-     * that depending on the implementation of the entity provider,
+     * that depending on the implementation of the entity provider
+     * and the state of {@link #isEntitiesDetached() },
      * this may or may not be the same instance as <code>entity</code>. Therefore,
-     * clients should always assume that <code>entity != returnedEntity</code>.
+     * if {@link #isEntitiesDetached() } is true, clients should always assume
+     * that <code>entity != returnedEntity</code>.
      * <p>
      * This method is expected to be run inside a transaction. If the method
      * completes successfully, the transaction should be committed. If the method
@@ -45,9 +49,11 @@ public interface MutableEntityProvider<T> extends EntityProvider<T> {
     /**
      * Saves the changes made to <code>entity</code> to the persistence storage.
      * This method returns the same entity after saving the changes. Note, however,
-     * that depending on the implementation of the entity provider, this may or may
-     * not be the same instance as <code>entity</code>. Therefore, clients should
-     * always assume that <code>entity != returnedEntity</code>.
+     * that depending on the implementation of the entity provider
+     * and the state of {@link #isEntitiesDetached() }, this may or may
+     * not be the same instance as <code>entity</code>. Therefore,
+     * if {@link #isEntitiesDetached() } is true, clients should always assume
+     * that <code>entity != returnedEntity</code>.
      * <p>
      * This method is expected to be run inside a transaction. If the method
      * completes successfully, the transaction should be committed. If the method
@@ -59,6 +65,7 @@ public interface MutableEntityProvider<T> extends EntityProvider<T> {
     public T updateEntity(T entity);
 
     /**
+     *
      * Updates a single property value of a specific entity. If the entity is not found,
      * nothing happens.
      * <p>

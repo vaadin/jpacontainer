@@ -21,17 +21,10 @@ import java.util.List;
 
 /**
  * Like the name suggests, the purpose of the <code>EntityProvider</code> is to
- * provide entities to {@link EntityContainer}s. All entities provided by this
- * interface should be detached from the persistence storage. That is, any changes
- * made to an entity instance returned from this provider may not be automatically
- * propagated back to the persistence storage.<p>
- * The same goes for lazy loading: either all the references should be loaded before
- * the entity is returned, or the implementation should make sure that the lazy loading
- * also works for detached entities.
+ * provide entities to {@link EntityContainer}s.
  * <p>
- * The reason for these restrictions is that it makes it possible to deploy the entity provider
- * and the container on two different Java VMs and use a stateless remote invocation protocol
- * for communication between them.
+ * Please note the {@link #isEntitiesDetached() } flag, as this may have weird
+ * consequences if used inproperly. 
  *
  * @see MutableEntityProvider
  * @see CachingEntityProvider
@@ -48,6 +41,29 @@ public interface EntityProvider<T> {
      * @return the entity, or null if not found.
      */
     public T getEntity(Object entityId);
+
+    /**
+     * Depending on the implementation of the entity provider, the entities returned may be
+     * either detached or managed by the persistence context. If the entities are managed,
+     * special care should be taken to keep e.g. session open in order for lazy loading to work.
+     * If the entity provider and the container are running in separate VMs, managed entities
+     * are not going to work without extra work.
+     * <p>
+     * The default value is implementation specific.
+     *
+     * @return true if the entities are detached, false if they are managed.
+     */
+    public boolean isEntitiesDetached();
+
+    /**
+     * Specifies whether the entities returned by the entity provider should
+     * be detached or managed.
+     *
+     * @param detached true to request detached entities, false to request managed entities.
+     * @throws UnsupportedOperationException if the implementation does not allow the user to change the way entities are returned.
+     */
+    public void setEntitiesDetached(boolean detached) throws
+            UnsupportedOperationException;
 
     /**
      * Gets the identifier of the entity at position <code>index</code> in the result set determined

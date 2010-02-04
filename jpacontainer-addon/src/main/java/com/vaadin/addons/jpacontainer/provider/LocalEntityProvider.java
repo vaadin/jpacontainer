@@ -17,6 +17,7 @@
  */
 package com.vaadin.addons.jpacontainer.provider;
 
+import com.vaadin.addons.jpacontainer.EntityItem;
 import com.vaadin.addons.jpacontainer.EntityProvider;
 import com.vaadin.addons.jpacontainer.Filter;
 import com.vaadin.addons.jpacontainer.Filter.PropertyIdPreprocessor;
@@ -560,4 +561,16 @@ public class LocalEntityProvider<T> implements EntityProvider<T>,
             }
         });
     }
+
+    @Override
+    public boolean isEntitiesDetached() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void setEntitiesDetached(boolean detached) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    
 }

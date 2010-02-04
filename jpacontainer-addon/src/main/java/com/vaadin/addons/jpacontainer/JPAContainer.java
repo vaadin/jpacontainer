@@ -26,6 +26,7 @@ import com.vaadin.data.Container;
 import com.vaadin.data.Container.ItemSetChangeListener;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
+import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Validator.InvalidValueException;
 import java.util.Collection;
 import java.util.Collections;
@@ -354,10 +355,10 @@ public class JPAContainer<T> implements EntityContainer<T> {
      * The actual entity instance may still be the same though, depending on the implementation of the entity provider.
      */
     @Override
-    public Item getItem(Object itemId) {
+    public EntityItem<T> getItem(Object itemId) {
         // TODO This is slow! Is there some way of optimizing this?
         T entity = doGetEntityProvider().getEntity(itemId);
-        return entity != null ? new EntityItem(this, entity) : null;
+        return entity != null ? new JPAContainerItem(this, entity) : null;
     }
 
     /**
@@ -540,7 +541,7 @@ public class JPAContainer<T> implements EntityContainer<T> {
     }
 
     @Override
-    public T addEntity(T entity) throws UnsupportedOperationException,
+    public Object addEntity(T entity) throws UnsupportedOperationException,
             IllegalStateException {
         assert entity != null : "entity must not be null";
         requireWritableContainer();
@@ -551,7 +552,7 @@ public class JPAContainer<T> implements EntityContainer<T> {
             Object id = getEntityClassMetadata().getPropertyValue(result, getEntityClassMetadata().
                     getIdentifierProperty().getName());
             fireContainerItemSetChange(new ItemAddedEvent(id));
-            return result;
+            return id;
         } else {
             // TODO Implement me!
             throw new UnsupportedOperationException(
@@ -588,31 +589,72 @@ public class JPAContainer<T> implements EntityContainer<T> {
     }
 
     /**
-     * Notifies the container that the specified property of <code>item</code>
+     * This method is used by the {@link JPAContainerItem} class
+     * and <b>should not be used by other classes</b>. It is only called when
+     * the item is in write through mode, i.e. when an updated property value
+     * is directly reflected in the backed entity instance. If the item is in buffered mode (write through
+     * is off), {@link #containerItemModified(com.vaadin.addons.jpacontainer.EntityItem) } is
+     * used instead.
+     * <p>
+     * This method notifies the container that the specified property of <code>item</code>
      * has been modified. The container will then take appropriate actions
      * to pass the changes on to the entity provider, depending on the state
-     * of the <code>writeThrough</code> property.
-     * <p>
-     * This method is used by the {@link EntityItem} class
-     * and should not be used by other classes.
+     * of the <code>writeThrough</code> property <i>of the container</i>.
      *
      * @see #isWriteThrough()
      * @param item the item that has been modified (must not be null).
      * @param propertyId the ID of the modified property (must not be null).
      */
-    protected void containerItemPropertyModified(Item item, String propertyId)
-            throws UnsupportedOperationException {
+    void containerItemPropertyModified(JPAContainerItem<T> item,
+            String propertyId) {
         assert item != null : "item must not be null";
         assert propertyId != null : "propertyId must not be null";
         requireWritableContainer();
 
         if (isWriteThrough()) {
+            Object itemId = item.getItemProperty(getEntityClassMetadata().
+                    getIdentifierProperty().getName()).getValue();
             ((MutableEntityProvider) getEntityProvider()).updateEntityProperty(
-                    item.getItemProperty(getEntityClassMetadata().
-                    getIdentifierProperty().getName()).getValue(), propertyId, item.
-                    getItemProperty(propertyId).getValue());
+                    itemId, propertyId, item.getItemProperty(propertyId).
+                    getValue());
+            item.setDirty(false);
+            fireContainerItemSetChange(new ItemUpdatedEvent(itemId));
         } else {
             // TODO Implement me!
+            throw new UnsupportedOperationException(
+                    "Buffered mode not supported yet.");
+        }
+    }
+
+    /**
+     * This method is used by the {@link JPAContainerItem} class
+     * and <b>should not be used by other classes</b>. It is only called when
+     * the item is in buffered mode (write through is off), i.e. when updated property
+     * values are not reflected in the backend entity instance until the item's
+     * commit method has been invoked. If write through
+     * is turned on, {@link #containerItemPropertyModified(com.vaadin.addons.jpacontainer.JPAContainerItem, java.lang.String)  } is
+     * used instead.
+     * <p>
+     * This method notifies the container that the specified <code>item</code>
+     * has been modified. The container will then take appropriate actions
+     * to pass the changes on to the entity provider, depending on the state
+     * of the <code>writeThrough</code> property <i>of the container</i>.
+     * 
+     * @see #isWriteThrough()
+     * @param item the item that has been modified (must not be null).
+     */
+    void containerItemModified(JPAContainerItem<T> item) {
+        assert item != null : "item must not be null";
+        requireWritableContainer();
+
+        if (isWriteThrough()) {
+            Object itemId = item.getItemProperty(getEntityClassMetadata().
+                    getIdentifierProperty().getName()).getValue();
+            ((MutableEntityProvider) getEntityProvider()).updateEntity(item.
+                    getEntity());
+            item.setDirty(false);
+            fireContainerItemSetChange(new ItemUpdatedEvent(itemId));
+        } else {
             throw new UnsupportedOperationException(
                     "Buffered mode not supported yet.");
         }
