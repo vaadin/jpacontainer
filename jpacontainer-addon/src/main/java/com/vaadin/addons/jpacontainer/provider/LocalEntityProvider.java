@@ -44,6 +44,7 @@ import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.EntityTransaction;
+import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
 /**
@@ -55,6 +56,7 @@ import javax.persistence.Query;
  *   <li>Performs a serialize-deserialize cycle to clone entities in order to detach them from the persistence context (<b>This is ugly!</b<)</li>
  *   <li>Once the entity manager has been set, it cannot be changed</li>
  *   <li>Supports both internal and external transaction handling</li>
+ *   <li>The entity manager instance is annotated with {@link PersistenceContext} and can use dependency injection when running inside a container such as Spring or EJB (see {@link #LocalEntityProvider(java.lang.Class) })</li>
  *   <li><strong>Does NOT currently support embedded identifiers!</strong></li>
  * </ul>
  *
@@ -64,6 +66,7 @@ import javax.persistence.Query;
 public class LocalEntityProvider<T> implements EntityProvider<T>,
         MutableEntityProvider<T>, Serializable {
 
+    @PersistenceContext
     private EntityManager entityManager;
     private EntityClassMetadata<T> entityClassMetadata;
 
@@ -74,9 +77,20 @@ public class LocalEntityProvider<T> implements EntityProvider<T>,
      * @param entityManager the entity manager to use (must not be null).
      */
     public LocalEntityProvider(Class<T> entityClass, EntityManager entityManager) {
-        assert entityClass != null : "entityClass must not be null";
+        this(entityClass);
         assert entityManager != null : "entityManager must not be null";
         this.entityManager = entityManager;
+    }
+
+    /**
+     * Creates a new <code>LocalEntityProvider</code>, fetching the entity manager
+     * by container injection. Alternatively, the entity manager
+     * can be set using {@link #setEntityManager(javax.persistence.EntityManager) }.
+     *
+     * @param entityClass the entity class (must not be null).
+     */
+    public LocalEntityProvider(Class<T> entityClass) {
+        assert entityClass != null : "entityClass must not be null";
         this.entityClassMetadata = MetadataFactory.getInstance().
                 getEntityClassMetadata(entityClass);
 
@@ -85,6 +99,15 @@ public class LocalEntityProvider<T> implements EntityProvider<T>,
             throw new IllegalArgumentException(
                     "Embedded identifiers are currently not supported!");
         }
+    }
+
+    /**
+     * Sets the entity manager.
+     * 
+     * @param entityManager the entity manager to set.
+     */
+    protected void setEntityManager(EntityManager entityManager) {
+        this.entityManager = entityManager;
     }
 
     /**
@@ -477,11 +500,9 @@ public class LocalEntityProvider<T> implements EntityProvider<T>,
                 ByteArrayOutputStream os = new ByteArrayOutputStream();
                 ObjectOutputStream oos = new ObjectOutputStream(os);
                 oos.writeObject(entity);
-                ByteArrayInputStream is = new ByteArrayInputStream(os.
-                        toByteArray());
+                ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
                 ObjectInputStream ois = new ObjectInputStream(is);
-                return getEntityClassMetadata().getMappedClass().cast(ois.
-                        readObject());
+                return getEntityClassMetadata().getMappedClass().cast(ois.readObject());
             } catch (Exception e) {
                 // Do nothing, entity manager will be cleared
             }
@@ -571,6 +592,4 @@ public class LocalEntityProvider<T> implements EntityProvider<T>,
     public void setEntitiesDetached(boolean detached) throws UnsupportedOperationException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-
-    
 }
