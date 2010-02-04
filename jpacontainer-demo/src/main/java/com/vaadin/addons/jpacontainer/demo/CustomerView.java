@@ -17,10 +17,12 @@
  */
 package com.vaadin.addons.jpacontainer.demo;
 
+import com.vaadin.addons.jpacontainer.EntityItem;
 import com.vaadin.addons.jpacontainer.EntityProvider;
 import com.vaadin.addons.jpacontainer.JPAContainer;
 import com.vaadin.addons.jpacontainer.demo.domain.Customer;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Table;
@@ -45,6 +47,7 @@ public class CustomerView extends CustomComponent {
     private Button search = new Button("Search");
     private JPAContainer<Customer> customerContainer = new JPAContainer(
             Customer.class);
+    private Table customerTable = new Table();
 
     private void init() {
         VerticalLayout layout = new VerticalLayout();
@@ -55,9 +58,19 @@ public class CustomerView extends CustomComponent {
         {
             // TODO Remove these lines:
             newCustomer.setEnabled(false);
-            openCustomer.setEnabled(false);
+            //openCustomer.setEnabled(false);
             deleteCustomer.setEnabled(false);
             // ---
+
+            openCustomer.addListener(new Button.ClickListener() {
+
+                @Override
+                public void buttonClick(ClickEvent event) {
+                    Object itemId = customerTable.getValue();
+                    EntityItem<Customer> customerItem = customerContainer.getItem(itemId);
+                    getWindow().addWindow(new CustomerWindow(customerItem));
+                }
+            });
 
             toolbar.addComponent(newCustomer);
             toolbar.addComponent(openCustomer);
@@ -68,7 +81,6 @@ public class CustomerView extends CustomComponent {
         }
         layout.addComponent(toolbar);
 
-        Table customerTable = new Table();
         {
             customerContainer.setEntityProvider(entityProvider);
             // Remove unused properties
