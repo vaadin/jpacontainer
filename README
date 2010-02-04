@@ -3,7 +3,7 @@ JPAContainer README
 
 PREREQUISITES
 
-  - Java 6
+  - Java 5
   - Maven 2.2
   - A working internet connection
 
