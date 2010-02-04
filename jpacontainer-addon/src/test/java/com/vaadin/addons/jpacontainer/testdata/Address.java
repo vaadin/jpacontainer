@@ -28,7 +28,7 @@ import org.apache.commons.lang.ObjectUtils;
  * @since 1.0
  */
 @Embeddable
-public class Address implements Serializable {
+public class Address implements Serializable, Cloneable {
 
     private String street;
     private String postalCode;
@@ -92,5 +92,15 @@ public class Address implements Serializable {
     @Override
     public String toString() {
         return street + ", " + postalCode + " " + postOffice;
+    }
+
+    @Override
+    public Object clone() {
+        Address a = new Address();
+        a.postOffice = postOffice;
+        a.postalCode = postalCode;
+        a.street = street;
+        a.tempData = tempData;
+        return a;
     }
 }
