@@ -519,13 +519,6 @@ final class JPAContainerItem<T> implements EntityItem<T> {
                  * be executed if writeThrough is turned on.
                  */
                 commit();
-                if (!isReadThrough()) {
-                    /**
-                     * If WriteThrough is true, then ReadThrough has to
-                     * be true as well.
-                     */
-                    setReadThrough(true);
-                }
                 /*
                  * Do some cleaning up
                  */
@@ -543,6 +536,11 @@ final class JPAContainerItem<T> implements EntityItem<T> {
                 }
             }
             this.writeThrough = writeThrough;
+            /*
+             * Normally, if writeThrough is changed, readThrough should
+             * also be changed.
+             */
+            setReadThrough(writeThrough);
         }
     }
 

@@ -253,7 +253,7 @@ public class JPAContainerItemTest {
     @Test
     public void testPropertyValue_Buffered_NoReadThrough_Commit() {
         item.setWriteThrough(false);
-        item.setReadThrough(false);
+//        item.setReadThrough(false);
 
         final Property prop = item.getItemProperty("firstName");
         final int[] listenerCalled = new int[1];
@@ -299,7 +299,7 @@ public class JPAContainerItemTest {
     @Test
     public void testNestedPropertyValue_Buffered_NoReadThrough_Commit() {
         item.setWriteThrough(false);
-        item.setReadThrough(false);
+//        item.setReadThrough(false);
 
         final Property prop = item.getItemProperty("address.street");
         final int[] listenerCalled = new int[1];
@@ -345,7 +345,7 @@ public class JPAContainerItemTest {
     @Test
     public void testPropertyValue_Buffered_NoReadThrough_Discard() {
         item.setWriteThrough(false);
-        item.setReadThrough(false);
+//        item.setReadThrough(false);
 
         final Property prop = item.getItemProperty("firstName");
         final int[] listenerCalled = new int[1];
@@ -391,7 +391,7 @@ public class JPAContainerItemTest {
     @Test
     public void testNestedPropertyValue_Buffered_NoReadThrough_Discard() {
         item.setWriteThrough(false);
-        item.setReadThrough(false);
+//        item.setReadThrough(false);
 
         final Property prop = item.getItemProperty("address.street");
         final int[] listenerCalled = new int[1];
@@ -437,6 +437,7 @@ public class JPAContainerItemTest {
     @Test
     public void testPropertyValue_Buffered_ReadThrough_Commit() {
         item.setWriteThrough(false);
+        item.setReadThrough(true);
 
         final Property prop = item.getItemProperty("firstName");
         final int[] listenerCalled = new int[1];
@@ -498,6 +499,7 @@ public class JPAContainerItemTest {
     @Test
     public void testPropertyValue_Buffered_ReadThrough_Discard() {
         item.setWriteThrough(false);
+        item.setReadThrough(true);
 
         final Property prop = item.getItemProperty("firstName");
         final int[] listenerCalled = new int[1];
@@ -559,7 +561,6 @@ public class JPAContainerItemTest {
     @Test
     public void testTurnOnWriteThrough() {
         item.setWriteThrough(false);
-        item.setReadThrough(false);
 
         final Property prop = item.getItemProperty("address.street");
         final int[] listenerCalled = new int[1];
@@ -573,6 +574,7 @@ public class JPAContainerItemTest {
         });
 
         prop.setValue("Hello");
+        assertEquals(1, listenerCalled[0]);
 
         item.setWriteThrough(true);
 
@@ -580,7 +582,7 @@ public class JPAContainerItemTest {
         assertEquals("Hello", item.getEntity().getAddress().getStreet());
         assertFalse(item.isModified());
         assertTrue(item.isDirty());
-        assertEquals(1, listenerCalled[0]);
+        assertEquals(2, listenerCalled[0]);
         assertTrue(item.isWriteThrough());
         assertTrue(item.isReadThrough()); // Has also been changed
         assertNull(modifiedPropertyId);
