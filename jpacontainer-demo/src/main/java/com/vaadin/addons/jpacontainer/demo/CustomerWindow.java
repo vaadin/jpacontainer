@@ -58,11 +58,15 @@ public class CustomerWindow extends Window {
         public Field createField(Item item, Object propertyId,
                 Component uiContext) {
             Field f = super.createField(item, propertyId, uiContext);
+            EntityItem<Customer> i = (EntityItem<Customer>) item;
 
             if ("custNo".equals(propertyId)) {
                 TextField tf = (TextField) f;
-                tf.setReadOnly(true);
+                tf.setNullRepresentation("");
+                tf.setReadOnly(i.isPersistent()); // In a real application, this value should probably be auto-generated
                 tf.setWidth("5em");
+                tf.setRequired(true);
+                tf.setRequiredError("Please enter a customer no");
             } else if ("customerName".equals(propertyId)) {
                 TextField tf = (TextField) f;
                 tf.setRequired(true);
@@ -85,7 +89,7 @@ public class CustomerWindow extends Window {
                 f.addValidator(new StringLengthValidator(
                         "Postal code must be 5 characters", 5,
                         5, true));
-                f.setWidth("5em");
+                f.setWidth("4em");
             } else if (propertyId.toString().endsWith("postOffice")) {
                 f.setCaption("Post Office");
                 f.setWidth(COMMON_FIELD_WIDTH);
@@ -116,6 +120,7 @@ public class CustomerWindow extends Window {
                         "notes",
                         "lastInvoiceDate",
                         "lastOrderDate"});
+            generalForm.setValidationVisible(true);
             addComponent(generalForm);
         }
         final Form billingForm = new Form();
@@ -128,6 +133,7 @@ public class CustomerWindow extends Window {
                         "billingAddress.postalCode",
                         "billingAddress.postOffice",
                         "billingAddress.country"});
+            billingForm.setValidationVisible(true);
             addComponent(billingForm);
         }
         final Form shippingForm = new Form();
@@ -140,6 +146,7 @@ public class CustomerWindow extends Window {
                         "shippingAddress.postalCode",
                         "shippingAddress.postOffice",
                         "shippingAddress.country"});
+            shippingForm.setValidationVisible(true);
             addComponent(shippingForm);
         }
 
@@ -155,6 +162,12 @@ public class CustomerWindow extends Window {
                         shippingForm.validate();
                         try {
                             customer.commit();
+
+                            if (customer.getItemId() == null) {
+                                // We are adding a new customer
+                                customer.getContainer().addEntity(customer.
+                                        getEntity());
+                            }
                             ((Window) getParent()).removeWindow(
                                     CustomerWindow.this);
                         } catch (Exception e) {
@@ -168,7 +181,6 @@ public class CustomerWindow extends Window {
                 }
             });
             buttons.addComponent(applyBtn);
-            buttons.setComponentAlignment(applyBtn, Alignment.MIDDLE_RIGHT);
 
             Button discardBtn = new Button("Discard and Close", new Button.ClickListener() {
 
@@ -179,6 +191,7 @@ public class CustomerWindow extends Window {
             });
             buttons.addComponent(discardBtn);
             layout.addComponent(buttons);
+            layout.setComponentAlignment(buttons, Alignment.MIDDLE_RIGHT);
         }
         setSizeUndefined();
         setWidth("30em");

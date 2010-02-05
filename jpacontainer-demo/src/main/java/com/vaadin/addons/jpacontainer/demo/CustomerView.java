@@ -21,12 +21,15 @@ import com.vaadin.addons.jpacontainer.EntityItem;
 import com.vaadin.addons.jpacontainer.EntityProvider;
 import com.vaadin.addons.jpacontainer.JPAContainer;
 import com.vaadin.addons.jpacontainer.demo.domain.Customer;
+import com.vaadin.data.Property;
+import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window.Notification;
 
 /**
  * View for browsing and editing customers.
@@ -56,18 +59,42 @@ public class CustomerView extends CustomComponent {
 
         HorizontalLayout toolbar = new HorizontalLayout();
         {
-            // TODO Remove these lines:
-            newCustomer.setEnabled(false);
-            //openCustomer.setEnabled(false);
-            deleteCustomer.setEnabled(false);
-            // ---
+            newCustomer.addListener(new Button.ClickListener() {
 
+                public void buttonClick(ClickEvent event) {
+                    getWindow().addWindow(new CustomerWindow(customerContainer.
+                            createEntityItem(new Customer())));
+                }
+            });
+
+            openCustomer.setEnabled(false);
             openCustomer.addListener(new Button.ClickListener() {
 
                 public void buttonClick(ClickEvent event) {
                     Object itemId = customerTable.getValue();
-                    EntityItem<Customer> customerItem = customerContainer.getItem(itemId);
-                    getWindow().addWindow(new CustomerWindow(customerItem));
+                    if (itemId != null) {
+                        EntityItem<Customer> customerItem = customerContainer.
+                                getItem(itemId);
+                        getWindow().addWindow(new CustomerWindow(customerItem));
+                    }
+                }
+            });
+
+            deleteCustomer.setEnabled(false);
+            deleteCustomer.addListener(new Button.ClickListener() {
+
+                public void buttonClick(ClickEvent event) {
+                    Object itemId = customerTable.getValue();
+                    if (itemId != null) {
+                        try {
+                            customerContainer.removeItem(itemId);
+                            customerTable.setValue(null);
+                        } catch (Exception e) {
+                            getWindow().showNotification(
+                                    "Could not delete Customer", e.getMessage(),
+                                    Notification.TYPE_ERROR_MESSAGE);
+                        }
+                    }
                 }
             });
 
@@ -139,6 +166,14 @@ public class CustomerView extends CustomComponent {
                 // Ignore it
             }
             customerTable.setSortContainerPropertyId("custNo");
+            customerTable.addListener(new Property.ValueChangeListener() {
+
+                public void valueChange(ValueChangeEvent event) {
+                    Object id = customerTable.getValue();
+                    openCustomer.setEnabled(id != null);
+                    deleteCustomer.setEnabled(id != null);
+                }
+            });
         }
         layout.addComponent(customerTable);
         layout.setExpandRatio(customerTable, 1);

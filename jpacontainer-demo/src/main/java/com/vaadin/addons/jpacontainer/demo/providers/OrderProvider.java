@@ -19,7 +19,7 @@ package com.vaadin.addons.jpacontainer.demo.providers;
 
 import com.vaadin.addons.jpacontainer.demo.domain.Order;
 import com.vaadin.addons.jpacontainer.provider.LocalEntityProvider;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-@Service(value="orderProvider")
+@Repository(value="orderProvider")
 public class OrderProvider extends LocalEntityProvider<Order> {
 
     /**
@@ -40,16 +40,19 @@ public class OrderProvider extends LocalEntityProvider<Order> {
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED)
     public Order addEntity(Order entity) {
         return super.addEntity(entity);
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED)
     public Order updateEntity(Order entity) {
         return super.updateEntity(entity);
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED)
     public void updateEntityProperty(Object entityId, String propertyName, Object propertyValue) throws IllegalArgumentException {
         super.updateEntityProperty(entityId, propertyName, propertyValue);
     }

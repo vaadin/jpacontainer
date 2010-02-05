@@ -19,13 +19,13 @@ package com.vaadin.addons.jpacontainer.demo.providers;
 
 import com.vaadin.addons.jpacontainer.demo.domain.Customer;
 import com.vaadin.addons.jpacontainer.provider.LocalEntityProvider;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Entity provider for {@link Customer}s that uses Spring's declarative
- * transaction annotations. It is also annotated with the {@link Service} annotation,
+ * transaction annotations. It is also annotated with the {@link Repository} annotation,
  * which means that the Spring container will automatically detect it and
  * add it to the container.
  *
@@ -34,7 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-@Service(value = "customerProvider")
+@Repository(value = "customerProvider")
 public class CustomerProvider extends LocalEntityProvider<Customer> {
 
     /**
