@@ -17,7 +17,6 @@
  */
 package com.vaadin.addons.jpacontainer.provider;
 
-import com.vaadin.addons.jpacontainer.EntityItem;
 import com.vaadin.addons.jpacontainer.EntityProvider;
 import com.vaadin.addons.jpacontainer.Filter;
 import com.vaadin.addons.jpacontainer.Filter.PropertyIdPreprocessor;
@@ -52,13 +51,16 @@ import javax.persistence.Query;
  * features and limitations:
  * <ul>
  *   <li>Does not do any internal caching, all information is always accessed directly from the EntityManager</li>
- *   <li>Uses lazy-loading of entities (references and collections within the entities should be configured to be fetched eagerly, though)</li>
+ *   <li>Detaches entities by default</li>
+ *   <li>Uses lazy-loading of entities (when using detached entities, references and collections within the entities should be configured to be fetched eagerly, though)</li>
  *   <li>Performs a serialize-deserialize cycle to clone entities in order to detach them from the persistence context (<b>This is ugly!</b<)</li>
- *   <li>Once the entity manager has been set, it cannot be changed</li>
+ *   <li>Once the entity manager has been set, it cannot be changed without subclassing the provider</li>
  *   <li>Supports both internal and external transaction handling</li>
  *   <li>The entity manager instance is annotated with {@link PersistenceContext} and can use dependency injection when running inside a container such as Spring or EJB (see {@link #LocalEntityProvider(java.lang.Class) })</li>
  *   <li><strong>Does NOT currently support embedded identifiers!</strong></li>
  * </ul>
+ *
+ * TODO Improve documentation!
  *
  * @author Petter Holmström (IT Mill)
  * @since 1.0
@@ -69,6 +71,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>,
     @PersistenceContext
     private EntityManager entityManager;
     private EntityClassMetadata<T> entityClassMetadata;
+    private boolean entitiesDetached = true;
 
     /**
      * Creates a new <code>LocalEntityProvider</code>.
@@ -238,8 +241,10 @@ public class LocalEntityProvider<T> implements EntityProvider<T>,
             query.setParameter(vf.getQLParameterName(), vf.getValue());
         } else if (filter instanceof IntervalFilter) {
             IntervalFilter intf = (IntervalFilter) filter;
-            query.setParameter(intf.getEndingPointQLParameterName(), intf.getEndingPoint());
-            query.setParameter(intf.getStartingPointQLParameterName(), intf.getStartingPoint());
+            query.setParameter(intf.getEndingPointQLParameterName(), intf.
+                    getEndingPoint());
+            query.setParameter(intf.getStartingPointQLParameterName(), intf.
+                    getStartingPoint());
         } else if (filter instanceof CompositeFilter) {
             for (Filter f : ((CompositeFilter) filter).getFilters()) {
                 setQueryParameters(query, f);
@@ -476,7 +481,8 @@ public class LocalEntityProvider<T> implements EntityProvider<T>,
 
     /**
      * Detaches <code>entity</code> from the entity manager (until JPA 2.0 arrives).
-     * If <code>entity</code> is null, then null is returned.
+     * If <code>entity</code> is null, then null is returned. If {@link #isEntitiesDetached() } is false,
+     * <code>entity</code> is returned directly.
      *
      * @param entity the entity to detach.
      * @return the detached entity.
@@ -484,6 +490,9 @@ public class LocalEntityProvider<T> implements EntityProvider<T>,
     protected T detachEntity(T entity) {
         if (entity == null) {
             return null;
+        }
+        if (!entitiesDetached) {
+            return entity;
         }
         // TODO Replace with more efficient code, or a call to JPA 2.0
         if (entity instanceof Serializable) {
@@ -500,9 +509,11 @@ public class LocalEntityProvider<T> implements EntityProvider<T>,
                 ByteArrayOutputStream os = new ByteArrayOutputStream();
                 ObjectOutputStream oos = new ObjectOutputStream(os);
                 oos.writeObject(entity);
-                ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
+                ByteArrayInputStream is = new ByteArrayInputStream(os.
+                        toByteArray());
                 ObjectInputStream ois = new ObjectInputStream(is);
-                return getEntityClassMetadata().getMappedClass().cast(ois.readObject());
+                return getEntityClassMetadata().getMappedClass().cast(ois.
+                        readObject());
             } catch (Exception e) {
                 // Do nothing, entity manager will be cleared
             }
@@ -585,11 +596,12 @@ public class LocalEntityProvider<T> implements EntityProvider<T>,
 
     @Override
     public boolean isEntitiesDetached() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return entitiesDetached;
     }
 
     @Override
-    public void setEntitiesDetached(boolean detached) throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void setEntitiesDetached(boolean detached) throws
+            UnsupportedOperationException {
+        this.entitiesDetached = detached;
     }
 }
