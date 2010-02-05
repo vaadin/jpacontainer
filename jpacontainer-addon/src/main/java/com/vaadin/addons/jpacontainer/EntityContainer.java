@@ -29,7 +29,7 @@ import com.vaadin.data.Validator.InvalidValueException;
  */
 public interface EntityContainer<T> extends Container.Sortable,
         AdvancedFilterable, Container.ItemSetChangeNotifier, Container.Indexed,
-        Buffered {
+        Buffered, Container.Filterable {
 
     /**
      * Gets the entity provider that is used for fetching and storing entities.

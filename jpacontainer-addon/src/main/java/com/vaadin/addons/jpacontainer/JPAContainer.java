@@ -18,6 +18,7 @@
 package com.vaadin.addons.jpacontainer;
 
 import com.vaadin.addons.jpacontainer.filter.Filters;
+import com.vaadin.addons.jpacontainer.filter.PropertyFilter;
 import com.vaadin.addons.jpacontainer.filter.util.AdvancedFilterableSupport;
 import com.vaadin.addons.jpacontainer.metadata.EntityClassMetadata;
 import com.vaadin.addons.jpacontainer.metadata.MetadataFactory;
@@ -26,7 +27,6 @@ import com.vaadin.data.Container;
 import com.vaadin.data.Container.ItemSetChangeListener;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
-import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Validator.InvalidValueException;
 import java.util.Collection;
 import java.util.Collections;
@@ -373,6 +373,10 @@ public class JPAContainer<T> implements EntityContainer<T> {
          * This is intentionally an ugly implementation! This method
          * should not be used!
          */
+        if (size() > 100) {
+            System.err.println(
+                    "(JPAContainer) WARNING! Invoking getItemIds() when size > 100 is not recommended!");
+        }
         LinkedList<Object> idList = new LinkedList<Object>();
         Object id = firstItemId();
         while (id != null) {
@@ -476,6 +480,43 @@ public class JPAContainer<T> implements EntityContainer<T> {
         filterSupport.setApplyFiltersImmediately(applyFiltersImmediately);
     }
 
+    public void addContainerFilter(Object propertyId, String filterString,
+            boolean ignoreCase, boolean onlyMatchPrefix) {
+        // TODO Test me!
+        if (onlyMatchPrefix) {
+            filterString = filterString + "%";
+        } else {
+            filterString = "%" + filterString + "%";
+        }
+        addFilter(Filters.like(propertyId, filterString, !ignoreCase));
+        if (!isApplyFiltersImmediately()) {
+            applyFilters();
+        }
+    }
+
+    public void removeAllContainerFilters() {
+        // TODO Test me!
+        removeAllFilters();
+        if (!isApplyFiltersImmediately()) {
+            applyFilters();
+        }
+    }
+
+    public void removeContainerFilters(Object propertyId) {
+        // TODO Test me!
+        List<Filter> filters = getFilters();
+        for (int i = filters.size() - 1; i >= 0; i--) {
+            Filter f = filters.get(i);
+            if (f instanceof PropertyFilter && ((PropertyFilter) f).
+                    getPropertyId().equals(propertyId)) {
+                removeFilter(f);
+            }
+        }
+        if (!isApplyFiltersImmediately()) {
+            applyFilters();
+        }
+    }
+
     /**
      * <strong>This functionality is not supported by this implementation.</strong>
      * <p>
@@ -515,6 +556,10 @@ public class JPAContainer<T> implements EntityContainer<T> {
          * This is intentionally an ugly implementation! This method
          * should not be used!
          */
+        if (size() > 100) {
+            System.err.println(
+                    "(JPAContainer) WARNING! Invoking indexOfId() when size > 100 is not recommended!");
+        }
         for (int i = 0; i < size(); i++) {
             Object id = getIdByIndex(i);
             if (id == null) {
