@@ -19,6 +19,8 @@ package com.vaadin.addons.jpacontainer.util;
 
 import com.vaadin.addons.jpacontainer.EntityContainer;
 import com.vaadin.addons.jpacontainer.EntityProvider;
+import com.vaadin.addons.jpacontainer.JPAContainer;
+import com.vaadin.addons.jpacontainer.provider.LocalEntityProvider;
 import javax.persistence.EntityManager;
 
 /**
@@ -30,21 +32,42 @@ import javax.persistence.EntityManager;
  */
 public final class EntityContainerFactory {
 
-    // TODO Implement factory methods
-
+    /**
+     * TODO Document me!
+     * @param entityClass
+     * @param dataSource
+     * @return
+     */
     public static <T> EntityContainer<T> createEntityContainer(
             Class<T> entityClass, EntityProvider<T> dataSource) {
-        throw new UnsupportedOperationException("Not implemented yet!");
+        JPAContainer<T> container = new JPAContainer(entityClass);
+        container.setEntityProvider(dataSource);
+        return container;
     }
 
-    public static EntityContainer createJPAContainer(Class<?> entityClass,
+    /**
+     * TODO Document me!
+     * @param <T>
+     * @param entityClass
+     * @param entityManager
+     * @return
+     */
+    public static <T> EntityContainer<T> createJPAContainer(Class<T> entityClass,
             EntityManager entityManager) {
-        throw new UnsupportedOperationException("Not implemented yet!");
+        return createEntityContainer(entityClass, new LocalEntityProvider<T>(
+                entityClass, entityManager));
     }
 
-    public static EntityContainer createCachingJPAContainer(
-            Class<?> entityClass, EntityManager entityManager) {
+    /**
+     * TODO Document me!
+     * @param <T>
+     * @param entityClass
+     * @param entityManager
+     * @return
+     */
+    public static <T> EntityContainer<T> createCachingJPAContainer(
+            Class<T> entityClass, EntityManager entityManager) {
+        // TODO Implement me!
         throw new UnsupportedOperationException("Not implemented yet!");
     }
-
 }
