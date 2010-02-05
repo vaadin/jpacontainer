@@ -732,8 +732,8 @@ public class JPAContainer<T> implements EntityContainer<T> {
     public void setWriteThrough(boolean writeThrough) throws SourceException,
             InvalidValueException {
         if (writeThrough) {
-            this.writeThrough = writeThrough;
             commit();
+            this.writeThrough = writeThrough;
         } else {
             if (doGetEntityProvider() instanceof BatchableEntityProvider) {
                 this.writeThrough = writeThrough;
