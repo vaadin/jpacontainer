@@ -33,7 +33,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
@@ -47,7 +46,7 @@ import org.apache.commons.lang.ObjectUtils;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-@Entity(name="CustomerOrder")
+@Entity(name = "CustomerOrder")
 public class Order implements Serializable {
 
     @Id
@@ -60,8 +59,7 @@ public class Order implements Serializable {
     @Temporal(TemporalType.DATE)
     @Column(nullable = false)
     private Date orderDate;
-    @ManyToOne
-    @JoinColumn(nullable = false)
+    @ManyToOne(optional = false)
     private Customer customer;
     @Embedded
     @AttributeOverrides({
