@@ -25,6 +25,7 @@ import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Table;
@@ -50,13 +51,16 @@ public class CustomerView extends CustomComponent {
     private Button search = new Button("Search");
     private JPAContainer<Customer> customerContainer = new JPAContainer(
             Customer.class);
+    private CheckBox autoCommit = new CheckBox("Auto-commit");
+    private Button commit = new Button("Commit");
+    private Button discard = new Button("Discard");
     private Table customerTable = new Table();
 
     private void init() {
         VerticalLayout layout = new VerticalLayout();
         layout.setSizeFull();
         layout.setMargin(true);
-
+        
         HorizontalLayout toolbar = new HorizontalLayout();
         {
             newCustomer.addListener(new Button.ClickListener() {
@@ -98,17 +102,47 @@ public class CustomerView extends CustomComponent {
                 }
             });
 
+            autoCommit.setImmediate(true);
+            autoCommit.addListener(new CheckBox.ValueChangeListener() {
+
+                public void valueChange(ValueChangeEvent event) {
+                    if (customerContainer.isAutoCommit() != autoCommit.
+                            booleanValue()) {
+                        try {
+                            customerContainer.setAutoCommit(
+                                    autoCommit.booleanValue());
+                        } catch (Exception e) {
+                            autoCommit.setValue(customerContainer.isAutoCommit());
+                            getWindow().showNotification(
+                                    "Could not toggle auto-commit",
+                                    e.getMessage(),
+                                    Notification.TYPE_WARNING_MESSAGE);
+                        }
+                    }
+                }
+            });
+
+            search.setEnabled(false);
+            commit.setEnabled(false);
+            discard.setEnabled(false);
+
             toolbar.addComponent(newCustomer);
             toolbar.addComponent(openCustomer);
             toolbar.addComponent(deleteCustomer);
             toolbar.addComponent(search);
+            toolbar.addComponent(autoCommit);
+            toolbar.addComponent(commit);
+            toolbar.addComponent(discard);
             toolbar.setSpacing(true);
             toolbar.setMargin(false, false, true, false);
+
         }
         layout.addComponent(toolbar);
 
         {
             customerContainer.setEntityProvider(entityProvider);
+            autoCommit.setValue(customerContainer.isAutoCommit());
+
             // Remove unused properties
             customerContainer.removeContainerProperty("billingAddress");
             customerContainer.removeContainerProperty("shippingAddress");
