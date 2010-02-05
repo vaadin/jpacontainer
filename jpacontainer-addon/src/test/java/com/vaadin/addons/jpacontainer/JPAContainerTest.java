@@ -348,16 +348,23 @@ public class JPAContainerTest {
     public void testGetItemIds() {
         LinkedList<SortBy> orderby = new LinkedList<SortBy>();
         orderby.add(new SortBy("firstName", true));
-        expect(entityProviderMock.getFirstEntityIdentifier(null, orderby)).andStubReturn("id1");
-        expect(entityProviderMock.getNextEntityIdentifier("id1", null, orderby)).andStubReturn("id2");
-        expect(entityProviderMock.getNextEntityIdentifier("id2", null, orderby)).andStubReturn("id3");
-        expect(entityProviderMock.getNextEntityIdentifier("id3", null, orderby)).andStubReturn("id4");
-        expect(entityProviderMock.getNextEntityIdentifier("id4", null, orderby)).andStubReturn(null);
+        expect(entityProviderMock.getEntityCount(null)).andStubReturn(
+                4);
+        expect(entityProviderMock.getFirstEntityIdentifier(null, orderby)).
+                andStubReturn("id1");
+        expect(entityProviderMock.getNextEntityIdentifier("id1", null, orderby)).
+                andStubReturn("id2");
+        expect(entityProviderMock.getNextEntityIdentifier("id2", null, orderby)).
+                andStubReturn("id3");
+        expect(entityProviderMock.getNextEntityIdentifier("id3", null, orderby)).
+                andStubReturn("id4");
+        expect(entityProviderMock.getNextEntityIdentifier("id4", null, orderby)).
+                andStubReturn(null);
 
         replay(entityProviderMock);
 
         container.setEntityProvider(entityProviderMock);
-        container.sort(new Object[] {"firstName"}, new boolean[]{true});
+        container.sort(new Object[]{"firstName"}, new boolean[]{true});
 
         Collection<Object> ids = container.getItemIds();
         assertEquals(4, ids.size());
@@ -685,7 +692,8 @@ public class JPAContainerTest {
             @Override
             public void containerItemSetChange(ItemSetChangeEvent event) {
                 assertTrue(event instanceof JPAContainer.ItemAddedEvent);
-                assertEquals(123l, ((JPAContainer.ItemAddedEvent) event).getItemId());
+                assertEquals(123l, ((JPAContainer.ItemAddedEvent) event).
+                        getItemId());
                 listenerCalled[0] = true;
             }
         });
@@ -713,7 +721,8 @@ public class JPAContainerTest {
             @Override
             public void containerItemSetChange(ItemSetChangeEvent event) {
                 assertTrue(event instanceof JPAContainer.ItemRemovedEvent);
-                assertEquals(123l, ((JPAContainer.ItemRemovedEvent) event).getItemId());
+                assertEquals(123l, ((JPAContainer.ItemRemovedEvent) event).
+                        getItemId());
                 listenerCalled[0] = true;
             }
         });
@@ -730,16 +739,12 @@ public class JPAContainerTest {
     }
 
     public void testRemoveAllItems_WriteThrough() {
-        
     }
 
     public void testContainerItemPropertyModified_WriteThrough() {
-
     }
 
     public void testContainerItemModified_WriteThrough() {
-        
     }
-
     // TODO Test all buffered mode operations.
 }
