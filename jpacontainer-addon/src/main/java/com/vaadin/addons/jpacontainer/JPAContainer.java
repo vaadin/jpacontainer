@@ -383,6 +383,11 @@ public class JPAContainer<T> implements EntityContainer<T> {
     }
 
     @Override
+    public EntityItem<T> createEntityItem(T entity) {
+        return new JPAContainerItem(this, entity, null, false);
+    }
+
+    @Override
     public Class<?> getType(Object propertyId) {
         assert propertyId != null : "propertyId must not be null";
         return propertyList.getPropertyType(propertyId.toString());
@@ -600,6 +605,8 @@ public class JPAContainer<T> implements EntityContainer<T> {
      * has been modified. The container will then take appropriate actions
      * to pass the changes on to the entity provider, depending on the state
      * of the <code>writeThrough</code> property <i>of the container</i>.
+     * <p>
+     * If <code>item</code> has no item ID ({@link JPAContainerItem#getItemId() }), this method does nothing.
      *
      * @see #isWriteThrough()
      * @param item the item that has been modified (must not be null).
@@ -609,20 +616,24 @@ public class JPAContainer<T> implements EntityContainer<T> {
             String propertyId) {
         assert item != null : "item must not be null";
         assert propertyId != null : "propertyId must not be null";
-        requireWritableContainer();
 
-        if (isWriteThrough()) {
-            Object itemId = item.getItemProperty(getEntityClassMetadata().
-                    getIdentifierProperty().getName()).getValue();
-            ((MutableEntityProvider) getEntityProvider()).updateEntityProperty(
-                    itemId, propertyId, item.getItemProperty(propertyId).
-                    getValue());
-            item.setDirty(false);
-            fireContainerItemSetChange(new ItemUpdatedEvent(itemId));
-        } else {
-            // TODO Implement me!
-            throw new UnsupportedOperationException(
-                    "Buffered mode not supported yet.");
+        if (item.getItemId() != null) {
+
+            requireWritableContainer();
+
+            if (isWriteThrough()) {
+                Object itemId = item.getItemId();
+                ((MutableEntityProvider) getEntityProvider()).
+                        updateEntityProperty(
+                        itemId, propertyId, item.getItemProperty(propertyId).
+                        getValue());
+                item.setDirty(false);
+                fireContainerItemSetChange(new ItemUpdatedEvent(itemId));
+            } else {
+                // TODO Implement me!
+                throw new UnsupportedOperationException(
+                        "Buffered mode not supported yet.");
+            }
         }
     }
 
@@ -639,24 +650,28 @@ public class JPAContainer<T> implements EntityContainer<T> {
      * has been modified. The container will then take appropriate actions
      * to pass the changes on to the entity provider, depending on the state
      * of the <code>writeThrough</code> property <i>of the container</i>.
+     * <p>
+     * If <code>item</code> has no item ID ({@link JPAContainerItem#getItemId() }), this method does nothing.
      * 
      * @see #isWriteThrough()
      * @param item the item that has been modified (must not be null).
      */
     void containerItemModified(JPAContainerItem<T> item) {
         assert item != null : "item must not be null";
-        requireWritableContainer();
 
-        if (isWriteThrough()) {
-            Object itemId = item.getItemProperty(getEntityClassMetadata().
-                    getIdentifierProperty().getName()).getValue();
-            ((MutableEntityProvider) getEntityProvider()).updateEntity(item.
-                    getEntity());
-            item.setDirty(false);
-            fireContainerItemSetChange(new ItemUpdatedEvent(itemId));
-        } else {
-            throw new UnsupportedOperationException(
-                    "Buffered mode not supported yet.");
+        if (item.getItemId() != null) {
+            requireWritableContainer();
+
+            if (isWriteThrough()) {
+                Object itemId = item.getItemId();
+                ((MutableEntityProvider) getEntityProvider()).updateEntity(item.
+                        getEntity());
+                item.setDirty(false);
+                fireContainerItemSetChange(new ItemUpdatedEvent(itemId));
+            } else {
+                throw new UnsupportedOperationException(
+                        "Buffered mode not supported yet.");
+            }
         }
     }
 

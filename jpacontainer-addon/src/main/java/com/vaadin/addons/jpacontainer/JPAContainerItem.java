@@ -345,21 +345,48 @@ final class JPAContainerItem<T> implements EntityItem<T> {
     private boolean persistent = true;
     private boolean readThrough = true;
     private boolean writeThrough = true;
+    private Object itemId;
 
     /**
      * Creates a new <code>JPAContainerItem</code>. This constructor assumes that
-     * <code>entity</code> is persistent. If not, the <code>persistent</code> flag
-     * should be changed using {@link #isPersistent() }.
+     * <code>entity</code> is persistent. The item ID is the entity identifier.
      *
      * @param container the container that holds the item (must not be null).
      * @param entity the entity for which the item should be created (must not be null).
      */
     JPAContainerItem(JPAContainer<T> container, T entity) {
+        this(container, entity, container.getEntityClassMetadata().
+                getPropertyValue(entity,
+                container.getEntityClassMetadata().getIdentifierProperty().
+                getName()), true);
+    }
+
+    /**
+     * Creates a new <code>JPAContainerItem</code>.
+     *
+     * @param container the container that created the item (must not be null).
+     * @param entity the entity for which the item should be created (must not be null).
+     * @param itemId the item ID, or null if the item is not yet inside the container that created it.
+     * @param persistent true if the entity is persistent, false otherwise. If <code>itemId</code> is null, this parameter will be ignored.
+     */
+    JPAContainerItem(JPAContainer<T> container, T entity, Object itemId,
+            boolean persistent) {
         assert container != null : "container must not be null";
         assert entity != null : "entity must not be null";
         this.entity = entity;
         this.container = container;
-        propertyMap = new HashMap<Object, ItemProperty>();
+        this.itemId = itemId;
+        if (itemId == null) {
+            this.persistent = false;
+        } else {
+            this.persistent = persistent;
+        }
+        this.propertyMap = new HashMap<Object, ItemProperty>();
+    }
+
+    @Override
+    public Object getItemId() {
+        return itemId;
     }
 
     /**

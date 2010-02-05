@@ -38,6 +38,19 @@ public interface EntityItem<T> extends Item, Buffered,
         Property.ValueChangeNotifier {
 
     /**
+     * Gets the item ID of the item. This ID can be used to uniquely identify
+     * the item inside the container. It may not necessarily be the same as
+     * the entity ID.
+     * <p>
+     * If the item ID is null, the entity item was created by a container,
+     * but not yet added to it.
+     * @see EntityContainer#createEntityItem(java.lang.Object)
+     *
+     * @return the item ID or null if the item is not yet inside a container.
+     */
+    public Object getItemId();
+
+    /**
      * Gets the underlying entity instance that contains the actual data
      * being accessed by this item.
      *
@@ -48,7 +61,8 @@ public interface EntityItem<T> extends Item, Buffered,
     /**
      * Checks if the underlying entity ({@link #getEntity() }) is persistent (i.e.
      * fetched from a persistence storage) or transient (created and buffered by
-     * the container).
+     * the container). This method always returns false if {@link #getItemId() } is null,
+     * even if the underlying entity actually is persistent.
      *
      * @return true if the underlying entity is persistent, false if it is transient.
      */
@@ -70,7 +84,8 @@ public interface EntityItem<T> extends Item, Buffered,
     public boolean isDirty();
 
     /**
-     * Gets the container that contains this item.
+     * Gets the container that contains this item. If {@link #getItemId() }
+     * is null, the container created the item but does not yet contain it.
      * 
      * @return the container (never null).
      */

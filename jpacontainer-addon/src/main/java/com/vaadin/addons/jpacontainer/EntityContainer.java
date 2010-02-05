@@ -79,6 +79,19 @@ public interface EntityContainer<T> extends Container.Sortable,
             IllegalStateException;
 
     /**
+     * Creates a new {@link EntityItem} for <code>entity</code> without adding it to the container.
+     * This makes it possible to use the same {@link com.vaadin.ui.Form} for editing both new entities
+     * and existing entities.
+     * <p>
+     * To add the entity to the container, {@link #addEntity(java.lang.Object) } should be used.
+     *
+     * @see EntityItem#getItemId() 
+     * @param entity
+     * @return
+     */
+    public EntityItem<T> createEntityItem(T entity);
+
+    /**
      * {@inheritDoc }
      */
     @Override

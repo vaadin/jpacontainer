@@ -61,6 +61,21 @@ public class JPAContainerTest {
     }
 
     @Test
+    public void testCreateEntityItem() {
+        /*
+         * It should be possible to create new items without having
+         * an entity provider.
+         */
+        assertNull(container.getEntityProvider());
+        Person tmp = new Person();
+        EntityItem<Person> tmpItem = container.createEntityItem(tmp);
+
+        assertSame(container, tmpItem.getContainer());
+        assertSame(tmp, tmpItem.getEntity());
+        assertNull(tmpItem.getItemId());
+    }
+
+    @Test
     public void testSetEntityProvider() {
         assertNull(container.getEntityProvider());
         container.setEntityProvider(cachingEntityProviderMock);

@@ -77,6 +77,7 @@ public class JPAContainerItemTest {
         container.addNestedContainerProperty("address.street");
         container.addNestedContainerProperty("address.fullAddress");
         entity = new Person();
+        entity.setId(123l);
         entity.setAddress(new Address());
         item = new JPAContainerItem<Person>(container, entity);
     }
@@ -100,6 +101,18 @@ public class JPAContainerItemTest {
         assertTrue(item.isPersistent());
         item.setPersistent(false);
         assertFalse(item.isPersistent());
+
+        // Try the other constructor
+        item = new JPAContainerItem<Person>(container, entity, null, true);
+        assertFalse(item.isPersistent());
+    }
+
+    @Test
+    public void testGetItemId() {
+        assertEquals(123l, item.getItemId());
+        // Try the other constructor
+        item = new JPAContainerItem<Person>(container, entity, null, true);
+        assertNull(item.getItemId());
     }
 
     @Test
@@ -164,7 +177,7 @@ public class JPAContainerItemTest {
     @Test
     public void testPropertyValueFromString_Unbuffered() {
         final Property prop = item.getItemProperty("id");
-        assertNull(prop.getValue());
+        assertEquals(123l, prop.getValue());
         prop.setValue("1234");
         assertEquals(1234l, prop.getValue());
     }
