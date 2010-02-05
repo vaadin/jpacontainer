@@ -19,15 +19,17 @@ package com.vaadin.addons.jpacontainer.demo;
 
 import com.vaadin.addons.jpacontainer.EntityProvider;
 import com.vaadin.addons.jpacontainer.JPAContainer;
+import com.vaadin.addons.jpacontainer.demo.domain.Customer;
 import com.vaadin.addons.jpacontainer.demo.domain.Order;
 import com.vaadin.addons.jpacontainer.filter.Filters;
+import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window.Notification;
@@ -41,12 +43,16 @@ import java.util.Date;
  */
 public class OrderView extends CustomComponent {
 
-    public OrderView(EntityProvider<Order> entityProvider) {
+    public OrderView(EntityProvider<Order> entityProvider, EntityProvider<Customer> customerProvider) {
         this.entityProvider = entityProvider;
+        this.customerProvider = customerProvider;
         init();
     }
     private EntityProvider<Order> entityProvider;
+    private EntityProvider<Customer> customerProvider;
     private JPAContainer<Order> orderContainer = new JPAContainer(Order.class);
+    private JPAContainer<Customer> customerContainer = new JPAContainer(Customer.class);
+    private ComboBox filterCustomer = new ComboBox("Customer:");
     private DateField filterFrom = new DateField("From:");
     private DateField filterTo = new DateField("To:");
     private Button filterBtn = new Button("Filter");
@@ -59,6 +65,20 @@ public class OrderView extends CustomComponent {
 
         HorizontalLayout toolbar = new HorizontalLayout();
         {
+            customerContainer.setEntityProvider(customerProvider);
+            customerContainer.setApplyFiltersImmediately(true);
+            customerContainer.sort(new Object[] {"customerName"}, new boolean[] {true});
+            customerContainer.setReadOnly(true);
+
+/*            filterCustomer.setNullSelectionAllowed(true);
+            filterCustomer.setFilteringMode(ComboBox.FILTERINGMODE_STARTSWITH);
+            filterCustomer.setContainerDataSource(customerContainer);
+            filterCustomer.setImmediate(true);
+            filterCustomer.setItemCaptionPropertyId("customerName");
+            filterCustomer.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_PROPERTY);
+
+            toolbar.addComponent(filterCustomer);*/
+
             filterFrom.setResolution(DateField.RESOLUTION_DAY);
             filterFrom.setDateFormat("yyyy-MM-dd");
             filterTo.setResolution(DateField.RESOLUTION_DAY);

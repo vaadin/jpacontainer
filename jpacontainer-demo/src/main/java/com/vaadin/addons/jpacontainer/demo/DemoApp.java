@@ -61,7 +61,7 @@ public class DemoApp extends Application {
         tabs.addTab(
                 new CustomerView(customerProvider),
                 "Customers", null);
-        tabs.addTab(new OrderView(orderProvider),
+        tabs.addTab(new OrderView(orderProvider, customerProvider),
                 "Orders", null);
         tabs.addTab(new Label("Invoices"), "Invoices", null); // TODO Add InvoicesView
 
