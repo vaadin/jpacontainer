@@ -21,6 +21,7 @@ import com.vaadin.addons.jpacontainer.EntityItem;
 import com.vaadin.addons.jpacontainer.demo.domain.Customer;
 import com.vaadin.data.Item;
 import com.vaadin.data.Validator.InvalidValueException;
+import com.vaadin.data.validator.IntegerValidator;
 import com.vaadin.data.validator.StringLengthValidator;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -35,8 +36,10 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
 /**
+ * Modal window for editing customers.
  *
- * @author peholmst
+ * @author Petter Holmström (IT Mill)
+ * @since 1.0
  */
 public class CustomerWindow extends Window {
 
@@ -67,6 +70,8 @@ public class CustomerWindow extends Window {
                 tf.setWidth("5em");
                 tf.setRequired(true);
                 tf.setRequiredError("Please enter a customer no");
+                tf.addValidator(new IntegerValidator(
+                        "The customer no has to be an integer"));
             } else if ("customerName".equals(propertyId)) {
                 TextField tf = (TextField) f;
                 tf.setRequired(true);
