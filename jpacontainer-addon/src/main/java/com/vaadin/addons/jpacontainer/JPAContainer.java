@@ -369,21 +369,8 @@ public class JPAContainer<T> implements EntityContainer<T> {
      */
     @Override
     public Collection<Object> getItemIds() {
-        /*
-         * This is intentionally an ugly implementation! This method
-         * should not be used!
-         */
-        if (size() > 100) {
-            System.err.println(
-                    "(JPAContainer) WARNING! Invoking getItemIds() when size > 100 is not recommended!");
-        }
-        LinkedList<Object> idList = new LinkedList<Object>();
-        Object id = firstItemId();
-        while (id != null) {
-            idList.add(id);
-            id = nextItemId(id);
-        }
-        return idList;
+        return getEntityProvider().getAllEntityIdentifiers(
+                getAppliedFiltersAsConjunction(), getSortByList());
     }
 
     @Override
@@ -545,7 +532,7 @@ public class JPAContainer<T> implements EntityContainer<T> {
     }
 
     /**
-     * <strong>This impementation does not use lazy loading and performs bad when the number of items is large!
+     * <strong>This impementation does not use lazy loading and performs <b>extremely</b> bad when the number of items is large!
      * Do not use unless you absolutely have to!</strong>
      * <p>
      * {@inheritDoc }

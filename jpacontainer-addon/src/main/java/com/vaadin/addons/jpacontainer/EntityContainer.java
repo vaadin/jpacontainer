@@ -17,6 +17,7 @@
  */
 package com.vaadin.addons.jpacontainer;
 
+import com.vaadin.addons.jpacontainer.filter.StringComparisionFilter;
 import com.vaadin.data.Buffered;
 import com.vaadin.data.Container;
 import com.vaadin.data.Validator.InvalidValueException;
@@ -123,4 +124,34 @@ public interface EntityContainer<T> extends Container.Sortable,
      * Alias of {@link Buffered#isWriteThrough() }.
      */
     public boolean isAutoCommit();
+
+    /**
+     * {@inheritDoc }
+     * <p>
+     * This method creates a new {@link StringComparisionFilter} for the specified
+     * parameters and applies the filter immediately, regardless of the
+     * state of {@link #isApplyFiltersImmediately() }.
+     * @see #addFilter(com.vaadin.addons.jpacontainer.Filter)
+     * @see #applyFilters() 
+     */
+    @Override
+    public void addContainerFilter(Object propertyId, String filterString,
+            boolean ignoreCase, boolean onlyMatchPrefix);
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This method does the same as {@link #removeAllFilters() }, but the container is updated immediately regardless of the state of {@link #isApplyFiltersImmediately() }.
+     * @see #removeAllFilters() 
+     */
+    @Override
+    public void removeAllContainerFilters();
+
+    /**
+     * {@inheritDoc }
+     * <p>
+     * The container is updated immediately regardless of the state of {@link #isApplyFiltersImmediately() }.
+     */
+    @Override
+    public void removeContainerFilters(Object propertyId);
 }

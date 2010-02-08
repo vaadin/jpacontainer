@@ -50,9 +50,10 @@ import javax.persistence.Query;
  * features and limitations:
  * <ul>
  *   <li>Does not do any internal caching, all information is always accessed directly from the EntityManager</li>
- *   <li>Detaches entities by default</li>
+ *   <li>Explicitly detaches entities by default (see {@link #isEntitiesDetached() })
+ *     <ul><li>Performs a serialize-deserialize cycle to clone entities in order to explicitly detach them from the persistence context (<b>This is ugly!</b<)</li></ul>
+ *   </li>
  *   <li>Uses lazy-loading of entities (when using detached entities, references and collections within the entities should be configured to be fetched eagerly, though)</li>
- *   <li>Performs a serialize-deserialize cycle to clone entities in order to detach them from the persistence context (<b>This is ugly!</b<)</li>
  *   <li>Once the entity manager has been set, it cannot be changed without subclassing the provider</li>
  *   <li>Supports both internal and external transaction handling</li>
  *   <li><strong>Does NOT currently support embedded identifiers!</strong></li>
@@ -600,5 +601,13 @@ public class LocalEntityProvider<T> implements EntityProvider<T>,
     public void setEntitiesDetached(boolean detached) throws
             UnsupportedOperationException {
         this.entitiesDetached = detached;
+    }
+
+    public List<Object> getAllEntityIdentifiers(Filter filter,
+            List<SortBy> sortBy) {
+        Query query = createFilteredQuery("obj." + getEntityClassMetadata().
+                getIdentifierProperty().getName(), "obj", filter, sortBy, false,
+                null);
+        return Collections.unmodifiableList(query.getResultList());
     }
 }

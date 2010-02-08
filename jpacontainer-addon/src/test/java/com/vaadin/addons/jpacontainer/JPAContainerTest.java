@@ -348,19 +348,14 @@ public class JPAContainerTest {
     public void testGetItemIds() {
         LinkedList<SortBy> orderby = new LinkedList<SortBy>();
         orderby.add(new SortBy("firstName", true));
-        expect(entityProviderMock.getEntityCount(null)).andStubReturn(
-                4);
-        expect(entityProviderMock.getFirstEntityIdentifier(null, orderby)).
-                andStubReturn("id1");
-        expect(entityProviderMock.getNextEntityIdentifier("id1", null, orderby)).
-                andStubReturn("id2");
-        expect(entityProviderMock.getNextEntityIdentifier("id2", null, orderby)).
-                andStubReturn("id3");
-        expect(entityProviderMock.getNextEntityIdentifier("id3", null, orderby)).
-                andStubReturn("id4");
-        expect(entityProviderMock.getNextEntityIdentifier("id4", null, orderby)).
-                andStubReturn(null);
 
+        LinkedList<Object> idList = new LinkedList<Object>();
+        idList.add("id1");
+        idList.add("id2");
+        idList.add("id3");
+        idList.add("id4");
+
+        expect(entityProviderMock.getAllEntityIdentifiers(null, orderby)).andStubReturn(idList);
         replay(entityProviderMock);
 
         container.setEntityProvider(entityProviderMock);

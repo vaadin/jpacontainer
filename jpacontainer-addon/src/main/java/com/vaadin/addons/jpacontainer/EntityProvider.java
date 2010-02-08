@@ -43,23 +43,28 @@ public interface EntityProvider<T> {
     public T getEntity(Object entityId);
 
     /**
-     * Depending on the implementation of the entity provider, the entities returned may be
-     * either detached or managed by the persistence context. If the entities are managed,
-     * special care should be taken to keep e.g. session open in order for lazy loading to work.
-     * If the entity provider and the container are running in separate VMs, managed entities
-     * are not going to work without extra work.
+     * If this method returns true, all entities returned from this entity provider
+     * are explicitly detached from the persistence context before returned, regardless
+     * of whether the persistence context is extended or transaction-scoped. Thus,
+     * no lazy-loaded associations will work and any changes made to the entities will
+     * not be reflected in the persistence context unless the entity is merged.
+     * <p>
+     * If this method returns false, the entities returned may be managed or detached,
+     * depending on the scope of the persistence context.
      * <p>
      * The default value is implementation specific.
-     *
-     * @return true if the entities are detached, false if they are managed.
+     * @see #setEntitiesDetached(boolean)
+     * 
+     * @return true if the entities are explicitly detached, false otherwise.
      */
     public boolean isEntitiesDetached();
 
     /**
      * Specifies whether the entities returned by the entity provider should
-     * be detached or managed.
+     * be explicitly detached or not. See {@link #isEntitiesDetached() } for a more
+     * detailed description of the consequences.
      *
-     * @param detached true to request detached entities, false to request managed entities.
+     * @param detached true to request explicitly detached entities, false otherwise.
      * @throws UnsupportedOperationException if the implementation does not allow the user to change the way entities are returned.
      */
     public void setEntitiesDetached(boolean detached) throws
@@ -117,6 +122,20 @@ public interface EntityProvider<T> {
      * @return the identifier of the previous entity, or null if there are no entities matching <code>filter</code> or <code>entityId</code> is the first item.
      */
     public Object getPreviousEntityIdentifier(Object entityId, Filter filter,
+            List<SortBy> sortBy);
+
+    /**
+     * Gets the identifiers of all items that match <code>filter</code>. This
+     * method only exists to speed up {@link com.vaadin.data.Container#getItemIds() },
+     * which in turn is used by {@link com.vaadin.ui.AbstractSelect} and its subclasses
+     * (e.g. ComboBox). Using this method is not recommended, as it does not
+     * use lazy loading.
+     * 
+     * @param filter the filter that should be used to filter the entities (may be null).
+     * @param sortBy the properties to sort by, if any (never null, but may be empty).
+     * @return an unmodifiable list of entity identifiers (never null).
+     */
+    public List<Object> getAllEntityIdentifiers(Filter filter,
             List<SortBy> sortBy);
 
     /**
