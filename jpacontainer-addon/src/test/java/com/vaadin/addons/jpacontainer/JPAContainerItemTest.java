@@ -108,6 +108,13 @@ public class JPAContainerItemTest {
     }
 
     @Test
+    public void testIsDirty_NonPersistent() {
+        item.setPersistent(false);
+        item.setDirty(true);
+        assertFalse(item.isDirty());
+    }
+
+    @Test
     public void testGetItemId() {
         assertEquals(123l, item.getItemId());
         // Try the other constructor

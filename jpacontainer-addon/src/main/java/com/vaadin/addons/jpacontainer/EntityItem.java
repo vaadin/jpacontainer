@@ -78,6 +78,8 @@ public interface EntityItem<T> extends Item, Buffered,
      * if the item has changes that have not yet been committed, the item will be
      * modified but not dirty, as the underlying entity object has not yet been altered.
      * After the item is committed, the item will be dirty but not modified.
+     * <p>
+     * If the item is not persistent, this method always returns false.
      *
      * @return true if the underlying entity has been modified, false if not.
      */

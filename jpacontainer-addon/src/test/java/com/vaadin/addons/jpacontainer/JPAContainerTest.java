@@ -26,6 +26,7 @@ import com.vaadin.data.Item;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
+import org.easymock.Capture;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -279,7 +280,7 @@ public class JPAContainerTest {
     }
 
     @Test
-    public void testSize() {
+    public void testSize_WriteThrough() {
         expect(entityProviderMock.getEntityCount(Filters.and(Filters.eq(
                 "firstName", "Hello", false), Filters.eq("lastName", "World",
                 false)))).andReturn(123);
@@ -289,6 +290,7 @@ public class JPAContainerTest {
         container.addFilter(Filters.eq("firstName", "Hello", false));
         container.addFilter(Filters.eq("lastName", "World", false));
         container.setEntityProvider(entityProviderMock);
+        container.setWriteThrough(true);
 
         assertEquals(123, container.size());
 
@@ -296,7 +298,7 @@ public class JPAContainerTest {
     }
 
     @Test
-    public void testIndexOfId() {
+    public void testIndexOfId_WriteThrough() {
         expect(entityProviderMock.getEntityCount(null)).andStubReturn(5);
         expect(entityProviderMock.getEntityIdentifierAt(null,
                 new LinkedList<SortBy>(), 0)).andStubReturn("id1");
@@ -311,6 +313,7 @@ public class JPAContainerTest {
         replay(entityProviderMock);
 
         container.setEntityProvider(entityProviderMock);
+        container.setWriteThrough(true);
 
         assertEquals(3, container.indexOfId("id4"));
         assertEquals(-1, container.indexOfId("id5"));
@@ -319,7 +322,7 @@ public class JPAContainerTest {
     }
 
     @Test
-    public void testGetIdByIndex() {
+    public void testGetIdByIndex_WriteThrough() {
         LinkedList<SortBy> orderby = new LinkedList<SortBy>();
         orderby.add(new SortBy("firstName", true));
         expect(entityProviderMock.getEntityIdentifierAt(null,
@@ -331,6 +334,7 @@ public class JPAContainerTest {
         replay(entityProviderMock);
 
         container.setEntityProvider(entityProviderMock);
+        container.setWriteThrough(true);
 
         assertEquals("id1", container.getIdByIndex(1));
         assertNull(container.getIdByIndex(2));
@@ -345,7 +349,7 @@ public class JPAContainerTest {
     }
 
     @Test
-    public void testGetItemIds() {
+    public void testGetItemIds_WriteThrough() {
         LinkedList<SortBy> orderby = new LinkedList<SortBy>();
         orderby.add(new SortBy("firstName", true));
 
@@ -359,6 +363,7 @@ public class JPAContainerTest {
         replay(entityProviderMock);
 
         container.setEntityProvider(entityProviderMock);
+        container.setWriteThrough(true);
         container.sort(new Object[]{"firstName"}, new boolean[]{true});
 
         Collection<Object> ids = container.getItemIds();
@@ -372,7 +377,7 @@ public class JPAContainerTest {
     }
 
     @Test
-    public void testGetItem() {
+    public void testGetItem_WriteThrough() {
         Person p = new Person();
         p.setFirstName("Joe");
         p.setLastName("Cool");
@@ -381,6 +386,7 @@ public class JPAContainerTest {
         replay(entityProviderMock);
 
         container.setEntityProvider(entityProviderMock);
+        container.setWriteThrough(true);
 
         Item item = container.getItem("myId");
 
@@ -411,13 +417,14 @@ public class JPAContainerTest {
     }
 
     @Test
-    public void testContainsId() {
+    public void testContainsId_WriteThrough() {
         expect(entityProviderMock.containsEntity("id", null)).andReturn(true);
         expect(entityProviderMock.containsEntity("id2", Filters.and(Filters.eq(
                 "firstName", "Hello", false)))).andReturn(false);
         replay(entityProviderMock);
 
         container.setEntityProvider(entityProviderMock);
+        container.setWriteThrough(true);
 
         assertTrue(container.containsId("id"));
         assertTrue(container.isApplyFiltersImmediately());
@@ -428,7 +435,7 @@ public class JPAContainerTest {
     }
 
     @Test
-    public void testFirstItemIdAndIsFirstId() {
+    public void testFirstItemIdAndIsFirstId_WriteThrough() {
         LinkedList<SortBy> orderby = new LinkedList<SortBy>();
         orderby.add(new SortBy("firstName", true));
         expect(entityProviderMock.getFirstEntityIdentifier(null,
@@ -441,6 +448,7 @@ public class JPAContainerTest {
         replay(entityProviderMock);
 
         container.setEntityProvider(entityProviderMock);
+        container.setWriteThrough(true);
 
         assertEquals("id1", container.firstItemId());
         assertTrue(container.isFirstId("id1"));
@@ -460,7 +468,7 @@ public class JPAContainerTest {
     }
 
     @Test
-    public void testLastItemIdAndIsLastId() {
+    public void testLastItemIdAndIsLastId_WriteThrough() {
         LinkedList<SortBy> orderby = new LinkedList<SortBy>();
         orderby.add(new SortBy("firstName", true));
         expect(entityProviderMock.getLastEntityIdentifier(null,
@@ -473,6 +481,7 @@ public class JPAContainerTest {
         replay(entityProviderMock);
 
         container.setEntityProvider(entityProviderMock);
+        container.setWriteThrough(true);
 
         assertEquals("id1", container.lastItemId());
         assertTrue(container.isLastId("id1"));
@@ -492,7 +501,7 @@ public class JPAContainerTest {
     }
 
     @Test
-    public void testNextItemId() {
+    public void testNextItemId_WriteThrough() {
         LinkedList<SortBy> orderby = new LinkedList<SortBy>();
         orderby.add(new SortBy("firstName", true));
         expect(entityProviderMock.getNextEntityIdentifier("id1", null,
@@ -508,6 +517,7 @@ public class JPAContainerTest {
         replay(entityProviderMock);
 
         container.setEntityProvider(entityProviderMock);
+        container.setWriteThrough(true);
 
         assertEquals("id2", container.nextItemId("id1"));
         assertNull(container.nextItemId("id2"));
@@ -523,7 +533,7 @@ public class JPAContainerTest {
     }
 
     @Test
-    public void testPrevItemId() {
+    public void testPrevItemId_WriteThrough() {
         LinkedList<SortBy> orderby = new LinkedList<SortBy>();
         orderby.add(new SortBy("firstName", true));
         expect(entityProviderMock.getPreviousEntityIdentifier("id1", null,
@@ -539,6 +549,7 @@ public class JPAContainerTest {
         replay(entityProviderMock);
 
         container.setEntityProvider(entityProviderMock);
+        container.setWriteThrough(true);
 
         assertEquals("id2", container.prevItemId("id1"));
         assertNull(container.prevItemId("id2"));
@@ -734,12 +745,82 @@ public class JPAContainerTest {
     }
 
     public void testRemoveAllItems_WriteThrough() {
+        // TODO Write test
     }
 
     public void testContainerItemPropertyModified_WriteThrough() {
+        // TODO Write test
     }
 
     public void testContainerItemModified_WriteThrough() {
+        // TODO Write test
     }
+
+    @Test
+    public void testAddEntity_Buffered_Commit() {
+        // Setup test data
+        Person p = new Person();
+        Person pp = new Person();
+        pp.setId(123l);
+        LinkedList<SortBy> orderby = new LinkedList<SortBy>();
+        orderby.add(new SortBy("firstName", true));
+
+        // Instruct mocks
+        Capture<BatchableEntityProvider.BatchUpdateCallback> callbackCapture = new Capture<BatchableEntityProvider.BatchUpdateCallback>();
+        expect(batchableEntityProviderMock.getFirstEntityIdentifier(null, orderby)).andStubReturn(122l);
+        expect(batchableEntityProviderMock.getNextEntityIdentifier(122l, null, orderby)).andStubReturn(123l);
+        batchableEntityProviderMock.batchUpdate(capture(callbackCapture));
+        expect(batchableEntityProviderMock.getEntity(123l)).andStubReturn(pp);
+        replay(batchableEntityProviderMock);
+
+        expect(mutableEntityProviderMock.addEntity(p)).andReturn(pp);
+        replay(mutableEntityProviderMock);
+
+        // Run test
+        container.setEntityProvider(batchableEntityProviderMock);
+        container.setWriteThrough(false);
+        container.sort(new Object[] {"firstName"}, new boolean[] {true});
+
+        assertFalse(container.isModified());
+
+        Object id = container.addEntity(p);
+
+        assertTrue(container.isModified());
+
+        // Check that we can access the item using the temporary ID
+        EntityItem<Person> item = container.getItem(id);
+        assertEquals(id, item.getItemId());
+        assertFalse(item.isPersistent());
+
+        // Check that the item shows up in the list
+        assertEquals(id, container.firstItemId());
+        assertEquals(122l, container.nextItemId(id));
+        assertEquals(id, container.prevItemId(122l));
+
+        container.commit();
+
+        // Check the callback object
+        assertTrue(callbackCapture.hasCaptured());
+        callbackCapture.getValue().batchUpdate(mutableEntityProviderMock);
+
+        assertFalse(container.isModified());
+
+        // Check that the item shows up correctly
+        assertEquals(122l, container.firstItemId());
+        assertEquals(123l, container.nextItemId(122l));
+        assertNull(container.getItem(id));
+        assertSame(pp, container.getItem(123l).getEntity());
+
+        // Verify mocks
+        verify(batchableEntityProviderMock);
+        verify(mutableEntityProviderMock);
+
+        // TODO Check ChangesCommitedEvent
+    }
+    
+    public void testAddEntity_Buffered_Discard() {
+        // TODO Write test
+    }
+
     // TODO Test all buffered mode operations.
 }

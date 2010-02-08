@@ -54,6 +54,7 @@ public class JPAContainer<T> implements EntityContainer<T> {
     private EntityClassMetadata<T> entityClassMetadata;
     private List<SortBy> sortByList;
     private PropertyList<T> propertyList;
+    private BufferedContainerDelegate<T> bufferingDelegate;
     private boolean readOnly = false;
     private boolean writeThrough = false;
 
@@ -71,6 +72,7 @@ public class JPAContainer<T> implements EntityContainer<T> {
                 getEntityClassMetadata(entityClass);
         this.propertyList = new PropertyList(entityClassMetadata);
         this.filterSupport = new AdvancedFilterableSupport();
+        this.bufferingDelegate = new BufferedContainerDelegate<T>(this);
         /*
          * Add a listener to filterSupport, so that we can notify all
          * clients that use our container that the data has been filtered.
@@ -253,8 +255,21 @@ public class JPAContainer<T> implements EntityContainer<T> {
 
     @Override
     public Object firstItemId() {
-        return doGetEntityProvider().getFirstEntityIdentifier(
+        Object itemId = doGetEntityProvider().getFirstEntityIdentifier(
                 getAppliedFiltersAsConjunction(), getSortByList());
+        if (isWriteThrough()) {
+            return itemId;
+        } else {
+            if (bufferingDelegate.getAddedItemIds().isEmpty()) {
+                if (itemId != null && bufferingDelegate.isDeleted(itemId)) {
+                    return nextItemId(itemId);
+                } else {
+                    return itemId;
+                }
+            } else {
+                return bufferingDelegate.getAddedItemIds().get(0);
+            }
+        }
     }
 
     @Override
@@ -271,22 +286,89 @@ public class JPAContainer<T> implements EntityContainer<T> {
 
     @Override
     public Object lastItemId() {
-        return doGetEntityProvider().getLastEntityIdentifier(
+        Object itemId = doGetEntityProvider().getLastEntityIdentifier(
                 getAppliedFiltersAsConjunction(), getSortByList());
+        if (isWriteThrough()) {
+            return itemId;
+        } else {
+            if (itemId == null) {
+                if (bufferingDelegate.getAddedItemIds().isEmpty()) {
+                    return itemId;
+                } else {
+                    return bufferingDelegate.getAddedItemIds().get(bufferingDelegate.
+                            getAddedItemIds().size() - 1);
+                }
+            } else {
+                if (bufferingDelegate.isDeleted(itemId)) {
+                    return prevItemId(itemId);
+                } else {
+                    return itemId;
+                }
+            }
+        }
     }
 
     @Override
     public Object nextItemId(Object itemId) {
-        return doGetEntityProvider().getNextEntityIdentifier(itemId,
-                getAppliedFiltersAsConjunction(),
-                getSortByList());
+        if (isWriteThrough()) {
+            return doGetEntityProvider().getNextEntityIdentifier(itemId,
+                    getAppliedFiltersAsConjunction(),
+                    getSortByList());
+        } else {
+            if (bufferingDelegate.isAdded(itemId)) {
+                int ix = bufferingDelegate.getAddedItemIds().indexOf(itemId);
+                if (ix == bufferingDelegate.getAddedItemIds().size() - 1) {
+                    return doGetEntityProvider().getFirstEntityIdentifier(
+                            getAppliedFiltersAsConjunction(), getSortByList());
+                } else {
+                    return bufferingDelegate.getAddedItemIds().get(ix + 1);
+                }
+            } else {
+                Object nextId = doGetEntityProvider().getNextEntityIdentifier(
+                        itemId,
+                        getAppliedFiltersAsConjunction(),
+                        getSortByList());
+                if (nextId != null && bufferingDelegate.isDeleted(nextId)) {
+                    return nextItemId(nextId);
+                } else {
+                    return nextId;
+                }
+            }
+        }
     }
 
     @Override
     public Object prevItemId(Object itemId) {
-        return doGetEntityProvider().getPreviousEntityIdentifier(itemId,
-                getAppliedFiltersAsConjunction(),
-                getSortByList());
+        if (isWriteThrough()) {
+            return doGetEntityProvider().getPreviousEntityIdentifier(itemId,
+                    getAppliedFiltersAsConjunction(),
+                    getSortByList());
+        } else {
+            if (bufferingDelegate.isAdded(itemId)) {
+                int ix = bufferingDelegate.getAddedItemIds().indexOf(itemId);
+                if (ix == 0) {
+                    return null;
+                } else {
+                    return bufferingDelegate.getAddedItemIds().get(ix - 1);
+                }
+            } else {
+                Object prevId = doGetEntityProvider().
+                        getPreviousEntityIdentifier(itemId,
+                        getAppliedFiltersAsConjunction(),
+                        getSortByList());
+                if (prevId != null && bufferingDelegate.isDeleted(prevId)) {
+                    return prevItemId(prevId);
+                } else {
+                    if (prevId == null && !bufferingDelegate.getAddedItemIds().
+                            isEmpty()) {
+                        return bufferingDelegate.getAddedItemIds().get(bufferingDelegate.
+                                getAddedItemIds().size() - 1);
+                    } else {
+                        return prevId;
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -357,8 +439,26 @@ public class JPAContainer<T> implements EntityContainer<T> {
     @Override
     public EntityItem<T> getItem(Object itemId) {
         // TODO This is slow! Is there some way of optimizing this, eg. caching the items?
-        T entity = doGetEntityProvider().getEntity(itemId);
-        return entity != null ? new JPAContainerItem(this, entity) : null;
+        if (isWriteThrough()) {
+            T entity = doGetEntityProvider().getEntity(itemId);
+            return entity != null ? new JPAContainerItem<T>(this, entity) : null;
+        } else {
+            if (bufferingDelegate.isAdded(itemId)) {
+                JPAContainerItem<T> item = new JPAContainerItem<T>(this, bufferingDelegate.
+                        getAddedEntity(itemId), itemId, false);
+                return item;
+            } else if (bufferingDelegate.isUpdated(itemId)) {
+                JPAContainerItem<T> item = new JPAContainerItem<T>(this, bufferingDelegate.
+                        getUpdatedEntity(itemId));
+                item.setDirty(true);
+                return item;
+            } else if (bufferingDelegate.isDeleted(itemId)) {
+                return null;
+            } else {
+                T entity = doGetEntityProvider().getEntity(itemId);
+                return entity != null ? new JPAContainerItem<T>(this, entity) : null;
+            }
+        }
     }
 
     /**
@@ -369,13 +469,14 @@ public class JPAContainer<T> implements EntityContainer<T> {
      */
     @Override
     public Collection<Object> getItemIds() {
+        // TODO Add support for buffered mode
         return getEntityProvider().getAllEntityIdentifiers(
                 getAppliedFiltersAsConjunction(), getSortByList());
     }
 
     @Override
     public EntityItem<T> createEntityItem(T entity) {
-        return new JPAContainerItem(this, entity, null, false);
+        return new JPAContainerItem<T>(this, entity, null, false);
     }
 
     @Override
@@ -393,8 +494,21 @@ public class JPAContainer<T> implements EntityContainer<T> {
 
     @Override
     public int size() {
-        return doGetEntityProvider().getEntityCount(
+        int origSize = doGetEntityProvider().getEntityCount(
                 getAppliedFiltersAsConjunction());
+        if (isWriteThrough()) {
+            return origSize;
+        } else {
+            /*
+             * If no new items have been added, we have buffered deletes
+             * and the database has been emptied after the deletes were buffered,
+             * we might get a negative value here. In that case, we simply
+             * return 0.
+             */
+            int newSize = origSize + bufferingDelegate.getAddedItemIds().size() - bufferingDelegate.
+                    getDeletedItemIds().size();
+            return newSize >= 0 ? newSize : 0;
+        }
     }
 
     @Override
@@ -527,6 +641,7 @@ public class JPAContainer<T> implements EntityContainer<T> {
 
     @Override
     public Object getIdByIndex(int index) {
+        // TODO Add support for buffered mode
         return doGetEntityProvider().getEntityIdentifierAt(
                 getAppliedFiltersAsConjunction(), getSortByList(), index);
     }
@@ -583,18 +698,17 @@ public class JPAContainer<T> implements EntityContainer<T> {
         assert entity != null : "entity must not be null";
         requireWritableContainer();
 
+        Object id;
         if (isWriteThrough()) {
             T result = ((MutableEntityProvider<T>) getEntityProvider()).
                     addEntity(entity);
-            Object id = getEntityClassMetadata().getPropertyValue(result, getEntityClassMetadata().
+            id = getEntityClassMetadata().getPropertyValue(result, getEntityClassMetadata().
                     getIdentifierProperty().getName());
-            fireContainerItemSetChange(new ItemAddedEvent(id));
-            return id;
         } else {
-            // TODO Implement me!
-            throw new UnsupportedOperationException(
-                    "Buffered mode not supported yet.");
+            id = bufferingDelegate.addEntity(entity);
         }
+        fireContainerItemSetChange(new ItemAddedEvent(id));
+        return id;
     }
 
     @Override
@@ -619,9 +733,14 @@ public class JPAContainer<T> implements EntityContainer<T> {
                 return false;
             }
         } else {
-            // TODO Implement me!
-            throw new UnsupportedOperationException(
-                    "Buffered mode not supported yet.");
+            if (bufferingDelegate.isAdded(itemId) || getEntityProvider().
+                    containsEntity(itemId, null)) {
+                bufferingDelegate.deleteItem(itemId);
+                fireContainerItemSetChange(new ItemRemovedEvent(itemId));
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 
@@ -653,19 +772,17 @@ public class JPAContainer<T> implements EntityContainer<T> {
 
             requireWritableContainer();
 
+            Object itemId = item.getItemId();
             if (isWriteThrough()) {
-                Object itemId = item.getItemId();
                 ((MutableEntityProvider) getEntityProvider()).
                         updateEntityProperty(
                         itemId, propertyId, item.getItemProperty(propertyId).
                         getValue());
-                item.setDirty(false);
-                fireContainerItemSetChange(new ItemUpdatedEvent(itemId));
             } else {
-                // TODO Implement me!
-                throw new UnsupportedOperationException(
-                        "Buffered mode not supported yet.");
+                bufferingDelegate.updateEntity(item.getEntity());
             }
+            item.setDirty(false);
+            fireContainerItemSetChange(new ItemUpdatedEvent(itemId));
         }
     }
 
@@ -694,29 +811,32 @@ public class JPAContainer<T> implements EntityContainer<T> {
         if (item.getItemId() != null) {
             requireWritableContainer();
 
+            Object itemId = item.getItemId();
             if (isWriteThrough()) {
-                Object itemId = item.getItemId();
                 ((MutableEntityProvider) getEntityProvider()).updateEntity(item.
                         getEntity());
-                item.setDirty(false);
-                fireContainerItemSetChange(new ItemUpdatedEvent(itemId));
             } else {
-                throw new UnsupportedOperationException(
-                        "Buffered mode not supported yet.");
+                bufferingDelegate.updateEntity(item.getEntity());
             }
+            item.setDirty(false);
+            fireContainerItemSetChange(new ItemUpdatedEvent(itemId));
         }
     }
 
     @Override
     public void commit() throws SourceException, InvalidValueException {
-        // TODO Implement me!
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (!isWriteThrough() && isModified()) {
+            bufferingDelegate.commit();
+            fireContainerItemSetChange(new ChangesCommittedEvent());
+        }
     }
 
     @Override
     public void discard() throws SourceException {
-        // TODO Implement me!
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (!isWriteThrough() && isModified()) {
+            bufferingDelegate.discard();
+            fireContainerItemSetChange(new ChangesDiscardedEvent());
+        }
     }
 
     @Override
@@ -724,9 +844,7 @@ public class JPAContainer<T> implements EntityContainer<T> {
         if (isWriteThrough()) {
             return false;
         } else {
-            // TODO Implement me!
-            throw new UnsupportedOperationException(
-                    "Buffered mode not supported yet.");
+            return bufferingDelegate.isModified();
         }
     }
 

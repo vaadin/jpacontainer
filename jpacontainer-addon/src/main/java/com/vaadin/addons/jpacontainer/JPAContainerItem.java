@@ -447,7 +447,7 @@ final class JPAContainerItem<T> implements EntityItem<T> {
 
     @Override
     public boolean isDirty() {
-        return dirty;
+        return isPersistent() && dirty;
     }
 
     @Override
