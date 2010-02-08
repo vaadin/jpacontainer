@@ -19,6 +19,10 @@
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
+    <listener>
+        <!-- To allow session-scoped beans -->
+        <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
+    </listener>
     <servlet>
         <servlet-name>JPAContainerDemo</servlet-name>
         <servlet-class>com.vaadin.addons.jpacontainer.demo.servlet.SpringApplicationServlet</servlet-class>

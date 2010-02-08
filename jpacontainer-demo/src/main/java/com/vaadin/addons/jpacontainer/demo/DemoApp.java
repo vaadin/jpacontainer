@@ -18,8 +18,6 @@
 package com.vaadin.addons.jpacontainer.demo;
 
 import com.vaadin.Application;
-import com.vaadin.addons.jpacontainer.demo.providers.CustomerProvider;
-import com.vaadin.addons.jpacontainer.demo.providers.OrderProvider;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.VerticalLayout;
@@ -35,14 +33,16 @@ import org.springframework.stereotype.Component;
  * @since 1.0
  */
 @Component(value = "demoApplication")
-@Scope(value = "prototype")
+@Scope(value = "session")
 public class DemoApp extends Application {
 
     private TabSheet tabs;
     @Autowired
-    private CustomerProvider customerProvider;
+    private CustomerView customerView;
     @Autowired
-    private OrderProvider orderProvider;
+    private OrderView orderView;
+    @Autowired
+    private InvoiceView invoiceView;
 
     @Override
     public void init() {
@@ -59,11 +59,12 @@ public class DemoApp extends Application {
         layout.setExpandRatio(tabs, 1);
 
         tabs.addTab(
-                new CustomerView(customerProvider),
+                customerView,
                 "Customers", null);
-        tabs.addTab(new OrderView(orderProvider, customerProvider),
+        tabs.addTab(orderView,
                 "Orders", null);
-        tabs.addTab(new Label("Invoices"), "Invoices", null); // TODO Add InvoicesView
+        tabs.addTab(invoiceView, "Invoices",
+                null);
 
         Window mainWindow = new Window("JPAContainer Demo Application", layout);
         setMainWindow(mainWindow);

@@ -73,12 +73,10 @@ public class SpringApplicationServlet extends AbstractApplicationServlet {
                 servletConfig.getServletContext());
 
         if (!applicationContext.isPrototype(applicationBean)) {
-            if (logger.isErrorEnabled()) {
-                logger.error(
+            if (logger.isWarnEnabled()) {
+                logger.warn(
                         "ApplicationBean not configured as a prototype");
             }
-            throw new ServletException(
-                    "ApplicationBean not configured as a prototype");
         }
 
         applicationClass = (Class<? extends Application>) applicationContext.

@@ -18,10 +18,7 @@
 package com.vaadin.addons.jpacontainer.demo.providers;
 
 import com.vaadin.addons.jpacontainer.demo.domain.Customer;
-import com.vaadin.addons.jpacontainer.provider.LocalEntityProvider;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Entity provider for {@link Customer}s that uses Spring's declarative
@@ -35,36 +32,12 @@ import org.springframework.transaction.annotation.Transactional;
  * @since 1.0
  */
 @Repository(value = "customerProvider")
-public class CustomerProvider extends LocalEntityProvider<Customer> {
+public class CustomerProvider extends LocalEntityProviderBean<Customer> {
 
     /**
      * Creates a new <code>CustomerProvider</code>.
      */
     public CustomerProvider() {
         super(Customer.class);
-    }
-
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public Customer updateEntity(Customer entity) {
-        return super.updateEntity(entity);
-    }
-
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public Customer addEntity(Customer entity) {
-        return super.addEntity(entity);
-    }
-
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void removeEntity(Object entityId) {
-        super.removeEntity(entityId);
-    }
-
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void updateEntityProperty(Object entityId, String propertyName, Object propertyValue) throws IllegalArgumentException {
-        super.updateEntityProperty(entityId, propertyName, propertyValue);
     }
 }

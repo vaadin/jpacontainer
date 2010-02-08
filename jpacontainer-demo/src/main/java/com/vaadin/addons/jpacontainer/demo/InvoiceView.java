@@ -20,12 +20,13 @@ package com.vaadin.addons.jpacontainer.demo;
 import com.vaadin.addons.jpacontainer.EntityProvider;
 import com.vaadin.addons.jpacontainer.JPAContainer;
 import com.vaadin.addons.jpacontainer.demo.domain.Customer;
-import com.vaadin.addons.jpacontainer.demo.domain.Order;
+import com.vaadin.addons.jpacontainer.demo.domain.Invoice;
 import com.vaadin.addons.jpacontainer.filter.Filters;
 import com.vaadin.data.Item;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.DateField;
@@ -41,21 +42,22 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
- * View for browsing orders.
+ * View for browsing invoices.
  *
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-@Component(value = "orderView")
+@Component(value = "invoiceView")
 @Scope(value = "session")
-public class OrderView extends CustomComponent {
+public class InvoiceView extends CustomComponent {
 
     // TODO Add editing support!
-    @Resource(name = "orderProvider")
-    private EntityProvider<Order> entityProvider;
+    @Resource(name = "invoiceProvider")
+    private EntityProvider<Invoice> invoiceProvider;
     @Resource(name = "customerProvider")
     private EntityProvider<Customer> customerProvider;
-    private JPAContainer<Order> orderContainer = new JPAContainer(Order.class);
+    private JPAContainer<Invoice> invoiceContainer = new JPAContainer(
+            Invoice.class);
     private JPAContainer<Customer> customerContainer = new JPAContainer(
             Customer.class);
     private ComboBox filterCustomer = new ComboBox("Customer:") {
@@ -70,6 +72,7 @@ public class OrderView extends CustomComponent {
     };
     private DateField filterFrom = new DateField("From:");
     private DateField filterTo = new DateField("To:");
+    private CheckBox filterOverdue = new CheckBox("Overdue");
     private Button filterBtn = new Button("Filter");
     private Button resetBtn = new Button("Reset");
 
@@ -99,8 +102,14 @@ public class OrderView extends CustomComponent {
             filterTo.setResolution(DateField.RESOLUTION_DAY);
             filterTo.setDateFormat("yyyy-MM-dd");
 
+            //toolbar.addComponent(new Label("Filter by Order Date:"));
             toolbar.addComponent(filterFrom);
+            //toolbar.addComponent(new Label("-"));
             toolbar.addComponent(filterTo);
+
+            toolbar.addComponent(filterOverdue);
+            toolbar.setComponentAlignment(filterOverdue, Alignment.BOTTOM_LEFT);
+
             resetBtn.setEnabled(false);
             toolbar.addComponent(filterBtn);
             toolbar.addComponent(resetBtn);
@@ -128,121 +137,80 @@ public class OrderView extends CustomComponent {
         }
         layout.addComponent(toolbar);
 
-        Table orderTable = new Table();
+        Table invoiceTable = new Table();
         {
-            orderContainer.setEntityProvider(entityProvider);
-            orderContainer.setApplyFiltersImmediately(false);
+            invoiceContainer.setEntityProvider(invoiceProvider);
+            invoiceContainer.setApplyFiltersImmediately(false);
             // Remove unused properties
-            orderContainer.removeContainerProperty("id");
-            orderContainer.removeContainerProperty("version");
-            orderContainer.removeContainerProperty("items");
+            invoiceContainer.removeContainerProperty("id");
+            invoiceContainer.removeContainerProperty("version");
+            invoiceContainer.removeContainerProperty("items");
 
             // Add some nested properties
-            orderContainer.addNestedContainerProperty("customer.customerName");
-            orderContainer.addNestedContainerProperty("customer.custNo");
-            orderContainer.addNestedContainerProperty("billingAddress.*");
-            orderContainer.addNestedContainerProperty("shippingAddress.*");
+            invoiceContainer.addNestedContainerProperty("order.orderNo");
+            invoiceContainer.addNestedContainerProperty(
+                    "order.customer.customerName");
+            invoiceContainer.addNestedContainerProperty("order.customer.custNo");
+            invoiceContainer.addNestedContainerProperty("order.customer");
 
-            orderTable.setSizeFull();
-            orderTable.setContainerDataSource(orderContainer);
-            orderTable.setVisibleColumns(
-                    new String[]{"orderNo",
-                        "orderDate",
-                        "customer.custNo",
-                        "customer.customerName",
-                        "customerReference",
-                        "salesReference",
-                        "billingAddress.streetOrBox",
-                        "billingAddress.postalCode",
-                        "billingAddress.postOffice",
-                        "billingAddress.country",
-                        "billedDate",
-                        "shippingAddress.streetOrBox",
-                        "shippingAddress.postalCode",
-                        "shippingAddress.postOffice",
-                        "shippingAddress.country",
-                        "shippedDate",
+            invoiceTable.setSizeFull();
+            invoiceTable.setContainerDataSource(invoiceContainer);
+            invoiceTable.setVisibleColumns(
+                    new String[]{"invoiceNo",
+                        "order.orderNo",
+                        "order.customer.custNo",
+                        "order.customer.customerName",
+                        "invoiceDate",
+                        "dueDate",
+                        "paidDate",
                         "total"
                     });
-            orderTable.setColumnHeaders(
-                    new String[]{"Order No",
-                        "Order Date",
+            invoiceTable.setColumnHeaders(
+                    new String[]{"Invoice No",
+                        "Order No",
                         "Cust No",
                         "Customer",
-                        "Customer Ref",
-                        "Sales Ref",
-                        "BillTo Address",
-                        "BillTo Postal Code",
-                        "BillTo Post Office",
-                        "BillTo Country",
-                        "Billed Date",
-                        "ShipTo Address",
-                        "ShipTo Postal Code",
-                        "ShipTo Post Office",
-                        "ShipTo Country",
-                        "Shipped Date",
+                        "Invoice Date",
+                        "Due Date",
+                        "Paid Date",
                         "Total Amount"
                     });
-            orderTable.setColumnAlignment("total", Table.ALIGN_RIGHT);
-            orderTable.setColumnCollapsingAllowed(true);
-            orderTable.setSelectable(true);
-            orderTable.setImmediate(true);
-            try {
-                orderTable.setColumnCollapsed("customerReference", true);
-                orderTable.setColumnCollapsed("shippingAddress.streetOrBox",
-                        true);
-                orderTable.setColumnCollapsed("shippingAddress.postalCode",
-                        true);
-                orderTable.setColumnCollapsed("shippingAddress.postOffice",
-                        true);
-                orderTable.setColumnCollapsed("shippingAddress.country",
-                        true);
-                orderTable.setColumnCollapsed("billingAddress.streetOrBox",
-                        true);
-                orderTable.setColumnCollapsed("billingAddress.postalCode",
-                        true);
-                orderTable.setColumnCollapsed("billingAddress.postOffice",
-                        true);
-                orderTable.setColumnCollapsed("billingAddress.country",
-                        true);
-            } catch (IllegalAccessException e) {
-                // Ignore it
-            }
-            orderTable.setSortContainerPropertyId("orderNo");
+            invoiceTable.setColumnAlignment("total", Table.ALIGN_RIGHT);
+            invoiceTable.setColumnCollapsingAllowed(true);
+            invoiceTable.setSelectable(true);
+            invoiceTable.setImmediate(true);
+            invoiceTable.setSortContainerPropertyId("invoiceNo");
         }
-        layout.addComponent(orderTable);
-        layout.setExpandRatio(orderTable, 1);
+        layout.addComponent(invoiceTable);
+        layout.setExpandRatio(invoiceTable, 1);
 
         setCompositionRoot(layout);
         setSizeFull();
     }
 
-    private void doReset() {
-        filterTo.setValue(null);
-        filterFrom.setValue(null);
-        filterCustomer.setValue(null);
-        orderContainer.removeAllFilters();
-        orderContainer.applyFilters();
-        resetBtn.setEnabled(false);
-    }
-
-    private void doFilter() {
+    protected void doFilter() {
         Date from = (Date) filterFrom.getValue();
         Date to = (Date) filterTo.getValue();
         Object customerId = filterCustomer.getValue();
+        boolean overdue = filterOverdue.booleanValue();
 
-        if (customerId == null && from == null && to == null) {
+        if (customerId == null && from == null && to == null && !overdue) {
             getWindow().showNotification("Nothing to do");
             return;
         }
-
-        orderContainer.removeAllFilters();
+        invoiceContainer.removeAllFilters();
 
         if (customerId != null) {
             Customer c = customerContainer.getItem(customerId).
                     getEntity();
-            orderContainer.addFilter(Filters.eq("customer",
+            invoiceContainer.addFilter(Filters.eq("order.customer",
                     c));
+        }
+
+        if (overdue) {
+            invoiceContainer.addFilter(Filters.lt("dueDate",
+                    new Date()));
+            invoiceContainer.addFilter(Filters.isNull("paidDate"));
         }
 
         if (from != null && to != null) {
@@ -252,21 +220,34 @@ public class OrderView extends CustomComponent {
                         Notification.TYPE_WARNING_MESSAGE);
                 return;
             }
-            orderContainer.addFilter(Filters.between("orderDate",
+            invoiceContainer.addFilter(Filters.between("invoiceDate",
                     from,
                     to, true, true));
         } else if (from != null) {
-            orderContainer.addFilter(Filters.gteq("orderDate", from));
+            invoiceContainer.addFilter(Filters.gteq("invoiceDate",
+                    from));
         } else if (to != null) {
-            orderContainer.addFilter(Filters.lteq("orderDate", to));
+            invoiceContainer.addFilter(Filters.lteq("invoiceDate",
+                    to));
         }
-        orderContainer.applyFilters();
+        invoiceContainer.applyFilters();
         resetBtn.setEnabled(true);
     }
 
-    public void showOrdersForCustomer(Object customerId) {
+    protected void doReset() {
         filterTo.setValue(null);
         filterFrom.setValue(null);
+        filterCustomer.setValue(null);
+        filterOverdue.setValue(false);
+        invoiceContainer.removeAllFilters();
+        invoiceContainer.applyFilters();
+        resetBtn.setEnabled(false);
+    }
+
+    public void showInvoicesForCustomer(Object customerId) {
+        filterTo.setValue(null);
+        filterFrom.setValue(null);
+        filterOverdue.setValue(false);
         filterCustomer.setValue(customerId);
         doFilter();
         if (getParent() instanceof TabSheet) {

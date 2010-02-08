@@ -18,10 +18,7 @@
 package com.vaadin.addons.jpacontainer.demo.providers;
 
 import com.vaadin.addons.jpacontainer.demo.domain.Order;
-import com.vaadin.addons.jpacontainer.provider.LocalEntityProvider;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * TODO Document me!
@@ -29,37 +26,13 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-@Repository(value="orderProvider")
-public class OrderProvider extends LocalEntityProvider<Order> {
+@Repository(value = "orderProvider")
+public class OrderProvider extends LocalEntityProviderBean<Order> {
 
     /**
      * Creates a new <code>OrderProvider</code>.
      */
     public OrderProvider() {
         super(Order.class);
-    }
-
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public Order addEntity(Order entity) {
-        return super.addEntity(entity);
-    }
-
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public Order updateEntity(Order entity) {
-        return super.updateEntity(entity);
-    }
-
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void updateEntityProperty(Object entityId, String propertyName, Object propertyValue) throws IllegalArgumentException {
-        super.updateEntityProperty(entityId, propertyName, propertyValue);
-    }
-
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void removeEntity(Object entityId) {
-        super.removeEntity(entityId);
     }
 }

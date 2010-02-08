@@ -31,6 +31,11 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window.Notification;
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 /**
  * View for browsing and editing customers.
@@ -38,29 +43,34 @@ import com.vaadin.ui.Window.Notification;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
+@Component(value = "customerView")
+@Scope(value = "session")
 public class CustomerView extends CustomComponent {
 
-    public CustomerView(EntityProvider<Customer> entityProvider) {
-        this.entityProvider = entityProvider;
-        init();
-    }
+    @Resource(name = "customerProvider")
     private EntityProvider<Customer> entityProvider;
     private Button newCustomer = new Button("New Customer");
     private Button openCustomer = new Button("Open Customer");
     private Button deleteCustomer = new Button("Delete Customer");
-    private Button search = new Button("Search");
+    private Button showOrders = new Button("Show Orders");
+    private Button showInvoices = new Button("Show Invoices");
     private JPAContainer<Customer> customerContainer = new JPAContainer(
             Customer.class);
     private CheckBox autoCommit = new CheckBox("Auto-commit");
     private Button commit = new Button("Commit");
     private Button discard = new Button("Discard");
     private Table customerTable = new Table();
+    @Autowired
+    private InvoiceView invoiceView;
+    @Autowired
+    private OrderView orderView;
 
-    private void init() {
+    @PostConstruct
+    public void init() {
         VerticalLayout layout = new VerticalLayout();
         layout.setSizeFull();
         layout.setMargin(true);
-        
+
         HorizontalLayout toolbar = new HorizontalLayout();
         {
             newCustomer.addListener(new Button.ClickListener() {
@@ -122,14 +132,36 @@ public class CustomerView extends CustomComponent {
                 }
             });
 
-            search.setEnabled(false);
+            showOrders.setEnabled(false);
+            showOrders.addListener(new Button.ClickListener() {
+
+                public void buttonClick(ClickEvent event) {
+                    Object itemId = customerTable.getValue();
+                    if (itemId != null) {
+                        orderView.showOrdersForCustomer(itemId);
+                    }
+                }
+            });
+
+            showInvoices.setEnabled(false);
+            showInvoices.addListener(new Button.ClickListener() {
+
+                public void buttonClick(ClickEvent event) {
+                    Object itemId = customerTable.getValue();
+                    if (itemId != null) {
+                        invoiceView.showInvoicesForCustomer(itemId);
+                    }
+                }
+            });
+
             commit.setEnabled(false);
             discard.setEnabled(false);
 
             toolbar.addComponent(newCustomer);
             toolbar.addComponent(openCustomer);
             toolbar.addComponent(deleteCustomer);
-            toolbar.addComponent(search);
+            toolbar.addComponent(showOrders);
+            toolbar.addComponent(showInvoices);
             toolbar.addComponent(autoCommit);
             toolbar.addComponent(commit);
             toolbar.addComponent(discard);
@@ -204,8 +236,11 @@ public class CustomerView extends CustomComponent {
 
                 public void valueChange(ValueChangeEvent event) {
                     Object id = customerTable.getValue();
-                    openCustomer.setEnabled(id != null);
-                    deleteCustomer.setEnabled(id != null);
+                    boolean enabled = id != null;
+                    openCustomer.setEnabled(enabled);
+                    deleteCustomer.setEnabled(enabled);
+                    showOrders.setEnabled(enabled);
+                    showInvoices.setEnabled(enabled);
                 }
             });
         }

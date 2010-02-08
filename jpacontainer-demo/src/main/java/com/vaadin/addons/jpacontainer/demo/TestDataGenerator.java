@@ -18,12 +18,16 @@
 package com.vaadin.addons.jpacontainer.demo;
 
 import com.vaadin.addons.jpacontainer.demo.domain.Customer;
+import com.vaadin.addons.jpacontainer.demo.domain.Invoice;
+import com.vaadin.addons.jpacontainer.demo.domain.InvoiceItem;
 import com.vaadin.addons.jpacontainer.demo.domain.Order;
 import com.vaadin.addons.jpacontainer.demo.domain.OrderItem;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.apache.commons.logging.Log;
@@ -57,6 +61,7 @@ public class TestDataGenerator implements
     @PersistenceContext
     private EntityManager entityManager;
     private ArrayList<Long> customerIds;
+    private ArrayList<Long> orderIds;
 
     public void onApplicationEvent(ContextRefreshedEvent event) {
         if (logger.isInfoEnabled()) {
@@ -76,6 +81,7 @@ public class TestDataGenerator implements
         }
         createCustomerTestData();
         createOrderTestData();
+        createInvoiceTestData();
         entityManager.flush();
         if (logger.isDebugEnabled()) {
             logger.debug("Test data generation complete");
@@ -84,6 +90,8 @@ public class TestDataGenerator implements
         // Clean up
         customerIds.clear();
         customerIds = null;
+        orderIds.clear();
+        orderIds = null;
     }
     final String[] salesReps = {"John Smith",
         "Scrooge McDuck",
@@ -169,6 +177,7 @@ public class TestDataGenerator implements
         }
 
         Random rnd = new Random();
+        orderIds = new ArrayList(3000);
         for (int i = 0; i < 3000; i++) {
             Order order = new Order();
             Customer customer = entityManager.find(Customer.class, customerIds.
@@ -211,8 +220,45 @@ public class TestDataGenerator implements
             }
 
             entityManager.persist(order);
+            orderIds.add(order.getId());
         }
     }
+
+    private void createInvoiceTestData() {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Generating invoices");
+        }
+        Set<Order> orders = new HashSet<Order>();
+        Random rnd = new Random();
+        for (int i = 0; i < 2500; i++) {
+            Invoice invoice = new Invoice();
+            Order order;
+            do {
+                order = entityManager.find(Order.class, orderIds.get(rnd.nextInt(orderIds.size())));
+            } while (orders.contains(order));
+            orders.add(order);
+            invoice.setInvoiceNo(i + 1);
+            invoice.setOrder(order);
+            invoice.setInvoiceDate(addDaysToDate(order.getOrderDate(), rnd.nextInt(8)));
+            invoice.setDueDate(addDaysToDate(invoice.getInvoiceDate(), 14));
+            order.getCustomer().setLastInvoiceDate(invoice.getInvoiceDate());
+            order.setBilledDate(invoice.getInvoiceDate());
+            if (rnd.nextInt(2) == 1) {
+                invoice.setPaidDate(addDaysToDate(invoice.getInvoiceDate(), rnd.nextInt(14)));
+            }
+            for (OrderItem orderItem : order.getItems()) {
+                InvoiceItem item = new InvoiceItem();
+                item.setDescription(orderItem.getDescription());
+                item.setQuantity(orderItem.getQuantity());
+                item.setPrice(orderItem.getPrice());
+                invoice.addItem(item);
+            }
+            entityManager.persist(invoice);
+        }
+        orders.clear();
+        orders = null;
+    }
+
     private static Random dateRnd = new Random();
 
     private static Date createRandomDate() {
