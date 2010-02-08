@@ -43,7 +43,6 @@ import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.EntityTransaction;
-import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
 /**
@@ -56,7 +55,6 @@ import javax.persistence.Query;
  *   <li>Performs a serialize-deserialize cycle to clone entities in order to detach them from the persistence context (<b>This is ugly!</b<)</li>
  *   <li>Once the entity manager has been set, it cannot be changed without subclassing the provider</li>
  *   <li>Supports both internal and external transaction handling</li>
- *   <li>The entity manager instance is annotated with {@link PersistenceContext} and can use dependency injection when running inside a container such as Spring or EJB (see {@link #LocalEntityProvider(java.lang.Class) })</li>
  *   <li><strong>Does NOT currently support embedded identifiers!</strong></li>
  * </ul>
  *
@@ -68,7 +66,6 @@ import javax.persistence.Query;
 public class LocalEntityProvider<T> implements EntityProvider<T>,
         MutableEntityProvider<T>, Serializable {
 
-    @PersistenceContext
     private EntityManager entityManager;
     private EntityClassMetadata<T> entityClassMetadata;
     private boolean entitiesDetached = true;
