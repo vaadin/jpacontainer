@@ -111,6 +111,7 @@ public class CustomerWindow extends Window {
         VerticalLayout layout = (VerticalLayout) getContent();
         layout.setMargin(true);
         layout.setSpacing(true);
+        setClosable(false);
 
         // Create the forms
         CustomerFieldFactory fieldFactory = new CustomerFieldFactory();
