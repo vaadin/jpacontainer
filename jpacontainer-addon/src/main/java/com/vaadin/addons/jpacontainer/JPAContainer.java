@@ -39,9 +39,29 @@ import java.util.List;
  * to make the container writable. Buffered mode (write through turned off) can
  * be used if the entity provider implements the {@link BatchableEntityProvider} interface.
  * <p>
+ * When using buffered mode, the following rules apply:
+ * <ul>
+ *   <li>All operations that add, update or remove entities are recorded internally.</li>
+ *   <li>If an item is added and then removed later within the same transaction, the add operation will be removed and no update operation will be recorded.</li>
+ *   <li>If an item is added and then updated later within the same transaction, only the add operation will be recorded.</li>
+ *   <li>If an item is updated and then removed later within the same transaction, only the remove operation will be recorded.</li>
+ *   <li>In the case of an update or edit, a clone of the affected entity is recorded together with the operation if the entity class implements the {@link Cloneable} interface. Otherwise,
+ *       the entity instance is recorded.</li>
+ *   <li>When the changes are committed, all recorded operations are carried out on the {@link BatchableEntityProvider} in the same order that they were recorded.</li>
+ * </ul>
+ * <p>
+ * Please note, that if an entity is not cloneable and it is modified twice, both update records will
+ * point to the same entity instance. Thus, the changes of the second modification will be present
+ * in the record of the first modification. This is something that implementations of {@link BatchableEntityProvider}
+ * need to be aware of.
+ * <p>
+ * Also note, that it is possible to use buffered mode even if the entities returned from the entity provider
+ * are not explicitly detached (see {@link EntityProvider#isEntitiesDetached() }), but this should
+ * be avoided unless you know what you are doing.
+ * <p>
  * As the data source is responsible for sorting the items, new items
- * cannot be added to a specific location in the list. Rather, the implementation
- * decides where to put new items.
+ * cannot be added to a specific location in the list. Instead, new items
+ * are always added to the top of the container.
  *
  * @author Petter Holmström (IT Mill)
  * @since 1.0
@@ -255,20 +275,12 @@ public class JPAContainer<T> implements EntityContainer<T> {
 
     @Override
     public Object firstItemId() {
-        Object itemId = doGetEntityProvider().getFirstEntityIdentifier(
-                getAppliedFiltersAsConjunction(), getSortByList());
-        if (isWriteThrough()) {
+        if (isWriteThrough() || bufferingDelegate.getAddedItemIds().isEmpty()) {
+            Object itemId = doGetEntityProvider().getFirstEntityIdentifier(
+                    getAppliedFiltersAsConjunction(), getSortByList());
             return itemId;
         } else {
-            if (bufferingDelegate.getAddedItemIds().isEmpty()) {
-                if (itemId != null && bufferingDelegate.isDeleted(itemId)) {
-                    return nextItemId(itemId);
-                } else {
-                    return itemId;
-                }
-            } else {
-                return bufferingDelegate.getAddedItemIds().get(0);
-            }
+            return bufferingDelegate.getAddedItemIds().get(0);
         }
     }
 
@@ -288,58 +300,39 @@ public class JPAContainer<T> implements EntityContainer<T> {
     public Object lastItemId() {
         Object itemId = doGetEntityProvider().getLastEntityIdentifier(
                 getAppliedFiltersAsConjunction(), getSortByList());
-        if (isWriteThrough()) {
+        if (isWriteThrough() || bufferingDelegate.getAddedItemIds().isEmpty()) {
             return itemId;
         } else {
             if (itemId == null) {
-                if (bufferingDelegate.getAddedItemIds().isEmpty()) {
-                    return itemId;
-                } else {
-                    return bufferingDelegate.getAddedItemIds().get(bufferingDelegate.
-                            getAddedItemIds().size() - 1);
-                }
+                return bufferingDelegate.getAddedItemIds().get(bufferingDelegate.
+                        getAddedItemIds().size() - 1);
             } else {
-                if (bufferingDelegate.isDeleted(itemId)) {
-                    return prevItemId(itemId);
-                } else {
-                    return itemId;
-                }
+                return itemId;
             }
         }
     }
 
     @Override
     public Object nextItemId(Object itemId) {
-        if (isWriteThrough()) {
+        if (isWriteThrough() || bufferingDelegate.getAddedItemIds().isEmpty() || !bufferingDelegate.
+                isAdded(itemId)) {
             return doGetEntityProvider().getNextEntityIdentifier(itemId,
                     getAppliedFiltersAsConjunction(),
                     getSortByList());
         } else {
-            if (bufferingDelegate.isAdded(itemId)) {
-                int ix = bufferingDelegate.getAddedItemIds().indexOf(itemId);
-                if (ix == bufferingDelegate.getAddedItemIds().size() - 1) {
-                    return doGetEntityProvider().getFirstEntityIdentifier(
-                            getAppliedFiltersAsConjunction(), getSortByList());
-                } else {
-                    return bufferingDelegate.getAddedItemIds().get(ix + 1);
-                }
+            int ix = bufferingDelegate.getAddedItemIds().indexOf(itemId);
+            if (ix == bufferingDelegate.getAddedItemIds().size() - 1) {
+                return doGetEntityProvider().getFirstEntityIdentifier(
+                        getAppliedFiltersAsConjunction(), getSortByList());
             } else {
-                Object nextId = doGetEntityProvider().getNextEntityIdentifier(
-                        itemId,
-                        getAppliedFiltersAsConjunction(),
-                        getSortByList());
-                if (nextId != null && bufferingDelegate.isDeleted(nextId)) {
-                    return nextItemId(nextId);
-                } else {
-                    return nextId;
-                }
+                return bufferingDelegate.getAddedItemIds().get(ix + 1);
             }
         }
     }
 
     @Override
     public Object prevItemId(Object itemId) {
-        if (isWriteThrough()) {
+        if (isWriteThrough() || bufferingDelegate.getAddedItemIds().isEmpty()) {
             return doGetEntityProvider().getPreviousEntityIdentifier(itemId,
                     getAppliedFiltersAsConjunction(),
                     getSortByList());
@@ -356,16 +349,11 @@ public class JPAContainer<T> implements EntityContainer<T> {
                         getPreviousEntityIdentifier(itemId,
                         getAppliedFiltersAsConjunction(),
                         getSortByList());
-                if (prevId != null && bufferingDelegate.isDeleted(prevId)) {
-                    return prevItemId(prevId);
+                if (prevId == null) {
+                    return bufferingDelegate.getAddedItemIds().get(bufferingDelegate.
+                            getAddedItemIds().size() - 1);
                 } else {
-                    if (prevId == null && !bufferingDelegate.getAddedItemIds().
-                            isEmpty()) {
-                        return bufferingDelegate.getAddedItemIds().get(bufferingDelegate.
-                                getAddedItemIds().size() - 1);
-                    } else {
-                        return prevId;
-                    }
+                    return prevId;
                 }
             }
         }
@@ -404,8 +392,14 @@ public class JPAContainer<T> implements EntityContainer<T> {
 
     @Override
     public boolean containsId(Object itemId) {
-        return doGetEntityProvider().containsEntity(itemId,
-                getAppliedFiltersAsConjunction());
+        if (isWriteThrough()) {
+            return doGetEntityProvider().containsEntity(itemId,
+                    getAppliedFiltersAsConjunction());
+        } else {
+            return bufferingDelegate.isAdded(itemId) || doGetEntityProvider().
+                    containsEntity(itemId,
+                    getAppliedFiltersAsConjunction());
+        }
     }
 
     @Override
@@ -439,7 +433,7 @@ public class JPAContainer<T> implements EntityContainer<T> {
     @Override
     public EntityItem<T> getItem(Object itemId) {
         // TODO This is slow! Is there some way of optimizing this, eg. caching the items?
-        if (isWriteThrough()) {
+        if (isWriteThrough() || !bufferingDelegate.isModified()) {
             T entity = doGetEntityProvider().getEntity(itemId);
             return entity != null ? new JPAContainerItem<T>(this, entity) : null;
         } else {
@@ -453,7 +447,15 @@ public class JPAContainer<T> implements EntityContainer<T> {
                 item.setDirty(true);
                 return item;
             } else if (bufferingDelegate.isDeleted(itemId)) {
-                return null;
+                T entity = doGetEntityProvider().getEntity(itemId);
+                if (entity != null) {
+                    JPAContainerItem<T> item = new JPAContainerItem<T>(this,
+                            entity);
+                    item.setDeleted(true);
+                    return item;
+                } else {
+                    return null;
+                }
             } else {
                 T entity = doGetEntityProvider().getEntity(itemId);
                 return entity != null ? new JPAContainerItem<T>(this, entity) : null;
@@ -469,9 +471,16 @@ public class JPAContainer<T> implements EntityContainer<T> {
      */
     @Override
     public Collection<Object> getItemIds() {
-        // TODO Add support for buffered mode
-        return getEntityProvider().getAllEntityIdentifiers(
+        Collection<Object> ids = getEntityProvider().getAllEntityIdentifiers(
                 getAppliedFiltersAsConjunction(), getSortByList());
+        if (isWriteThrough() || !bufferingDelegate.isModified()) {
+            return ids;
+        } else {
+            List<Object> newIds = new LinkedList<Object>();
+            newIds.addAll(bufferingDelegate.getAddedItemIds());
+            newIds.addAll(ids);
+            return Collections.unmodifiableCollection(newIds);
+        }
     }
 
     @Override
@@ -499,15 +508,8 @@ public class JPAContainer<T> implements EntityContainer<T> {
         if (isWriteThrough()) {
             return origSize;
         } else {
-            /*
-             * If no new items have been added, we have buffered deletes
-             * and the database has been emptied after the deletes were buffered,
-             * we might get a negative value here. In that case, we simply
-             * return 0.
-             */
-            int newSize = origSize + bufferingDelegate.getAddedItemIds().size() - bufferingDelegate.
-                    getDeletedItemIds().size();
-            return newSize >= 0 ? newSize : 0;
+            int newSize = origSize + bufferingDelegate.getAddedItemIds().size();
+            return newSize;
         }
     }
 
@@ -641,9 +643,20 @@ public class JPAContainer<T> implements EntityContainer<T> {
 
     @Override
     public Object getIdByIndex(int index) {
-        // TODO Add support for buffered mode
-        return doGetEntityProvider().getEntityIdentifierAt(
-                getAppliedFiltersAsConjunction(), getSortByList(), index);
+        if (isWriteThrough()) {
+            return doGetEntityProvider().getEntityIdentifierAt(
+                    getAppliedFiltersAsConjunction(), getSortByList(), index);
+        } else {
+            int addedItems = bufferingDelegate.getAddedItemIds().size();
+            if (index < addedItems) {
+                return bufferingDelegate.getAddedItemIds().get(index);
+            } else {
+                Object itemId = doGetEntityProvider().getEntityIdentifierAt(
+                        getAppliedFiltersAsConjunction(), getSortByList(),
+                        index - addedItems);
+                return itemId;
+            }
+        }
     }
 
     /**
@@ -778,10 +791,10 @@ public class JPAContainer<T> implements EntityContainer<T> {
                         updateEntityProperty(
                         itemId, propertyId, item.getItemProperty(propertyId).
                         getValue());
+                item.setDirty(false);
             } else {
-                bufferingDelegate.updateEntity(item.getEntity());
+                bufferingDelegate.updateEntity(itemId, item.getEntity());
             }
-            item.setDirty(false);
             fireContainerItemSetChange(new ItemUpdatedEvent(itemId));
         }
     }
@@ -815,10 +828,10 @@ public class JPAContainer<T> implements EntityContainer<T> {
             if (isWriteThrough()) {
                 ((MutableEntityProvider) getEntityProvider()).updateEntity(item.
                         getEntity());
+                item.setDirty(false);
             } else {
-                bufferingDelegate.updateEntity(item.getEntity());
+                bufferingDelegate.updateEntity(itemId, item.getEntity());
             }
-            item.setDirty(false);
             fireContainerItemSetChange(new ItemUpdatedEvent(itemId));
         }
     }

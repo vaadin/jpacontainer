@@ -345,6 +345,7 @@ final class JPAContainerItem<T> implements EntityItem<T> {
     private boolean persistent = true;
     private boolean readThrough = true;
     private boolean writeThrough = true;
+    private boolean deleted = false;
     private Object itemId;
 
     /**
@@ -463,6 +464,21 @@ final class JPAContainerItem<T> implements EntityItem<T> {
      */
     void setPersistent(boolean persistent) {
         this.persistent = persistent;
+    }
+
+    @Override
+    public boolean isDeleted() {
+        return isPersistent() && !getContainer().isWriteThrough() && deleted;
+    }
+
+    /**
+     * Changes the <code>deleted</code> flag of this item.
+     *
+     * @see #isDeleted()
+     * @param deleted true to mark the item as deleted, false to mark it as undeleted.
+     */
+    void setDeleted(boolean deleted) {
+        this.deleted = true;
     }
 
     @Override

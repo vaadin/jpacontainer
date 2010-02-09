@@ -157,7 +157,7 @@ public class Person implements Serializable, Cloneable {
     @Override
     public Person clone() {
         Person p = new Person();
-        p.address = address.clone();
+        p.address = address == null ? null : address.clone();
         p.dateOfBirth = dateOfBirth;
         p.firstName = firstName;
         p.id = id;

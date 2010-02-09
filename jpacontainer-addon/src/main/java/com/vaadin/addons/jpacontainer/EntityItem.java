@@ -86,6 +86,15 @@ public interface EntityItem<T> extends Item, Buffered,
     public boolean isDirty();
 
     /**
+     * Checks whether this item has been marked for deletion. This method can only
+     * return true if {@link #isPersistent() } is true and the container is running
+     * in buffered mode.
+     *
+     * @return true if the item has been deleted, false otherwise.
+     */
+    public boolean isDeleted();
+
+    /**
      * Gets the container that contains this item. If {@link #getItemId() }
      * is null, the container created the item but does not yet contain it.
      * 
