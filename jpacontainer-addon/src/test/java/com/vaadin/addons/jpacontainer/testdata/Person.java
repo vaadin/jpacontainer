@@ -43,7 +43,7 @@ import org.apache.commons.lang.time.DateUtils;
 @Table(uniqueConstraints =
 @UniqueConstraint(columnNames = {"lastName",
     "firstName"}))
-public class Person implements Serializable {
+public class Person implements Serializable, Cloneable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -152,5 +152,18 @@ public class Person implements Serializable {
                     DateFormat.SHORT).format(dateOfBirth);
         }
         return lastName + ", " + firstName + ", " + dob + ", " + address + " (ID: " + id + ")";
+    }
+
+    @Override
+    public Person clone() {
+        Person p = new Person();
+        p.address = address.clone();
+        p.dateOfBirth = dateOfBirth;
+        p.firstName = firstName;
+        p.id = id;
+        p.lastName = lastName;
+        p.tempData = tempData;
+        p.version = version;
+        return p;
     }
 }

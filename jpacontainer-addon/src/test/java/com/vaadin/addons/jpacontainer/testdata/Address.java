@@ -95,7 +95,7 @@ public class Address implements Serializable, Cloneable {
     }
 
     @Override
-    public Object clone() {
+    public Address clone() {
         Address a = new Address();
         a.postOffice = postOffice;
         a.postalCode = postalCode;
