@@ -68,5 +68,6 @@ public class DemoApp extends Application {
 
         Window mainWindow = new Window("JPAContainer Demo Application", layout);
         setMainWindow(mainWindow);
+        setTheme("JPAContainerDemo");
     }
 }

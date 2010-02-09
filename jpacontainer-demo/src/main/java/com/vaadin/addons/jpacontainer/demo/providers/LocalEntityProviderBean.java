@@ -17,7 +17,7 @@
  */
 package com.vaadin.addons.jpacontainer.demo.providers;
 
-import com.vaadin.addons.jpacontainer.provider.LocalEntityProvider;
+import com.vaadin.addons.jpacontainer.provider.BatchableLocalEntityProvider;
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -33,7 +33,7 @@ import org.springframework.util.Assert;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public abstract class LocalEntityProviderBean<T> extends LocalEntityProvider<T> {
+public abstract class LocalEntityProviderBean<T> extends BatchableLocalEntityProvider<T> {
 
     protected final Log logger = LogFactory.getLog(getClass());
     @PersistenceContext

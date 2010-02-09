@@ -89,7 +89,13 @@ public class CustomerView extends CustomComponent {
                     if (itemId != null) {
                         EntityItem<Customer> customerItem = customerContainer.
                                 getItem(itemId);
-                        getWindow().addWindow(new CustomerWindow(customerItem));
+                        if (customerItem == null) {
+                            getWindow().showNotification(
+                                    "Customer deleted by another user");
+                        } else {
+                            getWindow().addWindow(new CustomerWindow(
+                                    customerItem));
+                        }
                     }
                 }
             });
@@ -121,6 +127,8 @@ public class CustomerView extends CustomComponent {
                         try {
                             customerContainer.setAutoCommit(
                                     autoCommit.booleanValue());
+                            discard.setEnabled(!customerContainer.isAutoCommit());
+                            commit.setEnabled(discard.isEnabled());
                         } catch (Exception e) {
                             autoCommit.setValue(customerContainer.isAutoCommit());
                             getWindow().showNotification(
@@ -154,8 +162,31 @@ public class CustomerView extends CustomComponent {
                 }
             });
 
-            commit.setEnabled(false);
-            discard.setEnabled(false);
+            commit.addListener(new Button.ClickListener() {
+
+                public void buttonClick(ClickEvent event) {
+                    try {
+                        customerContainer.commit();
+                        getWindow().showNotification("Changes committed");
+                    } catch (Exception e) {
+                        getWindow().showNotification("Could not commit", e.
+                                getMessage(), Notification.TYPE_ERROR_MESSAGE);
+                    }
+                }
+            });
+
+            discard.addListener(new Button.ClickListener() {
+
+                public void buttonClick(ClickEvent event) {
+                    try {
+                        customerContainer.discard();
+                        getWindow().showNotification("Changes discarded");
+                    } catch (Exception e) {
+                        getWindow().showNotification("Could not discard", e.
+                                getMessage(), Notification.TYPE_ERROR_MESSAGE);
+                    }
+                }
+            });
 
             toolbar.addComponent(newCustomer);
             toolbar.addComponent(openCustomer);
@@ -236,13 +267,44 @@ public class CustomerView extends CustomComponent {
 
                 public void valueChange(ValueChangeEvent event) {
                     Object id = customerTable.getValue();
-                    boolean enabled = id != null;
+                    EntityItem<Customer> item = id == null ? null : customerContainer.
+                            getItem(id);
+                    boolean enabled = item != null && !item.isDeleted();
                     openCustomer.setEnabled(enabled);
-                    deleteCustomer.setEnabled(enabled);
-                    showOrders.setEnabled(enabled);
-                    showInvoices.setEnabled(enabled);
+                    /*
+                     * We have a constraint that prevents customers from being deleted
+                     * if they have orders or invoices.
+                     */
+                    deleteCustomer.setEnabled(enabled && item.getEntity().
+                            getLastInvoiceDate() == null && item.getEntity().
+                            getLastOrderDate() == null);
+                    showOrders.setEnabled(enabled && item.isPersistent());
+                    showInvoices.setEnabled(enabled && item.isPersistent());
                 }
             });
+            customerTable.setCellStyleGenerator(new Table.CellStyleGenerator() {
+
+                public String getStyle(Object itemId, Object propertyId) {
+                    if (propertyId != null) {
+                        return null; // We only style rows
+                    }
+                    EntityItem<Customer> item = customerContainer.getItem(itemId);
+                    if (item == null) {
+                        return null;
+                    }
+                    if (!item.isPersistent()) {
+                        return "added";
+                    } else if (item.isPersistent() && item.isDirty()) {
+                        return "modified";
+                    } else if (item.isDeleted()) {
+                        return "deleted";
+                    } else {
+                        return null;
+                    }
+                }
+            });
+            commit.setEnabled(!customerContainer.isAutoCommit());
+            discard.setEnabled(!customerContainer.isAutoCommit());
         }
         layout.addComponent(customerTable);
         layout.setExpandRatio(customerTable, 1);

@@ -1,0 +1,13 @@
+@import url(../reindeer/styles.css);
+
+.v-table-row-added {
+    color: green;
+}
+
+.v-table-row-modified {
+    color: blue;
+}
+
+.v-table-row-deleted {
+    background: red;
+}
