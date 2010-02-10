@@ -76,8 +76,7 @@ public class CustomerView extends CustomComponent {
             newCustomer.addListener(new Button.ClickListener() {
 
                 public void buttonClick(ClickEvent event) {
-                    getWindow().addWindow(new CustomerWindow(customerContainer.
-                            createEntityItem(new Customer())));
+                    getWindow().addWindow(new CustomerWindow(customerContainer.createEntityItem(new Customer())));
                 }
             });
 
@@ -87,8 +86,7 @@ public class CustomerView extends CustomComponent {
                 public void buttonClick(ClickEvent event) {
                     Object itemId = customerTable.getValue();
                     if (itemId != null) {
-                        EntityItem<Customer> customerItem = customerContainer.
-                                getItem(itemId);
+                        EntityItem<Customer> customerItem = customerContainer.getItem(itemId);
                         if (customerItem == null) {
                             getWindow().showNotification(
                                     "Customer deleted by another user");
@@ -122,8 +120,7 @@ public class CustomerView extends CustomComponent {
             autoCommit.addListener(new CheckBox.ValueChangeListener() {
 
                 public void valueChange(ValueChangeEvent event) {
-                    if (customerContainer.isAutoCommit() != autoCommit.
-                            booleanValue()) {
+                    if (customerContainer.isAutoCommit() != autoCommit.booleanValue()) {
                         try {
                             customerContainer.setAutoCommit(
                                     autoCommit.booleanValue());
@@ -169,8 +166,7 @@ public class CustomerView extends CustomComponent {
                         customerContainer.commit();
                         getWindow().showNotification("Changes committed");
                     } catch (Exception e) {
-                        getWindow().showNotification("Could not commit", e.
-                                getMessage(), Notification.TYPE_ERROR_MESSAGE);
+                        getWindow().showNotification("Could not commit", e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
                     }
                 }
             });
@@ -182,8 +178,7 @@ public class CustomerView extends CustomComponent {
                         customerContainer.discard();
                         getWindow().showNotification("Changes discarded");
                     } catch (Exception e) {
-                        getWindow().showNotification("Could not discard", e.
-                                getMessage(), Notification.TYPE_ERROR_MESSAGE);
+                        getWindow().showNotification("Could not discard", e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
                     }
                 }
             });
@@ -205,6 +200,7 @@ public class CustomerView extends CustomComponent {
         {
             customerContainer.setEntityProvider(entityProvider);
             autoCommit.setValue(customerContainer.isAutoCommit());
+            customerContainer.setContainsIdFiresItemSetChangeIfNotFound(true);
 
             // Remove unused properties
             customerContainer.removeContainerProperty("billingAddress");
@@ -267,8 +263,7 @@ public class CustomerView extends CustomComponent {
 
                 public void valueChange(ValueChangeEvent event) {
                     Object id = customerTable.getValue();
-                    EntityItem<Customer> item = id == null ? null : customerContainer.
-                            getItem(id);
+                    EntityItem<Customer> item = id == null ? null : customerContainer.getItem(id);
                     boolean enabled = item != null && !item.isDeleted();
                     openCustomer.setEnabled(enabled);
                     /*

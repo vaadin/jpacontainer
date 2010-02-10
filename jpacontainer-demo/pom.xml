@@ -165,6 +165,15 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <!-- Comment this to remove the ProviderLoggerAspect -->
+                    <!-- ### -->
+                    <weaveDependencies>
+                        <weaveDependency>
+                            <groupId>com.vaadin.addons</groupId>
+                            <artifactId>jpacontainer-addon</artifactId>
+                        </weaveDependency>
+                    </weaveDependencies>
+                    <!-- ### -->
                     <aspectLibraries>
                         <aspectLibrary>
                             <groupId>org.springframework</groupId>
