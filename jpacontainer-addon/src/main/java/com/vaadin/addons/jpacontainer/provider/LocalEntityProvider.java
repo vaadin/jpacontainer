@@ -84,9 +84,8 @@ public class LocalEntityProvider<T> implements EntityProvider<T>,
     }
 
     /**
-     * Creates a new <code>LocalEntityProvider</code>, fetching the entity manager
-     * by container injection. Alternatively, the entity manager
-     * can be set using {@link #setEntityManager(javax.persistence.EntityManager) }.
+     * Creates a new <code>LocalEntityProvider</code>. The entity manager
+     * must be set using {@link #setEntityManager(javax.persistence.EntityManager) }.
      *
      * @param entityClass the entity class (must not be null).
      */
@@ -239,10 +238,8 @@ public class LocalEntityProvider<T> implements EntityProvider<T>,
             query.setParameter(vf.getQLParameterName(), vf.getValue());
         } else if (filter instanceof IntervalFilter) {
             IntervalFilter intf = (IntervalFilter) filter;
-            query.setParameter(intf.getEndingPointQLParameterName(), intf.
-                    getEndingPoint());
-            query.setParameter(intf.getStartingPointQLParameterName(), intf.
-                    getStartingPoint());
+            query.setParameter(intf.getEndingPointQLParameterName(), intf.getEndingPoint());
+            query.setParameter(intf.getStartingPointQLParameterName(), intf.getStartingPoint());
         } else if (filter instanceof CompositeFilter) {
             for (Filter f : ((CompositeFilter) filter).getFilters()) {
                 setQueryParameters(query, f);
@@ -507,11 +504,9 @@ public class LocalEntityProvider<T> implements EntityProvider<T>,
                 ByteArrayOutputStream os = new ByteArrayOutputStream();
                 ObjectOutputStream oos = new ObjectOutputStream(os);
                 oos.writeObject(entity);
-                ByteArrayInputStream is = new ByteArrayInputStream(os.
-                        toByteArray());
+                ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
                 ObjectInputStream ois = new ObjectInputStream(is);
-                return getEntityClassMetadata().getMappedClass().cast(ois.
-                        readObject());
+                return getEntityClassMetadata().getMappedClass().cast(ois.readObject());
             } catch (Exception e) {
                 // Do nothing, entity manager will be cleared
             }

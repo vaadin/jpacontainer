@@ -22,7 +22,9 @@ import com.vaadin.addons.jpacontainer.BatchableEntityProvider.BatchUpdateCallbac
 import javax.persistence.EntityManager;
 
 /**
- * TODO Document me!
+ * A very simple implementation of {@link BatchableEntityProvider} that simply
+ * passes itself to the {@link BatchUpdateCallback}. No data consistency checks
+ * are performed.
  * 
  * @author Petter Holmström (IT Mill)
  * @since 1.0
@@ -30,10 +32,22 @@ import javax.persistence.EntityManager;
 public class BatchableLocalEntityProvider<T> extends LocalEntityProvider<T>
         implements BatchableEntityProvider<T> {
 
+    /**
+     * Creates a new <code>BatchableLocalEntityProvider</code>. The entity manager
+     * must be set using {@link #setEntityManager(javax.persistence.EntityManager) }.
+     *
+     * @param entityClass the entity class (must not be null).
+     */
     public BatchableLocalEntityProvider(Class<T> entityClass) {
         super(entityClass);
     }
 
+    /**
+     * Creates a new <code>BatchableLocalEntityProvider</code>.
+     *
+     * @param entityClass the entity class (must not be null).
+     * @param entityManager the entity manager to use (must not be null).
+     */
     public BatchableLocalEntityProvider(Class<T> entityClass,
             EntityManager entityManager) {
         super(entityClass, entityManager);
