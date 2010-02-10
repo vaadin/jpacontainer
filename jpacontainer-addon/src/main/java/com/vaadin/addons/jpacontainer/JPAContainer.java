@@ -107,8 +107,7 @@ public class JPAContainer<T> implements EntityContainer<T> {
         });
         // This list instance will remain the same, which means that any changes
         // made to propertyList will automatically show up in filterSupport as well.
-        this.filterSupport.setFilterablePropertyIds((Collection) propertyList.
-                getPersistentPropertyNames());
+        this.filterSupport.setFilterablePropertyIds((Collection) propertyList.getPersistentPropertyNames());
     }
 
     /**
@@ -304,8 +303,7 @@ public class JPAContainer<T> implements EntityContainer<T> {
             return itemId;
         } else {
             if (itemId == null) {
-                return bufferingDelegate.getAddedItemIds().get(bufferingDelegate.
-                        getAddedItemIds().size() - 1);
+                return bufferingDelegate.getAddedItemIds().get(bufferingDelegate.getAddedItemIds().size() - 1);
             } else {
                 return itemId;
             }
@@ -314,8 +312,7 @@ public class JPAContainer<T> implements EntityContainer<T> {
 
     @Override
     public Object nextItemId(Object itemId) {
-        if (isWriteThrough() || bufferingDelegate.getAddedItemIds().isEmpty() || !bufferingDelegate.
-                isAdded(itemId)) {
+        if (isWriteThrough() || bufferingDelegate.getAddedItemIds().isEmpty() || !bufferingDelegate.isAdded(itemId)) {
             return doGetEntityProvider().getNextEntityIdentifier(itemId,
                     getAppliedFiltersAsConjunction(),
                     getSortByList());
@@ -350,8 +347,7 @@ public class JPAContainer<T> implements EntityContainer<T> {
                         getAppliedFiltersAsConjunction(),
                         getSortByList());
                 if (prevId == null) {
-                    return bufferingDelegate.getAddedItemIds().get(bufferingDelegate.
-                            getAddedItemIds().size() - 1);
+                    return bufferingDelegate.getAddedItemIds().get(bufferingDelegate.getAddedItemIds().size() - 1);
                 } else {
                     return prevId;
                 }
@@ -392,6 +388,46 @@ public class JPAContainer<T> implements EntityContainer<T> {
 
     @Override
     public boolean containsId(Object itemId) {
+        boolean result = doContainsId(itemId);
+        if (containsIdFiresItemSetChangeIfNotFound && !result) {
+            fireContainerItemSetChange(new ItemNotFoundEvent());
+        }
+        return result;
+    }
+    private boolean containsIdFiresItemSetChangeIfNotFound = false;
+
+    /**
+     * Returns whether the {@link #containsId(java.lang.Object) } method will
+     * fire an item set change event if it returns false. This may be necessary
+     * when using the container together with a {@link com.vaadin.ui.Table} and
+     * there are multiple users modifying the same data source.
+     * <p>
+     * When a user selects an item in a Table, the table checks with the container
+     * if the item exists or not. If it does not exist, nothing happens. Normally,
+     * the item should always exist, but if the container has been changed after
+     * the initial set of items were fetched and cached by the table, there may
+     * be items in the Table that are not present in the container.
+     * <p>
+     * By enabling this flag, the Table will repaint itself if it tries to select
+     * a nonexistent item, causing the item to dissapear from the table as well.
+     */
+    public boolean isContainsIdFiresItemSetChangeIfNotFound() {
+        return containsIdFiresItemSetChangeIfNotFound;
+    }
+
+    /**
+     * See {@link #isContainsIdFiresItemSetChangeIfNotFound() }.
+     * 
+     * @param value
+     */
+    public void setContainsIdFiresItemSetChangeIfNotFound(boolean value) {
+        this.containsIdFiresItemSetChangeIfNotFound = value;
+    }
+
+    /**
+     * @see Container#containsId(java.lang.Object)
+     */
+    protected boolean doContainsId(Object itemId) {
         if (isWriteThrough()) {
             return doGetEntityProvider().containsEntity(itemId,
                     getAppliedFiltersAsConjunction());
@@ -438,12 +474,10 @@ public class JPAContainer<T> implements EntityContainer<T> {
             return entity != null ? new JPAContainerItem<T>(this, entity) : null;
         } else {
             if (bufferingDelegate.isAdded(itemId)) {
-                JPAContainerItem<T> item = new JPAContainerItem<T>(this, bufferingDelegate.
-                        getAddedEntity(itemId), itemId, false);
+                JPAContainerItem<T> item = new JPAContainerItem<T>(this, bufferingDelegate.getAddedEntity(itemId), itemId, false);
                 return item;
             } else if (bufferingDelegate.isUpdated(itemId)) {
-                JPAContainerItem<T> item = new JPAContainerItem<T>(this, bufferingDelegate.
-                        getUpdatedEntity(itemId));
+                JPAContainerItem<T> item = new JPAContainerItem<T>(this, bufferingDelegate.getUpdatedEntity(itemId));
                 item.setDirty(true);
                 return item;
             } else if (bufferingDelegate.isDeleted(itemId)) {
@@ -610,8 +644,7 @@ public class JPAContainer<T> implements EntityContainer<T> {
         List<Filter> filters = getFilters();
         for (int i = filters.size() - 1; i >= 0; i--) {
             Filter f = filters.get(i);
-            if (f instanceof PropertyFilter && ((PropertyFilter) f).
-                    getPropertyId().equals(propertyId)) {
+            if (f instanceof PropertyFilter && ((PropertyFilter) f).getPropertyId().equals(propertyId)) {
                 removeFilter(f);
             }
         }
@@ -713,8 +746,7 @@ public class JPAContainer<T> implements EntityContainer<T> {
 
         Object id;
         if (isWriteThrough()) {
-            T result = ((MutableEntityProvider<T>) getEntityProvider()).
-                    addEntity(entity);
+            T result = ((MutableEntityProvider<T>) getEntityProvider()).addEntity(entity);
             id = getEntityClassMetadata().getPropertyValue(result, getEntityClassMetadata().
                     getIdentifierProperty().getName());
         } else {
@@ -787,8 +819,7 @@ public class JPAContainer<T> implements EntityContainer<T> {
 
             Object itemId = item.getItemId();
             if (isWriteThrough()) {
-                ((MutableEntityProvider) getEntityProvider()).
-                        updateEntityProperty(
+                ((MutableEntityProvider) getEntityProvider()).updateEntityProperty(
                         itemId, propertyId, item.getItemProperty(propertyId).
                         getValue());
                 item.setDirty(false);
@@ -826,8 +857,7 @@ public class JPAContainer<T> implements EntityContainer<T> {
 
             Object itemId = item.getItemId();
             if (isWriteThrough()) {
-                ((MutableEntityProvider) getEntityProvider()).updateEntity(item.
-                        getEntity());
+                ((MutableEntityProvider) getEntityProvider()).updateEntity(item.getEntity());
                 item.setDirty(false);
             } else {
                 bufferingDelegate.updateEntity(itemId, item.getEntity());
@@ -981,6 +1011,17 @@ public class JPAContainer<T> implements EntityContainer<T> {
     public final class AllItemsRemovedEvent implements ItemSetChangeEvent {
 
         protected AllItemsRemovedEvent() {
+        }
+
+        @Override
+        public Container getContainer() {
+            return JPAContainer.this;
+        }
+    }
+
+    public final class ItemNotFoundEvent implements ItemSetChangeEvent {
+
+        protected ItemNotFoundEvent() {
         }
 
         @Override
