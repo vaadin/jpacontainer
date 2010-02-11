@@ -22,7 +22,6 @@ import com.vaadin.addons.jpacontainer.testdata.Address;
 import com.vaadin.addons.jpacontainer.testdata.Person;
 import com.vaadin.data.Container.ItemSetChangeEvent;
 import com.vaadin.data.Container.ItemSetChangeListener;
-import com.vaadin.data.Item;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
@@ -1291,4 +1290,5 @@ public class JPAContainerTest {
         verify(batchableEntityProviderMock);
     }
     // TODO Test all buffered mode operations.
+    // TODO Test entity provider change event handling
 }

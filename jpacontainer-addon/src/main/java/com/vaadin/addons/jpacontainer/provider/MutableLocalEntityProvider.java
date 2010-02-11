@@ -17,7 +17,16 @@
  */
 package com.vaadin.addons.jpacontainer.provider;
 
+import com.vaadin.addons.jpacontainer.EntityProvider;
+import com.vaadin.addons.jpacontainer.EntityProviderChangeEvent;
+import com.vaadin.addons.jpacontainer.EntityProviderChangeListener;
+import com.vaadin.addons.jpacontainer.EntityProviderChangeNotifier;
 import com.vaadin.addons.jpacontainer.MutableEntityProvider;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
@@ -32,7 +41,7 @@ import javax.persistence.EntityTransaction;
  * @since 1.0
  */
 public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
-        implements MutableEntityProvider<T> {
+        implements MutableEntityProvider<T>, EntityProviderChangeNotifier<T> {
 
     /**
      * Creates a new <code>MutableLocalEntityProvider</code>. The entity manager
@@ -115,12 +124,15 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
                 em.flush();
             }
         });
-        return detachEntity(entity);
+        T dEntity = detachEntity(entity);
+        fireEntityProviderChangeEvent(new EntitiesAddedEvent<T>(dEntity));
+        return dEntity;
     }
 
     @Override
     public void removeEntity(final Object entityId) {
         assert entityId != null;
+        final Object[] entityA = new Object[1];
         runInTransaction(new Runnable() {
 
             @Override
@@ -131,9 +143,14 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
                 if (entity != null) {
                     em.remove(entity);
                     em.flush();
+                    entityA[0] = detachEntity(entity);
                 }
             }
         });
+        if (entityA[0] != null) {
+            fireEntityProviderChangeEvent(new EntitiesRemovedEvent<T>(
+                    (T) entityA[0]));
+        }
     }
 
     @Override
@@ -148,7 +165,9 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
                 em.flush();
             }
         });
-        return detachEntity(entity);
+        T dEntity = detachEntity(entity);
+        fireEntityProviderChangeEvent(new EntitiesUpdatedEvent<T>(dEntity));
+        return dEntity;
     }
 
     @Override
@@ -157,6 +176,7 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
             final Object propertyValue) throws IllegalArgumentException {
         assert entityId != null : "entityId must not be null";
         assert propertyName != null : "propertyName must not be null";
+        final Object[] entityA = new Object[1];
         runInTransaction(new Runnable() {
 
             @Override
@@ -168,8 +188,129 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
                     getEntityClassMetadata().setPropertyValue(entity,
                             propertyName, propertyValue);
                     em.flush();
+                    entityA[0] = detachEntity(entity);
                 }
             }
         });
+        if (entityA[0] != null) {
+            fireEntityProviderChangeEvent(new EntitiesUpdatedEvent<T>(
+                    (T) entityA[0]));
+        }
+    }
+    private LinkedList<EntityProviderChangeListener<T>> listeners = new LinkedList<EntityProviderChangeListener<T>>();
+
+    @Override
+    public synchronized void addListener(
+            EntityProviderChangeListener<T> listener) {
+        assert listener != null : "listener must not be null";
+        listeners.add(listener);
+    }
+
+    @Override
+    public synchronized void removeListener(
+            EntityProviderChangeListener<T> listener) {
+        assert listener != null : "listener must not be null";
+        listeners.remove(listener);
+    }
+    private boolean fireEntityProviderChangeEvent = true;
+
+    /**
+     * Sets whether {@link EntityProviderChangeEvent}s should be fired by this entity provider.
+     */
+    protected void setFireEntityProviderChangeEvents(boolean fireEvents) {
+        this.fireEntityProviderChangeEvent = fireEvents;
+    }
+
+    /**
+     * Returns whether {@link EntityProviderChangeEvent}s should be fired by this entity provider.
+     */
+    protected boolean isFireEntityProviderChangeEvent() {
+        return fireEntityProviderChangeEvent;
+    }
+
+    /**
+     * Sends <code>event</code> to all registered listeners if {@link #isFireEntityProviderChangeEvent() } is true.
+     * @param event the event to send (must not be null).
+     */
+    protected void fireEntityProviderChangeEvent(
+            final EntityProviderChangeEvent<T> event) {
+        assert event != null : "event must not be null";
+        if (listeners.isEmpty() && !isFireEntityProviderChangeEvent()) {
+            return;
+        }
+        LinkedList<EntityProviderChangeListener<T>> list =
+                (LinkedList<EntityProviderChangeListener<T>>) listeners.clone();
+        for (EntityProviderChangeListener<T> l : list) {
+            l.entityProviderChanged(event);
+        }
+    }
+
+    /**
+     * TODO Document me!
+     * @author Petter Holmström (IT Mill)
+     * @since 1.0
+     */
+    protected abstract class EntityEvent<T> implements
+            EntityProviderChangeEvent<T>,
+            Serializable {
+
+        private Collection<T> entities;
+
+        /**
+         * TODO document me!
+         * @param entities
+         */
+        protected EntityEvent(T... entities) {
+            if (entities.length == 0) {
+                this.entities = Collections.emptyList();
+            } else {
+                this.entities = Collections.unmodifiableCollection(Arrays.asList(
+                        entities));
+            }
+        }
+
+        public Collection<T> getAffectedEntities() {
+            return entities;
+        }
+
+        public EntityProvider<T> getEntityProvider() {
+            return (EntityProvider<T>) MutableLocalEntityProvider.this;
+        }
+    }
+
+    /**
+     * TODO Document me!
+     * @author Petter Holmström (IT Mill)
+     * @since 1.0
+     */
+    protected class EntitiesAddedEvent<T> extends EntityEvent<T> {
+
+        public EntitiesAddedEvent(T... entities) {
+            super(entities);
+        }
+    }
+
+    /**
+     * TODO Document me!
+     * @author Petter Holmström (IT Mill)
+     * @since 1.0
+     */
+    protected class EntitiesUpdatedEvent<T> extends EntityEvent<T> {
+
+        public EntitiesUpdatedEvent(T... entities) {
+            super(entities);
+        }
+    }
+
+    /**
+     * TODO Document me!
+     * @author Petter Holmström (IT Mill)
+     * @since 1.0
+     */
+    protected class EntitiesRemovedEvent<T> extends EntityEvent<T> {
+
+        public EntitiesRemovedEvent(T... entities) {
+            super(entities);
+        }
     }
 }

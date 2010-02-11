@@ -66,7 +66,8 @@ import java.util.List;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public class JPAContainer<T> implements EntityContainer<T> {
+public class JPAContainer<T> implements EntityContainer<T>,
+        EntityProviderChangeListener<T> {
 
     private EntityProvider<T> entityProvider;
     private AdvancedFilterableSupport filterSupport;
@@ -107,7 +108,8 @@ public class JPAContainer<T> implements EntityContainer<T> {
         });
         // This list instance will remain the same, which means that any changes
         // made to propertyList will automatically show up in filterSupport as well.
-        this.filterSupport.setFilterablePropertyIds((Collection) propertyList.getPersistentPropertyNames());
+        this.filterSupport.setFilterablePropertyIds((Collection) propertyList.
+                getPersistentPropertyNames());
     }
 
     /**
@@ -194,7 +196,42 @@ public class JPAContainer<T> implements EntityContainer<T> {
     @Override
     public void setEntityProvider(EntityProvider<T> entityProvider) {
         assert entityProvider != null : "entityProvider must not be null";
+        // Remove listener from old provider
+        if (this.entityProvider != null && this.entityProvider instanceof EntityProviderChangeNotifier) {
+            ((EntityProviderChangeNotifier<T>) this.entityProvider).
+                    removeListener(this);
+        }
         this.entityProvider = entityProvider;
+        // Register listener with new provider
+        if (this.entityProvider instanceof EntityProviderChangeNotifier) {
+            ((EntityProviderChangeNotifier<T>) this.entityProvider).addListener(
+                    this);
+        }
+    }
+    private boolean fireItemSetChangeOnProviderChange = true;
+
+    /**
+     * TODO document me
+     * @param fireItemSetChangeOnProviderChange
+     */
+    protected void setFireItemSetChangeOnProviderChange(
+            boolean fireItemSetChangeOnProviderChange) {
+        this.fireItemSetChangeOnProviderChange = fireItemSetChangeOnProviderChange;
+    }
+
+    /**
+     * TODO Document me
+     * @return
+     */
+    protected boolean isFireItemSetChangeOnProviderChange() {
+        return fireItemSetChangeOnProviderChange;
+    }
+
+    @Override
+    public void entityProviderChanged(EntityProviderChangeEvent<T> event) {
+        if (isFireItemSetChangeOnProviderChange()) {
+            fireContainerItemSetChange(new ProviderChangedEvent(event));
+        }
     }
 
     @Override
@@ -303,7 +340,8 @@ public class JPAContainer<T> implements EntityContainer<T> {
             return itemId;
         } else {
             if (itemId == null) {
-                return bufferingDelegate.getAddedItemIds().get(bufferingDelegate.getAddedItemIds().size() - 1);
+                return bufferingDelegate.getAddedItemIds().get(bufferingDelegate.
+                        getAddedItemIds().size() - 1);
             } else {
                 return itemId;
             }
@@ -312,7 +350,8 @@ public class JPAContainer<T> implements EntityContainer<T> {
 
     @Override
     public Object nextItemId(Object itemId) {
-        if (isWriteThrough() || bufferingDelegate.getAddedItemIds().isEmpty() || !bufferingDelegate.isAdded(itemId)) {
+        if (isWriteThrough() || bufferingDelegate.getAddedItemIds().isEmpty() || !bufferingDelegate.
+                isAdded(itemId)) {
             return doGetEntityProvider().getNextEntityIdentifier(itemId,
                     getAppliedFiltersAsConjunction(),
                     getSortByList());
@@ -347,7 +386,8 @@ public class JPAContainer<T> implements EntityContainer<T> {
                         getAppliedFiltersAsConjunction(),
                         getSortByList());
                 if (prevId == null) {
-                    return bufferingDelegate.getAddedItemIds().get(bufferingDelegate.getAddedItemIds().size() - 1);
+                    return bufferingDelegate.getAddedItemIds().get(bufferingDelegate.
+                            getAddedItemIds().size() - 1);
                 } else {
                     return prevId;
                 }
@@ -468,16 +508,17 @@ public class JPAContainer<T> implements EntityContainer<T> {
      */
     @Override
     public EntityItem<T> getItem(Object itemId) {
-        // TODO This is slow! Is there some way of optimizing this, eg. caching the items?
         if (isWriteThrough() || !bufferingDelegate.isModified()) {
             T entity = doGetEntityProvider().getEntity(itemId);
             return entity != null ? new JPAContainerItem<T>(this, entity) : null;
         } else {
             if (bufferingDelegate.isAdded(itemId)) {
-                JPAContainerItem<T> item = new JPAContainerItem<T>(this, bufferingDelegate.getAddedEntity(itemId), itemId, false);
+                JPAContainerItem<T> item = new JPAContainerItem<T>(this, bufferingDelegate.
+                        getAddedEntity(itemId), itemId, false);
                 return item;
             } else if (bufferingDelegate.isUpdated(itemId)) {
-                JPAContainerItem<T> item = new JPAContainerItem<T>(this, bufferingDelegate.getUpdatedEntity(itemId));
+                JPAContainerItem<T> item = new JPAContainerItem<T>(this, bufferingDelegate.
+                        getUpdatedEntity(itemId));
                 item.setDirty(true);
                 return item;
             } else if (bufferingDelegate.isDeleted(itemId)) {
@@ -644,7 +685,8 @@ public class JPAContainer<T> implements EntityContainer<T> {
         List<Filter> filters = getFilters();
         for (int i = filters.size() - 1; i >= 0; i--) {
             Filter f = filters.get(i);
-            if (f instanceof PropertyFilter && ((PropertyFilter) f).getPropertyId().equals(propertyId)) {
+            if (f instanceof PropertyFilter && ((PropertyFilter) f).
+                    getPropertyId().equals(propertyId)) {
                 removeFilter(f);
             }
         }
@@ -746,13 +788,20 @@ public class JPAContainer<T> implements EntityContainer<T> {
 
         Object id;
         if (isWriteThrough()) {
-            T result = ((MutableEntityProvider<T>) getEntityProvider()).addEntity(entity);
+            T result = ((MutableEntityProvider<T>) getEntityProvider()).
+                    addEntity(entity);
             id = getEntityClassMetadata().getPropertyValue(result, getEntityClassMetadata().
                     getIdentifierProperty().getName());
         } else {
             id = bufferingDelegate.addEntity(entity);
         }
-        fireContainerItemSetChange(new ItemAddedEvent(id));
+        setFireItemSetChangeOnProviderChange(false); // Prevent the container from firing duplicate events
+        try {
+            fireContainerItemSetChange(new ItemAddedEvent(id));
+        } finally {
+            setFireItemSetChangeOnProviderChange(
+                    true);
+        }
         return id;
     }
 
@@ -772,7 +821,14 @@ public class JPAContainer<T> implements EntityContainer<T> {
             if (getEntityProvider().containsEntity(itemId, null)) {
                 ((MutableEntityProvider) getEntityProvider()).removeEntity(
                         itemId);
-                fireContainerItemSetChange(new ItemRemovedEvent(itemId));
+                setFireItemSetChangeOnProviderChange(
+                        false);
+                try {
+                    fireContainerItemSetChange(new ItemRemovedEvent(itemId));
+                } finally {
+                    setFireItemSetChangeOnProviderChange(
+                            true);
+                }
                 return true;
             } else {
                 return false;
@@ -781,7 +837,14 @@ public class JPAContainer<T> implements EntityContainer<T> {
             if (bufferingDelegate.isAdded(itemId) || getEntityProvider().
                     containsEntity(itemId, null)) {
                 bufferingDelegate.deleteItem(itemId);
-                fireContainerItemSetChange(new ItemRemovedEvent(itemId));
+                setFireItemSetChangeOnProviderChange(
+                        false);
+                try {
+                    fireContainerItemSetChange(new ItemRemovedEvent(itemId));
+                } finally {
+                    setFireItemSetChangeOnProviderChange(
+                            true);
+                }
                 return true;
             } else {
                 return false;
@@ -819,14 +882,22 @@ public class JPAContainer<T> implements EntityContainer<T> {
 
             Object itemId = item.getItemId();
             if (isWriteThrough()) {
-                ((MutableEntityProvider) getEntityProvider()).updateEntityProperty(
+                ((MutableEntityProvider) getEntityProvider()).
+                        updateEntityProperty(
                         itemId, propertyId, item.getItemProperty(propertyId).
                         getValue());
                 item.setDirty(false);
             } else {
                 bufferingDelegate.updateEntity(itemId, item.getEntity());
             }
-            fireContainerItemSetChange(new ItemUpdatedEvent(itemId));
+            setFireItemSetChangeOnProviderChange(
+                    false);
+            try {
+                fireContainerItemSetChange(new ItemUpdatedEvent(itemId));
+            } finally {
+                setFireItemSetChangeOnProviderChange(
+                        true);
+            }
         }
     }
 
@@ -857,12 +928,20 @@ public class JPAContainer<T> implements EntityContainer<T> {
 
             Object itemId = item.getItemId();
             if (isWriteThrough()) {
-                ((MutableEntityProvider) getEntityProvider()).updateEntity(item.getEntity());
+                ((MutableEntityProvider) getEntityProvider()).updateEntity(item.
+                        getEntity());
                 item.setDirty(false);
             } else {
                 bufferingDelegate.updateEntity(itemId, item.getEntity());
             }
-            fireContainerItemSetChange(new ItemUpdatedEvent(itemId));
+            setFireItemSetChangeOnProviderChange(
+                    false);
+            try {
+                fireContainerItemSetChange(new ItemUpdatedEvent(itemId));
+            } finally {
+                setFireItemSetChangeOnProviderChange(
+                        true);
+            }
         }
     }
 
@@ -870,7 +949,14 @@ public class JPAContainer<T> implements EntityContainer<T> {
     public void commit() throws SourceException, InvalidValueException {
         if (!isWriteThrough() && isModified()) {
             bufferingDelegate.commit();
-            fireContainerItemSetChange(new ChangesCommittedEvent());
+            setFireItemSetChangeOnProviderChange(
+                    false);
+            try {
+                fireContainerItemSetChange(new ChangesCommittedEvent());
+            } finally {
+                setFireItemSetChangeOnProviderChange(
+                        true);
+            }
         }
     }
 
@@ -878,7 +964,14 @@ public class JPAContainer<T> implements EntityContainer<T> {
     public void discard() throws SourceException {
         if (!isWriteThrough() && isModified()) {
             bufferingDelegate.discard();
-            fireContainerItemSetChange(new ChangesDiscardedEvent());
+            setFireItemSetChangeOnProviderChange(
+                    false);
+            try {
+                fireContainerItemSetChange(new ChangesDiscardedEvent());
+            } finally {
+                setFireItemSetChangeOnProviderChange(
+                        true);
+            }
         }
     }
 
@@ -1019,6 +1112,13 @@ public class JPAContainer<T> implements EntityContainer<T> {
         }
     }
 
+    /**
+     * Event fired by {@link JPAContainer#containsId(java.lang.Object) } when
+     * the result is false and {@link #isContainsIdFiresItemSetChangeIfNotFound() } is true.
+     *
+     * @author Petter Holmström (IT Mill)
+     * @since 1.0
+     */
     public final class ItemNotFoundEvent implements ItemSetChangeEvent {
 
         protected ItemNotFoundEvent() {
@@ -1027,6 +1127,34 @@ public class JPAContainer<T> implements EntityContainer<T> {
         @Override
         public Container getContainer() {
             return JPAContainer.this;
+        }
+    }
+
+    /**
+     * Event fired when a {@link EntityProviderChangeEvent} is received by the
+     * container.
+     *
+     * @author  Petter Holmström (IT Mill)
+     * @since 1.0
+     */
+    public final class ProviderChangedEvent implements ItemSetChangeEvent {
+
+        private final EntityProviderChangeEvent<?> event;
+
+        protected ProviderChangedEvent(EntityProviderChangeEvent<?> event) {
+            this.event = event;
+        }
+
+        public Container getContainer() {
+            return JPAContainer.this;
+        }
+
+        /**
+         * Gets the {@link EntityProviderChangeEvent} that caused this container
+         * event to be fired.
+         */
+        public EntityProviderChangeEvent<?> getChangeEvent() {
+            return event;
         }
     }
 

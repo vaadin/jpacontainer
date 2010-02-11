@@ -19,6 +19,10 @@ package com.vaadin.addons.jpacontainer.provider;
 
 import com.vaadin.addons.jpacontainer.BatchableEntityProvider;
 import com.vaadin.addons.jpacontainer.BatchableEntityProvider.BatchUpdateCallback;
+import com.vaadin.addons.jpacontainer.EntityProvider;
+import com.vaadin.addons.jpacontainer.EntityProviderChangeEvent;
+import java.util.Collection;
+import java.util.Collections;
 import javax.persistence.EntityManager;
 
 /**
@@ -56,6 +60,24 @@ public class BatchableLocalEntityProvider<T> extends MutableLocalEntityProvider<
     public void batchUpdate(BatchUpdateCallback<T> callback) throws
             UnsupportedOperationException {
         assert callback != null : "callback must not be null";
-        callback.batchUpdate(this);
+        setFireEntityProviderChangeEvents(false);
+        try {
+            callback.batchUpdate(this);
+        } finally {
+            setFireEntityProviderChangeEvents(true);
+        }
+        fireEntityProviderChangeEvent(new BatchUpdatePerformedEvent<T>());
     }
+
+    protected class BatchUpdatePerformedEvent<T> implements
+            EntityProviderChangeEvent<T> {
+
+        public Collection<T> getAffectedEntities() {
+            return Collections.emptyList();
+        }
+
+        public EntityProvider<T> getEntityProvider() {
+            return (EntityProvider<T>) BatchableLocalEntityProvider.this;
+        }
+    };
 }
