@@ -29,6 +29,7 @@ import java.util.List;
  * @see MutableEntityProvider
  * @see CachingEntityProvider
  * @see BatchableEntityProvider
+ * @see EntityProviderChangeNotifier
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
