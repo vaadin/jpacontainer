@@ -58,4 +58,50 @@ public interface CachingEntityProvider<T> extends EntityProvider<T> {
      * @return true if the cache is in use, false otherwise.
      */
     public boolean isCacheInUse();
+
+    /**
+     * If the cache is in use, all entities are automatically detached regardless
+     * of the state of this flag.
+     * <p>
+     * {@inheritDoc }
+     * @see #isCacheInUse()
+     */
+    @Override
+    public boolean isEntitiesDetached();
+
+    /**
+     * If the cache is in use, all entities are automatically detached regardless
+     * of the state of this flag.
+     * <p>
+     * {@inheritDoc }
+     * @see #isCacheInUse()
+     */
+    @Override
+    public void setEntitiesDetached(boolean detached) throws
+            UnsupportedOperationException;
+
+    /**
+     * Returns whether entities found in the cache should be cloned before
+     * they are returned or not. If this flag is false, two subsequent calls
+     * to {@link #getEntity(java.lang.Object) } with the same entity ID and
+     * without flushing the cache in between may return the same Java instance.
+     * <p>
+     * If the Java instance is serialized somewhere on the way, or the container
+     * is read-only, this is OK. However, if the client makes changes to the Java instance,
+     * the changes might be automatically reflected in the cache, which is not always desired.
+     * <p>
+     * The default value of this flag is implementation dependent.
+     *
+     * @see #setCloneCachedEntities(boolean) 
+     * @return true if cached entities should be cloned before they are returned, false to return them directly.
+     */
+    public boolean isCloneCachedEntities();
+
+    /**
+     * Changes the value of the {@link #isCloneCachedEntities() } flag.
+     * @param clone true to clone cached entities before returning them, false to return them directly.
+     * @throws UnsupportedOperationException if the implementation does not support changing the state of this flag.
+     */
+    public void setCloneCachedEntities(boolean clone) throws
+            UnsupportedOperationException;
 }

@@ -248,41 +248,49 @@ public abstract class AbstractEntityProviderEMTest {
 
     @Test
     public void testGetEntity() {
+        System.out.println("testGetEntity");
         doTestGetEntity(testDataSortedByName);
     }
 
     @Test
     public void testGetEntityCount() {
+        System.out.println("testGetEntityCount");
         doTestGetEntityCount(testDataSortedByName, null);
     }
 
     @Test
     public void testContainsEntity() {
+        System.out.println("testContainsEntity");
         doTestContainsEntity(testDataSortedByName, null);
     }
 
     @Test
     public void testGetFirstEntity() {
+        System.out.println("testGetFirstEntity");
         doTestGetFirstEntity(testDataSortedByName, null, sortByName);
     }
 
     @Test
     public void testGetNextEntity() {
+        System.out.println("testGetNextEntity");
         doTestGetNextEntity(testDataSortedByName, null, sortByName);
     }
 
     @Test
     public void testGetLastEntity() {
+        System.out.println("testGetLastEntity");
         doTestGetLastEntity(testDataSortedByName, null, sortByName);
     }
 
     @Test
     public void testGetPreviousEntity() {
+        System.out.println("testGetPreviousEntity");
         doTestGetPreviousEntity(testDataSortedByName, null, sortByName);
     }
 
     @Test
     public void testGetEntityIdentifierAt() {
+        System.out.println("testGetEntityIdentifierAt");
         doTestGetEntityIdentifierAt(testDataSortedByName, null, sortByName);
     }
 
@@ -290,104 +298,122 @@ public abstract class AbstractEntityProviderEMTest {
     
     @Test
     public void testGetFirstEntity_SortedByLastNameAndStreet() {
+        System.out.println("testGetFirstEntity_SortedByLastNameAndStreet");
         doTestGetFirstEntity(testDataSortedByLastNameAndStreet, null,
                 sortByLastNameAndStreet);
     }
 
     @Test
     public void testGetNextEntity_SortedByLastNameAndStreet() {
+        System.out.println("testGetNextEntity_SortedByLastNameAndStreet");
         doTestGetNextEntity(testDataSortedByLastNameAndStreet, null,
                 sortByLastNameAndStreet);
     }
 
     @Test
     public void testGetLastEntity_SortedByLastNameAndStreet() {
+        System.out.println("testGetLastEntity_SortedByLastNameAndStreet");
         doTestGetLastEntity(testDataSortedByLastNameAndStreet, null,
                 sortByLastNameAndStreet);
     }
 
     @Test
     public void testGetPreviousEntity_SortedByLastNameAndStreet() {
+        System.out.println("testGetPreviousEntity_SortedByLastNameAndStreet");
         doTestGetPreviousEntity(testDataSortedByLastNameAndStreet, null,
                 sortByLastNameAndStreet);
     }
 
     @Test
     public void testGetEntityIdentifierAt_SortedByLastNameAndStreet() {
+        System.out.println("testGetEntityIdentifierAt_SortedByLastNameAndStreet");
         doTestGetEntityIdentifierAt(testDataSortedByLastNameAndStreet, null,
                 sortByLastNameAndStreet);
     }
 
     @Test
     public void testGetFirstEntity_SortedByPrimaryKey() {
+        System.out.println("testGetFirstEntity_SortedByPrimaryKey");
         List<SortBy> emptyList = Collections.emptyList();
         doTestGetFirstEntity(testDataSortedByPrimaryKey, null, emptyList);
     }
 
     @Test
     public void testGetNextEntity_SortedByPrimaryKey() {
+        System.out.println("testGetNextEntity_SortedByPrimaryKey");
         List<SortBy> emptyList = Collections.emptyList();
         doTestGetNextEntity(testDataSortedByPrimaryKey, null, emptyList);
     }
 
     @Test
     public void testGetLastEntity_SortedByPrimaryKey() {
+        System.out.println("testGetLastEntity_SortedByPrimaryKey");
         List<SortBy> emptyList = Collections.emptyList();
         doTestGetLastEntity(testDataSortedByPrimaryKey, null, emptyList);
     }
 
     @Test
     public void testGetPreviousEntity_SortedByPrimaryKey() {
+        System.out.println("testGetPreviousEntity_SortedByPrimaryKey");
         List<SortBy> emptyList = Collections.emptyList();
         doTestGetPreviousEntity(testDataSortedByPrimaryKey, null, emptyList);
     }
 
     @Test
     public void testGetEntityIdentifierAt_SortedByPrimaryKey() {
+        System.out.println("testGetEntityIdentifierAt_SortedByPrimaryKey");
         List<SortBy> emptyList = Collections.emptyList();
         doTestGetEntityIdentifierAt(testDataSortedByPrimaryKey, null, emptyList);
     }
 
     @Test
     public void testGetEntityCount_Filtered() {
+        System.out.println("testGetEntityCount_Filtered");
         doTestGetEntityCount(filteredTestDataSortedByName, testFilter);
     }
 
     @Test
     public void testGetContainsEntity_Filtered() {
+        System.out.println("testGetContainsEntity_Filtered");
         doTestContainsEntity(filteredTestDataSortedByName, testFilter);
     }
 
     @Test
     public void testGetFirstEntity_Filtered() {
+        System.out.println("testGetFirstEntity_Filtered");
         doTestGetFirstEntity(filteredTestDataSortedByName, testFilter,
                 sortByName);
     }
 
     @Test
     public void testGetNextEntity_Filtered() {
+        System.out.println("testGetNextEntity_Filtered");
         doTestGetNextEntity(filteredTestDataSortedByName, testFilter, sortByName);
     }
 
     @Test
     public void testGetLastEntity_Filtered() {
+        System.out.println("testGetLastEntity_Filtered");
         doTestGetLastEntity(filteredTestDataSortedByName, testFilter, sortByName);
     }
 
     @Test
     public void testGetPreviousEntity_Filtered() {
+        System.out.println("testGetPreviousEntity_Filtered");
         doTestGetPreviousEntity(filteredTestDataSortedByName, testFilter,
                 sortByName);
     }
 
     @Test
     public void testGetEntityIdentifierAt_Filtered() {
+        System.out.println("testGetEntityIdentifierAt_Filtered");
         doTestGetEntityIdentifierAt(filteredTestDataSortedByName, testFilter,
                 sortByName);
     }
 
     @Test
     public void testGetFirstEntity_Filtered_SortedByPrimaryKey() {
+        System.out.println("testGetFirstEntity_Filtered_SortedByPrimaryKey");
         List<SortBy> emptyList = Collections.emptyList();
         doTestGetFirstEntity(filteredTestDataSortedByPrimaryKey, testFilter,
                 emptyList);
@@ -395,6 +421,7 @@ public abstract class AbstractEntityProviderEMTest {
 
     @Test
     public void testGetNextEntity_Filtered_SortedByPrimaryKey() {
+        System.out.println("testGetNextEntity_Filtered_SortedByPrimaryKey");
         List<SortBy> emptyList = Collections.emptyList();
         doTestGetNextEntity(filteredTestDataSortedByPrimaryKey, testFilter,
                 emptyList);
@@ -402,6 +429,7 @@ public abstract class AbstractEntityProviderEMTest {
 
     @Test
     public void testGetLastEntity_Filtered_SortedByPrimaryKey() {
+        System.out.println("testGetLastEntity_Filtered_SortedByPrimaryKey");
         List<SortBy> emptyList = Collections.emptyList();
         doTestGetLastEntity(filteredTestDataSortedByPrimaryKey, testFilter,
                 emptyList);
@@ -409,6 +437,7 @@ public abstract class AbstractEntityProviderEMTest {
 
     @Test
     public void testGetPreviousEntity_Filtered_SortedByPrimaryKey() {
+        System.out.println("testGetPreviousEntity_Filtered_SortedByPrimaryKey");
         List<SortBy> emptyList = Collections.emptyList();
         doTestGetPreviousEntity(filteredTestDataSortedByPrimaryKey, testFilter,
                 emptyList);
@@ -416,6 +445,7 @@ public abstract class AbstractEntityProviderEMTest {
 
     @Test
     public void testGetEntityIdentifierAt_Filtered_SortedByPrimaryKey() {
+        System.out.println("testGetEntityIdentifierAt_Filtered_SortedByPrimaryKey");
         List<SortBy> emptyList = Collections.emptyList();
         doTestGetEntityIdentifierAt(filteredTestDataSortedByPrimaryKey,
                 testFilter, emptyList);

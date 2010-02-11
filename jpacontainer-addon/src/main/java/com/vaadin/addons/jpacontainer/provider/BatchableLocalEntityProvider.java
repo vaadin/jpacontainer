@@ -29,7 +29,7 @@ import javax.persistence.EntityManager;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public class BatchableLocalEntityProvider<T> extends LocalEntityProvider<T>
+public class BatchableLocalEntityProvider<T> extends MutableLocalEntityProvider<T>
         implements BatchableEntityProvider<T> {
 
     /**

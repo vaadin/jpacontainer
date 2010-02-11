@@ -21,15 +21,14 @@ import com.vaadin.addons.jpacontainer.CachingEntityProvider;
 import com.vaadin.addons.jpacontainer.Filter;
 import com.vaadin.addons.jpacontainer.SortBy;
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
 
 /**
  * TODO Document me!
@@ -37,16 +36,19 @@ import net.sf.ehcache.Element;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T> implements CachingEntityProvider<T> {
+public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T>
+        implements CachingEntityProvider<T> {
 
-    private CacheManager cacheManager;
-    private Cache entityCache;
-    private Cache filterCache;
     private int maxCacheSize = 1000;
     private boolean cacheInUse = false;
-    protected static final long CACHE_TIME_TO_LIVE = 600;
-    protected static final long CACHE_TIME_TO_IDLE = 600;
+    private boolean cloneCachedEntities = false;
+    /**
+     * 
+     */
     protected static final int CHUNK_SIZE = 150;
+    /**
+     * 
+     */
     protected static Filter NULL_FILTER = new Filter() {
 
         public String toQLString() {
@@ -58,6 +60,27 @@ public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T> implem
         }
     };
 
+    /**
+     *
+     * @param entityClass
+     */
+    public CachingLocalEntityProvider(Class<T> entityClass) {
+        super(entityClass);
+    }
+
+    /**
+     *
+     * @param entityClass
+     * @param entityManager
+     */
+    public CachingLocalEntityProvider(Class<T> entityClass,
+            EntityManager entityManager) {
+        super(entityClass, entityManager);
+    }
+
+    /**
+     *
+     */
     protected static class IdListEntry implements Serializable {
 
         public List<Object> idList;
@@ -65,9 +88,12 @@ public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T> implem
         public boolean containsAll;
     }
 
+    /**
+     *
+     */
     protected class FilterCacheEntry implements Serializable {
 
-        public final Filter filter;
+        private Filter filter;
         private Integer entityCount;
         // TODO We need to limit the size of this cache as well!
         public Map<List<SortBy>, IdListEntry> idListMap = new HashMap<List<SortBy>, IdListEntry>();
@@ -78,7 +104,8 @@ public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T> implem
 
         public synchronized int getEntityCount() {
             if (entityCount == null) {
-                entityCount = CachingLocalEntityProvider.super.getEntityCount(filter);
+                entityCount = CachingLocalEntityProvider.super.getEntityCount(
+                        getFilter());
             }
             return entityCount;
         }
@@ -90,11 +117,17 @@ public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T> implem
                 idListMap.put(sortBy, entry);
             }
 
-            if (!entry.containsAll && (entry.idList == null || index < entry.listOffset || index >= entry.listOffset + entry.idList.size())) {
+            if (!entry.containsAll && (entry.idList == null || index < entry.listOffset || index >= entry.listOffset + entry.idList.
+                    size())) {
                 // TODO Improve this code so that the cache grows until it reaches a certain max size
-                entry.idList = getIds(filter, sortBy, index, CHUNK_SIZE);
+                entry.idList = getIds(getFilter(), sortBy, index, CHUNK_SIZE);
+                entry.listOffset = index;
             }
-            return entry.idList.get(index - entry.listOffset);
+            int i = index - entry.listOffset;
+            if (entry.idList.size() <= i) {
+                return null;
+            }
+            return entry.idList.get(i);
         }
 
         public synchronized List<Object> getAllIds(List<SortBy> sortBy) {
@@ -104,11 +137,15 @@ public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T> implem
                 idListMap.put(sortBy, entry);
             }
             if (!entry.containsAll) {
-                entry.idList = getIds(filter, sortBy, 0, -1);
+                entry.idList = getIds(getFilter(), sortBy, 0, -1);
                 entry.listOffset = 0;
                 entry.containsAll = true;
             }
             return Collections.unmodifiableList(entry.idList);
+        }
+
+        public Filter getFilter() {
+            return filter == NULL_FILTER ? null : filter;
         }
     }
 
@@ -121,9 +158,11 @@ public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T> implem
      * @param fetchMax
      * @return
      */
-    protected List<Object> getIds(Filter filter, List<SortBy> sortBy, int startFrom, int fetchMax) {
+    protected List<Object> getIds(Filter filter, List<SortBy> sortBy,
+            int startFrom, int fetchMax) {
         Query query = createFilteredQuery("obj." + getEntityClassMetadata().
-                getIdentifierProperty().getName(), "obj", filter, sortBy, false,
+                getIdentifierProperty().getName(), "obj", filter, addPrimaryKeyToSortList(
+                sortBy), false,
                 null);
         query.setFirstResult(startFrom);
         if (fetchMax > 0) {
@@ -131,35 +170,42 @@ public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T> implem
         }
         return query.getResultList();
     }
+    private Map<Object, T> entityCache;
+    private Map<Filter, FilterCacheEntry> filterCache;
 
-    /**
-     *
-     * @param entityClass
-     */
-    public CachingLocalEntityProvider(Class<T> entityClass) {
-        super(entityClass);
-        cacheManager = CacheManager.create();
-    }
+    private class CacheMap<K, V> extends HashMap<K, V> {
 
-    /**
-     * 
-     * @param entityClass
-     * @param entityManager
-     */
-    public CachingLocalEntityProvider(Class<T> entityClass, EntityManager entityManager) {
-        super(entityClass, entityManager);
-        cacheManager = CacheManager.create();
+        private LinkedList<K> addOrder = new LinkedList<K>();
+
+        public CacheMap() {
+        }
+
+        public CacheMap(int initialCapacity) {
+            super(initialCapacity);
+        }
+
+        public CacheMap(int initialCapacity, float loadFactor) {
+            super(initialCapacity, loadFactor);
+        }
+
+        @Override
+        public V put(K key, V value) {
+            if (size() == getMaxCacheSize()) {
+                // remove oldest item
+                remove(addOrder.pop());
+            }
+            addOrder.add(key);
+            return super.put(key, value);
+        }
     }
 
     /**
      * 
      * @return
      */
-    protected synchronized Cache getEntityCache() {
-        if (!cacheManager.cacheExists("entityCache")) {
-            entityCache = new Cache("entityCache", maxCacheSize, false, true, CACHE_TIME_TO_LIVE, CACHE_TIME_TO_IDLE);
-            cacheManager.addCache("entityCache");
-            entityCache = cacheManager.getCache("entityCache");
+    protected synchronized Map<Object, T> getEntityCache() {
+        if (entityCache == null) {
+            entityCache = new CacheMap<Object, T>();
         }
         return entityCache;
     }
@@ -168,11 +214,9 @@ public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T> implem
      * 
      * @return
      */
-    protected synchronized Cache getFilterCache() {
-        if (!cacheManager.cacheExists("filterCache")) {
-            filterCache = new Cache("filterCache", maxCacheSize, false, true, CACHE_TIME_TO_LIVE, CACHE_TIME_TO_IDLE);
-            cacheManager.addCache("filterCache");
-            filterCache = cacheManager.getCache("filterCache");
+    protected synchronized Map<Filter, FilterCacheEntry> getFilterCache() {
+        if (filterCache == null) {
+            filterCache = new CacheMap<Filter, FilterCacheEntry>();
         }
         return filterCache;
     }
@@ -186,17 +230,17 @@ public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T> implem
         if (filter == null) {
             filter = NULL_FILTER;
         }
-        Element e = getFilterCache().get(filter);
+        FilterCacheEntry e = getFilterCache().get(filter);
         if (e == null) {
-            FilterCacheEntry entry = new FilterCacheEntry(filter);
-            e = new Element(filter, entry);
-            getFilterCache().put(e);
+            e = new FilterCacheEntry(filter);
+            getFilterCache().put(filter, e);
         }
-        return (FilterCacheEntry) e.getObjectValue();
+        return e;
     }
 
     public void flush() {
-        cacheManager.clearAll();
+        entityCache.clear();
+        filterCache.clear();
     }
 
     public int getMaxCacheSize() {
@@ -215,18 +259,11 @@ public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T> implem
         this.cacheInUse = cacheInUse;
     }
 
-    public void setMaxCacheSize(int maxSize) throws UnsupportedOperationException {
-        if (maxSize != maxCacheSize) {
-            this.maxCacheSize = maxSize;
-            if (cacheManager.cacheExists("entityCache")) {
-                cacheManager.removeCache("entityCache");
-                entityCache = null;
-            }
-            if (cacheManager.cacheExists("filterCache")) {
-                cacheManager.removeCache("filterCache");
-                filterCache = null;
-            }
-        }
+    public void setMaxCacheSize(int maxSize) throws
+            UnsupportedOperationException {
+        this.maxCacheSize = maxSize;
+        entityCache = null;
+        filterCache = null;
     }
 
     @Override
@@ -241,7 +278,8 @@ public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T> implem
     }
 
     @Override
-    public List<Object> getAllEntityIdentifiers(Filter filter, List<SortBy> sortBy) {
+    public List<Object> getAllEntityIdentifiers(Filter filter,
+            List<SortBy> sortBy) {
         if (!isCacheInUse()) {
             return super.getAllEntityIdentifiers(filter, sortBy);
         } else {
@@ -254,17 +292,61 @@ public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T> implem
         if (!isCacheInUse()) {
             return super.getEntity(entityId);
         } else {
-            Element e = getEntityCache().get(entityId);
-            if (e == null) {
+            T entity = getEntityCache().get(entityId);
+            if (entity == null) {
                 // TODO Should we fetch several entities at once?
-                T entity = super.getEntity(entityId);
+                entity = super.getEntity(entityId);
                 if (entity == null) {
                     return null;
                 }
-                e = new Element(entityId, entity);
-                getEntityCache().put(e);
+                getEntityCache().put(entityId, entity);
             }
-            return (T) e.getObjectValue();
+            return cloneEntityIfNeeded(entity);
+        }
+    }
+
+    /**
+     * 
+     * @param entity
+     * @return
+     */
+    protected T cloneEntityIfNeeded(T entity) {
+        if (isCloneCachedEntities()) {
+            assert entity instanceof Cloneable : "entity is not cloneable";
+            try {
+                Method m = entity.getClass().getMethod("clone");
+                T copy = (T) m.invoke(entity);
+                return copy;
+            } catch (Exception e) {
+                throw new UnsupportedOperationException("Could not clone entity",
+                        e);
+            }
+        } else {
+            return entity;
+        }
+    }
+
+    @Override
+    public boolean isEntitiesDetached() {
+        return isCacheInUse() || super.isEntitiesDetached();
+    }
+
+    public boolean isCloneCachedEntities() {
+        return cloneCachedEntities;
+    }
+
+    public void setCloneCachedEntities(boolean clone) throws
+            UnsupportedOperationException {
+        if (!clone) {
+            this.cloneCachedEntities = false;
+        } else {
+            if (Cloneable.class.isAssignableFrom(getEntityClassMetadata().
+                    getMappedClass())) {
+                this.cloneCachedEntities = true;
+            } else {
+                throw new UnsupportedOperationException(
+                        "Entity class is not cloneable");
+            }
         }
     }
 
@@ -278,7 +360,8 @@ public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T> implem
     }
 
     @Override
-    public Object getEntityIdentifierAt(Filter filter, List<SortBy> sortBy, int index) {
+    public Object getEntityIdentifierAt(Filter filter, List<SortBy> sortBy,
+            int index) {
         if (!isCacheInUse()) {
             return super.getEntityIdentifierAt(filter, sortBy, index);
         } else {
@@ -292,7 +375,8 @@ public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T> implem
             return super.getFirstEntityIdentifier(filter, sortBy);
         } else {
             // TODO Implement me!
-            System.out.println("Warning - cache support not implemented yet");
+            System.out.println(
+                    "getFirstEntityIdentifier: Warning - cache support not implemented yet");
             return super.getFirstEntityIdentifier(filter, sortBy);
         }
     }
@@ -303,54 +387,35 @@ public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T> implem
             return super.getLastEntityIdentifier(filter, sortBy);
         } else {
             // TODO Implement me!
-            System.out.println("Warning - cache support not implemented yet");
+            System.out.println(
+                    "getLastEntityIdentifier: Warning - cache support not implemented yet");
             return super.getLastEntityIdentifier(filter, sortBy);
         }
     }
 
     @Override
-    public Object getNextEntityIdentifier(Object entityId, Filter filter, List<SortBy> sortBy) {
+    public Object getNextEntityIdentifier(Object entityId, Filter filter,
+            List<SortBy> sortBy) {
         if (!isCacheInUse()) {
             return super.getNextEntityIdentifier(entityId, filter, sortBy);
         } else {
             // TODO Implement me!
-            System.out.println("Warning - cache support not implemented yet");
+            System.out.println(
+                    "getNextEntityIdentifier: Warning - cache support not implemented yet");
             return super.getNextEntityIdentifier(entityId, filter, sortBy);
         }
     }
 
     @Override
-    public Object getPreviousEntityIdentifier(Object entityId, Filter filter, List<SortBy> sortBy) {
+    public Object getPreviousEntityIdentifier(Object entityId, Filter filter,
+            List<SortBy> sortBy) {
         if (!isCacheInUse()) {
             return super.getPreviousEntityIdentifier(entityId, filter, sortBy);
         } else {
             // TODO Implement me!
-            System.out.println("Warning - cache support not implemented yet");
+            System.out.println(
+                    "getPreviousEntityIdentifier: Warning - cache support not implemented yet");
             return super.getPreviousEntityIdentifier(entityId, filter, sortBy);
         }
-    }
-
-    @Override
-    public T addEntity(T entity) {
-        flush(); // TODO Replace with smarter code
-        return super.addEntity(entity);
-    }
-
-    @Override
-    public T updateEntity(T entity) {
-        flush(); // TODO Replace with smarter code
-        return super.updateEntity(entity);
-    }
-
-    @Override
-    public void removeEntity(Object entityId) {
-        flush(); // TODO Replace with smarter code
-        super.removeEntity(entityId);
-    }
-
-    @Override
-    public void updateEntityProperty(Object entityId, String propertyName, Object propertyValue) throws IllegalArgumentException {
-        flush(); // TODO Replace with smarter code
-        super.updateEntityProperty(entityId, propertyName, propertyValue);
     }
 }

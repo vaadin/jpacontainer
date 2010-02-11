@@ -54,10 +54,22 @@
             <version>2.4</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>ehcache</groupId>
-            <artifactId>ehcache</artifactId>
-            <version>1.2.3</version>
-        </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <forkMode>pertest</forkMode>
+                    <argLine>-Xms256m -Xmx512m</argLine> <testFailureIgnore>false</testFailureIgnore>
+                    <skip>false</skip>
+                    <includes>
+                        <include>**/emtests/**/*.java</include>
+                    </includes>
+                </configuration>
+            </plugin>
+        </plugins>
+
+    </build>
 </project>

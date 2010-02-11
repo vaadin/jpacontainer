@@ -20,7 +20,6 @@ package com.vaadin.addons.jpacontainer.provider;
 import com.vaadin.addons.jpacontainer.EntityProvider;
 import com.vaadin.addons.jpacontainer.Filter;
 import com.vaadin.addons.jpacontainer.Filter.PropertyIdPreprocessor;
-import com.vaadin.addons.jpacontainer.MutableEntityProvider;
 import com.vaadin.addons.jpacontainer.SortBy;
 import com.vaadin.addons.jpacontainer.filter.CompositeFilter;
 import com.vaadin.addons.jpacontainer.filter.Filters;
@@ -42,11 +41,10 @@ import java.util.List;
 import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
-import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
 
 /**
- * A mutable entity provider that works with a local {@link EntityManager}. Most important
+ * A read-only entity provider that works with a local {@link EntityManager}. Most important
  * features and limitations:
  * <ul>
  *   <li>Does not do any internal caching, all information is always accessed directly from the EntityManager</li>
@@ -54,8 +52,7 @@ import javax.persistence.Query;
  *     <ul><li>Performs a serialize-deserialize cycle to clone entities in order to explicitly detach them from the persistence context (<b>This is ugly!</b<)</li></ul>
  *   </li>
  *   <li>Uses lazy-loading of entities (when using detached entities, references and collections within the entities should be configured to be fetched eagerly, though)</li>
- *   <li>Once the entity manager has been set, it cannot be changed without subclassing the provider</li>
- *   <li>Supports both internal and external transaction handling</li>
+ *   <li>The entity provider is serializable, but the EntityManager instance is transient! Thus, it has to be reset after a deserialization using {@link #setEntityManager(javax.persistence.EntityManager) }</li>
  *   <li><strong>Does NOT currently support embedded identifiers!</strong></li>
  * </ul>
  *
@@ -64,10 +61,9 @@ import javax.persistence.Query;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public class LocalEntityProvider<T> implements EntityProvider<T>,
-        MutableEntityProvider<T>, Serializable {
+public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 
-    private EntityManager entityManager;
+    private transient EntityManager entityManager;
     private EntityClassMetadata<T> entityClassMetadata;
     private boolean entitiesDetached = true;
 
@@ -106,7 +102,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>,
      * 
      * @param entityManager the entity manager to set.
      */
-    protected void setEntityManager(EntityManager entityManager) {
+    public void setEntityManager(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 
@@ -122,10 +118,22 @@ public class LocalEntityProvider<T> implements EntityProvider<T>,
     /**
      * Gets the entity manager.
      *
-     * @return the entity manager (never null).
+     * @return the entity manager, or null if none has been specified.
      */
-    protected EntityManager getEntityManager() {
+    public EntityManager getEntityManager() {
         return this.entityManager;
+    }
+
+    /**
+     * Gets the entity manager.
+     * @return the entity manager (never null).
+     * @throws IllegalStateException if no entity manager is set.
+     */
+    protected EntityManager doGetEntityManager() throws IllegalStateException {
+        if (getEntityManager() == null) {
+            throw new IllegalStateException("No entity manager specified");
+        }
+        return getEntityManager();
     }
 
     /**
@@ -224,7 +232,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>,
         }
 
         String queryString = sb.toString();
-        Query query = getEntityManager().createQuery(queryString);
+        Query query = doGetEntityManager().createQuery(queryString);
         if (filter != null) {
             setQueryParameters(query, filter);
         }
@@ -238,8 +246,10 @@ public class LocalEntityProvider<T> implements EntityProvider<T>,
             query.setParameter(vf.getQLParameterName(), vf.getValue());
         } else if (filter instanceof IntervalFilter) {
             IntervalFilter intf = (IntervalFilter) filter;
-            query.setParameter(intf.getEndingPointQLParameterName(), intf.getEndingPoint());
-            query.setParameter(intf.getStartingPointQLParameterName(), intf.getStartingPoint());
+            query.setParameter(intf.getEndingPointQLParameterName(), intf.
+                    getEndingPoint());
+            query.setParameter(intf.getStartingPointQLParameterName(), intf.
+                    getStartingPoint());
         } else if (filter instanceof CompositeFilter) {
             for (Filter f : ((CompositeFilter) filter).getFilters()) {
                 setQueryParameters(query, f);
@@ -266,7 +276,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>,
     @Override
     public T getEntity(Object entityId) {
         assert entityId != null : "entityId must not be null";
-        T entity = getEntityManager().find(getEntityClassMetadata().
+        T entity = doGetEntityManager().find(getEntityClassMetadata().
                 getMappedClass(),
                 entityId);
         return detachEntity(entity);
@@ -425,54 +435,6 @@ public class LocalEntityProvider<T> implements EntityProvider<T>,
             List<SortBy> sortBy) {
         return getSibling(entityId, filter, sortBy, true);
     }
-    private boolean transactionsHandled = false;
-
-    /**
-     * Specifies whether the entity provider should handle transactions
-     * itself or whether they should be handled outside (e.g. if declarative
-     * transactions are used).
-     * 
-     * @param transactionsHandled true to handle the transactions internally,
-     * false to rely on external transaction handling.
-     */
-    public void setTransactionsHandled(boolean transactionsHandled) {
-        this.transactionsHandled = transactionsHandled;
-    }
-
-    /**
-     * Returns whether the entity provider is handling transactions internally
-     * or relies on external transaction handling (the default).
-     *
-     * @return true if transactions are handled internally, false if not.
-     */
-    public boolean isTransactionsHandled() {
-        return transactionsHandled;
-    }
-
-    /**
-     * If {@link #isTransactionsHandled() } is true, <code>operation</code> will
-     * be executed inside a transaction that is commited after the operation is completed.
-     * Otherwise, <code>operation</code> will just be executed.
-     * 
-     * @param operation the operation to run (must not be null).
-     */
-    protected void runInTransaction(Runnable operation) {
-        assert operation != null : "operation must not be null";
-        if (isTransactionsHandled()) {
-            EntityTransaction et = getEntityManager().getTransaction();
-            try {
-                et.begin();
-                operation.run();
-                et.commit();
-            } finally {
-                if (et.isActive()) {
-                    et.rollback();
-                }
-            }
-        } else {
-            operation.run();
-        }
-    }
 
     /**
      * Detaches <code>entity</code> from the entity manager (until JPA 2.0 arrives).
@@ -486,7 +448,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>,
         if (entity == null) {
             return null;
         }
-        if (!entitiesDetached) {
+        if (!isEntitiesDetached()) {
             return entity;
         }
         // TODO Replace with more efficient code, or a call to JPA 2.0
@@ -504,87 +466,19 @@ public class LocalEntityProvider<T> implements EntityProvider<T>,
                 ByteArrayOutputStream os = new ByteArrayOutputStream();
                 ObjectOutputStream oos = new ObjectOutputStream(os);
                 oos.writeObject(entity);
-                ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
+                ByteArrayInputStream is = new ByteArrayInputStream(os.
+                        toByteArray());
                 ObjectInputStream ois = new ObjectInputStream(is);
-                return getEntityClassMetadata().getMappedClass().cast(ois.readObject());
+                return getEntityClassMetadata().getMappedClass().cast(ois.
+                        readObject());
             } catch (Exception e) {
                 // Do nothing, entity manager will be cleared
             }
         }
         System.out.println(
                 "WARNING: Clearing EntityManager in order to detach the entities in it");
-        getEntityManager().clear();
+        doGetEntityManager().clear();
         return entity;
-    }
-
-    @Override
-    public T addEntity(final T entity) {
-        assert entity != null;
-        runInTransaction(new Runnable() {
-
-            @Override
-            public void run() {
-                EntityManager em = getEntityManager();
-                em.persist(entity);
-                em.flush();
-            }
-        });
-        return detachEntity(entity);
-    }
-
-    @Override
-    public void removeEntity(final Object entityId) {
-        assert entityId != null;
-        runInTransaction(new Runnable() {
-
-            @Override
-            public void run() {
-                EntityManager em = getEntityManager();
-                T entity = em.find(getEntityClassMetadata().getMappedClass(),
-                        entityId);
-                if (entity != null) {
-                    em.remove(entity);
-                    em.flush();
-                }
-            }
-        });
-    }
-
-    @Override
-    public T updateEntity(final T entity) {
-        assert entity != null : "entity must not be null";
-        runInTransaction(new Runnable() {
-
-            @Override
-            public void run() {
-                EntityManager em = getEntityManager();
-                em.merge(entity);
-                em.flush();
-            }
-        });
-        return detachEntity(entity);
-    }
-
-    @Override
-    public void updateEntityProperty(final Object entityId,
-            final String propertyName,
-            final Object propertyValue) throws IllegalArgumentException {
-        assert entityId != null : "entityId must not be null";
-        assert propertyName != null : "propertyName must not be null";
-        runInTransaction(new Runnable() {
-
-            @Override
-            public void run() {
-                EntityManager em = getEntityManager();
-                T entity = em.find(getEntityClassMetadata().getMappedClass(),
-                        entityId);
-                if (entity != null) {
-                    getEntityClassMetadata().setPropertyValue(entity,
-                            propertyName, propertyValue);
-                    em.flush();
-                }
-            }
-        });
     }
 
     @Override
