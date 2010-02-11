@@ -374,10 +374,7 @@ public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T>
         if (!isCacheInUse()) {
             return super.getFirstEntityIdentifier(filter, sortBy);
         } else {
-            // TODO Implement me!
-            System.out.println(
-                    "getFirstEntityIdentifier: Warning - cache support not implemented yet");
-            return super.getFirstEntityIdentifier(filter, sortBy);
+            return getEntityIdentifierAt(filter, sortBy, 0);
         }
     }
 
@@ -386,10 +383,8 @@ public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T>
         if (!isCacheInUse()) {
             return super.getLastEntityIdentifier(filter, sortBy);
         } else {
-            // TODO Implement me!
-            System.out.println(
-                    "getLastEntityIdentifier: Warning - cache support not implemented yet");
-            return super.getLastEntityIdentifier(filter, sortBy);
+            return getEntityIdentifierAt(filter, sortBy,
+                    getEntityCount(filter) - 1);
         }
     }
 
