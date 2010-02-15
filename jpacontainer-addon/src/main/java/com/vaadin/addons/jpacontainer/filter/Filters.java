@@ -119,7 +119,7 @@ public final class Filters {
     public static IntervalFilter between(Object propertyId, Object startingPoint,
             Object endingPoint, boolean includeStartingPoint,
             boolean includeEndingPoint) {
-        return new BetweenFilter(propertyId, startingPoint, includeEndingPoint,
+        return new BetweenFilter(propertyId, startingPoint, includeStartingPoint,
                 endingPoint, includeEndingPoint);
     }
 
