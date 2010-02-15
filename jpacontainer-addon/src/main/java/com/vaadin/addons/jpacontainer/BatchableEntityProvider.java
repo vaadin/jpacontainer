@@ -17,6 +17,8 @@
  */
 package com.vaadin.addons.jpacontainer;
 
+import java.io.Serializable;
+
 /**
  * An extended version of {@link MutableEntityProvider} that can execute several update operations
  * (that is, adding new entities, and updating and removing existing entities) inside a single transaction.
@@ -59,7 +61,7 @@ public interface BatchableEntityProvider<T> extends MutableEntityProvider<T> {
      * @author Petter Holmström (IT Mill)
      * @since 1.0
      */
-    public static interface BatchUpdateCallback<T> {
+    public static interface BatchUpdateCallback<T> extends Serializable {
 
         /**
          * Runs the updates using a special batch enabled mutable entity provider.

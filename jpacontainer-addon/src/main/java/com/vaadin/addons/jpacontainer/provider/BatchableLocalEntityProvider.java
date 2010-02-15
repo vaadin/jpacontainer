@@ -57,12 +57,17 @@ public class BatchableLocalEntityProvider<T> extends MutableLocalEntityProvider<
         super(entityClass, entityManager);
     }
 
-    public void batchUpdate(BatchUpdateCallback<T> callback) throws
+    public void batchUpdate(final BatchUpdateCallback<T> callback) throws
             UnsupportedOperationException {
         assert callback != null : "callback must not be null";
         setFireEntityProviderChangeEvents(false);
         try {
-            callback.batchUpdate(this);
+            runInTransaction(new Runnable() {
+
+                public void run() {
+                    callback.batchUpdate(BatchableLocalEntityProvider.this);
+                }
+            });
         } finally {
             setFireEntityProviderChangeEvents(true);
         }
