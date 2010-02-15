@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<article version="5.0" xmlns="http://docbook.org/ns/docbook"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:html="http://www.w3.org/1999/xhtml"
+         xmlns:db="http://docbook.org/ns/docbook">
+    <info>
+        <title>JPAContainer Manual</title>
+        <author>
+            <personname>
+                <firstname>Petter</firstname>
+                <surname>Holmström</surname>
+            </personname>
+        </author>
+        <copyright>
+            <year>2009, 2010</year>
+            <holder>Oy IT Mill Ltd.</holder>
+        </copyright>
+    </info>
+    <section xml:id="introduction">
+        <title>Introduction</title>
+        <para>
+            Write introduction here.
+        </para>
+    </section>
+    <section xml.id="using">
+        <title>Using JPAContainer in Applications</title>
+        <para>
+            Write about how to use JPAContainer in applications
+        </para>
+    </section>
+    <section xml.id="demo">
+        <title>The Hitchhiker's Guide to The Demo Application</title>
+        <para>
+            Write about the demo application
+        </para>
+    </section>
+    <section xml.id="custom-entity-providers">
+        <title>Developing Custom Entity Providers</title>
+        <para>
+            Write about developing custom entity providers
+        </para>
+    </section>
+</article>
