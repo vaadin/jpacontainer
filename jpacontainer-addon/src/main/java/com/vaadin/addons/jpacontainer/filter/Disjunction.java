@@ -47,7 +47,7 @@ public class Disjunction extends AbstractJunction {
         StringBuffer sb = new StringBuffer();
         sb.append("(");
         for (Iterator<Filter> it = getFilters().iterator(); it.hasNext();) {
-            sb.append(it.next().toQLString());
+            sb.append(it.next().toQLString(propertyIdPreprocessor));
             if (it.hasNext()) {
                 sb.append(" or ");
             }
