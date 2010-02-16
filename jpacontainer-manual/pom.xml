@@ -20,11 +20,18 @@
                 <version>2.0.9</version>
                 <executions>
                     <execution>
+                        <id>generate-html-docs</id>
                         <goals>
                             <goal>generate-html</goal>
-                            <goal>generate-pdf</goal>
                         </goals>
                         <phase>generate-sources</phase>
+                        <configuration>
+                            <preProcess>
+                                <copy todir="target/docbkx/html">
+                                    <fileset dir="src/docbkx/img"/>
+                                </copy>
+                            </preProcess>
+                        </configuration>
                     </execution>
                 </executions>
                 <dependencies>

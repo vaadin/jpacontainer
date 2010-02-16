@@ -2,7 +2,7 @@
 <article version="5.0" xmlns="http://docbook.org/ns/docbook"
          xmlns:xi="http://www.w3.org/2001/XInclude"
          xmlns:html="http://www.w3.org/1999/xhtml"
-         xmlns:db="http://docbook.org/ns/docbook">
+         xmlns:xl="http://www.w3.org/1999/xlink">
     <info>
         <title>JPAContainer Manual</title>
         <author>
@@ -10,30 +10,87 @@
                 <firstname>Petter</firstname>
                 <surname>Holmström</surname>
             </personname>
+            <email>petter.holmstrom@itmill.com</email>
         </author>
         <copyright>
             <year>2009, 2010</year>
             <holder>Oy IT Mill Ltd.</holder>
         </copyright>
     </info>
+    
     <section xml:id="introduction">
         <title>Introduction</title>
         <para>
-            Write introduction here.
+            JPAContainer is a <link xl:href="http://vaadin.com">Vaadin</link> data container that uses the Java Persistence API (JPA) for retrieving and storing data.
+            It supports the most common features required by JEE applications out of the box, such as lazy loading, advanced filtering, nested property names and caching.
+            It will probably not solve all the container problems you as a JEE application developers might face, but it will hopefully make your life a little easier.
         </para>
+        <para>
+            The purpose of this manual is to briefly explain how JPAContainer works and how you can use it in your applications. TODO Continue...
+        </para>
+        <note>
+            <title>Work in progress</title>
+            <para>
+                This manual is a work in progress. Many sections have been described very shallowly, more depth will be added later. If you think something is missing,
+                please let me now ASAP!
+            </para>
+        </note>
+        <section>
+            <title>Architecture</title>
+            <para>
+                The architecture of JPAContainer consists of two main components: an <classname>EntityContainer</classname> and an <classname>EntityProvider</classname>:
+            </para>
+
+            <mediaobject>
+                <imageobject role="html">
+                    <imagedata align="center" fileref="provider.png"/>
+                </imageobject>
+            </mediaobject>
+
+            <para>
+                The <classname>EntityContainer</classname> is an extended version of the standard Vaadin container and can be used directly to power e.g. tables or combo boxes.
+                The container gets its data from an <classname>EntityProvider</classname>, which in turn loads the data from some data source. It is possible to have several
+                containers using the same provider, making it possible to e.g. add a second-level cache to the provider. It is even possible to deploy the containers and the provider
+                to different JVMs:
+            </para>
+
+            <mediaobject>
+                <imageobject role="html">
+                    <imagedata align="center" fileref="distributed.png"/>
+                </imageobject>
+            </mediaobject>
+
+            <para>
+                Most of the public API of JPAContainer is defined in interfaces. The following diagram displays the most important classes and interfaces, and their relations. The gray
+                interfaces are part of the official Vaadin API
+            </para>
+
+            <mediaobject>
+                <imageobject role="html">
+                    <imagedata align="center" fileref="interfaces.png"/>
+                </imageobject>
+            </mediaobject>
+
+            <para>
+                The <classname>JPAContainer</classname> class is the default implementation of the <classname>EntityContainer</classname> interface. TODO Continue...
+            </para>
+        </section>
     </section>
+
     <section xml.id="using">
         <title>Using JPAContainer in Applications</title>
         <para>
             Write about how to use JPAContainer in applications
         </para>
     </section>
+
     <section xml.id="demo">
         <title>The Hitchhiker's Guide to The Demo Application</title>
         <para>
             Write about the demo application
         </para>
     </section>
+
     <section xml.id="custom-entity-providers">
         <title>Developing Custom Entity Providers</title>
         <para>
