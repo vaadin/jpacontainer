@@ -38,7 +38,7 @@
         <section>
             <title>Architecture</title>
             <para>
-                The architecture of JPAContainer consists of two main components: an <classname>EntityContainer</classname> and an <classname>EntityProvider</classname>:
+                The architecture of JPAContainer consists of two main components: an <interfacename>EntityContainer</interfacename> and an <interfacename>EntityProvider</interfacename>:
             </para>
 
             <mediaobject>
@@ -48,8 +48,8 @@
             </mediaobject>
 
             <para>
-                The <classname>EntityContainer</classname> is an extended version of the standard Vaadin container and can be used directly to power e.g. tables or combo boxes.
-                The container gets its data from an <classname>EntityProvider</classname>, which in turn loads the data from some data source. It is possible to have several
+                The <interfacename>EntityContainer</interfacename> is an extended version of the standard Vaadin container and can be used directly to power e.g. tables or combo boxes.
+                The container gets its data from an <interfacename>EntityProvider</interfacename>, which in turn loads the data from some data source. It is possible to have several
                 containers using the same provider, making it possible to e.g. add a second-level cache to the provider. It is even possible to deploy the containers and the provider
                 to different JVMs:
             </para>
@@ -72,26 +72,203 @@
             </mediaobject>
 
             <para>
-                The <classname>JPAContainer</classname> class is the default implementation of the <classname>EntityContainer</classname> interface. TODO Continue...
+                The <classname>JPAContainer</classname> class is the default implementation of the <interfacename>EntityContainer</interfacename> interface. TODO Continue...
             </para>
         </section>
     </section>
 
-    <section xml.id="using">
+    <section xml:id="using">
         <title>Using JPAContainer in Applications</title>
         <para>
-            Write about how to use JPAContainer in applications
+            In this section we are going to look at how to use JPAContainer in your own applications. It is very easy to get started, all you need is the following code:
         </para>
+
+<programlisting><![CDATA[EntityContainer<MyEntity> container = new JPAContainer<MyEntity>(MyEntity.class);
+container.setEntityProvider(myEntityProvider);]]></programlisting>
+
+        <para>
+            The entity provider can be any of the built-in entity providers (see <xref linkend="providers"/>) or your own custom built entity provider (see <xref linkend="custom-entity-providers"/>).
+            We will return to this later in this manual.
+        </para>
+
+        <para>
+            One thing to keep in mind when working with JPAContainer is that it is centered around <emphasis>entities</emphasis>, i.e. POJOs annotated with JPA annotations.
+            JPAContainer will analyze the class definition and the annotations to access properties, determine which properties are sortable, etc. JPAContainer will
+            <emphasis>not</emphasis> work with objects of classes that lack JPA annotations.
+        </para>
+        <para>
+            JPAContainer differs between persistent properties and transient properties. Persistent properties are determined from the JPA annotations. If an entity
+            class uses field annotations, the names of the persistent properties are the names of the non-transient fields. This is important to remember, especially if
+            the field names and their corresponding getter/setter methods do not have mathing names.
+        </para>
+        <para>
+            If an entity class uses method annotations, the names of the persistent properties are the JavaBean names of the non-transient getter methods. This also
+            applies to transient properties, which are all the transient JavaBean properties of the entity class. Transient properties may be read-only, whereas persistent
+            properties are always writable.
+        </para>
+
+        <section>
+            <title>Nested Properties</title>
+            <para>
+                JPAContainer supports nested properties. You define nested properties using the <methodname>EntityContainer.addNestedContainerProperty(..)</methodname> method. For example,
+                let's say you have an entiy class that looks like this:
+            </para>
+            
+<programlisting><![CDATA[@Entity
+public class Person implements Serializable {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+    @Version
+    private Long version;
+    private String firstName;
+    private String lastName;
+    @Temporal(TemporalType.DATE)
+    private Date dateOfBirth;
+    @Embedded
+    private Address address;
+
+    // Getter and setter methods omitted
+}
+
+@Embeddable
+public class Address implements Serializable, Cloneable {
+
+    private String street;
+    private String postalCode;
+    private String postOffice;
+
+    // Getter and setter methods omitted
+}]]></programlisting>
+
+            <para>
+                Now, let's say you want to show a list of persons, together with their addresses, in a Vaadin table. You also want to be able to filter
+                and sort by street, postal code and post office. All you need to do to make this possible is the following:
+            </para>
+
+<programlisting><![CDATA[myContainer.addNestedContainerProperty("address.*");}]]></programlisting>
+
+            <para>
+                The wildcard asterisk will expand to all the properties of the <classname>Address</classname> class. After this method call, the container will contain the following new properties, in addition to the existing ones:
+                <varname>address.street</varname>, <varname>address.postalCode</varname> and <varname>address.postOffice</varname>.
+                These properties are no different from the other properties and can be used in the same way.
+            </para>
+            <para>
+                It is also possible to add individual nested properties. In that case, simply replace the wildcard asterisk with the property name.
+            </para>
+            <para>
+                Nested properties can be removed from the container using the <methodname>EntityContainer.removeContainerProperty(..)</methodname> method. Removing a property from the container
+                does not affect the property value, but prevents the container from accessing its value.
+            </para>
+            <para>
+                Nested properties can also be defined on the item level. Normally, the properties accessible from an item is all the available properties of the entity class
+                and any nested properties defined in the owning container. If these are not sufficient enough, additional nested properties can be added to a specific item
+                by using the <methodname>EntityItem.addNestedContainerProperty(..)</methodname> method. Nested properties added this way will not show up in the container.
+            </para>
+        </section>
+        <section>
+            <title>Filtering</title>
+            <para>
+                The filtering in JPAContainer (defined in the <interfacename>AdvancedFilterable</interfacename> interface) is more advanced than the standard
+                Vaadin <interfacename>Container.Filterable</interfacename> filtering. Although standard Vaadin filtering is also supported, it is recommended to
+                use the new filtering API in applications.
+            </para>
+            <para>
+                The JPAContainer filtering API is very similar to JPA 2.0 criteria. Filters are specified by adding instances of the <interfacename>Filter</interfacename>-interface
+                to the container using the <methodname>AdvancedFilterable.addFilter(..)</methodname> method. As filters are intended to be applied in the database, only
+                persistent properties can be filtered. All filters generate standard JPA QL-language that can be used by entity providers when constructing queries to be passed to an <interfacename>EntityManager</interfacename>.
+            </para>
+            <para>
+                There are several predefined filters available in the <classname>Filters</classname> class, found in the <package>com.vaadin.addons.jpacontainer.filter</package> package:
+            </para>
+            
+<programlisting><![CDATA[
+container.addFilter(Filters.like("firstName, "Jo%", false));
+container.addFilter(Filters.or(Filters.eq("lastName", "Smith", false), Filters.eq("lastName", "Cool", false)));
+]]></programlisting>
+
+            <para>
+                The above example would include all entites whose first names start with "Jo" and last names are either "Smith" or "Cool" (case ignored). Filters can be applied to other data types as well,
+                such as integers and timestamps. It is also possible to create custom filters by implementing the <interfacename>Filter</interfacename> interface.
+            </para>
+            <para>
+                Filters can be either applied immediately or explicitly, depending on the state of the <varname>AdvancedFilterabe.isApplyFiltersImmediately</varname> flag.
+                When applied immediately, each call to <methodname>AdvancedFilterable.addFilter(..)</methodname> forces
+                the container to refresh itself. If only one filter is to be added, this may be desirable. However, if several filters are to be added it may be better to wait
+                until all the filters have been defined before applying them. In this case, <methodname>AdvancedFilterable.applyFilters()</methodname> has to be called to apply
+                the filters.
+            </para>
+
+        </section>
+        <section>
+            <title>Editing</title>
+            <para>
+                ToDo
+            </para>
+        </section>
+        <section>
+            <title>Managed Entities</title>
+            <para>
+                ToDo
+            </para>
+        </section>
+        <section>
+            <title>Transactions</title>
+            <para>
+                ToDo
+            </para>
+        </section>
+        <section>
+            <title>Buffered mode</title>
+            <para>
+                ToDo
+            </para>
+            <section>
+                <title>Container Buffering</title>
+                <para>
+                    ToDo
+                </para>
+            </section>
+            <section>
+                <title>Item Buffering</title>
+                <para>
+                    ToDo
+                </para>
+            </section>
+        </section>
+        <section>
+            <title>Multi-user Environments</title>
+            <section>
+                ToDo
+            </section>
+        </section>
+    </section>
+    
+    <section xml:id="providers">
+        <title>Built-in EntityProviders</title>
+        <section>
+            <title>The LocalEntityProvider</title>
+            <para>
+                ToDo
+            </para>
+        </section>
+        <section>
+            <title>The CachingLocalEntityProvider</title>
+            <para>
+                The implementation of <classname>CachingLocalEntityProvider</classname> is still incomplete. More information will come when it is ready.
+            </para>
+        </section>
     </section>
 
-    <section xml.id="demo">
+    <section xml:id="demo">
         <title>The Hitchhiker's Guide to The Demo Application</title>
         <para>
             Write about the demo application
         </para>
     </section>
 
-    <section xml.id="custom-entity-providers">
+    <section xml:id="custom-entity-providers">
         <title>Developing Custom Entity Providers</title>
         <para>
             Write about developing custom entity providers
