@@ -150,6 +150,23 @@ public class JPAContainerItemTest {
     }
 
     @Test
+    public void testAddNestedProperty() {
+        item.addNestedContainerProperty("address.postalCode");
+        assertNotNull(item.getItemProperty("address.postalCode"));
+    }
+
+    @Test
+    public void testRemoveProperty() {
+        item.addNestedContainerProperty("address.postalCode");
+        
+        assertFalse(item.removeItemProperty("firstName"));
+        assertTrue(item.removeItemProperty("address.postalCode"));
+
+        assertNotNull(item.getItemProperty("firstName"));
+        assertNull(item.getItemProperty("address.postalCode"));
+    }
+
+    @Test
     public void testPropertyValue_Unbuffered() {
         final Property prop = item.getItemProperty("firstName");
         final boolean[] listenerCalled = new boolean[1];
@@ -222,6 +239,39 @@ public class JPAContainerItemTest {
     }
 
     @Test
+    public void testLocalNestedPropertyValue_Unbuffered() {
+        item.addNestedContainerProperty("address.postalCode");
+        final Property prop = item.getItemProperty("address.postalCode");
+        final boolean[] listenerCalled = new boolean[1];
+        ((Property.ValueChangeNotifier) prop).addListener(new Property.ValueChangeListener() {
+
+            @Override
+            public void valueChange(ValueChangeEvent event) {
+                assertSame(prop, event.getProperty());
+                listenerCalled[0] = true;
+            }
+        });
+
+        assertTrue(item.isReadThrough());
+        assertTrue(item.isWriteThrough());
+        assertFalse(item.isModified());
+        assertFalse(item.isDirty());
+        assertNull(prop.getValue());
+        assertFalse(listenerCalled[0]);
+
+        prop.setValue("World");
+
+        assertEquals("World", prop.getValue());
+        assertEquals("World", prop.toString());
+        assertEquals("World", item.getEntity().getAddress().getPostalCode());
+        assertFalse(item.isModified());
+        assertTrue(item.isDirty());
+        assertTrue(listenerCalled[0]);
+        assertEquals("address.postalCode", modifiedPropertyId);
+        assertSame(item, modifiedItem);
+    }
+
+    @Test
     public void testPropertyValue_Unbuffered_ReadOnly() {
         entity.setFirstName("Joe");
         entity.setLastName("Cool");
@@ -269,7 +319,7 @@ public class JPAContainerItemTest {
         assertNull(modifiedPropertyId);
         assertNull(modifiedItem);
     }
-
+    
     @Test
     public void testPropertyValue_Buffered_NoReadThrough_Commit() {
         item.setWriteThrough(false);
@@ -363,6 +413,53 @@ public class JPAContainerItemTest {
     }
 
     @Test
+    public void testLocalNestedPropertyValue_Buffered_NoReadThrough_Commit() {
+        item.setWriteThrough(false);
+//        item.setReadThrough(false);
+
+        item.addNestedContainerProperty("address.postalCode");
+        final Property prop = item.getItemProperty("address.postalCode");
+        final int[] listenerCalled = new int[1];
+        ((Property.ValueChangeNotifier) prop).addListener(new Property.ValueChangeListener() {
+
+            @Override
+            public void valueChange(ValueChangeEvent event) {
+                assertSame(prop, event.getProperty());
+                listenerCalled[0]++;
+            }
+        });
+
+        assertFalse(item.isReadThrough());
+        assertFalse(item.isWriteThrough());
+        assertFalse(item.isModified());
+        assertFalse(item.isDirty());
+        assertNull(prop.getValue());
+        assertNull(prop.toString());
+        assertEquals(0, listenerCalled[0]);
+
+        prop.setValue("Hello");
+
+        // Read through is false, so we should get the cached value
+        assertEquals("Hello", prop.getValue());
+        assertEquals("Hello", prop.toString());
+        assertNull(item.getEntity().getAddress().getPostalCode());
+        assertTrue(item.isModified());
+        assertFalse(item.isDirty());
+        assertEquals(1, listenerCalled[0]);
+
+        item.commit();
+
+        assertEquals("Hello", prop.getValue());
+        assertEquals("Hello", prop.toString());
+        assertEquals("Hello", item.getEntity().getAddress().getPostalCode());
+        assertFalse(item.isModified());
+        assertTrue(item.isDirty());
+        assertEquals(1, listenerCalled[0]);
+        assertNull(modifiedPropertyId);
+        assertSame(item, modifiedItem);
+    }
+
+    @Test
     public void testPropertyValue_Buffered_NoReadThrough_Discard() {
         item.setWriteThrough(false);
 //        item.setReadThrough(false);
@@ -447,6 +544,53 @@ public class JPAContainerItemTest {
         assertNull(prop.getValue());
         assertNull(prop.toString());
         assertNull(item.getEntity().getAddress().getStreet());
+        assertFalse(item.isModified());
+        assertFalse(item.isDirty());
+        assertEquals(2, listenerCalled[0]);
+        assertNull(modifiedPropertyId);
+        assertNull(modifiedItem);
+    }
+
+    @Test
+    public void testLocalNestedPropertyValue_Buffered_NoReadThrough_Discard() {
+        item.addNestedContainerProperty("address.postalCode");
+        item.setWriteThrough(false);
+//        item.setReadThrough(false);
+
+        final Property prop = item.getItemProperty("address.postalCode");
+        final int[] listenerCalled = new int[1];
+        ((Property.ValueChangeNotifier) prop).addListener(new Property.ValueChangeListener() {
+
+            @Override
+            public void valueChange(ValueChangeEvent event) {
+                assertSame(prop, event.getProperty());
+                listenerCalled[0]++;
+            }
+        });
+
+        assertFalse(item.isReadThrough());
+        assertFalse(item.isWriteThrough());
+        assertFalse(item.isModified());
+        assertFalse(item.isDirty());
+        assertNull(prop.getValue());
+        assertNull(prop.toString());
+        assertEquals(0, listenerCalled[0]);
+
+        prop.setValue("Hello");
+
+        // Read through is false, so we should get the cached value
+        assertEquals("Hello", prop.getValue());
+        assertEquals("Hello", prop.toString());
+        assertNull(item.getEntity().getAddress().getPostalCode());
+        assertTrue(item.isModified());
+        assertFalse(item.isDirty());
+        assertEquals(1, listenerCalled[0]);
+
+        item.discard();
+
+        assertNull(prop.getValue());
+        assertNull(prop.toString());
+        assertNull(item.getEntity().getAddress().getPostalCode());
         assertFalse(item.isModified());
         assertFalse(item.isDirty());
         assertEquals(2, listenerCalled[0]);

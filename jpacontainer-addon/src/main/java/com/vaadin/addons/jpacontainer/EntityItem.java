@@ -20,6 +20,7 @@ package com.vaadin.addons.jpacontainer;
 import com.vaadin.data.Buffered;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
+import java.util.Collection;
 
 /**
  * Interface defining the Items that are contained in a {@link EntityContainer}. Each
@@ -118,4 +119,52 @@ public interface EntityItem<T> extends Item, Buffered,
      */
     @Override
     public void removeListener(Property.ValueChangeListener listener);
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public EntityItemProperty getItemProperty(Object id);
+
+    /**
+     * TODO Document this method!
+     *
+     * @param nestedProperty the nested property to add.
+     * @throws UnsupportedOperationException
+     */
+    public void addNestedContainerProperty(String nestedProperty) throws
+            UnsupportedOperationException;
+
+    /**
+     * Removes a nested property added with {@link #addNestedContainerProperty(java.lang.String) }. This method
+     * cannot be used to remove any other properties.
+     *
+     * @param propertyId the ID (name) of the nested property.
+     * @return true if a nested property was removed by this method, false otherwise.
+     * @throws UnsupportedOperationException if the implementation does not support removing nested properties.
+     */
+    @Override
+    public boolean removeItemProperty(Object propertyId) throws
+            UnsupportedOperationException;
+
+    /**
+     * <strong>This functionality is not supported.</strong>
+     * <p>
+     * {@inheritDoc }
+     * @throws UnsupportedOperationException always thrown.
+     */
+    @Override
+    public boolean addItemProperty(Object id, Property property)
+            throws UnsupportedOperationException;
+
+    /**
+     * {@inheritDoc }
+     * <p>
+     * In practice, this means all the properties of the underlying entity class,
+     * any nested properties defined in the container and any nested properties added
+     * using {@link #addNestedContainerProperty(java.lang.String) }. Any non-nested properties
+     * that have been removed from the container will still show up in this collection.
+     */
+    @Override
+    public Collection<?> getItemPropertyIds();
 }

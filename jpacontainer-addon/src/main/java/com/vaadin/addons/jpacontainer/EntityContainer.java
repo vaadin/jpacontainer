@@ -87,8 +87,8 @@ public interface EntityContainer<T> extends Container.Sortable,
      * To add the entity to the container, {@link #addEntity(java.lang.Object) } should be used.
      *
      * @see EntityItem#getItemId() 
-     * @param entity
-     * @return
+     * @param entity the entity for which an item should be created.
+     * @return the entity item (never null).
      */
     public EntityItem<T> createEntityItem(T entity);
 

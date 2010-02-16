@@ -53,8 +53,7 @@ final class JPAContainerItem<T> implements EntityItem<T> {
      * @author Petter Holmström (IT Mill)
      * @since 1.0
      */
-    final class ItemProperty implements Property,
-            Property.ValueChangeNotifier {
+    final class ItemProperty implements EntityItemProperty {
 
         private String propertyId;
         private boolean isNested;
@@ -156,18 +155,13 @@ final class JPAContainerItem<T> implements EntityItem<T> {
 
         }
 
-        /*
-         * If the property is nested, we can access it from the propertyList.
-         * If it is not, it is better to access it from the class metadata.
-         * The reason for this is that an item always contains all the properties
-         * of a mapped class, whereas a container (and hence the property list) may
-         * only contain a small number of properties.
-         */
+        public EntityItem<?> getItem() {
+            return JPAContainerItem.this;
+        }
+
         @Override
         public Class<?> getType() {
-            return isNested ? container.getPropertyList().getPropertyType(
-                    propertyId) : container.getPropertyList().
-                    getClassMetadata().getProperty(propertyId).getType();
+            return propertyList.getPropertyType(propertyId);
         }
 
         @Override
@@ -185,9 +179,7 @@ final class JPAContainerItem<T> implements EntityItem<T> {
          * @return the real value.
          */
         private Object getRealValue() {
-            return isNested ? container.getPropertyList().getPropertyValue(
-                    entity, propertyId) : container.getPropertyList().
-                    getClassMetadata().getPropertyValue(entity, propertyId);
+            return propertyList.getPropertyValue(entity, propertyId);
         }
 
         @Override
@@ -201,9 +193,7 @@ final class JPAContainerItem<T> implements EntityItem<T> {
 
         @Override
         public boolean isReadOnly() {
-            return isNested ? !container.getPropertyList().isPropertyWritable(
-                    propertyId) : !container.getPropertyList().
-                    getClassMetadata().getProperty(propertyId).isWritable();
+            return !propertyList.isPropertyWritable(propertyId);
         }
 
         /**
@@ -228,14 +218,7 @@ final class JPAContainerItem<T> implements EntityItem<T> {
          * @param newValue the new value to set.
          */
         private void setRealValue(Object newValue) {
-            if (isNested) {
-                container.getPropertyList().setPropertyValue(entity,
-                        propertyId, newValue);
-            } else {
-                container.getPropertyList().getClassMetadata().
-                        setPropertyValue(entity,
-                        propertyId, newValue);
-            }
+            propertyList.setPropertyValue(entity, propertyId, newValue);
             dirty = true;
         }
 
@@ -339,6 +322,7 @@ final class JPAContainerItem<T> implements EntityItem<T> {
     }
     private T entity;
     private JPAContainer<T> container;
+    private PropertyList<T> propertyList;
     private Map<Object, ItemProperty> propertyMap;
     private boolean modified = false;
     private boolean dirty = false;
@@ -376,6 +360,7 @@ final class JPAContainerItem<T> implements EntityItem<T> {
         assert entity != null : "entity must not be null";
         this.entity = entity;
         this.container = container;
+        this.propertyList = new PropertyList(container.getPropertyList());
         this.itemId = itemId;
         if (itemId == null) {
             this.persistent = false;
@@ -390,19 +375,19 @@ final class JPAContainerItem<T> implements EntityItem<T> {
         return itemId;
     }
 
-    /**
-     * <strong>This functionality is not supported by this implementation.</strong>
-     * <p>
-     * {@inheritDoc }
-     */
     @Override
     public boolean addItemProperty(Object id, Property property) throws
             UnsupportedOperationException {
         throw new UnsupportedOperationException();
     }
 
+    public void addNestedContainerProperty(String nestedProperty) throws
+            UnsupportedOperationException {
+        propertyList.addNestedProperty(nestedProperty);
+    }
+
     @Override
-    public Property getItemProperty(Object id) {
+    public EntityItemProperty getItemProperty(Object id) {
         assert id != null : "id must not be null";
         ItemProperty p = propertyMap.get(id);
         if (p == null) {
@@ -417,18 +402,22 @@ final class JPAContainerItem<T> implements EntityItem<T> {
 
     @Override
     public Collection<String> getItemPropertyIds() {
-        return container.getPropertyList().getAllAvailablePropertyNames();
+        /*
+         * Although the container may only contain a few properties,
+         * all properties are available for items.
+         */
+        return propertyList.getAllAvailablePropertyNames();
     }
 
-    /**
-     * <strong>This functionality is not supported by this implementation.</strong>
-     * <p>
-     * {@inheritDoc }
-     */
     @Override
     public boolean removeItemProperty(Object id) throws
             UnsupportedOperationException {
-        throw new UnsupportedOperationException();
+        assert id != null : "id must not be null";
+        if (id.toString().indexOf('.') > -1) {
+            return propertyList.removeProperty(id.toString());
+        } else {
+            return false;
+        }
     }
 
     @Override
