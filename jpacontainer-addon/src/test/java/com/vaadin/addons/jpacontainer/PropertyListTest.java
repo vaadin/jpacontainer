@@ -37,10 +37,12 @@ public class PropertyListTest {
     private ClassMetadata<Person> metadata = MetadataFactory.getInstance().
             getEntityClassMetadata(Person.class);
     private PropertyList<Person> propertyList;
+    private PropertyList<Person> childPropertyList;
 
     @Before
     public void setUp() {
         propertyList = new PropertyList<Person>(metadata);
+        childPropertyList = new PropertyList<Person>(propertyList);
     }
 
     @Test
@@ -65,6 +67,17 @@ public class PropertyListTest {
         assertTrue(propertyList.getNestedPropertyNames().isEmpty());
         assertEquals(propertyList.getPropertyNames(), propertyList.
                 getAllAvailablePropertyNames());
+
+        // And test the child list
+        assertEquals(propertyList.getAllAvailablePropertyNames(), childPropertyList.
+                getAllAvailablePropertyNames());
+        assertEquals(propertyList.getNestedPropertyNames(), childPropertyList.
+                getNestedPropertyNames());
+        assertEquals(propertyList.getPropertyNames(), childPropertyList.
+                getPropertyNames());
+        assertEquals(propertyList.getPersistentPropertyNames(), childPropertyList.
+                getPersistentPropertyNames());
+        assertSame(propertyList, childPropertyList.getParentList());
     }
 
     @Test
@@ -86,6 +99,20 @@ public class PropertyListTest {
                 "firstName"));
 
         assertFalse(propertyList.removeProperty("nonexistent"));
+
+        // And test the child list
+        assertEquals(propertyList.getAllAvailablePropertyNames(), childPropertyList.
+                getAllAvailablePropertyNames());
+        assertEquals(propertyList.getNestedPropertyNames(), childPropertyList.
+                getNestedPropertyNames());
+        assertEquals(propertyList.getPropertyNames(), childPropertyList.
+                getPropertyNames());
+        assertEquals(propertyList.getPersistentPropertyNames(), childPropertyList.
+                getPersistentPropertyNames());
+
+        assertTrue(childPropertyList.getPropertyNames().contains("lastName"));
+        assertFalse(childPropertyList.removeProperty("lastName"));
+        assertTrue(childPropertyList.getPropertyNames().contains("lastName"));
     }
 
     @Test
@@ -97,6 +124,32 @@ public class PropertyListTest {
         assertTrue(propertyList.getNestedPropertyNames().contains(
                 "address.street"));
         assertTrue(propertyList.getAllAvailablePropertyNames().contains(
+                "address.street"));
+
+        // Check child list
+        assertTrue(childPropertyList.getPropertyNames().contains(
+                "address.street"));
+        assertTrue(childPropertyList.getPersistentPropertyNames().contains(
+                "address.street"));
+        assertTrue(childPropertyList.getNestedPropertyNames().contains(
+                "address.street"));
+        assertTrue(childPropertyList.getAllAvailablePropertyNames().contains(
+                "address.street"));
+    }
+
+    @Test
+    public void testAddSinglePersistentNestedProperty_ChildList() {
+        childPropertyList.addNestedProperty("address.street");
+        assertFalse(propertyList.getAllAvailablePropertyNames().contains(
+                "address.street"));
+
+        assertTrue(childPropertyList.getPropertyNames().contains(
+                "address.street"));
+        assertTrue(childPropertyList.getPersistentPropertyNames().contains(
+                "address.street"));
+        assertTrue(childPropertyList.getNestedPropertyNames().contains(
+                "address.street"));
+        assertTrue(childPropertyList.getAllAvailablePropertyNames().contains(
                 "address.street"));
     }
 
@@ -123,6 +176,36 @@ public class PropertyListTest {
         assertFalse(propertyList.getPersistentPropertyNames().contains(
                 "address.fullAddress"));
         assertTrue(propertyList.getAllAvailablePropertyNames().contains(
+                "address.fullAddress"));
+    }
+
+    @Test
+    public void testAddSingleTransientNestedProperty_ChildList() {
+        // Transient property of a transient "embedded" property
+        childPropertyList.addNestedProperty("transientAddress.street");
+        assertFalse(propertyList.getAllAvailablePropertyNames().contains(
+                "transientAddress.street"));
+        assertTrue(childPropertyList.getPropertyNames().contains(
+                "transientAddress.street"));
+        assertFalse(childPropertyList.getPersistentPropertyNames().contains(
+                "transientAddress.street"));
+        assertTrue(childPropertyList.getNestedPropertyNames().contains(
+                "transientAddress.street"));
+        assertTrue(childPropertyList.getAllAvailablePropertyNames().contains(
+                "transientAddress.street"));
+
+
+        // Transient property of a persistent embedded property
+        childPropertyList.addNestedProperty("address.fullAddress");
+        assertFalse(propertyList.getAllAvailablePropertyNames().contains(
+                "address.fullAddress"));
+        assertTrue(childPropertyList.getPropertyNames().contains(
+                "address.fullAddress"));
+        assertTrue(childPropertyList.getNestedPropertyNames().contains(
+                "address.fullAddress"));
+        assertFalse(childPropertyList.getPersistentPropertyNames().contains(
+                "address.fullAddress"));
+        assertTrue(childPropertyList.getAllAvailablePropertyNames().contains(
                 "address.fullAddress"));
     }
 
@@ -312,11 +395,32 @@ public class PropertyListTest {
     }
 
     @Test
+    public void testRemoveNestedProperty_ChildList() {
+        propertyList.addNestedProperty("address.street");
+        childPropertyList.addNestedProperty("address.postalCode");
+
+        assertTrue(childPropertyList.getAllAvailablePropertyNames().contains(
+                "address.street"));
+        assertTrue(childPropertyList.getAllAvailablePropertyNames().contains(
+                "address.postalCode"));
+
+        assertFalse(childPropertyList.removeProperty("address.street"));
+        assertTrue(childPropertyList.getAllAvailablePropertyNames().contains(
+                "address.street"));
+
+        assertTrue(childPropertyList.removeProperty("address.postalCode"));
+        assertFalse(childPropertyList.getAllAvailablePropertyNames().contains(
+                "address.postalCode"));
+    }
+
+    @Test
     public void testGetPropertyValue_TransientProperty() {
         Person p = new Person();
         p.setFirstName("Joe");
         p.setLastName("Cool");
         assertEquals("Joe Cool", propertyList.getPropertyValue(p, "fullName"));
+        assertEquals("Joe Cool", childPropertyList.getPropertyValue(p,
+                "fullName"));
     }
 
     @Test
@@ -324,6 +428,7 @@ public class PropertyListTest {
         Person p = new Person();
         p.setFirstName("Joe");
         assertEquals("Joe", propertyList.getPropertyValue(p, "firstName"));
+        assertEquals("Joe", childPropertyList.getPropertyValue(p, "firstName"));
     }
 
     @Test
@@ -333,6 +438,9 @@ public class PropertyListTest {
         propertyList.addNestedProperty("address.fullAddress");
         assertNull(propertyList.getPropertyValue(p, "transientAddress.street"));
         assertNull(propertyList.getPropertyValue(p, "address.fullAddress"));
+        assertNull(childPropertyList.getPropertyValue(p,
+                "transientAddress.street"));
+        assertNull(childPropertyList.getPropertyValue(p, "address.fullAddress"));
 
         // transientAddress and address return the same value
         p.setAddress(new Address());
@@ -344,6 +452,10 @@ public class PropertyListTest {
                 "transientAddress.street"));
         assertEquals("Street Code Office", propertyList.getPropertyValue(p,
                 "address.fullAddress"));
+        assertEquals("Street", childPropertyList.getPropertyValue(p,
+                "transientAddress.street"));
+        assertEquals("Street Code Office", childPropertyList.getPropertyValue(p,
+                "address.fullAddress"));
     }
 
     @Test
@@ -351,10 +463,13 @@ public class PropertyListTest {
         Person p = new Person();
         propertyList.addNestedProperty("address.street");
         assertNull(propertyList.getPropertyValue(p, "address.street"));
+        assertNull(childPropertyList.getPropertyValue(p, "address.street"));
 
         p.setAddress(new Address());
         p.getAddress().setStreet("Hello World");
         assertEquals("Hello World", propertyList.getPropertyValue(p,
+                "address.street"));
+        assertEquals("Hello World", childPropertyList.getPropertyValue(p,
                 "address.street"));
     }
 
@@ -382,6 +497,8 @@ public class PropertyListTest {
         Person p = new Person();
         propertyList.setPropertyValue(p, "tempData", "Hello World");
         assertEquals("Hello World", p.getTempData());
+        childPropertyList.setPropertyValue(p, "tempData", "World Hello");
+        assertEquals("World Hello", p.getTempData());
     }
 
     @Test
@@ -389,6 +506,8 @@ public class PropertyListTest {
         Person p = new Person();
         propertyList.setPropertyValue(p, "firstName", "Joe");
         assertEquals("Joe", p.getFirstName());
+        childPropertyList.setPropertyValue(p, "firstName", "Max");
+        assertEquals("Max", p.getFirstName());
     }
 
     @Test
@@ -399,6 +518,9 @@ public class PropertyListTest {
         propertyList.setPropertyValue(p, "transientAddress.tempData",
                 "Hello World");
         assertEquals("Hello World", p.getAddress().getTempData());
+        childPropertyList.setPropertyValue(p, "transientAddress.tempData",
+                "World Hello");
+        assertEquals("World Hello", p.getAddress().getTempData());
     }
 
     @Test
@@ -408,6 +530,8 @@ public class PropertyListTest {
         propertyList.addNestedProperty("address.street");
         propertyList.setPropertyValue(p, "address.street", "Street");
         assertEquals("Street", p.getAddress().getStreet());
+        childPropertyList.setPropertyValue(p, "address.street", "Road");
+        assertEquals("Road", p.getAddress().getStreet());
     }
 
     @Test
@@ -446,6 +570,7 @@ public class PropertyListTest {
     public void testGetPropertyType_SingleProperty() {
         Person p = new Person();
         assertSame(Date.class, propertyList.getPropertyType("dateOfBirth"));
+        assertSame(Date.class, childPropertyList.getPropertyType("dateOfBirth"));
     }
 
     @Test
@@ -453,6 +578,7 @@ public class PropertyListTest {
         Person p = new Person();
         propertyList.addNestedProperty("address.street");
         assertSame(String.class, propertyList.getPropertyType("address.street"));
+        assertSame(String.class, childPropertyList.getPropertyType("address.street"));
     }
 
     @Test
@@ -460,6 +586,8 @@ public class PropertyListTest {
         Person p = new Person();
         assertTrue(propertyList.isPropertyWritable("dateOfBirth"));
         assertFalse(propertyList.isPropertyWritable("fullName"));
+        assertTrue(childPropertyList.isPropertyWritable("dateOfBirth"));
+        assertFalse(childPropertyList.isPropertyWritable("fullName"));
     }
 
     @Test
@@ -469,5 +597,7 @@ public class PropertyListTest {
         propertyList.addNestedProperty("address.fullAddress");
         assertTrue(propertyList.isPropertyWritable("address.street"));
         assertFalse(propertyList.isPropertyWritable("address.fullAddress"));
+        assertTrue(childPropertyList.isPropertyWritable("address.street"));
+        assertFalse(childPropertyList.isPropertyWritable("address.fullAddress"));
     }
 }
