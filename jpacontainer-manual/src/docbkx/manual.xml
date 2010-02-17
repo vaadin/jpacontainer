@@ -235,7 +235,32 @@ item = customerContainer.getItem(id);
         <section>
             <title>Managed Entities</title>
             <para>
-                ToDo
+                JPAContainer can display managed entities, i.e. entities that are managed by a persistence context. This makes it possible to lazily load both references
+                and collections. It also means that any changes made to the entities show up in the persistence context directly and are persisted to the data base
+                when the entity manager is flushed.
+            </para>
+            <para>
+                However, there are a few things to keep in mind when using managed entities. First of all, the persistence context must be configured to use extended scope instead
+                of transaction scope. That way, the persistence context will be available for several transactions, which is a requirement if lazy loading is to be used in
+                a web application.
+            </para>
+            <para>
+                Second, the entitities returned from the entity provider must not be serialized and deserialized before they reach the container. In practice, this means
+                that the entity provider and the container must run inside the same JVM.
+            </para>
+            <para>
+                Finally, if editing entities is allowed, the entity provider should take care of flushing the entity manager when needed.
+            </para>
+            <para>
+                Normally, it is easier to use detached entities in the JPAContainer, as this means that no changes will be automatically propagated back to the
+                database unless explicitly requested. On the other hand, this also means that any references or collections that will be accessed by the container have
+                to be eagerly fetched before the entity is detached.
+            </para>
+            <para>
+                It is possible to ask the entity provider to explicitly detach the entities before they are returned to the JPAContainer. If the <methodname>EntityProvider.isEntitiesDetached()</methodname>
+                method returns true, it is safe to assume that all entities returned by the provider are detached. If the method returns false, the entities may or may not
+                be detached, depending on how the entity provider is implemented. For example, if an entity provider uses a transaction-scoped persistence context and
+                each method runs inside its own transaction, the entities returned by the provider will be automatically detached.
             </para>
         </section>
         <section>
