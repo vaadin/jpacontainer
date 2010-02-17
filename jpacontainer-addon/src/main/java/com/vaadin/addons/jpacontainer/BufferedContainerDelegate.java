@@ -19,6 +19,7 @@ package com.vaadin.addons.jpacontainer;
 
 import com.vaadin.data.Buffered.SourceException;
 import com.vaadin.data.Validator.InvalidValueException;
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,7 +45,7 @@ import java.util.UUID;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-final class BufferedContainerDelegate<T> {
+final class BufferedContainerDelegate<T> implements Serializable {
 
     /**
      * Creates a new <code>BufferedContainerDelegate</code> for the specified container.
@@ -61,7 +62,7 @@ final class BufferedContainerDelegate<T> {
         ADD, UPDATE, DELETE
     }
 
-    final class Delta {
+    final class Delta implements Serializable {
 
         final DeltaType type;
         final Object itemId;
