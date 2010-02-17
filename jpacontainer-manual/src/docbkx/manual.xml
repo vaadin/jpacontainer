@@ -204,8 +204,33 @@ container.addFilter(Filters.or(Filters.eq("lastName", "Smith", false), Filters.e
         <section>
             <title>Editing</title>
             <para>
-                ToDo
+                The JPAContainer supports editing, but it uses a slightly different API than the default Container API. In order to make a JPAContainer editable, the entity provider
+                must implement the <interfacename>MutableEntityProvider</interfacename> interface. In addition, the JPAContainer must not be marked as read-only.
             </para>
+            <para>
+                There is only one way of adding new items to the container and that is by using <methodname>EntityContainer.addEntity(..)</methodname>. Note, that this method
+                takes the entity instance and not the <interfacename>EntityItem</interfacename> as a parameter. The returned value is an identifier that can be used to get
+                the newly added entity's <interfacename>EntityItem</interfacename> by passing it to <methodname>EntityContainer.getItem(..)</methodname>.
+            </para>
+            <para>
+                Especially when using a Vaadin form for editing items, it might be necessary to wrap an entity object inside an <interfacename>EntityItem</interfacename> before
+                the entity has been added to the container. This can be done by using the <methodname>EntityContainer.createEntityItem(..)</methodname> method. This method will
+                create a new <interfacename>EntityItem</interfacename> that has access to all the fields defined in the container, but is not contained in the container yet.
+                The following code example demonstrates its usage:
+            </para>
+
+<programlisting><![CDATA[
+EntityItem<Customer> myNewItem = customerContainer.createEntityItem(new Customer());
+// Do something with the item, e.g. open a modal dialog
+Object id = customerContainer.addEntity(myNewItem.getEntity());
+item = customerContainer.getItem(id);
+]]></programlisting>
+
+            <para>
+                Changes made to existing <interfacename>EntityItem</interfacename>s will automatically be propagated back to the container (see <xref linkend="buffered_mode"/>).
+                Existing items can also be removed from the container using the standard <methodname>Container.removeItem(..)</methodname> method.
+            </para>
+
         </section>
         <section>
             <title>Managed Entities</title>
@@ -219,7 +244,7 @@ container.addFilter(Filters.or(Filters.eq("lastName", "Smith", false), Filters.e
                 ToDo
             </para>
         </section>
-        <section>
+        <section xml:id="buffered_mode">
             <title>Buffered mode</title>
             <para>
                 ToDo
