@@ -246,10 +246,8 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
             query.setParameter(vf.getQLParameterName(), vf.getValue());
         } else if (filter instanceof IntervalFilter) {
             IntervalFilter intf = (IntervalFilter) filter;
-            query.setParameter(intf.getEndingPointQLParameterName(), intf.
-                    getEndingPoint());
-            query.setParameter(intf.getStartingPointQLParameterName(), intf.
-                    getStartingPoint());
+            query.setParameter(intf.getEndingPointQLParameterName(), intf.getEndingPoint());
+            query.setParameter(intf.getStartingPointQLParameterName(), intf.getStartingPoint());
         } else if (filter instanceof CompositeFilter) {
             for (Filter f : ((CompositeFilter) filter).getFilters()) {
                 setQueryParameters(query, f);
@@ -303,7 +301,12 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
     public int getEntityCount(Filter filter) {
         Query query = createUnsortedFilteredQuery("count(obj)", "obj", filter,
                 null);
-        return ((Long) query.getSingleResult()).intValue();
+        Object ret = query.getSingleResult();
+        if (ret instanceof Integer) {
+            return ((Integer) ret).intValue();
+        } else {
+            return ((Long) ret).intValue();
+        }
     }
 
     @Override
@@ -466,11 +469,9 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
                 ByteArrayOutputStream os = new ByteArrayOutputStream();
                 ObjectOutputStream oos = new ObjectOutputStream(os);
                 oos.writeObject(entity);
-                ByteArrayInputStream is = new ByteArrayInputStream(os.
-                        toByteArray());
+                ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
                 ObjectInputStream ois = new ObjectInputStream(is);
-                return getEntityClassMetadata().getMappedClass().cast(ois.
-                        readObject());
+                return getEntityClassMetadata().getMappedClass().cast(ois.readObject());
             } catch (Exception e) {
                 // Do nothing, entity manager will be cleared
             }
