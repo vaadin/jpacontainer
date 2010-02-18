@@ -266,7 +266,9 @@ item = customerContainer.getItem(id);
         <section>
             <title>Transactions</title>
             <para>
-                ToDo
+                Transactions should be handled by the entity providers. Depending on how they are deployed, they can be either handled by the container (e.g.
+                when the entity provider is deployed as an EJB) or manually. In either case, each method invocation on the entity provider should run
+                in its own transaction.
             </para>
         </section>
         <section xml:id="buffered_mode">
