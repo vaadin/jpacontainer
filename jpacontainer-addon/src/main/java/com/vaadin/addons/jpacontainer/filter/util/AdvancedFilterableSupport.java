@@ -121,9 +121,10 @@ public class AdvancedFilterableSupport implements Serializable {
 	 * @param propertyIds
 	 *            the property IDs to set (must not be null).
 	 */
-	public void setFilterablePropertyIds(Collection<Object> propertyIds) {
+	@SuppressWarnings("unchecked")
+	public void setFilterablePropertyIds(Collection<?> propertyIds) {
 		assert propertyIds != null : "propertyIds must not be null";
-		this.filterablePropertyIds = propertyIds;
+		this.filterablePropertyIds = (Collection<Object>) propertyIds;
 	}
 
 	/**

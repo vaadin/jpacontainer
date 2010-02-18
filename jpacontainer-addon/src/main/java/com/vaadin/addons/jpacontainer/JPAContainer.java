@@ -119,11 +119,12 @@ public class JPAContainer<T> implements EntityContainer<T>,
 								JPAContainer.this));
 					}
 				});
-		// This list instance will remain the same, which means that any changes
-		// made to propertyList will automatically show up in filterSupport as
-		// well.
+		updateFilterableProperties();
+	}
+
+	protected void updateFilterableProperties() {
 		this.filterSupport
-				.setFilterablePropertyIds((Collection<String>) propertyList
+				.setFilterablePropertyIds((Collection<?>) propertyList
 						.getPersistentPropertyNames());
 	}
 
@@ -177,6 +178,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	public void addNestedContainerProperty(String nestedProperty)
 			throws UnsupportedOperationException {
 		propertyList.addNestedProperty(nestedProperty);
+		updateFilterableProperties();
 	}
 
 	public Class<T> getEntityClass() {
@@ -581,7 +583,9 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	public boolean removeContainerProperty(Object propertyId)
 			throws UnsupportedOperationException {
 		assert propertyId != null : "propertyId must not be null";
-		return propertyList.removeProperty(propertyId.toString());
+		boolean result = propertyList.removeProperty(propertyId.toString());
+		updateFilterableProperties();
+		return result;
 	}
 
 	public int size() {
@@ -795,8 +799,8 @@ public class JPAContainer<T> implements EntityContainer<T>,
 			id = bufferingDelegate.addEntity(entity);
 		}
 		setFireItemSetChangeOnProviderChange(false); // Prevent the container
-														// from firing duplicate
-														// events
+		// from firing duplicate
+		// events
 		try {
 			fireContainerItemSetChange(new ItemAddedEvent(id));
 		} finally {
