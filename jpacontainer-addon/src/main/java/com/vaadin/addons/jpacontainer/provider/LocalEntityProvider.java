@@ -32,6 +32,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,9 +60,6 @@ import javax.persistence.Query;
  * <li>Uses lazy-loading of entities (when using detached entities, references
  * and collections within the entities should be configured to be fetched
  * eagerly, though)</li>
- * <li>The entity provider is serializable, but the EntityManager instance is
- * transient! Thus, it has to be reset after a deserialization using
- * {@link #setEntityManager(javax.persistence.EntityManager) }</li>
  * <li><strong>Does NOT currently support embedded identifiers!</strong></li>
  * </ul>
  * 
@@ -108,6 +106,22 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 			throw new IllegalArgumentException(
 					"Embedded identifiers are currently not supported!");
 		}
+	}
+
+	private Serializable serializableEntityManager;
+
+	protected Object writeReplace() throws ObjectStreamException {
+		if (entityManager != null && entityManager instanceof Serializable) {
+			serializableEntityManager = (Serializable) entityManager;
+		}
+		return this;
+	}
+
+	protected Object readResolve() throws ObjectStreamException {
+		if (serializableEntityManager != null) {
+			this.entityManager = (EntityManager) serializableEntityManager;
+		}
+		return this;
 	}
 
 	/**
@@ -413,7 +427,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 			for (SortBy sb : sortBy) {
 				filterValues.put(sb.propertyId, getEntityClassMetadata()
 						.getPropertyValue(currentEntity,
-								sb.propertyId.toString()));
+						sb.propertyId.toString()));
 			}
 			// Now we can build a filter that limits the query to the entities
 			// below entityId
