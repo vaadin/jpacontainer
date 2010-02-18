@@ -22,6 +22,10 @@ import com.vaadin.addons.jpacontainer.testdata.Address;
 import com.vaadin.addons.jpacontainer.testdata.Person;
 import com.vaadin.data.Container.ItemSetChangeEvent;
 import com.vaadin.data.Container.ItemSetChangeListener;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
@@ -824,7 +828,8 @@ public class JPAContainerTest {
         expect(batchableEntityProviderMock.getLastEntityIdentifier(null,
                 new LinkedList<SortBy>())).andReturn("id1").times(2).andReturn(
                 null).times(2);
-        expect(batchableEntityProviderMock.getLastEntityIdentifier(Filters.and(Filters.eq(
+        expect(batchableEntityProviderMock.getLastEntityIdentifier(Filters.and(Filters.
+                eq(
                 "firstName", "Hello", false)), orderby)).andReturn("id2").times(
                 6).andReturn(null).times(3);
         replay(batchableEntityProviderMock);
@@ -1291,4 +1296,19 @@ public class JPAContainerTest {
     }
     // TODO Test all buffered mode operations.
     // TODO Test entity provider change event handling
+
+    @Test
+    public void testSerialization() throws Exception {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(os);
+        oos.writeObject(container);
+        ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
+        ObjectInputStream ois = new ObjectInputStream(is);
+        JPAContainer<Person> otherContainer = (JPAContainer<Person>) ois.
+                readObject();
+        assertNotNull(otherContainer);
+        assertEquals(container.getEntityClassMetadata(), otherContainer.
+                getEntityClassMetadata());
+        assertEquals(container.getEntityClass(), otherContainer.getEntityClass());
+    }
 }

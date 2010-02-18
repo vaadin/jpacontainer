@@ -45,7 +45,7 @@ public class AdvancedFilterableSupport implements Serializable {
      * @author Petter Holmström (IT Mill)
      * @since 1.0
      */
-    public static interface Listener {
+    public static interface Listener extends Serializable {
 
         /**
          * Called when the filters have been applied.

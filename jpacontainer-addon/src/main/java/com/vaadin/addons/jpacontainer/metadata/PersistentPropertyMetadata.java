@@ -17,6 +17,8 @@
  */
 package com.vaadin.addons.jpacontainer.metadata;
 
+import java.io.InvalidObjectException;
+import java.io.ObjectStreamException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -82,7 +84,10 @@ public class PersistentPropertyMetadata extends PropertyMetadata {
     }
     private final PropertyKind propertyKind;
     private final ClassMetadata<?> typeMetadata;
-    final Field field;
+    transient final Field field;
+    // Required for serialization
+    protected final String fieldName;
+    protected final Class<?> fieldDeclaringClass;
 
     /**
      * Creates a new instance of <code>PersistentPropertyMetadata</code>.
@@ -92,13 +97,16 @@ public class PersistentPropertyMetadata extends PropertyMetadata {
      * @param propertyKind the kind of the property, must be either {@link PropertyKind#COLLECTION} or {@link PropertyKind#SIMPLE}.
      * @param field the field that can be used to access the property (must not be null).
      */
-    PersistentPropertyMetadata(String name, Class<?> type, PropertyKind propertyKind, Field field) {
+    PersistentPropertyMetadata(String name, Class<?> type,
+            PropertyKind propertyKind, Field field) {
         super(name, type, null, null);
         assert propertyKind == PropertyKind.COLLECTION || propertyKind == PropertyKind.SIMPLE : "propertyKind must be COLLECTION or SIMPLE";
         assert field != null : "field must not be null";
         this.propertyKind = propertyKind;
         this.typeMetadata = null;
         this.field = field;
+        this.fieldName = field.getName();
+        this.fieldDeclaringClass = field.getDeclaringClass();
     }
 
     /**
@@ -110,7 +118,8 @@ public class PersistentPropertyMetadata extends PropertyMetadata {
      * @param getter the getter method that can be used to read the property value (must not be null).
      * @param setter the setter method that can be used to set the property value (must not be null).
      */
-    PersistentPropertyMetadata(String name, Class<?> type, PropertyKind propertyKind, Method getter, Method setter) {
+    PersistentPropertyMetadata(String name, Class<?> type,
+            PropertyKind propertyKind, Method getter, Method setter) {
         super(name, type, getter, setter);
         assert propertyKind == PropertyKind.COLLECTION || propertyKind == PropertyKind.SIMPLE : "propertyKind must be COLLECTION or SIMPLE";
         assert getter != null : "getter must not be null";
@@ -118,6 +127,8 @@ public class PersistentPropertyMetadata extends PropertyMetadata {
         this.propertyKind = propertyKind;
         this.typeMetadata = null;
         this.field = null;
+        this.fieldName = null;
+        this.fieldDeclaringClass = null;
     }
 
     /**
@@ -128,7 +139,8 @@ public class PersistentPropertyMetadata extends PropertyMetadata {
      * @param propertyKind the kind of the property, must be either {@link PropertyKind#REFERENCE} or {@link PropertyKind#EMBEDDED}.
      * @param field the field that can be used to access the property (must not be null).
      */
-    PersistentPropertyMetadata(String name, ClassMetadata<?> type, PropertyKind propertyKind, Field field) {
+    PersistentPropertyMetadata(String name, ClassMetadata<?> type,
+            PropertyKind propertyKind, Field field) {
         super(name, type.getMappedClass(), null, null);
         assert type != null : "type must not be null";
         assert propertyKind == PropertyKind.REFERENCE || propertyKind == PropertyKind.EMBEDDED : "propertyKind must be REFERENCE or EMBEDDED";
@@ -136,6 +148,8 @@ public class PersistentPropertyMetadata extends PropertyMetadata {
         this.propertyKind = propertyKind;
         this.typeMetadata = type;
         this.field = field;
+        this.fieldName = field.getName();
+        this.fieldDeclaringClass = field.getDeclaringClass();
     }
 
     /**
@@ -147,7 +161,8 @@ public class PersistentPropertyMetadata extends PropertyMetadata {
      * @param getter the getter method that can be used to read the property value (must not be null).
      * @param setter the setter method that can be used to set the property value (must not be null).
      */
-    PersistentPropertyMetadata(String name, ClassMetadata<?> type, PropertyKind propertyKind, Method getter, Method setter) {
+    PersistentPropertyMetadata(String name, ClassMetadata<?> type,
+            PropertyKind propertyKind, Method getter, Method setter) {
         super(name, type.getMappedClass(), getter, setter);
         assert type != null : "type must not be null";
         assert propertyKind == PropertyKind.REFERENCE || propertyKind == PropertyKind.EMBEDDED : "propertyKind must be REFERENCE or EMBEDDED";
@@ -156,6 +171,29 @@ public class PersistentPropertyMetadata extends PropertyMetadata {
         this.propertyKind = propertyKind;
         this.typeMetadata = type;
         this.field = null;
+        this.fieldName = null;
+        this.fieldDeclaringClass = null;
+    }
+
+    /**
+     * This constructor is used when deserializing the object.
+     * @see #readResolve() 
+     */
+    private PersistentPropertyMetadata(String name,
+            ClassMetadata<?> typeMetadata,
+            Class<?> type, PropertyKind propertyKind, Method getter,
+            Method setter, Field field) {
+        super(name, type, getter, setter);
+        this.propertyKind = propertyKind;
+        this.typeMetadata = typeMetadata;
+        this.field = field;
+        if (this.field == null) {
+            this.fieldName = null;
+            this.fieldDeclaringClass = null;
+        } else {
+            this.fieldName = field.getName();
+            this.fieldDeclaringClass = field.getDeclaringClass();
+        }
     }
 
     /**
@@ -200,6 +238,29 @@ public class PersistentPropertyMetadata extends PropertyMetadata {
         }
     }
 
+    @Override
+    public Object readResolve() throws ObjectStreamException {
+        try {
+            Field f = null;
+            if (fieldName != null) {
+                f = fieldDeclaringClass.getDeclaredField(fieldName);
+            }
+            Method getterM = null;
+            if (getterName != null) {
+                getterM = getterDeclaringClass.getDeclaredMethod(getterName);
+            }
+            Method setterM = null;
+            if (setterName != null) {
+                setterM = setterDeclaringClass.getDeclaredMethod(setterName, getType());
+            }
+            return new PersistentPropertyMetadata(getName(), typeMetadata,
+                    getType(), propertyKind, getterM, setterM, f);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new InvalidObjectException(e.getMessage());
+        }
+    }
+
     /**
      * Persistent properties are always writable.
      * <p>
@@ -208,5 +269,32 @@ public class PersistentPropertyMetadata extends PropertyMetadata {
     @Override
     public boolean isWritable() {
         return true; //field != null || super.isWritable();
+    }
+
+    @Override
+    @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
+    public boolean equals(Object obj) {
+        if (super.equals(obj)) { // Includes check of parameter type
+            PersistentPropertyMetadata other = (PersistentPropertyMetadata) obj;
+            return propertyKind.equals(other.propertyKind)
+                    && (typeMetadata == null ? other.typeMetadata == null : typeMetadata.
+                    equals(other.typeMetadata))
+                    && (field == null ? other.field == null : field.equals(
+                    other.field));
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = super.hashCode();
+        hash = hash * 31 + propertyKind.hashCode();
+        if (typeMetadata != null) {
+            hash = hash * 31 + typeMetadata.hashCode();
+        }
+        if (field != null) {
+            hash = hash * 31 + field.hashCode();
+        }
+        return hash;
     }
 }

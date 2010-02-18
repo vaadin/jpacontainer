@@ -400,4 +400,24 @@ public class ClassMetadata<T> implements Serializable {
             }
         }
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj.getClass() == getClass()) {
+            ClassMetadata<?> other = (ClassMetadata<?>) obj;
+            return mappedClass.equals(other.mappedClass)
+                    && allProperties.equals(other.allProperties)
+                    && persistentProperties.equals(other.persistentProperties);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = hash * 31 + mappedClass.hashCode();
+        hash = hash * 31 + allProperties.hashCode();
+        hash = hash * 31 + persistentProperties.hashCode();
+        return hash;
+    }
 }

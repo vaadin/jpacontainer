@@ -134,4 +134,31 @@ public class EntityClassMetadata<T> extends ClassMetadata<T> {
         return hasIdentifierProperty() && getIdentifierProperty().
                 getPropertyKind() == PersistentPropertyMetadata.PropertyKind.EMBEDDED;
     }
+
+    @Override
+    @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
+    public boolean equals(Object obj) {
+        if (super.equals(obj)) { // Includes a check of the parameter class
+            EntityClassMetadata<?> other = (EntityClassMetadata<?>) obj;
+            return entityName.equals(other.entityName)
+                    && (versionProperty == null ? other.versionProperty == null : versionProperty.
+                    equals(other.versionProperty))
+                    && (identifierProperty == null ? other.identifierProperty == null : identifierProperty.
+                    equals(other.identifierProperty));
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = super.hashCode();
+        hash = hash * 31 + entityName.hashCode();
+        if (versionProperty != null) {
+            hash = hash * 31 + versionProperty.hashCode();
+        }
+        if (identifierProperty != null) {
+            hash = hash * 31 + identifierProperty.hashCode();
+        }
+        return hash;
+    }
 }

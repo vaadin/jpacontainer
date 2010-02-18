@@ -116,4 +116,6 @@ public class PersistentPropertyMetadataTest {
         assertArrayEquals(getter.getAnnotations(), prop.getAnnotations());
         assertNotNull(prop.getAnnotation(Version.class));
     }
+
+    // TODO Add test for equals() and hashCode() + serialization
 }

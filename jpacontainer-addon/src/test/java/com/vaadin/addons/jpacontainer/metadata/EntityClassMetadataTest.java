@@ -207,4 +207,6 @@ public class EntityClassMetadataTest {
         assertNull(metadata.getVersionProperty());
         assertFalse(metadata.hasVersionProperty());
     }
+    
+    // TODO Add test for equals() and hashCode()
 }

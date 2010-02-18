@@ -17,6 +17,7 @@
  */
 package com.vaadin.addons.jpacontainer;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -33,7 +34,7 @@ import java.util.List;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public interface EntityProvider<T> {
+public interface EntityProvider<T> extends Serializable {
 
     /**
      * Loads the entity identified by <code>entityId</code> from the persistence storage.

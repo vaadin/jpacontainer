@@ -71,4 +71,6 @@ public class PropertyMetadataTest {
         assertSame(setter, property.setter);
         assertTrue(property.isWritable());
     }
+
+    // TODO Add test for equals() and hashCode() + serialization
 }

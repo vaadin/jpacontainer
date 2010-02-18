@@ -17,6 +17,7 @@
  */
 package com.vaadin.addons.jpacontainer;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 /**
@@ -25,7 +26,7 @@ import java.util.Collection;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public interface EntityProviderChangeEvent<T> {
+public interface EntityProviderChangeEvent<T> extends Serializable {
 
     /**
      * Gets the entity manager that has been changed.

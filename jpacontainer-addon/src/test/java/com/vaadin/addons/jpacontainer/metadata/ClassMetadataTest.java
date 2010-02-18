@@ -299,4 +299,6 @@ public class ClassMetadataTest {
         metadata.setPropertyValue(person, "address.street", "Hello");
         assertEquals("Hello", person.getAddress().getStreet());
     }
+
+    // TODO Add test for equals() and hashCode()
 }
