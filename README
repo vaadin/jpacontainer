@@ -44,4 +44,14 @@ READING THE MANUAL
   2. Open the file jpacontainer-manual/target/docbkx/html/manual.html
      in your favorite web browser.
 
+CHECKING THE CODE COVERAGE OF THE UNIT TESTS
+
+  1. Run the code coverage check:
+
+    $ cd jpacontainer-addon
+    $ mvn cobertura:cobertura
+
+  2. Open the file jpacontainer-addon/target/site/cobertura/index.html
+     in your favorite web browser.
+
 More instructions will be added later.
