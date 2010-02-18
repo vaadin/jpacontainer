@@ -110,6 +110,8 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 
 	private Serializable serializableEntityManager;
 
+	// TODO Test serialization of entity manager
+
 	protected Object writeReplace() throws ObjectStreamException {
 		if (entityManager != null && entityManager instanceof Serializable) {
 			serializableEntityManager = (Serializable) entityManager;
