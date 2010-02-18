@@ -39,6 +39,7 @@ import org.apache.commons.lang.time.DateUtils;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
+@SuppressWarnings("serial")
 @Entity
 @Table(uniqueConstraints =
 @UniqueConstraint(columnNames = {"lastName",

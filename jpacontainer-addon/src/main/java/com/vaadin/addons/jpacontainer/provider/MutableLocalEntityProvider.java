@@ -31,286 +31,309 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
 /**
- * Extended version of {@link LocalEntityProvider} that provides editing support.
- * In addition to all the features of the <code>LocalEntityProvider<code>, it supports
+ * Extended version of {@link LocalEntityProvider} that provides editing
+ * support. In addition to all the features of the
+ * <code>LocalEntityProvider<code>, it supports
  * both internal and external transaction handling.
  *
  * TODO Improve documentation
- *
+ * 
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
 public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
-        implements MutableEntityProvider<T>, EntityProviderChangeNotifier<T> {
+		implements MutableEntityProvider<T>, EntityProviderChangeNotifier<T> {
 
-    /**
-     * Creates a new <code>MutableLocalEntityProvider</code>. The entity manager
-     * must be set using {@link #setEntityManager(javax.persistence.EntityManager) }.
-     *
-     * @param entityClass the entity class (must not be null).
-     */
-    public MutableLocalEntityProvider(Class<T> entityClass) {
-        super(entityClass);
-    }
+	private static final long serialVersionUID = -6628293930338167750L;
 
-    /**
-     * Creates a new <code>MutableLocalEntityProvider</code>.
-     *
-     * @param entityClass the entity class (must not be null).
-     * @param entityManager the entity manager to use (must not be null).
-     */
-    public MutableLocalEntityProvider(Class<T> entityClass,
-            EntityManager entityManager) {
-        super(entityClass, entityManager);
-    }
-    private boolean transactionsHandled = false;
+	/**
+	 * Creates a new <code>MutableLocalEntityProvider</code>. The entity manager
+	 * must be set using
+	 * {@link #setEntityManager(javax.persistence.EntityManager) }.
+	 * 
+	 * @param entityClass
+	 *            the entity class (must not be null).
+	 */
+	public MutableLocalEntityProvider(Class<T> entityClass) {
+		super(entityClass);
+	}
 
-    /**
-     * Specifies whether the entity provider should handle transactions
-     * itself or whether they should be handled outside (e.g. if declarative
-     * transactions are used).
-     * 
-     * @param transactionsHandled true to handle the transactions internally,
-     * false to rely on external transaction handling.
-     */
-    public void setTransactionsHandled(boolean transactionsHandled) {
-        this.transactionsHandled = transactionsHandled;
-    }
+	/**
+	 * Creates a new <code>MutableLocalEntityProvider</code>.
+	 * 
+	 * @param entityClass
+	 *            the entity class (must not be null).
+	 * @param entityManager
+	 *            the entity manager to use (must not be null).
+	 */
+	public MutableLocalEntityProvider(Class<T> entityClass,
+			EntityManager entityManager) {
+		super(entityClass, entityManager);
+	}
 
-    /**
-     * Returns whether the entity provider is handling transactions internally
-     * or relies on external transaction handling (the default).
-     *
-     * @return true if transactions are handled internally, false if not.
-     */
-    public boolean isTransactionsHandled() {
-        return transactionsHandled;
-    }
+	private boolean transactionsHandled = false;
 
-    /**
-     * If {@link #isTransactionsHandled() } is true, <code>operation</code> will
-     * be executed inside a transaction that is commited after the operation is completed.
-     * Otherwise, <code>operation</code> will just be executed.
-     * 
-     * @param operation the operation to run (must not be null).
-     */
-    protected void runInTransaction(Runnable operation) {
-        assert operation != null : "operation must not be null";
-        if (isTransactionsHandled()) {
-            EntityTransaction et = getEntityManager().getTransaction();
-            try {
-                et.begin();
-                operation.run();
-                et.commit();
-            } finally {
-                if (et.isActive()) {
-                    et.rollback();
-                }
-            }
-        } else {
-            operation.run();
-        }
-    }
+	/**
+	 * Specifies whether the entity provider should handle transactions itself
+	 * or whether they should be handled outside (e.g. if declarative
+	 * transactions are used).
+	 * 
+	 * @param transactionsHandled
+	 *            true to handle the transactions internally, false to rely on
+	 *            external transaction handling.
+	 */
+	public void setTransactionsHandled(boolean transactionsHandled) {
+		this.transactionsHandled = transactionsHandled;
+	}
 
-    @Override
-    public T addEntity(final T entity) {
-        assert entity != null;
-        runInTransaction(new Runnable() {
+	/**
+	 * Returns whether the entity provider is handling transactions internally
+	 * or relies on external transaction handling (the default).
+	 * 
+	 * @return true if transactions are handled internally, false if not.
+	 */
+	public boolean isTransactionsHandled() {
+		return transactionsHandled;
+	}
 
-            @Override
-            public void run() {
-                EntityManager em = getEntityManager();
-                em.persist(entity);
-                em.flush();
-            }
-        });
-        T dEntity = detachEntity(entity);
-        fireEntityProviderChangeEvent(new EntitiesAddedEvent<T>(dEntity));
-        return dEntity;
-    }
+	/**
+	 * If {@link #isTransactionsHandled() } is true, <code>operation</code> will
+	 * be executed inside a transaction that is commited after the operation is
+	 * completed. Otherwise, <code>operation</code> will just be executed.
+	 * 
+	 * @param operation
+	 *            the operation to run (must not be null).
+	 */
+	protected void runInTransaction(Runnable operation) {
+		assert operation != null : "operation must not be null";
+		if (isTransactionsHandled()) {
+			EntityTransaction et = getEntityManager().getTransaction();
+			try {
+				et.begin();
+				operation.run();
+				et.commit();
+			} finally {
+				if (et.isActive()) {
+					et.rollback();
+				}
+			}
+		} else {
+			operation.run();
+		}
+	}
 
-    @Override
-    public void removeEntity(final Object entityId) {
-        assert entityId != null;
-        final Object[] entityA = new Object[1];
-        runInTransaction(new Runnable() {
+	@SuppressWarnings("unchecked")
+	public T addEntity(final T entity) {
+		assert entity != null;
+		runInTransaction(new Runnable() {
 
-            @Override
-            public void run() {
-                EntityManager em = getEntityManager();
-                T entity = em.find(getEntityClassMetadata().getMappedClass(),
-                        entityId);
-                if (entity != null) {
-                    em.remove(entity);
-                    em.flush();
-                    entityA[0] = detachEntity(entity);
-                }
-            }
-        });
-        if (entityA[0] != null) {
-            fireEntityProviderChangeEvent(new EntitiesRemovedEvent<T>(
-                    (T) entityA[0]));
-        }
-    }
+			public void run() {
+				EntityManager em = getEntityManager();
+				em.persist(entity);
+				em.flush();
+			}
+		});
+		T dEntity = detachEntity(entity);
+		fireEntityProviderChangeEvent(new EntitiesAddedEvent(dEntity));
+		return dEntity;
+	}
 
-    @Override
-    public T updateEntity(final T entity) {
-        assert entity != null : "entity must not be null";
-        runInTransaction(new Runnable() {
+	@SuppressWarnings("unchecked")
+	public void removeEntity(final Object entityId) {
+		assert entityId != null;
+		final Object[] entityA = new Object[1];
+		runInTransaction(new Runnable() {
 
-            @Override
-            public void run() {
-                EntityManager em = getEntityManager();
-                em.merge(entity);
-                em.flush();
-            }
-        });
-        T dEntity = detachEntity(entity);
-        fireEntityProviderChangeEvent(new EntitiesUpdatedEvent<T>(dEntity));
-        return dEntity;
-    }
+			public void run() {
+				EntityManager em = getEntityManager();
+				T entity = em.find(getEntityClassMetadata().getMappedClass(),
+						entityId);
+				if (entity != null) {
+					em.remove(entity);
+					em.flush();
+					entityA[0] = detachEntity(entity);
+				}
+			}
+		});
+		if (entityA[0] != null) {
+			fireEntityProviderChangeEvent(new EntitiesRemovedEvent(
+					(T) entityA[0]));
+		}
+	}
 
-    @Override
-    public void updateEntityProperty(final Object entityId,
-            final String propertyName,
-            final Object propertyValue) throws IllegalArgumentException {
-        assert entityId != null : "entityId must not be null";
-        assert propertyName != null : "propertyName must not be null";
-        final Object[] entityA = new Object[1];
-        runInTransaction(new Runnable() {
+	@SuppressWarnings("unchecked")
+	public T updateEntity(final T entity) {
+		assert entity != null : "entity must not be null";
+		runInTransaction(new Runnable() {
 
-            @Override
-            public void run() {
-                EntityManager em = getEntityManager();
-                T entity = em.find(getEntityClassMetadata().getMappedClass(),
-                        entityId);
-                if (entity != null) {
-                    getEntityClassMetadata().setPropertyValue(entity,
-                            propertyName, propertyValue);
-                    em.flush();
-                    entityA[0] = detachEntity(entity);
-                }
-            }
-        });
-        if (entityA[0] != null) {
-            fireEntityProviderChangeEvent(new EntitiesUpdatedEvent<T>(
-                    (T) entityA[0]));
-        }
-    }
-    private LinkedList<EntityProviderChangeListener<T>> listeners = new LinkedList<EntityProviderChangeListener<T>>();
+			public void run() {
+				EntityManager em = getEntityManager();
+				em.merge(entity);
+				em.flush();
+			}
+		});
+		T dEntity = detachEntity(entity);
+		fireEntityProviderChangeEvent(new EntitiesUpdatedEvent(dEntity));
+		return dEntity;
+	}
 
-    @Override
-    public synchronized void addListener(
-            EntityProviderChangeListener<T> listener) {
-        assert listener != null : "listener must not be null";
-        listeners.add(listener);
-    }
+	@SuppressWarnings("unchecked")
+	public void updateEntityProperty(final Object entityId,
+			final String propertyName, final Object propertyValue)
+			throws IllegalArgumentException {
+		assert entityId != null : "entityId must not be null";
+		assert propertyName != null : "propertyName must not be null";
+		final Object[] entityA = new Object[1];
+		runInTransaction(new Runnable() {
 
-    @Override
-    public synchronized void removeListener(
-            EntityProviderChangeListener<T> listener) {
-        assert listener != null : "listener must not be null";
-        listeners.remove(listener);
-    }
-    private boolean fireEntityProviderChangeEvent = true;
+			public void run() {
+				EntityManager em = getEntityManager();
+				T entity = em.find(getEntityClassMetadata().getMappedClass(),
+						entityId);
+				if (entity != null) {
+					getEntityClassMetadata().setPropertyValue(entity,
+							propertyName, propertyValue);
+					em.flush();
+					entityA[0] = detachEntity(entity);
+				}
+			}
+		});
+		if (entityA[0] != null) {
+			fireEntityProviderChangeEvent(new EntitiesUpdatedEvent(
+					(T) entityA[0]));
+		}
+	}
 
-    /**
-     * Sets whether {@link EntityProviderChangeEvent}s should be fired by this entity provider.
-     */
-    protected void setFireEntityProviderChangeEvents(boolean fireEvents) {
-        this.fireEntityProviderChangeEvent = fireEvents;
-    }
+	private LinkedList<EntityProviderChangeListener<T>> listeners = new LinkedList<EntityProviderChangeListener<T>>();
 
-    /**
-     * Returns whether {@link EntityProviderChangeEvent}s should be fired by this entity provider.
-     */
-    protected boolean isFireEntityProviderChangeEvent() {
-        return fireEntityProviderChangeEvent;
-    }
+	public synchronized void addListener(
+			EntityProviderChangeListener<T> listener) {
+		assert listener != null : "listener must not be null";
+		listeners.add(listener);
+	}
 
-    /**
-     * Sends <code>event</code> to all registered listeners if {@link #isFireEntityProviderChangeEvent() } is true.
-     * @param event the event to send (must not be null).
-     */
-    protected void fireEntityProviderChangeEvent(
-            final EntityProviderChangeEvent<T> event) {
-        assert event != null : "event must not be null";
-        if (listeners.isEmpty() && !isFireEntityProviderChangeEvent()) {
-            return;
-        }
-        LinkedList<EntityProviderChangeListener<T>> list =
-                (LinkedList<EntityProviderChangeListener<T>>) listeners.clone();
-        for (EntityProviderChangeListener<T> l : list) {
-            l.entityProviderChanged(event);
-        }
-    }
+	public synchronized void removeListener(
+			EntityProviderChangeListener<T> listener) {
+		assert listener != null : "listener must not be null";
+		listeners.remove(listener);
+	}
 
-    /**
-     * TODO Document me!
-     * @author Petter Holmström (IT Mill)
-     * @since 1.0
-     */
-    protected abstract class EntityEvent<T> implements
-            EntityProviderChangeEvent<T>,
-            Serializable {
+	private boolean fireEntityProviderChangeEvent = true;
 
-        private Collection<T> entities;
+	/**
+	 * Sets whether {@link EntityProviderChangeEvent}s should be fired by this
+	 * entity provider.
+	 */
+	protected void setFireEntityProviderChangeEvents(boolean fireEvents) {
+		this.fireEntityProviderChangeEvent = fireEvents;
+	}
 
-        /**
-         * TODO document me!
-         * @param entities
-         */
-        protected EntityEvent(T... entities) {
-            if (entities.length == 0) {
-                this.entities = Collections.emptyList();
-            } else {
-                this.entities = Collections.unmodifiableCollection(Arrays.asList(
-                        entities));
-            }
-        }
+	/**
+	 * Returns whether {@link EntityProviderChangeEvent}s should be fired by
+	 * this entity provider.
+	 */
+	protected boolean isFireEntityProviderChangeEvent() {
+		return fireEntityProviderChangeEvent;
+	}
 
-        public Collection<T> getAffectedEntities() {
-            return entities;
-        }
+	/**
+	 * Sends <code>event</code> to all registered listeners if
+	 * {@link #isFireEntityProviderChangeEvent() } is true.
+	 * 
+	 * @param event
+	 *            the event to send (must not be null).
+	 */
+	@SuppressWarnings("unchecked")
+	protected void fireEntityProviderChangeEvent(
+			final EntityProviderChangeEvent<T> event) {
+		assert event != null : "event must not be null";
+		if (listeners.isEmpty() && !isFireEntityProviderChangeEvent()) {
+			return;
+		}
+		LinkedList<EntityProviderChangeListener<T>> list = (LinkedList<EntityProviderChangeListener<T>>) listeners
+				.clone();
+		for (EntityProviderChangeListener<T> l : list) {
+			l.entityProviderChanged(event);
+		}
+	}
 
-        public EntityProvider<T> getEntityProvider() {
-            return (EntityProvider<T>) MutableLocalEntityProvider.this;
-        }
-    }
+	/**
+	 * TODO Document me!
+	 * 
+	 * @author Petter Holmström (IT Mill)
+	 * @since 1.0
+	 */
+	protected abstract class EntityEvent implements
+			EntityProviderChangeEvent<T>, Serializable {
 
-    /**
-     * TODO Document me!
-     * @author Petter Holmström (IT Mill)
-     * @since 1.0
-     */
-    protected class EntitiesAddedEvent<T> extends EntityEvent<T> {
+		private static final long serialVersionUID = -3703337782681273703L;
+		private Collection<T> entities;
 
-        public EntitiesAddedEvent(T... entities) {
-            super(entities);
-        }
-    }
+		/**
+		 * TODO document me!
+		 * 
+		 * @param entities
+		 */
+		protected EntityEvent(T... entities) {
+			if (entities.length == 0) {
+				this.entities = Collections.emptyList();
+			} else {
+				this.entities = Collections.unmodifiableCollection(Arrays
+						.asList(entities));
+			}
+		}
 
-    /**
-     * TODO Document me!
-     * @author Petter Holmström (IT Mill)
-     * @since 1.0
-     */
-    protected class EntitiesUpdatedEvent<T> extends EntityEvent<T> {
+		public Collection<T> getAffectedEntities() {
+			return entities;
+		}
 
-        public EntitiesUpdatedEvent(T... entities) {
-            super(entities);
-        }
-    }
+		public EntityProvider<T> getEntityProvider() {
+			return (EntityProvider<T>) MutableLocalEntityProvider.this;
+		}
+	}
 
-    /**
-     * TODO Document me!
-     * @author Petter Holmström (IT Mill)
-     * @since 1.0
-     */
-    protected class EntitiesRemovedEvent<T> extends EntityEvent<T> {
+	/**
+	 * TODO Document me!
+	 * 
+	 * @author Petter Holmström (IT Mill)
+	 * @since 1.0
+	 */
+	protected class EntitiesAddedEvent extends EntityEvent {
 
-        public EntitiesRemovedEvent(T... entities) {
-            super(entities);
-        }
-    }
+		private static final long serialVersionUID = -7251967169102897952L;
+
+		public EntitiesAddedEvent(T... entities) {
+			super(entities);
+		}
+	}
+
+	/**
+	 * TODO Document me!
+	 * 
+	 * @author Petter Holmström (IT Mill)
+	 * @since 1.0
+	 */
+	protected class EntitiesUpdatedEvent extends EntityEvent {
+
+		private static final long serialVersionUID = -7472733082448613781L;
+
+		public EntitiesUpdatedEvent(T... entities) {
+			super(entities);
+		}
+	}
+
+	/**
+	 * TODO Document me!
+	 * 
+	 * @author Petter Holmström (IT Mill)
+	 * @since 1.0
+	 */
+	protected class EntitiesRemovedEvent extends EntityEvent {
+
+		private static final long serialVersionUID = -7174185739064265869L;
+
+		public EntitiesRemovedEvent(T... entities) {
+			super(entities);
+		}
+	}
 }

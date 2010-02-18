@@ -22,21 +22,24 @@ import java.util.Collection;
 
 /**
  * Event indicating that a {@link EntityProvider} has been changed.
- *
+ * 
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
 public interface EntityProviderChangeEvent<T> extends Serializable {
 
-    /**
-     * Gets the entity manager that has been changed.
-     * @return the entity manager (never null).
-     */
-    public EntityProvider<T> getEntityProvider();
+	/**
+	 * Gets the entity manager that has been changed.
+	 * 
+	 * @return the entity manager (never null).
+	 */
+	public EntityProvider<T> getEntityProvider();
 
-    /**
-     * Gets the affected entities, if applicable.
-     * @return an unmodifiable collection of affected entities (never null, but may be empty).
-     */
-    public Collection<T> getAffectedEntities();
+	/**
+	 * Gets the affected entities, if applicable.
+	 * 
+	 * @return an unmodifiable collection of affected entities (never null, but
+	 *         may be empty).
+	 */
+	public Collection<T> getAffectedEntities();
 }

@@ -20,49 +20,49 @@ package com.vaadin.addons.jpacontainer.filter;
 import java.util.Random;
 
 /**
- * Abstract implementation of {@link ValueFilter} that constructs the QL paremter name
- * by appending a random integer to the property ID.
- *
+ * Abstract implementation of {@link ValueFilter} that constructs the QL
+ * paremter name by appending a random integer to the property ID.
+ * 
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
 public abstract class AbstractValueFilter extends AbstractPropertyFilter
-        implements ValueFilter {
+		implements ValueFilter {
 
-    private Object value;
+	private static final long serialVersionUID = -1583391990217077287L;
 
-    private String qlParameterName;
+	private Object value;
 
-    protected AbstractValueFilter(Object propertyId, Object value) {
-        super(propertyId);
-        assert value != null : "value must not be null";
-        this.value = value;
-        this.qlParameterName = propertyId.toString().replace('.', '_') + Math.abs(new Random().nextInt());
-    }
+	private String qlParameterName;
 
-    @Override
-    public Object getValue() {
-        return value;
-    }
+	protected AbstractValueFilter(Object propertyId, Object value) {
+		super(propertyId);
+		assert value != null : "value must not be null";
+		this.value = value;
+		this.qlParameterName = propertyId.toString().replace('.', '_')
+				+ Math.abs(new Random().nextInt());
+	}
 
-    @Override
-    public String getQLParameterName() {
-        return qlParameterName;
-    }
+	public Object getValue() {
+		return value;
+	}
 
-    // qlParameterName is not included in equality check, as it is randomly generated.
+	public String getQLParameterName() {
+		return qlParameterName;
+	}
 
-    @Override
-    @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
-    public boolean equals(Object obj) {
-        return super.equals(obj) && ((AbstractValueFilter) obj).value.equals(value);
-    }
+	// qlParameterName is not included in equality check, as it is randomly
+	// generated.
 
-    @Override
-    public int hashCode() {
-        return super.hashCode() + 7 * value.hashCode();
-    }
+	@Override
+	public boolean equals(Object obj) {
+		return super.equals(obj)
+				&& ((AbstractValueFilter) obj).value.equals(value);
+	}
 
-
+	@Override
+	public int hashCode() {
+		return super.hashCode() + 7 * value.hashCode();
+	}
 
 }

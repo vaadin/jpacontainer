@@ -18,29 +18,28 @@
 package com.vaadin.addons.jpacontainer.filter;
 
 /**
- * Interface for property filters that need some kind of value
- * to perform the filtering (e.g. greater than or equals). Note, that
- * the value should never be null. If null values are required,
- * use {@link IsNullFilter} instead.
- *
+ * Interface for property filters that need some kind of value to perform the
+ * filtering (e.g. greater than or equals). Note, that the value should never be
+ * null. If null values are required, use {@link IsNullFilter} instead.
+ * 
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
 public interface ValueFilter extends PropertyFilter {
 
-    /**
-     * Gets the filter value.
-     * 
-     * @return the value (never null).
-     */
-    public Object getValue();
+	/**
+	 * Gets the filter value.
+	 * 
+	 * @return the value (never null).
+	 */
+	public Object getValue();
 
-    /**
-     * Gets the name of the QL parameter name that
-     * is used in the generated QL and that should be replaced with the filter value
-     * when the query is executed.
-     *
-     * @return the QL parameter name (never null).
-     */
-    public String getQLParameterName();
+	/**
+	 * Gets the name of the QL parameter name that is used in the generated QL
+	 * and that should be replaced with the filter value when the query is
+	 * executed.
+	 * 
+	 * @return the QL parameter name (never null).
+	 */
+	public String getQLParameterName();
 }

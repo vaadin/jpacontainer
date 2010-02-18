@@ -18,43 +18,43 @@
 package com.vaadin.addons.jpacontainer.filter;
 
 /**
- * Filter that matches the items to a value using a binary comparision operator <code>(=, >=, <=, <, >)</code>.
- *
+ * Filter that matches the items to a value using a binary comparision operator
+ * <code>(=, >=, <=, <, >)</code>.
+ * 
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
 public class ComparisionFilter extends AbstractValueFilter {
 
-    private String operator;
+	private static final long serialVersionUID = -2350703732907111829L;
+	private String operator;
 
-    protected ComparisionFilter(Object propertyId, Object value, String operator) {
-        super(propertyId, value);
-        assert operator != null : "operator must not be null";
-        this.operator = operator;
-    }
+	protected ComparisionFilter(Object propertyId, Object value, String operator) {
+		super(propertyId, value);
+		assert operator != null : "operator must not be null";
+		this.operator = operator;
+	}
 
-    /**
-     * Gets the operator that is used for comparision.
-     */
-    public String getOperator() {
-        return operator;
-    }
+	/**
+	 * Gets the operator that is used for comparison.
+	 */
+	public String getOperator() {
+		return operator;
+	}
 
-    @Override
-    public String toQLString(PropertyIdPreprocessor propertyIdPreprocessor) {
-        return String.format("(%s %s :%s)",
-                propertyIdPreprocessor.process(getPropertyId()), operator,
-                getQLParameterName());
-    }
+	public String toQLString(PropertyIdPreprocessor propertyIdPreprocessor) {
+		return String.format("(%s %s :%s)", propertyIdPreprocessor
+				.process(getPropertyId()), operator, getQLParameterName());
+	}
 
-    @Override
-    @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
-    public boolean equals(Object obj) {
-        return super.equals(obj) && ((ComparisionFilter) obj).operator.equals(operator);
-    }
+	@Override
+	public boolean equals(Object obj) {
+		return super.equals(obj)
+				&& ((ComparisionFilter) obj).operator.equals(operator);
+	}
 
-    @Override
-    public int hashCode() {
-        return super.hashCode() + 7 * operator.hashCode();
-    }
+	@Override
+	public int hashCode() {
+		return super.hashCode() + 7 * operator.hashCode();
+	}
 }

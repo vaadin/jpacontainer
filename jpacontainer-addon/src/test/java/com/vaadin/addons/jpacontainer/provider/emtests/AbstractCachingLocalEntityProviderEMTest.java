@@ -23,19 +23,20 @@ import com.vaadin.addons.jpacontainer.testdata.Person;
 
 /**
  * Base class for the {@link CachingLocalEntityProvider} Entity Manager tests.
- *
+ * 
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public abstract class AbstractCachingLocalEntityProviderEMTest extends AbstractEntityProviderEMTest {
+public abstract class AbstractCachingLocalEntityProviderEMTest extends
+		AbstractEntityProviderEMTest {
 
-    @Override
-    protected EntityProvider<Person> createEntityProvider() throws Exception {
-        CachingLocalEntityProvider<Person> provider = new CachingLocalEntityProvider<Person>(
-                Person.class, getEntityManager());
-        provider.setCacheInUse(true);
-        provider.setCloneCachedEntities(true);
-        return provider;
-    }
-    // TODO Add some test cases that try out the caching features as well
+	@Override
+	protected EntityProvider<Person> createEntityProvider() throws Exception {
+		CachingLocalEntityProvider<Person> provider = new CachingLocalEntityProvider<Person>(
+				Person.class, getEntityManager());
+		provider.setCacheInUse(true);
+		provider.setCloneCachedEntities(true);
+		return provider;
+	}
+	// TODO Add some test cases that try out the caching features as well
 }

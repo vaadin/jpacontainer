@@ -23,16 +23,17 @@ import com.vaadin.addons.jpacontainer.testdata.Person;
 
 /**
  * Base class for the {@link LocalEntityProvider} Entity Manager tests.
- *
+ * 
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public abstract class AbstractLocalEntityProviderEMTest extends AbstractEntityProviderEMTest {
+public abstract class AbstractLocalEntityProviderEMTest extends
+		AbstractEntityProviderEMTest {
 
-    @Override
-    protected EntityProvider<Person> createEntityProvider() throws Exception {
-        LocalEntityProvider<Person> provider = new LocalEntityProvider<Person>(
-                Person.class, getEntityManager());
-        return provider;
-    }
+	@Override
+	protected EntityProvider<Person> createEntityProvider() throws Exception {
+		LocalEntityProvider<Person> provider = new LocalEntityProvider<Person>(
+				Person.class, getEntityManager());
+		return provider;
+	}
 }

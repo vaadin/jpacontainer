@@ -22,37 +22,38 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * A filter that groups other filters together in a single conjunction (A and B and C...).
- *
+ * A filter that groups other filters together in a single conjunction (A and B
+ * and C...).
+ * 
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
 public class Conjunction extends AbstractJunction {
 
-    protected Conjunction(Filter[] filters) {
-        super(filters);
-    }
+	private static final long serialVersionUID = -7762904141209202934L;
 
-    protected Conjunction(List<Filter> filters) {
-        super(filters);
-    }
+	protected Conjunction(Filter[] filters) {
+		super(filters);
+	}
 
-    @Override
-    public String toQLString() {
-        return toQLString(PropertyIdPreprocessor.DEFAULT);
-    }
+	protected Conjunction(List<Filter> filters) {
+		super(filters);
+	}
 
-    @Override
-    public String toQLString(PropertyIdPreprocessor propertyIdPreprocessor) {
-        StringBuffer sb = new StringBuffer();
-        sb.append("(");
-        for (Iterator<Filter> it = getFilters().iterator(); it.hasNext();) {
-            sb.append(it.next().toQLString(propertyIdPreprocessor));
-            if (it.hasNext()) {
-                sb.append(" and ");
-            }
-        }
-        sb.append(")");
-        return sb.toString();
-    }
+	public String toQLString() {
+		return toQLString(PropertyIdPreprocessor.DEFAULT);
+	}
+
+	public String toQLString(PropertyIdPreprocessor propertyIdPreprocessor) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("(");
+		for (Iterator<Filter> it = getFilters().iterator(); it.hasNext();) {
+			sb.append(it.next().toQLString(propertyIdPreprocessor));
+			if (it.hasNext()) {
+				sb.append(" and ");
+			}
+		}
+		sb.append(")");
+		return sb.toString();
+	}
 }

@@ -27,40 +27,40 @@ import org.hibernate.ejb.Ejb3Configuration;
 /**
  * Entity Manager test for {@link CachingLocalEntityProvider} that uses
  * Hibernate as the entity manager implementation.
- *
+ * 
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public class CachingLocalEntityProviderEMTest extends AbstractCachingLocalEntityProviderEMTest {
+public class CachingLocalEntityProviderEMTest extends
+		AbstractCachingLocalEntityProviderEMTest {
 
-    private EntityManager entityManager;
+	private EntityManager entityManager;
 
-    private void setupEntityManager() throws Exception {
-        Ejb3Configuration cfg = new Ejb3Configuration().setProperty(
-                "hibernate.dialect", "org.hibernate.dialect.HSQLDialect").
-                setProperty("hibernate.connection.driver_class",
-                "org.hsqldb.jdbcDriver").
-                setProperty("hibernate.connection.url",
-                "jdbc:hsqldb:mem:integrationtest").
-                setProperty("hibernate.connection.username", "sa").
-                setProperty("hibernate.connection.password", "").
-                setProperty("hibernate.connection.pool_size", "1").
-                setProperty("hibernate.connection.autocommit", "true").
-                setProperty("hibernate.cache.provider_class",
-                "org.hibernate.cache.HashtableCacheProvider").
-                setProperty("hibernate.hbm2ddl.auto", "create-drop").
-                setProperty("hibernate.show_sql", "false").
-                addAnnotatedClass(Person.class).
-                addAnnotatedClass(Address.class);
-        EntityManagerFactory emf = cfg.buildEntityManagerFactory();
-        entityManager = emf.createEntityManager();
-    }
+	private void setupEntityManager() throws Exception {
+		Ejb3Configuration cfg = new Ejb3Configuration().setProperty(
+				"hibernate.dialect", "org.hibernate.dialect.HSQLDialect")
+				.setProperty("hibernate.connection.driver_class",
+						"org.hsqldb.jdbcDriver").setProperty(
+						"hibernate.connection.url",
+						"jdbc:hsqldb:mem:integrationtest").setProperty(
+						"hibernate.connection.username", "sa").setProperty(
+						"hibernate.connection.password", "").setProperty(
+						"hibernate.connection.pool_size", "1").setProperty(
+						"hibernate.connection.autocommit", "true").setProperty(
+						"hibernate.cache.provider_class",
+						"org.hibernate.cache.HashtableCacheProvider")
+				.setProperty("hibernate.hbm2ddl.auto", "create-drop")
+				.setProperty("hibernate.show_sql", "false").addAnnotatedClass(
+						Person.class).addAnnotatedClass(Address.class);
+		EntityManagerFactory emf = cfg.buildEntityManagerFactory();
+		entityManager = emf.createEntityManager();
+	}
 
-    @Override
-    protected EntityManager getEntityManager() throws Exception {
-        if (entityManager == null) {
-            setupEntityManager();
-        }
-        return entityManager;
-    }
+	@Override
+	protected EntityManager getEntityManager() throws Exception {
+		if (entityManager == null) {
+			setupEntityManager();
+		}
+		return entityManager;
+	}
 }

@@ -23,17 +23,18 @@ import com.vaadin.addons.jpacontainer.testdata.Person;
 
 /**
  * Base class for the {@link MutableLocalEntityProvider} Entity Manager tests.
- *
+ * 
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public abstract class AbstractMutableLocalEntityProviderEMTest extends AbstractMutableEntityProviderEMTest {
+public abstract class AbstractMutableLocalEntityProviderEMTest extends
+		AbstractMutableEntityProviderEMTest {
 
-    @Override
-    protected EntityProvider<Person> createEntityProvider() throws Exception {
-        MutableLocalEntityProvider<Person> provider = new MutableLocalEntityProvider<Person>(
-                Person.class, getEntityManager());
-        provider.setTransactionsHandled(true);
-        return provider;
-    }
+	@Override
+	protected EntityProvider<Person> createEntityProvider() throws Exception {
+		MutableLocalEntityProvider<Person> provider = new MutableLocalEntityProvider<Person>(
+				Person.class, getEntityManager());
+		provider.setTransactionsHandled(true);
+		return provider;
+	}
 }

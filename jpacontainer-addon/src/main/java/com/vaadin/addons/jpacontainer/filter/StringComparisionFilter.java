@@ -19,39 +19,41 @@ package com.vaadin.addons.jpacontainer.filter;
 
 /**
  * Filter that compares the filtered (String)-property to the filter value using
- * a binary comparision operator. When using the <code>like</code> operator, the precent-sign (%)
- * may be used as wildcard.
- *
+ * a binary comparision operator. When using the <code>like</code> operator, the
+ * precent-sign (%) may be used as wildcard.
+ * 
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
 public class StringComparisionFilter extends AbstractStringFilter {
 
-    private String operator;
+	private static final long serialVersionUID = 1867603856077373807L;
 
-    protected StringComparisionFilter(Object propertyId, String value,
-            boolean caseSensitive, String operator) {
-        super(propertyId, value, caseSensitive);
-        assert operator != null : "operator must not be null";
-        this.operator = operator;
-    }
+	private String operator;
 
-    /**
-     * Gets the operator that is used for comparision.
-     */
-    public String getOperator() {
-        return operator;
-    }
+	protected StringComparisionFilter(Object propertyId, String value,
+			boolean caseSensitive, String operator) {
+		super(propertyId, value, caseSensitive);
+		assert operator != null : "operator must not be null";
+		this.operator = operator;
+	}
 
-    @Override
-    public String toQLString(PropertyIdPreprocessor propertyIdPreprocessor) {
-        String s;
-        if (isCaseSensitive()) {
-            s = "(%s %s :%s)";
-        } else {
-            s = "(upper(%s) %s upper(:%s))";
-        }
-        return String.format(s, propertyIdPreprocessor.process(
-                getPropertyId()), operator, getQLParameterName());
-    }
+	/**
+	 * Gets the operator that is used for comparision.
+	 */
+	public String getOperator() {
+		return operator;
+	}
+
+	public String toQLString(PropertyIdPreprocessor propertyIdPreprocessor) {
+		String s;
+		if (isCaseSensitive()) {
+			s = "(%s %s :%s)";
+		} else {
+			s = "(upper(%s) %s upper(:%s))";
+		}
+		return String.format(s,
+				propertyIdPreprocessor.process(getPropertyId()), operator,
+				getQLParameterName());
+	}
 }

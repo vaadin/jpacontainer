@@ -23,148 +23,161 @@ import com.vaadin.data.Property;
 import java.util.Collection;
 
 /**
- * Interface defining the Items that are contained in a {@link EntityContainer}. Each
- * item is always backed by an underlying Entity instance that normally is a POJO.
+ * Interface defining the Items that are contained in a {@link EntityContainer}.
+ * Each item is always backed by an underlying Entity instance that normally is
+ * a POJO.
  * <p>
- * By default, whenever a Property of the item is changed, the corresponding property
- * of the Entity is updated accordingly. However, it is also possible to buffer
- * all the changes by setting {@link #setWriteThrough(boolean)} to false. In this mode,
- * the underlying Entity will remain untouched until {@link #commit() } is called.
- * Please note, that this has nothing to do with the buffering of the {@link EntityContainer}.
- *
+ * By default, whenever a Property of the item is changed, the corresponding
+ * property of the Entity is updated accordingly. However, it is also possible
+ * to buffer all the changes by setting {@link #setWriteThrough(boolean)} to
+ * false. In this mode, the underlying Entity will remain untouched until
+ * {@link #commit() } is called. Please note, that this has nothing to do with
+ * the buffering of the {@link EntityContainer}.
+ * 
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
 public interface EntityItem<T> extends Item, Buffered,
-        Property.ValueChangeNotifier {
+		Property.ValueChangeNotifier {
 
-    /**
-     * Gets the item ID of the item. This ID can be used to uniquely identify
-     * the item inside the container. It may not necessarily be the same as
-     * the entity ID.
-     * <p>
-     * If the item ID is null, the entity item was created by a container,
-     * but not yet added to it.
-     * @see EntityContainer#createEntityItem(java.lang.Object)
-     *
-     * @return the item ID or null if the item is not yet inside a container.
-     */
-    public Object getItemId();
+	/**
+	 * Gets the item ID of the item. This ID can be used to uniquely identify
+	 * the item inside the container. It may not necessarily be the same as the
+	 * entity ID.
+	 * <p>
+	 * If the item ID is null, the entity item was created by a container, but
+	 * not yet added to it.
+	 * 
+	 * @see EntityContainer#createEntityItem(java.lang.Object)
+	 * 
+	 * @return the item ID or null if the item is not yet inside a container.
+	 */
+	public Object getItemId();
 
-    /**
-     * Gets the underlying entity instance that contains the actual data
-     * being accessed by this item.
-     *
-     * @return the entity (never null).
-     */
-    public T getEntity();
+	/**
+	 * Gets the underlying entity instance that contains the actual data being
+	 * accessed by this item.
+	 * 
+	 * @return the entity (never null).
+	 */
+	public T getEntity();
 
-    /**
-     * Checks if the underlying entity ({@link #getEntity() }) is persistent (i.e.
-     * fetched from a persistence storage) or transient (created and buffered by
-     * the container). This method always returns false if {@link #getItemId() } is null,
-     * even if the underlying entity actually is persistent.
-     *
-     * @return true if the underlying entity is persistent, false if it is transient.
-     */
-    public boolean isPersistent();
+	/**
+	 * Checks if the underlying entity ({@link #getEntity() }) is persistent
+	 * (i.e. fetched from a persistence storage) or transient (created and
+	 * buffered by the container). This method always returns false if
+	 * {@link #getItemId() } is null, even if the underlying entity actually is
+	 * persistent.
+	 * 
+	 * @return true if the underlying entity is persistent, false if it is
+	 *         transient.
+	 */
+	public boolean isPersistent();
 
-    /**
-     * Checks whether the underlying entity ({@link #getEntity() }) has been modified
-     * after it was fetched from the entity provider. When the changes have been
-     * persisted, this flag will be reset.
-     * <p>
-     * Note, that this is not the same as the {@link #isModified() } flag. It is possible
-     * for an entity item to be dirty and not modified and vice versa. For example,
-     * if the item has changes that have not yet been committed, the item will be
-     * modified but not dirty, as the underlying entity object has not yet been altered.
-     * After the item is committed, the item will be dirty but not modified.
-     * <p>
-     * If the item is not persistent, this method always returns false.
-     *
-     * @return true if the underlying entity has been modified, false if not.
-     */
-    public boolean isDirty();
+	/**
+	 * Checks whether the underlying entity ({@link #getEntity() }) has been
+	 * modified after it was fetched from the entity provider. When the changes
+	 * have been persisted, this flag will be reset.
+	 * <p>
+	 * Note, that this is not the same as the {@link #isModified() } flag. It is
+	 * possible for an entity item to be dirty and not modified and vice versa.
+	 * For example, if the item has changes that have not yet been committed,
+	 * the item will be modified but not dirty, as the underlying entity object
+	 * has not yet been altered. After the item is committed, the item will be
+	 * dirty but not modified.
+	 * <p>
+	 * If the item is not persistent, this method always returns false.
+	 * 
+	 * @return true if the underlying entity has been modified, false if not.
+	 */
+	public boolean isDirty();
 
-    /**
-     * Checks whether this item has been marked for deletion. This method can only
-     * return true if {@link #isPersistent() } is true and the container is running
-     * in buffered mode.
-     *
-     * @return true if the item has been deleted, false otherwise.
-     */
-    public boolean isDeleted();
+	/**
+	 * Checks whether this item has been marked for deletion. This method can
+	 * only return true if {@link #isPersistent() } is true and the container is
+	 * running in buffered mode.
+	 * 
+	 * @return true if the item has been deleted, false otherwise.
+	 */
+	public boolean isDeleted();
 
-    /**
-     * Gets the container that contains this item. If {@link #getItemId() }
-     * is null, the container created the item but does not yet contain it.
-     * 
-     * @return the container (never null).
-     */
-    public EntityContainer<T> getContainer();
+	/**
+	 * Gets the container that contains this item. If {@link #getItemId() } is
+	 * null, the container created the item but does not yet contain it.
+	 * 
+	 * @return the container (never null).
+	 */
+	public EntityContainer<T> getContainer();
 
-    /**
-     * Registers a new value change listener for all the properties of this item.
-     *
-     * @param listener the new listener to be registered.
-     */
-    @Override
-    public void addListener(Property.ValueChangeListener listener);
+	/**
+	 * Registers a new value change listener for all the properties of this
+	 * item.
+	 * 
+	 * @param listener
+	 *            the new listener to be registered.
+	 */
+	public void addListener(Property.ValueChangeListener listener);
 
-    /**
-     * Removes a previously registered value change listener.
-     * The listener will be unregistered from all the properties of this item.
-     *
-     * @param listener listener to be removed.
-     */
-    @Override
-    public void removeListener(Property.ValueChangeListener listener);
+	/**
+	 * Removes a previously registered value change listener. The listener will
+	 * be unregistered from all the properties of this item.
+	 * 
+	 * @param listener
+	 *            listener to be removed.
+	 */
+	public void removeListener(Property.ValueChangeListener listener);
 
-    /**
-     * {@inheritDoc }
-     */
-    @Override
-    public EntityItemProperty getItemProperty(Object id);
+	/**
+	 * {@inheritDoc }
+	 */
+	public EntityItemProperty getItemProperty(Object id);
 
-    /**
-     * TODO Document this method!
-     *
-     * @param nestedProperty the nested property to add.
-     * @throws UnsupportedOperationException
-     */
-    public void addNestedContainerProperty(String nestedProperty) throws
-            UnsupportedOperationException;
+	/**
+	 * TODO Document this method!
+	 * 
+	 * @param nestedProperty
+	 *            the nested property to add.
+	 * @throws UnsupportedOperationException
+	 */
+	public void addNestedContainerProperty(String nestedProperty)
+			throws UnsupportedOperationException;
 
-    /**
-     * Removes a nested property added with {@link #addNestedContainerProperty(java.lang.String) }. This method
-     * cannot be used to remove any other properties.
-     *
-     * @param propertyId the ID (name) of the nested property.
-     * @return true if a nested property was removed by this method, false otherwise.
-     * @throws UnsupportedOperationException if the implementation does not support removing nested properties.
-     */
-    @Override
-    public boolean removeItemProperty(Object propertyId) throws
-            UnsupportedOperationException;
+	/**
+	 * Removes a nested property added with
+	 * {@link #addNestedContainerProperty(java.lang.String) }. This method cannot
+	 * be used to remove any other properties.
+	 * 
+	 * @param propertyId
+	 *            the ID (name) of the nested property.
+	 * @return true if a nested property was removed by this method, false
+	 *         otherwise.
+	 * @throws UnsupportedOperationException
+	 *             if the implementation does not support removing nested
+	 *             properties.
+	 */
+	public boolean removeItemProperty(Object propertyId)
+			throws UnsupportedOperationException;
 
-    /**
-     * <strong>This functionality is not supported.</strong>
-     * <p>
-     * {@inheritDoc }
-     * @throws UnsupportedOperationException always thrown.
-     */
-    @Override
-    public boolean addItemProperty(Object id, Property property)
-            throws UnsupportedOperationException;
+	/**
+	 * <strong>This functionality is not supported.</strong>
+	 * <p>
+	 * {@inheritDoc }
+	 * 
+	 * @throws UnsupportedOperationException
+	 *             always thrown.
+	 */
+	public boolean addItemProperty(Object id, Property property)
+			throws UnsupportedOperationException;
 
-    /**
-     * {@inheritDoc }
-     * <p>
-     * In practice, this means all the properties of the underlying entity class,
-     * any nested properties defined in the container and any nested properties added
-     * using {@link #addNestedContainerProperty(java.lang.String) }. Any non-nested properties
-     * that have been removed from the container will still show up in this collection.
-     */
-    @Override
-    public Collection<?> getItemPropertyIds();
+	/**
+	 * {@inheritDoc }
+	 * <p>
+	 * In practice, this means all the properties of the underlying entity
+	 * class, any nested properties defined in the container and any nested
+	 * properties added using
+	 * {@link #addNestedContainerProperty(java.lang.String) }. Any non-nested
+	 * properties that have been removed from the container will still show up
+	 * in this collection.
+	 */
+	public Collection<?> getItemPropertyIds();
 }

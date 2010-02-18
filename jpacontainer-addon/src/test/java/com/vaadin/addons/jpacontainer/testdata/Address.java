@@ -27,6 +27,7 @@ import org.apache.commons.lang.ObjectUtils;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
+@SuppressWarnings("serial")
 @Embeddable
 public class Address implements Serializable, Cloneable {
 

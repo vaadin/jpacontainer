@@ -30,216 +30,226 @@ import java.util.List;
 
 /**
  * Helper class that implements the filtering methods defined in
- * {@link AdvancedFilterable} and can be either extended or used as a
- * delegate.
- *
+ * {@link AdvancedFilterable} and can be either extended or used as a delegate.
+ * 
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
 public class AdvancedFilterableSupport implements Serializable {
 
-    /**
-     * Listener interface to be implemented by classes that want to be
-     * notified when the filters are applied.
-     *
-     * @author Petter Holmström (IT Mill)
-     * @since 1.0
-     */
-    public static interface Listener extends Serializable {
+	private static final long serialVersionUID = 398382431841547719L;
 
-        /**
-         * Called when the filters have been applied.
-         * 
-         * @param sender the sender of the event.
-         */
-        public void filtersApplied(AdvancedFilterableSupport sender);
-    }
+	/**
+	 * Listener interface to be implemented by classes that want to be notified
+	 * when the filters are applied.
+	 * 
+	 * @author Petter Holmström (IT Mill)
+	 * @since 1.0
+	 */
+	public static interface Listener extends Serializable {
 
-    /**
-     * Adds <code>listener</code> to the list of listeners to be notified when
-     * the filters are applied. The listener will be notified as many times
-     * as it has been added.
-     *
-     * @param listener the listener to add (must not be null).
-     */
-    public void addListener(Listener listener) {
-        assert listener != null : "listener must not be null";
-        listeners.add(listener);
-    }
+		/**
+		 * Called when the filters have been applied.
+		 * 
+		 * @param sender
+		 *            the sender of the event.
+		 */
+		public void filtersApplied(AdvancedFilterableSupport sender);
+	}
 
-    /**
-     * Removes <code>listener</code> from the list of listeners. If the listener
-     * has been added more than once, it will be notified one less time. If the
-     * listener has not been added at all, nothing happens.
-     * 
-     * @param listener the listener to remove (must not be null).
-     */
-    public void removeListener(Listener listener) {
-        assert listener != null : "listener must not be null";
-        listeners.remove(listener);
-    }
+	/**
+	 * Adds <code>listener</code> to the list of listeners to be notified when
+	 * the filters are applied. The listener will be notified as many times as
+	 * it has been added.
+	 * 
+	 * @param listener
+	 *            the listener to add (must not be null).
+	 */
+	public void addListener(Listener listener) {
+		assert listener != null : "listener must not be null";
+		listeners.add(listener);
+	}
 
-    protected void fireListeners() {
-        LinkedList<Listener> listenerList = (LinkedList<Listener>) listeners.
-                clone();
-        for (Listener l : listenerList) {
-            l.filtersApplied(this);
-        }
-    }
+	/**
+	 * Removes <code>listener</code> from the list of listeners. If the listener
+	 * has been added more than once, it will be notified one less time. If the
+	 * listener has not been added at all, nothing happens.
+	 * 
+	 * @param listener
+	 *            the listener to remove (must not be null).
+	 */
+	public void removeListener(Listener listener) {
+		assert listener != null : "listener must not be null";
+		listeners.remove(listener);
+	}
 
-    private Collection<Object> filterablePropertyIds;
+	@SuppressWarnings("unchecked")
+	protected void fireListeners() {
+		LinkedList<Listener> listenerList = (LinkedList<Listener>) listeners
+				.clone();
+		for (Listener l : listenerList) {
+			l.filtersApplied(this);
+		}
+	}
 
-    private LinkedList<Listener> listeners = new LinkedList<Listener>();
+	private Collection<Object> filterablePropertyIds;
 
-    private LinkedList<Filter> appliedFilters = new LinkedList<Filter>();
+	private LinkedList<Listener> listeners = new LinkedList<Listener>();
 
-    private LinkedList<Filter> filters = new LinkedList<Filter>();
+	private LinkedList<Filter> appliedFilters = new LinkedList<Filter>();
 
-    private boolean applyFiltersImmediately = true;
+	private LinkedList<Filter> filters = new LinkedList<Filter>();
 
-    private boolean unappliedFilters = false;
+	private boolean applyFiltersImmediately = true;
 
-    /**
-     * @see AdvancedFilterable#getFilterablePropertyIds() 
-     */
-    public Collection<Object> getFilterablePropertyIds() {
-        if (filterablePropertyIds == null) {
-            return Collections.emptyList();
-        } else {
-            return Collections.unmodifiableCollection(filterablePropertyIds);
-        }
-    }
+	private boolean unappliedFilters = false;
 
-    /**
-     * Sets the filterable property IDs.
-     * @param propertyIds the property IDs to set (must not be null).
-     */
-    public void setFilterablePropertyIds(Collection<Object> propertyIds) {
-        assert propertyIds != null : "propertyIds must not be null";
-        this.filterablePropertyIds = propertyIds;
-    }
+	/**
+	 * @see AdvancedFilterable#getFilterablePropertyIds()
+	 */
+	public Collection<Object> getFilterablePropertyIds() {
+		if (filterablePropertyIds == null) {
+			return Collections.emptyList();
+		} else {
+			return Collections.unmodifiableCollection(filterablePropertyIds);
+		}
+	}
 
-    /**
-     * Sets the filterable property IDs.
-     * @param propertyIds the property IDs to set (must not be null).
-     */
-    public void setFilterablePropertyIds(Object... propertyIds) {
-        assert propertyIds != null : "propertyIds must not be null";
-        setFilterablePropertyIds(Arrays.asList(propertyIds));
-    }
+	/**
+	 * Sets the filterable property IDs.
+	 * 
+	 * @param propertyIds
+	 *            the property IDs to set (must not be null).
+	 */
+	public void setFilterablePropertyIds(Collection<Object> propertyIds) {
+		assert propertyIds != null : "propertyIds must not be null";
+		this.filterablePropertyIds = propertyIds;
+	}
 
-    /**
-     * @see AdvancedFilterable#isFilterable(java.lang.Object)
-     */
-    public boolean isFilterable(Object propertyId) {
-        return getFilterablePropertyIds().contains(propertyId);
-    }
+	/**
+	 * Sets the filterable property IDs.
+	 * 
+	 * @param propertyIds
+	 *            the property IDs to set (must not be null).
+	 */
+	public void setFilterablePropertyIds(Object... propertyIds) {
+		assert propertyIds != null : "propertyIds must not be null";
+		setFilterablePropertyIds(Arrays.asList(propertyIds));
+	}
 
-    /**
-     * Checks if <code>filter</code> is a valid filter, i.e. that all
-     * the properties that the filter restricts are filterable.
-     *
-     * @param filter the filter to check (must not be null).
-     * @return true if the filter is valid, false if it is not.
-     */
-    public boolean isValidFilter(Filter filter) {
-        assert filter != null : "filter must not be null";
-        if (filter instanceof PropertyFilter) {
-            return isFilterable(((PropertyFilter) filter).getPropertyId());
-        } else if (filter instanceof CompositeFilter) {
-            for (Filter f : ((CompositeFilter) filter).getFilters()) {
-                if (!isValidFilter(f)) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
+	/**
+	 * @see AdvancedFilterable#isFilterable(java.lang.Object)
+	 */
+	public boolean isFilterable(Object propertyId) {
+		return getFilterablePropertyIds().contains(propertyId);
+	}
 
-    /**
-     * @see AdvancedFilterable#addFilter(com.vaadin.addons.jpacontainer.filter.Filter) 
-     */
-    public void addFilter(Filter filter) throws IllegalArgumentException {
-        if (!isValidFilter(filter)) {
-            throw new IllegalArgumentException("Invalid filter");
-        }
-        filters.add(filter);
-        if (isApplyFiltersImmediately()) {
-            fireListeners();
-        } else {
-            unappliedFilters = true;
-        }
-    }
+	/**
+	 * Checks if <code>filter</code> is a valid filter, i.e. that all the
+	 * properties that the filter restricts are filterable.
+	 * 
+	 * @param filter
+	 *            the filter to check (must not be null).
+	 * @return true if the filter is valid, false if it is not.
+	 */
+	public boolean isValidFilter(Filter filter) {
+		assert filter != null : "filter must not be null";
+		if (filter instanceof PropertyFilter) {
+			return isFilterable(((PropertyFilter) filter).getPropertyId());
+		} else if (filter instanceof CompositeFilter) {
+			for (Filter f : ((CompositeFilter) filter).getFilters()) {
+				if (!isValidFilter(f)) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
 
-    /**
-     * @see AdvancedFilterable#removeFilter(com.vaadin.addons.jpacontainer.filter.Filter)
-     */
-    public void removeFilter(Filter filter) {
-        assert filter != null : "filter must not be null";
-        if (filters.remove(filter)) {
-            if (isApplyFiltersImmediately()) {
-                fireListeners();
-            } else {
-                unappliedFilters = true;
-            }
-        }
-    }
+	/**
+	 * @see AdvancedFilterable#addFilter(com.vaadin.addons.jpacontainer.filter.Filter)
+	 */
+	public void addFilter(Filter filter) throws IllegalArgumentException {
+		if (!isValidFilter(filter)) {
+			throw new IllegalArgumentException("Invalid filter");
+		}
+		filters.add(filter);
+		if (isApplyFiltersImmediately()) {
+			fireListeners();
+		} else {
+			unappliedFilters = true;
+		}
+	}
 
-    /**
-     * @see AdvancedFilterable#removeAllFilters() 
-     */
-    public void removeAllFilters() {
-        filters.clear();
-        if (isApplyFiltersImmediately()) {
-            fireListeners();
-        } else {
-            unappliedFilters = true;
-        }
-    }
+	/**
+	 * @see AdvancedFilterable#removeFilter(com.vaadin.addons.jpacontainer.filter.Filter)
+	 */
+	public void removeFilter(Filter filter) {
+		assert filter != null : "filter must not be null";
+		if (filters.remove(filter)) {
+			if (isApplyFiltersImmediately()) {
+				fireListeners();
+			} else {
+				unappliedFilters = true;
+			}
+		}
+	}
 
-    /**
-     * @see AdvancedFilterable#getFilters()
-     */
-    public List<Filter> getFilters() {
-        return Collections.unmodifiableList(filters);
-    }
+	/**
+	 * @see AdvancedFilterable#removeAllFilters()
+	 */
+	public void removeAllFilters() {
+		filters.clear();
+		if (isApplyFiltersImmediately()) {
+			fireListeners();
+		} else {
+			unappliedFilters = true;
+		}
+	}
 
-    /**
-     * @see AdvancedFilterable#getAppliedFilters() 
-     */
-    public List<Filter> getAppliedFilters() {
-        return isApplyFiltersImmediately() ? getFilters() : Collections.
-                unmodifiableList(appliedFilters);
-    }
+	/**
+	 * @see AdvancedFilterable#getFilters()
+	 */
+	public List<Filter> getFilters() {
+		return Collections.unmodifiableList(filters);
+	}
 
-    /**
-     * @see AdvancedFilterable#setApplyFiltersImmediately(boolean)
-     */
-    public void setApplyFiltersImmediately(boolean applyFiltersImmediately) {
-        this.applyFiltersImmediately = applyFiltersImmediately;
-    }
+	/**
+	 * @see AdvancedFilterable#getAppliedFilters()
+	 */
+	public List<Filter> getAppliedFilters() {
+		return isApplyFiltersImmediately() ? getFilters() : Collections
+				.unmodifiableList(appliedFilters);
+	}
 
-    /**
-     * @see AdvancedFilterable#isApplyFiltersImmediately() 
-     */
-    public boolean isApplyFiltersImmediately() {
-        return applyFiltersImmediately;
-    }
+	/**
+	 * @see AdvancedFilterable#setApplyFiltersImmediately(boolean)
+	 */
+	public void setApplyFiltersImmediately(boolean applyFiltersImmediately) {
+		this.applyFiltersImmediately = applyFiltersImmediately;
+	}
 
-    /**
-     * @see AdvancedFilterable#applyFilters()
-     */
-    public void applyFilters() {
-        unappliedFilters = false;
-        appliedFilters.clear();
-        appliedFilters.addAll(filters);
-        fireListeners();
-    }
+	/**
+	 * @see AdvancedFilterable#isApplyFiltersImmediately()
+	 */
+	public boolean isApplyFiltersImmediately() {
+		return applyFiltersImmediately;
+	}
 
-    /**
-     * @see AdvancedFilterable#hasUnappliedFilters() 
-     */
-    public boolean hasUnappliedFilters() {
-        return unappliedFilters;
-    }
+	/**
+	 * @see AdvancedFilterable#applyFilters()
+	 */
+	public void applyFilters() {
+		unappliedFilters = false;
+		appliedFilters.clear();
+		appliedFilters.addAll(filters);
+		fireListeners();
+	}
+
+	/**
+	 * @see AdvancedFilterable#hasUnappliedFilters()
+	 */
+	public boolean hasUnappliedFilters() {
+		return unappliedFilters;
+	}
 }

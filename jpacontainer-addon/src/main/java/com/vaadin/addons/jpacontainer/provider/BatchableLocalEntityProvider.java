@@ -33,56 +33,64 @@ import javax.persistence.EntityManager;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public class BatchableLocalEntityProvider<T> extends MutableLocalEntityProvider<T>
-        implements BatchableEntityProvider<T> {
+public class BatchableLocalEntityProvider<T> extends
+		MutableLocalEntityProvider<T> implements BatchableEntityProvider<T> {
 
-    /**
-     * Creates a new <code>BatchableLocalEntityProvider</code>. The entity manager
-     * must be set using {@link #setEntityManager(javax.persistence.EntityManager) }.
-     *
-     * @param entityClass the entity class (must not be null).
-     */
-    public BatchableLocalEntityProvider(Class<T> entityClass) {
-        super(entityClass);
-    }
+	private static final long serialVersionUID = 9174163487778140520L;
 
-    /**
-     * Creates a new <code>BatchableLocalEntityProvider</code>.
-     *
-     * @param entityClass the entity class (must not be null).
-     * @param entityManager the entity manager to use (must not be null).
-     */
-    public BatchableLocalEntityProvider(Class<T> entityClass,
-            EntityManager entityManager) {
-        super(entityClass, entityManager);
-    }
+	/**
+	 * Creates a new <code>BatchableLocalEntityProvider</code>. The entity
+	 * manager must be set using
+	 * {@link #setEntityManager(javax.persistence.EntityManager) }.
+	 * 
+	 * @param entityClass
+	 *            the entity class (must not be null).
+	 */
+	public BatchableLocalEntityProvider(Class<T> entityClass) {
+		super(entityClass);
+	}
 
-    public void batchUpdate(final BatchUpdateCallback<T> callback) throws
-            UnsupportedOperationException {
-        assert callback != null : "callback must not be null";
-        setFireEntityProviderChangeEvents(false);
-        try {
-            runInTransaction(new Runnable() {
+	/**
+	 * Creates a new <code>BatchableLocalEntityProvider</code>.
+	 * 
+	 * @param entityClass
+	 *            the entity class (must not be null).
+	 * @param entityManager
+	 *            the entity manager to use (must not be null).
+	 */
+	public BatchableLocalEntityProvider(Class<T> entityClass,
+			EntityManager entityManager) {
+		super(entityClass, entityManager);
+	}
 
-                public void run() {
-                    callback.batchUpdate(BatchableLocalEntityProvider.this);
-                }
-            });
-        } finally {
-            setFireEntityProviderChangeEvents(true);
-        }
-        fireEntityProviderChangeEvent(new BatchUpdatePerformedEvent<T>());
-    }
+	public void batchUpdate(final BatchUpdateCallback<T> callback)
+			throws UnsupportedOperationException {
+		assert callback != null : "callback must not be null";
+		setFireEntityProviderChangeEvents(false);
+		try {
+			runInTransaction(new Runnable() {
 
-    protected class BatchUpdatePerformedEvent<T> implements
-            EntityProviderChangeEvent<T> {
+				public void run() {
+					callback.batchUpdate(BatchableLocalEntityProvider.this);
+				}
+			});
+		} finally {
+			setFireEntityProviderChangeEvents(true);
+		}
+		fireEntityProviderChangeEvent(new BatchUpdatePerformedEvent());
+	}
 
-        public Collection<T> getAffectedEntities() {
-            return Collections.emptyList();
-        }
+	protected class BatchUpdatePerformedEvent implements
+			EntityProviderChangeEvent<T> {
 
-        public EntityProvider<T> getEntityProvider() {
-            return (EntityProvider<T>) BatchableLocalEntityProvider.this;
-        }
-    };
+		private static final long serialVersionUID = -4080306860560561433L;
+
+		public Collection<T> getAffectedEntities() {
+			return Collections.emptyList();
+		}
+
+		public EntityProvider<T> getEntityProvider() {
+			return (EntityProvider<T>) BatchableLocalEntityProvider.this;
+		}
+	};
 }

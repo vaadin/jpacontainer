@@ -19,19 +19,20 @@ package com.vaadin.addons.jpacontainer.filter;
 
 /**
  * Filter that includes all items for which the filtered property is empty.
- *
+ * 
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
 public class IsEmptyFilter extends AbstractPropertyFilter {
 
-    protected IsEmptyFilter(Object propertyId) {
-        super(propertyId);
-    }
+	private static final long serialVersionUID = -421332437947826260L;
 
-    @Override
-    public String toQLString(PropertyIdPreprocessor propertyIdPreprocessor) {
-        return String.format("(%s is empty)", propertyIdPreprocessor.process(
-                getPropertyId()));
-    }
+	protected IsEmptyFilter(Object propertyId) {
+		super(propertyId);
+	}
+
+	public String toQLString(PropertyIdPreprocessor propertyIdPreprocessor) {
+		return String.format("(%s is empty)", propertyIdPreprocessor
+				.process(getPropertyId()));
+	}
 }

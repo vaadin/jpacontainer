@@ -19,19 +19,20 @@ package com.vaadin.addons.jpacontainer.filter;
 
 /**
  * Filter that includes all items for which the filtered property is null.
- *
+ * 
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
 public class IsNullFilter extends AbstractPropertyFilter {
 
-    protected IsNullFilter(Object propertyId) {
-        super(propertyId);
-    }
+	private static final long serialVersionUID = 519303493666084738L;
 
-    @Override
-    public String toQLString(PropertyIdPreprocessor propertyIdPreprocessor) {
-        return String.format("(%s is null)", propertyIdPreprocessor.process(
-                getPropertyId()));
-    }
+	protected IsNullFilter(Object propertyId) {
+		super(propertyId);
+	}
+
+	public String toQLString(PropertyIdPreprocessor propertyIdPreprocessor) {
+		return String.format("(%s is null)", propertyIdPreprocessor
+				.process(getPropertyId()));
+	}
 }

@@ -27,69 +27,80 @@ package com.vaadin.addons.jpacontainer;
  */
 public interface MutableEntityProvider<T> extends EntityProvider<T> {
 
-    /**
-     * Adds <code>entity</code> to the persistence storage. This method
-     * returns the same entity after adding to make it possible
-     * for the client to access the entity identifier. Note, however,
-     * that depending on the implementation of the entity provider
-     * and the state of {@link #isEntitiesDetached() },
-     * this may or may not be the same instance as <code>entity</code>. Therefore,
-     * if {@link #isEntitiesDetached() } is true, clients should always assume
-     * that <code>entity != returnedEntity</code>.
-     * <p>
-     * This method is expected to be run inside a transaction. If the method
-     * completes successfully, the transaction should be committed. If the method
-     * fails, the transaction should be rolled back and an exception thrown.
-     * 
-     * @param entity the entity to add (must not be null).
-     * @return the added entity.
-     */
-    public T addEntity(T entity);
+	/**
+	 * Adds <code>entity</code> to the persistence storage. This method returns
+	 * the same entity after adding to make it possible for the client to access
+	 * the entity identifier. Note, however, that depending on the
+	 * implementation of the entity provider and the state of
+	 * {@link #isEntitiesDetached() }, this may or may not be the same instance
+	 * as <code>entity</code>. Therefore, if {@link #isEntitiesDetached() } is
+	 * true, clients should always assume that
+	 * <code>entity != returnedEntity</code>.
+	 * <p>
+	 * This method is expected to be run inside a transaction. If the method
+	 * completes successfully, the transaction should be committed. If the
+	 * method fails, the transaction should be rolled back and an exception
+	 * thrown.
+	 * 
+	 * @param entity
+	 *            the entity to add (must not be null).
+	 * @return the added entity.
+	 */
+	public T addEntity(T entity);
 
-    /**
-     * Saves the changes made to <code>entity</code> to the persistence storage.
-     * This method returns the same entity after saving the changes. Note, however,
-     * that depending on the implementation of the entity provider
-     * and the state of {@link #isEntitiesDetached() }, this may or may
-     * not be the same instance as <code>entity</code>. Therefore,
-     * if {@link #isEntitiesDetached() } is true, clients should always assume
-     * that <code>entity != returnedEntity</code>.
-     * <p>
-     * This method is expected to be run inside a transaction. If the method
-     * completes successfully, the transaction should be committed. If the method
-     * fails, the transaction should be rolled back and an exception thrown.
-     *
-     * @param entity the entity to update (must not be null).
-     * @return the updated entity.
-     */
-    public T updateEntity(T entity);
+	/**
+	 * Saves the changes made to <code>entity</code> to the persistence storage.
+	 * This method returns the same entity after saving the changes. Note,
+	 * however, that depending on the implementation of the entity provider and
+	 * the state of {@link #isEntitiesDetached() }, this may or may not be the
+	 * same instance as <code>entity</code>. Therefore, if
+	 * {@link #isEntitiesDetached() } is true, clients should always assume that
+	 * <code>entity != returnedEntity</code>.
+	 * <p>
+	 * This method is expected to be run inside a transaction. If the method
+	 * completes successfully, the transaction should be committed. If the
+	 * method fails, the transaction should be rolled back and an exception
+	 * thrown.
+	 * 
+	 * @param entity
+	 *            the entity to update (must not be null).
+	 * @return the updated entity.
+	 */
+	public T updateEntity(T entity);
 
-    /**
-     *
-     * Updates a single property value of a specific entity. If the entity is not found,
-     * nothing happens.
-     * <p>
-     * This method is expected to be run inside a transaction. If the method
-     * completes successfully, the transaction should be committed. If the method
-     * fails, the transaction should be rolled back and an exception thrown.
-     *
-     * @param entityId the identifier of the entity (must not be null).
-     * @param propertyName the name of the property to update (must not be null).
-     * @param propertyValue the new property value.
-     * @throws IllegalArgumentException if <code>propertyName</code> is not a valid property name.
-     */
-    public void updateEntityProperty(Object entityId, String propertyName,
-            Object propertyValue) throws IllegalArgumentException;
+	/**
+	 * 
+	 * Updates a single property value of a specific entity. If the entity is
+	 * not found, nothing happens.
+	 * <p>
+	 * This method is expected to be run inside a transaction. If the method
+	 * completes successfully, the transaction should be committed. If the
+	 * method fails, the transaction should be rolled back and an exception
+	 * thrown.
+	 * 
+	 * @param entityId
+	 *            the identifier of the entity (must not be null).
+	 * @param propertyName
+	 *            the name of the property to update (must not be null).
+	 * @param propertyValue
+	 *            the new property value.
+	 * @throws IllegalArgumentException
+	 *             if <code>propertyName</code> is not a valid property name.
+	 */
+	public void updateEntityProperty(Object entityId, String propertyName,
+			Object propertyValue) throws IllegalArgumentException;
 
-    /**
-     * Removes the entity identified by <code>entityId</code>. If
-     * no entity is found, nothing happens.
-     * <p>
-     * This method is expected to be run inside a transaction. If the method
-     * completes successfully, the transaction should be committed. If the method
-     * fails, the transaction should be rolled back and an exception thrown.
-     * 
-     * @param entityId the identifier of the entity to remove.
-     */
-    public void removeEntity(Object entityId);
+	/**
+	 * Removes the entity identified by <code>entityId</code>. If no entity is
+	 * found, nothing happens.
+	 * <p>
+	 * This method is expected to be run inside a transaction. If the method
+	 * completes successfully, the transaction should be committed. If the
+	 * method fails, the transaction should be rolled back and an exception
+	 * thrown.
+	 * 
+	 * @param entityId
+	 *            the identifier of the entity to remove.
+	 */
+	public void removeEntity(Object entityId);
 }

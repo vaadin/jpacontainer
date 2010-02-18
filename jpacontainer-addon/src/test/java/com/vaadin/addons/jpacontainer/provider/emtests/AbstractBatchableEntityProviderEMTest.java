@@ -20,17 +20,18 @@ package com.vaadin.addons.jpacontainer.provider.emtests;
 import com.vaadin.addons.jpacontainer.BatchableEntityProvider;
 
 /**
- * Abstract test case for {@link BatchableEntityProvider} that should work
- * with any entity manager that follows the specifications. Subclasses should
- * provide a concrete entity manager implementation to test. If the test passes,
- * the entity manager implementation should work with JPAContainer.
+ * Abstract test case for {@link BatchableEntityProvider} that should work with
+ * any entity manager that follows the specifications. Subclasses should provide
+ * a concrete entity manager implementation to test. If the test passes, the
+ * entity manager implementation should work with JPAContainer.
  * <p>
  * Note, that the test data used will not contain circular references that might
  * cause problems when committing buffered changes.
- *
+ * 
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public abstract class AbstractBatchableEntityProviderEMTest extends AbstractMutableEntityProviderEMTest {
-    // TODO Add tests
+public abstract class AbstractBatchableEntityProviderEMTest extends
+		AbstractMutableEntityProviderEMTest {
+	// TODO Add tests
 }

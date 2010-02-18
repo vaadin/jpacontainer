@@ -32,215 +32,216 @@ import javax.persistence.Version;
 
 /**
  * Test classes used by different unit tests in this package.
- *
+ * 
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
+@SuppressWarnings("serial")
 abstract class TestClasses {
 
-    /*
-     * Test classes that use field annotations
-     */
-    @MappedSuperclass
-    static abstract class BaseEntity_F implements Serializable {
+	/*
+	 * Test classes that use field annotations
+	 */
+	@MappedSuperclass
+	static abstract class BaseEntity_F implements Serializable {
 
-        @Id
-        Integer id;
-        @Version
-        Integer version;
+		@Id
+		Integer id;
+		@Version
+		Integer version;
 
-        public Integer getTransientBaseField() {
-            return null;
-        }
-    }
+		public Integer getTransientBaseField() {
+			return null;
+		}
+	}
 
-    @Entity
-    static class Person_F extends BaseEntity_F {
+	@Entity
+	static class Person_F extends BaseEntity_F {
 
-        String firstName;
-        String lastName;
-        @Embedded
-        Address_F address;
-        transient String transientField;
-        @Transient
-        String transientField2;
-        @OneToMany(mappedBy = "parent")
-        Collection<Person_F> children;
-        @ManyToOne
-        Person_F parent;
-        transient Address_M transientAddress;
+		String firstName;
+		String lastName;
+		@Embedded
+		Address_F address;
+		transient String transientField;
+		@Transient
+		String transientField2;
+		@OneToMany(mappedBy = "parent")
+		Collection<Person_F> children;
+		@ManyToOne
+		Person_F parent;
+		transient Address_M transientAddress;
 
-        public String getTransientField3() {
-            return null;
-        }
+		public String getTransientField3() {
+			return null;
+		}
 
-        public String getTransientField4() {
-            return null;
-        }
+		public String getTransientField4() {
+			return null;
+		}
 
-        public void setTransientField4(String value) {
-        }
+		public void setTransientField4(String value) {
+		}
 
-        public Address_M getTransientAddress() {
-            return transientAddress;
-        }
+		public Address_M getTransientAddress() {
+			return transientAddress;
+		}
 
-        public void setTransientAddress(Address_M transientAddress) {
-            this.transientAddress = transientAddress;
-        }
-    }
+		public void setTransientAddress(Address_M transientAddress) {
+			this.transientAddress = transientAddress;
+		}
+	}
 
-    @Embeddable
-    static class Address_F implements Serializable {
+	@Embeddable
+	static class Address_F implements Serializable {
 
-        String street;
-        String postalCode;
-    }
+		String street;
+		String postalCode;
+	}
 
-    /*
-     * Test classes that use method annotations
-     */
-    @MappedSuperclass
-    static abstract class BaseEntity_M implements Serializable {
+	/*
+	 * Test classes that use method annotations
+	 */
+	@MappedSuperclass
+	static abstract class BaseEntity_M implements Serializable {
 
-        private Integer id;
-        private Integer version;
+		private Integer id;
+		private Integer version;
 
-        @Id
-        public Integer getId() {
-            return id;
-        }
+		@Id
+		public Integer getId() {
+			return id;
+		}
 
-        public void setId(Integer id) {
-            this.id = id;
-        }
+		public void setId(Integer id) {
+			this.id = id;
+		}
 
-        @Version
-        public Integer getVersion() {
-            return version;
-        }
+		@Version
+		public Integer getVersion() {
+			return version;
+		}
 
-        public void setVersion(Integer version) {
-            this.version = version;
-        }
+		public void setVersion(Integer version) {
+			this.version = version;
+		}
 
-        public Integer getTransientBaseField() {
-            return null;
-        }
-    }
+		public Integer getTransientBaseField() {
+			return null;
+		}
+	}
 
-    @Entity
-    static class Person_M extends BaseEntity_M {
+	@Entity
+	static class Person_M extends BaseEntity_M {
 
-        private String firstName;
-        private String lastName;
-        private Address_M address;
-        private String transientField2;
-        private Collection<Person_M> children;
-        private Person_M parent;
+		private String firstName;
+		private String lastName;
+		private Address_M address;
+		private String transientField2;
+		private Collection<Person_M> children;
+		private Person_M parent;
 
-        public String getFirstName() {
-            return firstName;
-        }
+		public String getFirstName() {
+			return firstName;
+		}
 
-        public void setFirstName(String firstName) {
-            this.firstName = firstName;
-        }
+		public void setFirstName(String firstName) {
+			this.firstName = firstName;
+		}
 
-        public String getLastName() {
-            return lastName;
-        }
+		public String getLastName() {
+			return lastName;
+		}
 
-        public void setLastName(String lastName) {
-            this.lastName = lastName;
-        }
+		public void setLastName(String lastName) {
+			this.lastName = lastName;
+		}
 
-        @Embedded
-        public Address_M getAddress() {
-            return address;
-        }
+		@Embedded
+		public Address_M getAddress() {
+			return address;
+		}
 
-        public void setAddress(Address_M address) {
-            this.address = address;
-        }
+		public void setAddress(Address_M address) {
+			this.address = address;
+		}
 
-        public String getTransientField() {
-            return "transient field";
-        }
+		public String getTransientField() {
+			return "transient field";
+		}
 
-        @Transient
-        public String getTransientField2() {
-            return transientField2;
-        }
+		@Transient
+		public String getTransientField2() {
+			return transientField2;
+		}
 
-        public void setTransientField2(String value) {
-            this.transientField2 = value;
-        }
+		public void setTransientField2(String value) {
+			this.transientField2 = value;
+		}
 
-        @OneToMany(mappedBy = "parent")
-        public Collection<Person_M> getChildren() {
-            return children;
-        }
+		@OneToMany(mappedBy = "parent")
+		public Collection<Person_M> getChildren() {
+			return children;
+		}
 
-        public void setChildren(Collection<Person_M> children) {
-            this.children = children;
-        }
+		public void setChildren(Collection<Person_M> children) {
+			this.children = children;
+		}
 
-        @ManyToOne
-        public Person_M getParent() {
-            return parent;
-        }
+		@ManyToOne
+		public Person_M getParent() {
+			return parent;
+		}
 
-        public void setParent(Person_M parent) {
-            this.parent = parent;
-        }
-    }
+		public void setParent(Person_M parent) {
+			this.parent = parent;
+		}
+	}
 
-    @Embeddable
-    static class Address_M implements Serializable {
+	@Embeddable
+	static class Address_M implements Serializable {
 
-        private String street;
-        private String postalCode;
+		private String street;
+		private String postalCode;
 
-        public String getStreet() {
-            return street;
-        }
+		public String getStreet() {
+			return street;
+		}
 
-        public void setStreet(String street) {
-            this.street = street;
-        }
+		public void setStreet(String street) {
+			this.street = street;
+		}
 
-        public String getPostalCode() {
-            return postalCode;
-        }
+		public String getPostalCode() {
+			return postalCode;
+		}
 
-        public void setPostalCode(String postalCode) {
-            this.postalCode = postalCode;
-        }
-    }
+		public void setPostalCode(String postalCode) {
+			this.postalCode = postalCode;
+		}
+	}
 
-    /*
-     * Test classes for embedded IDs
-     */
-    @Entity
-    static class EmbeddedIdEntity_F implements Serializable {
+	/*
+	 * Test classes for embedded IDs
+	 */
+	@Entity
+	static class EmbeddedIdEntity_F implements Serializable {
 
-        @EmbeddedId
-        Address_F address;
-    }
+		@EmbeddedId
+		Address_F address;
+	}
 
-    @Entity
-    static class EmbeddedIdEntity_M implements Serializable {
+	@Entity
+	static class EmbeddedIdEntity_M implements Serializable {
 
-        private Address_M address;
+		private Address_M address;
 
-        @EmbeddedId
-        public Address_M getAddress() {
-            return address;
-        }
+		@EmbeddedId
+		public Address_M getAddress() {
+			return address;
+		}
 
-        public void setAddress(Address_M address) {
-            this.address = address;
-        }
-    }
+		public void setAddress(Address_M address) {
+			this.address = address;
+		}
+	}
 }

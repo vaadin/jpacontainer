@@ -47,7 +47,9 @@ import java.util.UUID;
  */
 final class BufferedContainerDelegate<T> implements Serializable {
 
-    /**
+	private static final long serialVersionUID = -4471665710680629463L;
+
+	/**
      * Creates a new <code>BufferedContainerDelegate</code> for the specified container.
      *
      * @param container the <code>JPAContainer</code> (must not be null).
@@ -64,7 +66,8 @@ final class BufferedContainerDelegate<T> implements Serializable {
 
     final class Delta implements Serializable {
 
-        final DeltaType type;
+		private static final long serialVersionUID = -5907859901553818040L;
+		final DeltaType type;
         final Object itemId;
         final T entity;
 
@@ -85,11 +88,11 @@ final class BufferedContainerDelegate<T> implements Serializable {
     private Set<Object> deletedItemIdsCache = new HashSet<Object>();
     private Map<Object, T> updatedEntitiesCache = new HashMap<Object, T>();
 
-    private T cloneEntityIfPossible(T entity) {
+	private T cloneEntityIfPossible(T entity) {
         if (entity instanceof Cloneable) {
             try {
                 Method m = entity.getClass().getMethod("clone");
-                T clonedEntity = (T) m.invoke(entity);
+                T clonedEntity = container.getEntityClass().cast(m.invoke(entity));
                 return clonedEntity;
             } catch (Exception e) {
                 // Do nothing.
@@ -201,13 +204,16 @@ final class BufferedContainerDelegate<T> implements Serializable {
      * @throws com.vaadin.data.Buffered.SourceException if any errors occured.
      * @throws com.vaadin.data.Validator.InvalidValueException currently never thrown by this implementation.
      */
-    public void commit() throws SourceException, InvalidValueException {
-        assert container.getEntityProvider() instanceof BatchableEntityProvider : "entityProvider is not batchable";
+    @SuppressWarnings("unchecked")
+	public void commit() throws SourceException, InvalidValueException {
+		assert container.getEntityProvider() instanceof BatchableEntityProvider : "entityProvider is not batchable";
         BatchableEntityProvider<T> ep = (BatchableEntityProvider<T>) container.
                 getEntityProvider();
         ep.batchUpdate(new BatchableEntityProvider.BatchUpdateCallback<T>() {
 
-            public void batchUpdate(
+			private static final long serialVersionUID = -5385980617323427732L;
+
+			public void batchUpdate(
                     MutableEntityProvider<T> batchEnabledEntityProvider) {
                 try {
                     for (Delta delta : deltaList) {

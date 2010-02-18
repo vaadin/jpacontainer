@@ -19,35 +19,37 @@ package com.vaadin.addons.jpacontainer.filter;
 
 /**
  * Abstract base class for filters that filter string properties.
- *
+ * 
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
 public abstract class AbstractStringFilter extends AbstractValueFilter {
 
-    private boolean caseSensitive;
+	private static final long serialVersionUID = -4588708261107069904L;
 
-    protected AbstractStringFilter(Object propertyId, Object value,
-            boolean caseSensitive) {
-        super(propertyId, value);
-        this.caseSensitive = caseSensitive;
-    }
+	private boolean caseSensitive;
 
-    /**
-     * Returns whether the filter should be case sensitive or not.
-     */
-    public boolean isCaseSensitive() {
-        return caseSensitive;
-    }
+	protected AbstractStringFilter(Object propertyId, Object value,
+			boolean caseSensitive) {
+		super(propertyId, value);
+		this.caseSensitive = caseSensitive;
+	}
 
-    @Override
-    @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
-    public boolean equals(Object obj) {
-        return super.equals(obj) && ((AbstractStringFilter) obj).caseSensitive == caseSensitive;
-    }
+	/**
+	 * Returns whether the filter should be case sensitive or not.
+	 */
+	public boolean isCaseSensitive() {
+		return caseSensitive;
+	}
 
-    @Override
-    public int hashCode() {
-        return super.hashCode() + 7 * new Boolean(caseSensitive).hashCode();
-    }
+	@Override
+	public boolean equals(Object obj) {
+		return super.equals(obj)
+				&& ((AbstractStringFilter) obj).caseSensitive == caseSensitive;
+	}
+
+	@Override
+	public int hashCode() {
+		return super.hashCode() + 7 * new Boolean(caseSensitive).hashCode();
+	}
 }
