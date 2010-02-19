@@ -5,7 +5,7 @@
     <groupId>com.vaadin.addons</groupId>
     <artifactId>jpacontainer</artifactId>
     <packaging>pom</packaging>
-    <version>${jpacontainer.version}</version>
+    <version>0.0.1-SNAPSHOT</version>
     <name>JPAContainer</name>
 
     <modules>
@@ -38,11 +38,7 @@
             <version>1.0</version>
         </dependency>
     </dependencies>
-
-    <properties>
-        <jpacontainer.version>0.0.1-SNAPSHOT</jpacontainer.version>
-    </properties>
-
+    
     <build>
         <pluginManagement>
             <plugins>
