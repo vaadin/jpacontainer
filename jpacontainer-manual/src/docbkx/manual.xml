@@ -274,14 +274,90 @@ item = customerContainer.getItem(id);
         <section xml:id="buffered_mode">
             <title>Buffered mode</title>
             <para>
-                ToDo
+                Both <interfacename>EntityContainer</interfacename> and <interfacename>EntityItem</interfacename> extend the <interfacename>Buffered</interfacename> interface.
+                This means that it is possible to buffer changes made to either individual items or to the container as a whole.
             </para>
+            <para>
+                The <interfacename>Buffered</interfacename> interface can be used to control both how data is read and how changes are written:
+            </para>
+            <variablelist>
+                <varlistentry>
+                    <term>Write-Through</term>
+                    <listitem>
+                        <para>
+                            Controls whether changes should be written directly (on) or buffered (off).
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Read-Through</term>
+                    <listitem>
+                        <para>
+                            Controls whether changes should be read from the original data store (on) or from a buffer or cache (off).
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
             <section>
                 <title>Container Buffering</title>
                 <para>
-                    ToDo
+                    The buffering capabilities of the container heavily depend on the capabilities of the underlying entity provider:
                 </para>
             </section>
+            <variablelist>
+                <varlistentry>
+                    <term>Write-Through</term>
+                    <listitem>
+                        <para>
+                            When turned on, any changes are directly propagated to the entity provider. When turned off,
+                            all changes are buffered in the container and sent to the entity provider only when <methodname>commit()</methodname> is called.
+                            The changes can also be rolled back using <methodname>discard()</methodname>.
+                        </para>
+                        <para>
+                            It is important to remember that buffered changes are <emphasize>not</emphasize> considered when the data is filtered or sorted, as these operations
+                            are performed by the entity provider. Thus, newly added items always show up at the top of the container regardless of any sorting applied,
+                            and modified items are filtered and sorted according to their "unmodified state". Only after the changes have been committed, filtering and sorting
+                            will be applied to the new values.
+                        </para>
+                        <para>
+                            By default, write-through is turned off if the entity provider supports it. To support buffering of changes, the entity provider must implement
+                            the <interfacename>BatchableEntityProvider</interfacename> interface. This makes it possible to run all the updates as a batch inside a single transaction.
+                            JPAContainer will keep a log of all the changes that have been made and will then pass these changes on to the entity provider in the same order as
+                            they were made.
+                        </para>
+                        <para>
+                            There are a few potential issues to keep in mind when using buffered mode and the entities use references to other entities within the same container.
+                            The first thing to keep in mind is how cascading has been configured. Let us say that two entities have been added to the container and that the first
+                            entity contains a reference to the second entity. If cascading is turned on, both entities will be persisted when the first entity is added to the entity
+                            manager. If this has not been detected by the entity provider, it might proceed by adding the second entity to the entity manager as instructed by JPAContainer.
+                            As a result, there might now be two copies of the second entity in the database.
+                        </para>
+                        <para>
+                            A similar problem might occur if some entity references a newly created entity that is removed before it has been persisted. For example, let us say that
+                            EntityA and EntityB have both been added to the container, but not committed yet. EntityA is then updated to reference EntityB. However, the user realizes
+                            that he or she has made a mistake and removes EntityB from the container. EntityA will, however, still hold a reference to EntityB as JPAContainer does no
+                            internal validation. When EntityA is persisted, the operation will cascade to EntityB, and suddenly EntityB is in the database although it was never committed.
+                        </para>
+                        <para>
+                            If you think your application might run into problems like these, there are a few things you could do. First, make sure you perform enough validation every time
+                            you remove or edit an entity so that any illegal references are cleaned up. Second, implement your own entity provider so that it is aware of the potential
+                            problem situations and is able to deal with them.
+                        </para>
+                        <para>
+                            This is also called Auto Commit in the EntityContainer API.
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Read-Through</term>
+                    <listitem>
+                        <para>
+                            Read-through cannot be explicitly changed by the user. Read-through is off if the entity provider implements the <interfacename>CachingEntityProvider</interfacename>
+                            and the cache is in use. Otherwise, read-through is always on, i.e. the data is read directly from the data store.
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
             <section>
                 <title>Item Buffering</title>
                 <para>
