@@ -20,6 +20,8 @@ package com.vaadin.addons.jpacontainer.provider.emtests.hibernate;
 import com.vaadin.addons.jpacontainer.provider.MutableLocalEntityProvider;
 import com.vaadin.addons.jpacontainer.provider.emtests.AbstractMutableLocalEntityProviderEMTest;
 import com.vaadin.addons.jpacontainer.testdata.Address;
+import com.vaadin.addons.jpacontainer.testdata.EmbeddedIdPerson;
+import com.vaadin.addons.jpacontainer.testdata.Name;
 import com.vaadin.addons.jpacontainer.testdata.Person;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -52,7 +54,8 @@ public class MutableEntityProviderEMTest extends
 						"org.hibernate.cache.HashtableCacheProvider")
 				.setProperty("hibernate.hbm2ddl.auto", "create-drop")
 				.setProperty("hibernate.show_sql", "false").addAnnotatedClass(
-						Person.class).addAnnotatedClass(Address.class);
+						Person.class).addAnnotatedClass(Address.class).addAnnotatedClass(
+				EmbeddedIdPerson.class).addAnnotatedClass(Name.class);
 		EntityManagerFactory emf = cfg.buildEntityManagerFactory();
 		entityManager = emf.createEntityManager();
 	}

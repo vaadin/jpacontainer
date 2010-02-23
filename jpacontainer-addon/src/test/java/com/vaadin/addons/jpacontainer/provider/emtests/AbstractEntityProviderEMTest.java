@@ -89,7 +89,17 @@ public abstract class AbstractEntityProviderEMTest {
 		}
 
 		for (Person p : testDataSortedByPrimaryKey) {
-			getEntityManager().remove(p);
+			Person pp = getEntityManager().find(Person.class, p.getId());
+			if (pp != null) {
+				getEntityManager().remove(pp);
+			}
+		}
+
+		for (EmbeddedIdPerson p : testDataEmbeddedIdSortedByName) {
+			EmbeddedIdPerson pp = getEntityManager().find(EmbeddedIdPerson.class, p.getName());
+			if (pp != null) {
+				getEntityManager().remove(pp);
+			}
 		}
 		
 		getEntityManager().flush();
