@@ -301,4 +301,33 @@ public class ClassMetadataTest {
 	}
 
 	// TODO Add test for equals() and hashCode()
+	@Test
+	public void testEqualsAndHashCode() throws Exception {
+		ClassMetadata<Person_M> metadata1 = new ClassMetadata<Person_M>(
+				Person_M.class);
+		PropertyMetadata prop = new PropertyMetadata("transientField2",
+				String.class, Person_M.class
+						.getDeclaredMethod("getTransientField2"),
+				Person_M.class.getDeclaredMethod("setTransientField2",
+						String.class));
+		metadata1.addProperties(prop);
+
+		ClassMetadata<Person_M> metadata2 = new ClassMetadata<Person_M>(
+				Person_M.class);
+		metadata2.addProperties(prop);
+
+		assertEquals(metadata1, metadata2);
+		assertEquals(metadata1.hashCode(), metadata2.hashCode());
+
+		PersistentPropertyMetadata prop2 = new PersistentPropertyMetadata(
+				"firstName", String.class,
+				PersistentPropertyMetadata.PropertyKind.SIMPLE, Person_M.class
+						.getDeclaredMethod("getFirstName"), Person_M.class
+						.getDeclaredMethod("setFirstName", String.class));
+		metadata1.addProperties(prop2);
+
+		assertFalse(metadata1.equals(metadata2));
+		assertFalse(metadata1.hashCode() == metadata2.hashCode());
+		assertFalse(metadata1.equals("Wrong type"));
+	}
 }
