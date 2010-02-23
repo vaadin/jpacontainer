@@ -133,14 +133,20 @@ public interface EntityItem<T> extends Item, Buffered,
 	public EntityItemProperty getItemProperty(Object id);
 
 	/**
-	 * TODO Document this method!
-	 * 
+	 * Originally, all nested properties are inherited from the {@link EntityContainer}.
+	 * However, if additional properties are needed, this method can be used to
+	 * add the nested property <code>nestedProperty</code> to the set of
+	 * properties for this particular item.<p>
+	 * Otherwise, this method behaves just like {@link EntityContainer#addNestedContainerProperty(java.lang.String) }.
+	 *
 	 * @param nestedProperty
-	 *            the nested property to add.
+	 *            the nested property to add (must not be null).
 	 * @throws UnsupportedOperationException
+	 *             if nested properties are not supported by the container.
+	 * @throws IllegalArgumentException if <code>nestedProperty</code> is illegal.
 	 */
 	public void addNestedContainerProperty(String nestedProperty)
-			throws UnsupportedOperationException;
+			throws UnsupportedOperationException, IllegalArgumentException;
 
 	/**
 	 * Removes a nested property added with

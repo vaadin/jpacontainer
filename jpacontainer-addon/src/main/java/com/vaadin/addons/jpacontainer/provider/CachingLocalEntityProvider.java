@@ -279,7 +279,7 @@ public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T>
 		if (!isCacheInUse()) {
 			return super.containsEntity(entityId, filter);
 		} else {
-			// TODO Implement me!
+			// FIXME MISSING Implement me!
 			System.out.println("Warning - cache support not implemented yet");
 			return super.containsEntity(entityId, filter);
 		}
@@ -403,7 +403,7 @@ public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T>
 		if (!isCacheInUse()) {
 			return super.getNextEntityIdentifier(entityId, filter, sortBy);
 		} else {
-			// TODO Implement me!
+			// FIXME MISSING Implement me!
 			System.out
 					.println("getNextEntityIdentifier: Warning - cache support not implemented yet");
 			return super.getNextEntityIdentifier(entityId, filter, sortBy);
@@ -416,7 +416,7 @@ public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T>
 		if (!isCacheInUse()) {
 			return super.getPreviousEntityIdentifier(entityId, filter, sortBy);
 		} else {
-			// TODO Implement me!
+			// FIXME MISSING Implement me!
 			System.out
 					.println("getPreviousEntityIdentifier: Warning - cache support not implemented yet");
 			return super.getPreviousEntityIdentifier(entityId, filter, sortBy);

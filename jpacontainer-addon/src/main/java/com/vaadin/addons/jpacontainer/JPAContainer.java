@@ -230,9 +230,12 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	private boolean fireItemSetChangeOnProviderChange = true;
 
 	/**
-	 * TODO document me
+	 * Specifies whether the container should fire an ItemSetChangeEvent when
+	 * an EntityProviderChangeEvent is received. This is used to prevent
+	 * clients from receiving duplicate ItemSetChangeEvents when the container
+	 * modifies data and wants to handle ItemSetChangeEvents itself.
 	 * 
-	 * @param fireItemSetChangeOnProviderChange
+	 * @param fireItemSetChangeOnProviderChange true fo fire an ItemSetChangeEvent when the provider changes, false not to.
 	 */
 	protected void setFireItemSetChangeOnProviderChange(
 			boolean fireItemSetChangeOnProviderChange) {
@@ -240,9 +243,8 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	}
 
 	/**
-	 * TODO Document me
-	 * 
-	 * @return
+	 * @see #setFireItemSetChangeOnProviderChange(boolean)
+	 * @return true if an ItemSetChangeEvent should be fired when the provider changes, false if it should not.
 	 */
 	protected boolean isFireItemSetChangeOnProviderChange() {
 		return fireItemSetChangeOnProviderChange;
@@ -279,7 +281,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 		assert propertyId.length == ascending.length : "propertyId and ascending must have the same length";
 		sortByList = new LinkedList<SortBy>();
 		for (int i = 0; i < propertyId.length; ++i) {
-			if (!getSortableContainerPropertyIds().contains(propertyId[i])) {
+			if (!getSortableContainerPropertyIds().contains(propertyId[i].toString())) {
 				throw new IllegalArgumentException(
 						"No such sortable property ID: " + propertyId[i]);
 			}
@@ -810,7 +812,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	}
 
 	public boolean removeAllItems() throws UnsupportedOperationException {
-		// TODO Implement me!
+		// FIXME MISSING Implement me!
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
 

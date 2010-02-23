@@ -258,7 +258,7 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
 	}
 
 	/**
-	 * TODO Document me!
+	 * Base class for {@link EntityProviderChangeEvent}s.
 	 * 
 	 * @author Petter Holmström (IT Mill)
 	 * @since 1.0
@@ -270,9 +270,9 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
 		private Collection<T> entities;
 
 		/**
-		 * TODO document me!
+		 * Creates a new <code>EntityEvent</code>.
 		 * 
-		 * @param entities
+		 * @param entities the affected entities.
 		 */
 		protected EntityEvent(T... entities) {
 			if (entities.length == 0) {
@@ -293,7 +293,7 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
 	}
 
 	/**
-	 * TODO Document me!
+	 * Event indicating that one or more entities have been added.
 	 * 
 	 * @author Petter Holmström (IT Mill)
 	 * @since 1.0
@@ -308,7 +308,7 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
 	}
 
 	/**
-	 * TODO Document me!
+	 * Event indicating that one or more entities have been updated.
 	 * 
 	 * @author Petter Holmström (IT Mill)
 	 * @since 1.0
@@ -323,7 +323,7 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
 	}
 
 	/**
-	 * TODO Document me!
+	 * Event indicating that one or more entities have been removed.
 	 * 
 	 * @author Petter Holmström (IT Mill)
 	 * @since 1.0

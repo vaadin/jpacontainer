@@ -23,7 +23,9 @@ import com.vaadin.data.Container;
 import com.vaadin.data.Validator.InvalidValueException;
 
 /**
- * TODO Write documentation!
+ * A Container for {@link EntityItem}s. The data is provided by a
+ * {@link EntityProvider}. Supports sorting, advanced filtering, nested
+ * properties and buffering.
  * 
  * @author Petter Holmström (IT Mill)
  * @since 1.0
@@ -57,15 +59,33 @@ public interface EntityContainer<T> extends Container.Sortable,
 	public Class<T> getEntityClass();
 
 	/**
-	 * TODO Document this method!
-	 * 
+	 * Adds the nested property <code>nestedProperty</code> to the set of
+	 * properties. An asterisk can be used as a wildcard to indicate all
+	 * leaf-properties.
+	 * <p>
+	 * For example, let's say there is a property named <code>address</code> and
+	 * that this property's type in turn has the properties <code>street</code>,
+	 * <code>postalCode</code> and <code>city</code>.
+	 * <p>
+	 * If we want to be able to access the street property directly, we can add
+	 * the nested property <code>address.street</code> using this method.
+	 * <p>
+	 * However, if we want to add all the address properties, we can also use
+	 * <code>address.*</code>. This will cause the nested properties
+	 * <code>address.street</code>, <code>address.postalCode</code> and
+	 * <code>address.city</code> to be added to the set of properties.
+	 * <p>
+	 * Note, that the wildcard cannot be used in the middle of a chain
+	 * of property names. E.g. <code>myprop.*.something</code> is illegal.
+	 *
 	 * @param nestedProperty
-	 *            the nested property to add.
+	 *            the nested property to add (must not be null).
 	 * @throws UnsupportedOperationException
 	 *             if nested properties are not supported by the container.
+	 * @throws IllegalArgumentException if <code>nestedProperty</code> is illegal.
 	 */
 	public void addNestedContainerProperty(String nestedProperty)
-			throws UnsupportedOperationException;
+			throws UnsupportedOperationException, IllegalArgumentException;
 
 	/**
 	 * Adds a new entity to the container. The corresponding {@link EntityItem}
