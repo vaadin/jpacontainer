@@ -19,6 +19,7 @@ package com.vaadin.addons.jpacontainer.provider.emtests;
 
 import com.vaadin.addons.jpacontainer.EntityProvider;
 import com.vaadin.addons.jpacontainer.provider.LocalEntityProvider;
+import com.vaadin.addons.jpacontainer.testdata.EmbeddedIdPerson;
 import com.vaadin.addons.jpacontainer.testdata.Person;
 
 /**
@@ -36,4 +37,13 @@ public abstract class AbstractLocalEntityProviderEMTest extends
 				Person.class, getEntityManager());
 		return provider;
 	}
+
+	@Override
+	protected EntityProvider<EmbeddedIdPerson> createEntityProvider_EmbeddedId() throws Exception {
+		LocalEntityProvider<EmbeddedIdPerson> provider = new LocalEntityProvider<EmbeddedIdPerson>(
+				EmbeddedIdPerson.class, getEntityManager());
+		return provider;
+	}
+
+
 }

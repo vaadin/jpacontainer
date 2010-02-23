@@ -98,20 +98,13 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 	 */
 	public LocalEntityProvider(Class<T> entityClass) {
 		assert entityClass != null : "entityClass must not be null";
-		this.entityClassMetadata = MetadataFactory.getInstance()
-				.getEntityClassMetadata(entityClass);
-
-		if (entityClassMetadata.hasEmbeddedIdentifier()) {
-			// TODO Add support for embedded identifiers
-			throw new IllegalArgumentException(
-					"Embedded identifiers are currently not supported!");
-		}
+		this.entityClassMetadata = MetadataFactory.getInstance().
+				getEntityClassMetadata(entityClass);
 	}
-
+	
 	private Serializable serializableEntityManager;
 
 	// TODO Test serialization of entity manager
-
 	protected Object writeReplace() throws ObjectStreamException {
 		if (entityManager != null && entityManager instanceof Serializable) {
 			serializableEntityManager = (Serializable) entityManager;
@@ -180,8 +173,14 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 	protected List<SortBy> addPrimaryKeyToSortList(List<SortBy> original) {
 		ArrayList<SortBy> newList = new ArrayList<SortBy>();
 		newList.addAll(original);
-		newList.add(new SortBy(getEntityClassMetadata().getIdentifierProperty()
-				.getName(), true));
+		if (getEntityClassMetadata().hasEmbeddedIdentifier()) {
+			for (String p : getEntityClassMetadata().getIdentifierProperty().getTypeMetadata().getPersistentPropertyNames()) {
+				newList.add(new SortBy(getEntityClassMetadata().getIdentifierProperty().getName() + "." + p, true));
+			}
+		} else {
+			newList.add(new SortBy(getEntityClassMetadata().
+					getIdentifierProperty().getName(), true));
+		}
 		return Collections.unmodifiableList(newList);
 	}
 
@@ -294,10 +293,10 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 			query.setParameter(vf.getQLParameterName(), vf.getValue());
 		} else if (filter instanceof IntervalFilter) {
 			IntervalFilter intf = (IntervalFilter) filter;
-			query.setParameter(intf.getEndingPointQLParameterName(), intf
-					.getEndingPoint());
-			query.setParameter(intf.getStartingPointQLParameterName(), intf
-					.getStartingPoint());
+			query.setParameter(intf.getEndingPointQLParameterName(), intf.
+					getEndingPoint());
+			query.setParameter(intf.getStartingPointQLParameterName(), intf.
+					getStartingPoint());
 		} else if (filter instanceof CompositeFilter) {
 			for (Filter f : ((CompositeFilter) filter).getFilters()) {
 				setQueryParameters(query, f);
@@ -307,16 +306,21 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 
 	public boolean containsEntity(Object entityId, Filter filter) {
 		assert entityId != null : "entityId must not be null";
-		Filter entityIdFilter = Filters.eq(getEntityClassMetadata()
-				.getIdentifierProperty().getName(), entityId);
+		Filter entityIdFilter = Filters.eq(getEntityClassMetadata().
+				getIdentifierProperty().getName(), entityId);
 		Filter f;
 		if (filter == null) {
 			f = entityIdFilter;
 		} else {
 			f = Filters.and(entityIdFilter, filter);
 		}
-		Query query = createUnsortedFilteredQuery("count(obj)", "obj", f, null);
-		return ((Long) query.getSingleResult()) == 1;
+		Query query = createUnsortedFilteredQuery("count(*)", "obj", f, null);
+		Object result = query.getSingleResult();
+		if (result instanceof Integer) {
+			return ((Integer) result).intValue() == 1;
+		} else {
+			return ((Long) result).longValue() == 1;
+		}
 	}
 
 	public T getEntity(Object entityId) {
@@ -343,7 +347,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 	}
 
 	public int getEntityCount(Filter filter) {
-		Query query = createUnsortedFilteredQuery("count(obj)", "obj", filter,
+		Query query = createUnsortedFilteredQuery("count(*)", "obj", filter,
 				null);
 		Object ret = query.getSingleResult();
 		if (ret instanceof Integer) {
@@ -411,11 +415,11 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 		if (sortBy.size() == 1) {
 			// The list is sorted by primary key
 			if (backwards) {
-				limitingFilter = Filters.lt(getEntityClassMetadata()
-						.getIdentifierProperty().getName(), entityId);
+				limitingFilter = Filters.lt(getEntityClassMetadata().
+						getIdentifierProperty().getName(), entityId);
 			} else {
-				limitingFilter = Filters.gt(getEntityClassMetadata()
-						.getIdentifierProperty().getName(), entityId);
+				limitingFilter = Filters.gt(getEntityClassMetadata().
+						getIdentifierProperty().getName(), entityId);
 			}
 		} else {
 			// We have to fetch the values of the sorted fields
@@ -427,8 +431,8 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 			// Collect the values into a map for easy access
 			Map<Object, Object> filterValues = new HashMap<Object, Object>();
 			for (SortBy sb : sortBy) {
-				filterValues.put(sb.propertyId, getEntityClassMetadata()
-						.getPropertyValue(currentEntity,
+				filterValues.put(sb.propertyId, getEntityClassMetadata().
+						getPropertyValue(currentEntity,
 						sb.propertyId.toString()));
 			}
 			// Now we can build a filter that limits the query to the entities
@@ -441,16 +445,16 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 				SortBy sb;
 				for (int j = 0; j < i; j++) {
 					sb = sortBy.get(j);
-					caseFilter.add(Filters.eq(sb.propertyId, filterValues
-							.get(sb.propertyId)));
+					caseFilter.add(Filters.eq(sb.propertyId, filterValues.get(
+							sb.propertyId)));
 				}
 				sb = sortBy.get(i);
 				if (sb.ascending ^ backwards) {
-					caseFilter.add(Filters.gt(sb.propertyId, filterValues
-							.get(sb.propertyId)));
+					caseFilter.add(Filters.gt(sb.propertyId, filterValues.get(
+							sb.propertyId)));
 				} else {
-					caseFilter.add(Filters.lt(sb.propertyId, filterValues
-							.get(sb.propertyId)));
+					caseFilter.add(Filters.lt(sb.propertyId, filterValues.get(
+							sb.propertyId)));
 				}
 				((Junction) limitingFilter).add(caseFilter);
 			}
@@ -516,8 +520,8 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 				ByteArrayOutputStream os = new ByteArrayOutputStream();
 				ObjectOutputStream oos = new ObjectOutputStream(os);
 				oos.writeObject(entity);
-				ByteArrayInputStream is = new ByteArrayInputStream(os
-						.toByteArray());
+				ByteArrayInputStream is = new ByteArrayInputStream(os.
+						toByteArray());
 				ObjectInputStream ois = new ObjectInputStream(is);
 				return getEntityClassMetadata().getMappedClass().cast(
 						ois.readObject());
@@ -525,8 +529,8 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 				// Do nothing, entity manager will be cleared
 			}
 		}
-		System.out
-				.println("WARNING: Clearing EntityManager in order to detach the entities in it");
+		System.out.println(
+				"WARNING: Clearing EntityManager in order to detach the entities in it");
 		doGetEntityManager().clear();
 		return entity;
 	}

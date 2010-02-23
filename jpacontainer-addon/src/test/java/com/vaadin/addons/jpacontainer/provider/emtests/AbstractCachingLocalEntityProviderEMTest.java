@@ -19,6 +19,7 @@ package com.vaadin.addons.jpacontainer.provider.emtests;
 
 import com.vaadin.addons.jpacontainer.EntityProvider;
 import com.vaadin.addons.jpacontainer.provider.CachingLocalEntityProvider;
+import com.vaadin.addons.jpacontainer.testdata.EmbeddedIdPerson;
 import com.vaadin.addons.jpacontainer.testdata.Person;
 
 /**
@@ -38,5 +39,15 @@ public abstract class AbstractCachingLocalEntityProviderEMTest extends
 		provider.setCloneCachedEntities(true);
 		return provider;
 	}
+
+	@Override
+	protected EntityProvider<EmbeddedIdPerson> createEntityProvider_EmbeddedId() throws Exception {
+		CachingLocalEntityProvider<EmbeddedIdPerson> provider = new CachingLocalEntityProvider<EmbeddedIdPerson>(
+				EmbeddedIdPerson.class, getEntityManager());
+		provider.setCacheInUse(true);
+		provider.setCloneCachedEntities(true);
+		return provider;
+	}
+
 	// TODO Add some test cases that try out the caching features as well
 }

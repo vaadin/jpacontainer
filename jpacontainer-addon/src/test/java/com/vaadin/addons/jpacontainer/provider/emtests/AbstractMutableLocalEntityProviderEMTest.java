@@ -19,6 +19,7 @@ package com.vaadin.addons.jpacontainer.provider.emtests;
 
 import com.vaadin.addons.jpacontainer.EntityProvider;
 import com.vaadin.addons.jpacontainer.provider.MutableLocalEntityProvider;
+import com.vaadin.addons.jpacontainer.testdata.EmbeddedIdPerson;
 import com.vaadin.addons.jpacontainer.testdata.Person;
 
 /**
@@ -37,4 +38,13 @@ public abstract class AbstractMutableLocalEntityProviderEMTest extends
 		provider.setTransactionsHandled(true);
 		return provider;
 	}
+
+	@Override
+	protected EntityProvider<EmbeddedIdPerson> createEntityProvider_EmbeddedId() throws Exception {
+		MutableLocalEntityProvider<EmbeddedIdPerson> provider = new MutableLocalEntityProvider<EmbeddedIdPerson>(
+				EmbeddedIdPerson.class, getEntityManager());
+		provider.setTransactionsHandled(true);
+		return provider;
+	}
+	
 }

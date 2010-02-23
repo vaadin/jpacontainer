@@ -23,6 +23,8 @@ import com.vaadin.addons.jpacontainer.EntityProvider;
 import com.vaadin.addons.jpacontainer.SortBy;
 import com.vaadin.addons.jpacontainer.Filter;
 import com.vaadin.addons.jpacontainer.filter.Filters;
+import com.vaadin.addons.jpacontainer.testdata.EmbeddedIdPerson;
+import com.vaadin.addons.jpacontainer.testdata.Name;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -30,6 +32,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import javax.persistence.EntityManager;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.Before;
 import static org.junit.Assert.*;
@@ -48,8 +51,10 @@ public abstract class AbstractEntityProviderEMTest {
 	protected abstract EntityManager getEntityManager() throws Exception;
 
 	protected EntityProvider<Person> entityProvider;
+	protected EntityProvider<EmbeddedIdPerson> entityProvider_EmbeddedId;
 	protected List<Person> testDataSortedByPrimaryKey;
 	protected List<Person> testDataSortedByName;
+	protected List<EmbeddedIdPerson> testDataEmbeddedIdSortedByName;
 	protected List<Person> testDataSortedByLastNameAndStreet;
 	protected List<Person> filteredTestDataSortedByPrimaryKey;
 	protected List<Person> filteredTestDataSortedByName;
@@ -71,10 +76,31 @@ public abstract class AbstractEntityProviderEMTest {
 	@Before
 	public void setUp() throws Exception {
 		entityProvider = createEntityProvider();
+		entityProvider_EmbeddedId = createEntityProvider_EmbeddedId();
 		createTestData();
 	}
 
+	@After
+	public void tearDown() throws Exception {
+		entityProvider = null;
+		entityProvider_EmbeddedId = null;
+		if (!getEntityManager().getTransaction().isActive()) {
+			getEntityManager().getTransaction().begin();
+		}
+
+		for (Person p : testDataSortedByPrimaryKey) {
+			getEntityManager().remove(p);
+		}
+		
+		getEntityManager().flush();
+		getEntityManager().getTransaction().commit();
+		getEntityManager().clear();
+	}
+
 	protected abstract EntityProvider<Person> createEntityProvider()
+			throws Exception;
+
+	protected abstract EntityProvider<EmbeddedIdPerson> createEntityProvider_EmbeddedId()
 			throws Exception;
 
 	@SuppressWarnings("unchecked")
@@ -84,6 +110,7 @@ public abstract class AbstractEntityProviderEMTest {
 		Random rnd = new Random();
 		testDataSortedByPrimaryKey = new ArrayList<Person>();
 		filteredTestDataSortedByPrimaryKey = new ArrayList<Person>();
+		testDataEmbeddedIdSortedByName = new ArrayList<EmbeddedIdPerson>();
 		for (int i = 0; i < 100; i++) {
 			Person p = new Person();
 			p.setFirstName(firstNames[i / 10]);
@@ -108,6 +135,16 @@ public abstract class AbstractEntityProviderEMTest {
 			if (p.getLastName().startsWith("S")) {
 				filteredTestDataSortedByPrimaryKey.add(p);
 			}
+
+			// EmbeddedId test data
+			EmbeddedIdPerson eip = new EmbeddedIdPerson();
+			eip.setName(new Name());
+			eip.getName().setFirstName(p.getFirstName());
+			eip.getName().setLastName(p.getLastName());
+			eip.setAddress(p.getAddress().clone());
+			eip.setDateOfBirth(p.getDateOfBirth());
+			getEntityManager().persist(eip);
+			testDataEmbeddedIdSortedByName.add(eip);
 		}
 		getEntityManager().flush();
 		getEntityManager().getTransaction().commit();
@@ -135,6 +172,18 @@ public abstract class AbstractEntityProviderEMTest {
 			}
 		};
 
+		Comparator<EmbeddedIdPerson> nameComparatorEmbeddedId = new Comparator<EmbeddedIdPerson>() {
+
+			public int compare(EmbeddedIdPerson o1, EmbeddedIdPerson o2) {
+				int result = o1.getName().getLastName().compareTo(o2.getName().getLastName());
+				if (result == 0) {
+					result = o1.getName().getFirstName().compareTo(o2.getName().getFirstName());
+				}
+				return result;
+			}
+
+		};
+
 		Comparator<Person> nameStreetComparator = new Comparator<Person>() {
 
 			public int compare(Person o1, Person o2) {
@@ -154,6 +203,7 @@ public abstract class AbstractEntityProviderEMTest {
 		Collections.sort(testDataSortedByLastNameAndStreet,
 				nameStreetComparator);
 		Collections.sort(filteredTestDataSortedByName, nameComparator);
+		Collections.sort(testDataEmbeddedIdSortedByName, nameComparatorEmbeddedId);
 
 		assertFalse(testDataSortedByName.equals(testDataSortedByPrimaryKey));
 		assertFalse(testDataSortedByLastNameAndStreet
@@ -184,9 +234,27 @@ public abstract class AbstractEntityProviderEMTest {
 		}
 	}
 
+	protected void doTestGetEntity_EmbeddedId(final List<EmbeddedIdPerson> testData) {
+		for (EmbeddedIdPerson p : testData) {
+			EmbeddedIdPerson returned = entityProvider_EmbeddedId.getEntity(
+					p.getName());
+			assertEquals(p, returned);
+			// Make sure the entities are detached
+			returned.getAddress().setStreet("another street");
+			assertFalse(returned.equals(entityProvider_EmbeddedId.getEntity(
+					p.getName())));
+		}
+	}
+
 	protected void doTestGetEntityCount(final List<Person> testData,
 			final Filter filter) {
 		assertEquals(testData.size(), entityProvider.getEntityCount(filter));
+	}
+
+	protected void doTestGetEntityCount_EmbeddedId(final List<EmbeddedIdPerson> testData,
+			final Filter filter) {
+		assertEquals(testData.size(), entityProvider_EmbeddedId.getEntityCount(
+				filter));
 	}
 
 	protected void doTestContainsEntity(final List<Person> testData,
@@ -201,9 +269,22 @@ public abstract class AbstractEntityProviderEMTest {
 		assertFalse(entityProvider.containsEntity(maxKey + 1, filter));
 	}
 
+	protected void doTestContainsEntity_EmbeddedId(final List<EmbeddedIdPerson> testData,
+			final Filter filter) {
+		for (EmbeddedIdPerson p : testData) {
+			assertTrue(entityProvider_EmbeddedId.containsEntity(p.getName(), filter));
+		}
+	}
+
 	protected void doTestGetFirstEntity(final List<Person> testData,
 			final Filter filter, final List<SortBy> sortBy) {
 		assertEquals(testData.get(0).getId(), entityProvider
+				.getFirstEntityIdentifier(filter, sortBy));
+	}
+
+	protected void doTestGetFirstEntity_EmbeddedId(final List<EmbeddedIdPerson> testData,
+			final Filter filter, final List<SortBy> sortBy) {
+		assertEquals(testData.get(0).getName(), entityProvider_EmbeddedId
 				.getFirstEntityIdentifier(filter, sortBy));
 	}
 
@@ -218,9 +299,26 @@ public abstract class AbstractEntityProviderEMTest {
 				testData.size() - 1).getId(), filter, sortBy));
 	}
 
+	protected void doTestGetNextEntity_EmbeddedId(final List<EmbeddedIdPerson> testData,
+			final Filter filter, final List<SortBy> sortBy) {
+		for (int i = 0; i < testData.size() - 1; i++) {
+			assertEquals(testData.get(i + 1).getName(), entityProvider_EmbeddedId
+					.getNextEntityIdentifier(testData.get(i).getName(), filter,
+							sortBy));
+		}
+		assertNull(entityProvider_EmbeddedId.getNextEntityIdentifier(testData.get(
+				testData.size() - 1).getName(), filter, sortBy));
+	}
+
 	protected void doTestGetLastEntity(final List<Person> testData,
 			final Filter filter, final List<SortBy> sortBy) {
 		assertEquals(testData.get(testData.size() - 1).getId(), entityProvider
+				.getLastEntityIdentifier(filter, sortBy));
+	}
+
+	protected void doTestGetLastEntity_EmbeddedId(final List<EmbeddedIdPerson> testData,
+			final Filter filter, final List<SortBy> sortBy) {
+		assertEquals(testData.get(testData.size() -1).getName(), entityProvider_EmbeddedId
 				.getLastEntityIdentifier(filter, sortBy));
 	}
 
@@ -233,7 +331,17 @@ public abstract class AbstractEntityProviderEMTest {
 		}
 		assertNull(entityProvider.getPreviousEntityIdentifier(testData.get(0)
 				.getId(), filter, sortBy));
+	}
 
+	protected void doTestGetPreviousEntity_EmbeddedId(final List<EmbeddedIdPerson> testData,
+			final Filter filter, final List<SortBy> sortBy) {
+		for (int i = testData.size() - 1; i > 0; i--) {
+			assertEquals(testData.get(i - 1).getName(), entityProvider_EmbeddedId
+					.getPreviousEntityIdentifier(testData.get(i).getName(),
+							filter, sortBy));
+		}
+		assertNull(entityProvider_EmbeddedId.getPreviousEntityIdentifier(testData.get(0)
+				.getName(), filter, sortBy));
 	}
 
 	protected void doTestGetEntityIdentifierAt(final List<Person> testData,
@@ -246,10 +354,26 @@ public abstract class AbstractEntityProviderEMTest {
 				testData.size()));
 	}
 
+	protected void doTestGetEntityIdentifierAt_EmbeddedId(final List<EmbeddedIdPerson> testData,
+			final Filter filter, final List<SortBy> sortBy) {
+		for (int i = 0; i < testData.size(); i++) {
+			assertEquals(testData.get(i).getName(), entityProvider_EmbeddedId
+					.getEntityIdentifierAt(filter, sortBy, i));
+		}
+		assertNull(entityProvider_EmbeddedId.getEntityIdentifierAt(filter, sortBy,
+				testData.size()));
+	}
+
 	@Test
 	public void testGetEntity() {
 		System.out.println("testGetEntity");
 		doTestGetEntity(testDataSortedByName);
+	}
+
+	@Test
+	public void testGetEntity_EmbeddedId() {
+		System.out.println("testGetEntity_EmbeddedId");
+		doTestGetEntity_EmbeddedId(testDataEmbeddedIdSortedByName);
 	}
 
 	@Test
@@ -259,9 +383,23 @@ public abstract class AbstractEntityProviderEMTest {
 	}
 
 	@Test
+	public void testGetEntityCount_EmbeddedId() {
+		System.out.println("testGetEntityCount_EmbeddedId");
+		doTestGetEntityCount_EmbeddedId(testDataEmbeddedIdSortedByName,
+				null);
+	}
+
+	@Test
 	public void testContainsEntity() {
 		System.out.println("testContainsEntity");
 		doTestContainsEntity(testDataSortedByName, null);
+	}
+
+	@Test
+	public void testContainsEntity_EmbeddedId() {
+		System.out.println("testContainsEntity_EmbeddedId");
+		doTestContainsEntity_EmbeddedId(testDataEmbeddedIdSortedByName,
+				null);
 	}
 
 	@Test
@@ -271,9 +409,25 @@ public abstract class AbstractEntityProviderEMTest {
 	}
 
 	@Test
+	public void testGetFirstEntity_EmbeddedId() {
+		System.out.println("testGetFirstEntity_EmbeddedId");
+		List<SortBy> emptyList = Collections.emptyList();
+		doTestGetFirstEntity_EmbeddedId(testDataEmbeddedIdSortedByName,
+				null, emptyList);
+	}
+
+	@Test
 	public void testGetNextEntity() {
 		System.out.println("testGetNextEntity");
 		doTestGetNextEntity(testDataSortedByName, null, sortByName);
+	}
+
+	@Test
+	public void testGetNextEntity_EmbeddedId() {
+		System.out.println("testGetNextEntity_EmbeddedId");
+		List<SortBy> emptyList = Collections.emptyList();
+		doTestGetNextEntity_EmbeddedId(testDataEmbeddedIdSortedByName,
+				null, emptyList);
 	}
 
 	@Test
@@ -283,9 +437,25 @@ public abstract class AbstractEntityProviderEMTest {
 	}
 
 	@Test
+	public void testGetLastEntity_EmbeddedId() {
+		System.out.println("testGetLastEntity_EmbeddedID");
+		List<SortBy> emptyList = Collections.emptyList();
+		doTestGetLastEntity_EmbeddedId(testDataEmbeddedIdSortedByName,
+				null, emptyList);
+	}
+
+	@Test
 	public void testGetPreviousEntity() {
 		System.out.println("testGetPreviousEntity");
 		doTestGetPreviousEntity(testDataSortedByName, null, sortByName);
+	}
+
+	@Test
+	public void testGetPreviousEntity_EmbeddedId() {
+		System.out.println("testGetPreviousEntity_EmbeddedId");
+		List<SortBy> emptyList = Collections.emptyList();
+		doTestGetPreviousEntity_EmbeddedId(testDataEmbeddedIdSortedByName,
+				null, emptyList);
 	}
 
 	@Test
@@ -294,6 +464,13 @@ public abstract class AbstractEntityProviderEMTest {
 		doTestGetEntityIdentifierAt(testDataSortedByName, null, sortByName);
 	}
 
+	@Test
+	public void testGetEntityIdentifierAt_EmbeddedId() {
+		System.out.println("testGetEntityIdentifierAt_EmbeddedId");
+		List<SortBy> emptyList = Collections.emptyList();
+		doTestGetEntityIdentifierAt_EmbeddedId(testDataEmbeddedIdSortedByName, null, emptyList);
+	}
+	
 	// TODO Add tests for container with duplicate sorted values
 
 	@Test
