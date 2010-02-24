@@ -270,11 +270,19 @@ final class BufferedContainerDelegate<T> implements Serializable {
         if (isAdded(itemId)) {
             addedEntitiesCache.remove(itemId);
             addedItemIdsCache.remove(itemId);
-            // FIXME DEFECT: Remove from delta list (this should show up as a test failure)
+			for (int i = deltaList.size()-1; i>=0; i--) {
+				if (deltaList.get(i).itemId.equals(itemId)) {
+					deltaList.remove(i);
+				}
+			}
         } else {
             if (isUpdated(itemId)) {
                 updatedEntitiesCache.remove(itemId);
-                // FIXME DEFECT Remove from delta list (this should show up as a test failure)
+				for (int i = deltaList.size()-1; i>=0; i--) {
+					if (deltaList.get(i).itemId.equals(itemId)) {
+						deltaList.remove(i);
+					}
+			}
             }
             deltaList.add(new Delta(DeltaType.DELETE, itemId, null));
             deletedItemIdsCache.add(itemId);
