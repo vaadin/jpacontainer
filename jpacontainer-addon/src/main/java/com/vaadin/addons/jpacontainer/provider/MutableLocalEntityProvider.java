@@ -149,7 +149,7 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
 				T entity = em.find(getEntityClassMetadata().getMappedClass(),
 						entityId);
 				if (entity != null) {
-					em.remove(entity);
+					em.remove(em.merge(entity));
 					em.flush();
 					entityA[0] = detachEntity(entity);
 				}
@@ -164,15 +164,16 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
 	@SuppressWarnings("unchecked")
 	public T updateEntity(final T entity) {
 		assert entity != null : "entity must not be null";
+		final Object[] entityA = new Object[1];
 		runInTransaction(new Runnable() {
 
 			public void run() {
 				EntityManager em = getEntityManager();
-				em.merge(entity);
+				entityA[0] = em.merge(entity);
 				em.flush();
 			}
 		});
-		T dEntity = detachEntity(entity);
+		T dEntity = detachEntity((T) entityA[0]);
 		fireEntityProviderChangeEvent(new EntitiesUpdatedEvent(dEntity));
 		return dEntity;
 	}
