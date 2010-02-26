@@ -1,7 +1,7 @@
 REQUIREMENTS for JPAContainer 1.0
 =================================
 
-- Dual-license: GPL 3.0 and commercial
+- Dual-license: AGPL 3.0 and commercial
 
 - Strives to be compatible with standard compliant JPA implementations
     - Compatible with JPA specification version 1.0
