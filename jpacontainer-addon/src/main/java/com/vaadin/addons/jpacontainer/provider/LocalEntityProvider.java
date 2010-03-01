@@ -437,6 +437,38 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 	 */
 	protected Object getSibling(Object entityId, Filter filter,
 			List<SortBy> sortBy, boolean backwards) {
+		Query query = createSiblingQuery(entityId, filter, sortBy, backwards);
+		query.setMaxResults(1);
+		List<?> result = query.getResultList();
+		if (result.size() != 1) {
+			return null;
+		} else {
+			return result.get(0);
+		}
+	}
+
+	/**
+	 * This method creates a query that can be used to fetch the siblings of
+	 * a specific entity. If <code>backwards</code> is false, the query will
+	 * begin with the entity next to the entity identified by <code>entityId</code>.
+	 * If <code>backwards</code> is false, the query will begin with the entity
+	 * prior to the entity identified by <code>entityId</code>.
+	 *
+	 * @param entityId
+	 *            the identifier of the entity whose sibling to retrieve (must
+	 *            not be null).
+	 * @param filter
+	 *            an optional filter to limit the entities (may be null).
+	 * @param sortBy
+	 *            the order in which the list should be sorted (must not be
+	 *            null).
+	 * @param backwards
+	 *            true to fetch the previous sibling, false to fetch the next
+	 *            sibling.
+	 * @return the query that will return the sibling and all the subsequent entities unless limited.
+	 */
+	protected Query createSiblingQuery(Object entityId, Filter filter,
+			List<SortBy> sortBy, boolean backwards) {
 		assert entityId != null : "entityId must not be null";
 		assert sortBy != null : "sortBy must not be null";
 		Filter limitingFilter;
@@ -488,7 +520,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 				((Junction) limitingFilter).add(caseFilter);
 			}
 		}
-		// Now, we execute the query
+		// Now, we can create the query
 		Filter queryFilter;
 		if (filter == null) {
 			queryFilter = limitingFilter;
@@ -498,13 +530,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 		Query query = createFilteredQuery("obj."
 				+ getEntityClassMetadata().getIdentifierProperty().getName(),
 				"obj", queryFilter, sortBy, backwards, null);
-		query.setMaxResults(1);
-		List<?> result = query.getResultList();
-		if (result.size() != 1) {
-			return null;
-		} else {
-			return result.get(0);
-		}
+		return query;
 	}
 
 	public Object getNextEntityIdentifier(Object entityId, Filter filter,
