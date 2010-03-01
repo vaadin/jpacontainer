@@ -314,7 +314,22 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 		} else {
 			f = Filters.and(entityIdFilter, filter);
 		}
-		Query query = createUnsortedFilteredQuery("count(*)", "obj", f, null);
+		Query query;
+		if (getEntityClassMetadata().hasEmbeddedIdentifier()) {
+			/*
+			 * Hibernate will generate SQL for "count(obj)" that does not
+			 * run on HSQLDB. "count(*)" works fine, but then EclipseLink
+			 * won't work. With this hack, this method should work with
+			 * both Hibernate and EclipseLink.
+			 */
+			query = createUnsortedFilteredQuery(String.format("count(obj.%s.%s)",
+					getEntityClassMetadata().getIdentifierProperty().getName(),
+					getEntityClassMetadata().getIdentifierProperty().getTypeMetadata().getPersistentPropertyNames().iterator().next()),
+					"obj", f, null);
+		} else {
+			query = createUnsortedFilteredQuery("count(obj)", "obj", f,
+					null);
+		}
 		Object result = query.getSingleResult();
 		if (result instanceof Integer) {
 			return ((Integer) result).intValue() == 1;
@@ -347,8 +362,22 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 	}
 
 	public int getEntityCount(Filter filter) {
-		Query query = createUnsortedFilteredQuery("count(*)", "obj", filter,
-				null);
+		Query query;
+		if (getEntityClassMetadata().hasEmbeddedIdentifier()) {
+			/*
+			 * Hibernate will generate SQL for "count(obj)" that does not
+			 * run on HSQLDB. "count(*)" works fine, but then EclipseLink
+			 * won't work. With this hack, this method should work with
+			 * both Hibernate and EclipseLink.
+			 */
+			query = createUnsortedFilteredQuery(String.format("count(obj.%s.%s)",
+					getEntityClassMetadata().getIdentifierProperty().getName(),
+					getEntityClassMetadata().getIdentifierProperty().getTypeMetadata().getPersistentPropertyNames().iterator().next()),
+					"obj", filter, null);
+		} else {
+			query = createUnsortedFilteredQuery("count(obj)", "obj", filter,
+					null);
+		}
 		Object ret = query.getSingleResult();
 		if (ret instanceof Integer) {
 			return ((Integer) ret).intValue();

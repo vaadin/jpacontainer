@@ -49,7 +49,7 @@ import static org.junit.Assert.*;
 public abstract class AbstractEntityProviderEMTest {
 
 	protected abstract EntityManager getEntityManager() throws Exception;
-
+	
 	protected EntityProvider<Person> entityProvider;
 	protected EntityProvider<EmbeddedIdPerson> entityProvider_EmbeddedId;
 	protected List<Person> testDataSortedByPrimaryKey;
@@ -80,6 +80,7 @@ public abstract class AbstractEntityProviderEMTest {
 		createTestData();
 	}
 
+	
 	@After
 	public void tearDown() throws Exception {
 		entityProvider = null;
@@ -88,19 +89,8 @@ public abstract class AbstractEntityProviderEMTest {
 			getEntityManager().getTransaction().begin();
 		}
 
-		for (Person p : testDataSortedByPrimaryKey) {
-			Person pp = getEntityManager().find(Person.class, p.getId());
-			if (pp != null) {
-				getEntityManager().remove(pp);
-			}
-		}
-
-		for (EmbeddedIdPerson p : testDataEmbeddedIdSortedByName) {
-			EmbeddedIdPerson pp = getEntityManager().find(EmbeddedIdPerson.class, p.getName());
-			if (pp != null) {
-				getEntityManager().remove(pp);
-			}
-		}
+		getEntityManager().createNativeQuery("DELETE FROM Person").executeUpdate();
+		getEntityManager().createNativeQuery("DELETE FROM EmbeddedIdPerson").executeUpdate();
 		
 		getEntityManager().flush();
 		getEntityManager().getTransaction().commit();

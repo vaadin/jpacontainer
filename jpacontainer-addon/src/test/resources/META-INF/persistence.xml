@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="1.0" xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd">
+	<persistence-unit name="eclipselink-pu">
+		<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+		<class>com.vaadin.addons.jpacontainer.testdata.Address</class>
+		<class>com.vaadin.addons.jpacontainer.testdata.EmbeddedIdPerson</class>
+		<class>com.vaadin.addons.jpacontainer.testdata.Name</class>
+		<class>com.vaadin.addons.jpacontainer.testdata.Person</class>
+		<exclude-unlisted-classes>true</exclude-unlisted-classes>
+	</persistence-unit>
+</persistence>

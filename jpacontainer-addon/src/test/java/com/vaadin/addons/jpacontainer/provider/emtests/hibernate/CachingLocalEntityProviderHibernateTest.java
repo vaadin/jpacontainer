@@ -34,7 +34,7 @@ import org.hibernate.ejb.Ejb3Configuration;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public class CachingLocalEntityProviderEMTest extends
+public class CachingLocalEntityProviderHibernateTest extends
 		AbstractCachingLocalEntityProviderEMTest {
 
 	private EntityManager entityManager;
