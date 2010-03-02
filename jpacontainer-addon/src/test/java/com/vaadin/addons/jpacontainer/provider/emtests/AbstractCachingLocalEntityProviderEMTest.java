@@ -37,6 +37,7 @@ public abstract class AbstractCachingLocalEntityProviderEMTest extends
 				Person.class, getEntityManager());
 		provider.setCacheInUse(true);
 		provider.setCloneCachedEntities(true);
+		provider.setMaxCacheSize(400);
 		return provider;
 	}
 
