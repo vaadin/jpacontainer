@@ -64,6 +64,14 @@ public interface CachingEntityProvider<T> extends EntityProvider<T> {
 	public boolean isCacheInUse();
 
 	/**
+	 * Turns the cache on or off.
+	 *
+	 * @param cacheInUse true to turn the cache on, false to turn it off.
+	 * @throws UnsupportedOperationException if the cache cannot be turned on or off programmatically.
+	 */
+	public void setCacheInUse(boolean cacheInUse) throws UnsupportedOperationException;
+
+	/**
 	 * If the cache is in use, all entities are automatically detached
 	 * regardless of the state of this flag.
 	 * <p>

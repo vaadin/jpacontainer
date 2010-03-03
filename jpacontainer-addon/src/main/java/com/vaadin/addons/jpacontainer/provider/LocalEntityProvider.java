@@ -101,7 +101,6 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 		this.entityClassMetadata = MetadataFactory.getInstance().
 				getEntityClassMetadata(entityClass);
 	}
-	
 	private Serializable serializableEntityManager;
 
 	// TODO Test serialization of entity manager
@@ -293,10 +292,8 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 			query.setParameter(vf.getQLParameterName(), vf.getValue());
 		} else if (filter instanceof IntervalFilter) {
 			IntervalFilter intf = (IntervalFilter) filter;
-			query.setParameter(intf.getEndingPointQLParameterName(), intf.
-					getEndingPoint());
-			query.setParameter(intf.getStartingPointQLParameterName(), intf.
-					getStartingPoint());
+			query.setParameter(intf.getEndingPointQLParameterName(), intf.getEndingPoint());
+			query.setParameter(intf.getStartingPointQLParameterName(), intf.getStartingPoint());
 		} else if (filter instanceof CompositeFilter) {
 			for (Filter f : ((CompositeFilter) filter).getFilters()) {
 				setQueryParameters(query, f);
@@ -304,7 +301,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 		}
 	}
 
-	public boolean containsEntity(Object entityId, Filter filter) {
+	protected boolean doContainsEntity(Object entityId, Filter filter) {
 		assert entityId != null : "entityId must not be null";
 		Filter entityIdFilter = Filters.eq(getEntityClassMetadata().
 				getIdentifierProperty().getName(), entityId);
@@ -338,15 +335,22 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 		}
 	}
 
-	public T getEntity(Object entityId) {
+	public boolean containsEntity(Object entityId, Filter filter) {
+		return doContainsEntity(entityId, filter);
+	}
+
+	protected T doGetEntity(Object entityId) {
 		assert entityId != null : "entityId must not be null";
 		T entity = doGetEntityManager().find(
 				getEntityClassMetadata().getMappedClass(), entityId);
 		return detachEntity(entity);
 	}
 
-	public Object getEntityIdentifierAt(Filter filter, List<SortBy> sortBy,
-			int index) {
+	public T getEntity(Object entityId) {
+		return doGetEntity(entityId);
+	}
+
+	protected Object doGetEntityIdentifierAt(Filter filter, List<SortBy> sortBy, int index) {
 		assert sortBy != null : "sortBy must not be null";
 		Query query = createFilteredQuery("obj."
 				+ getEntityClassMetadata().getIdentifierProperty().getName(),
@@ -361,7 +365,12 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 		}
 	}
 
-	public int getEntityCount(Filter filter) {
+	public Object getEntityIdentifierAt(Filter filter, List<SortBy> sortBy,
+			int index) {
+		return doGetEntityIdentifierAt(filter, sortBy, index);
+	}
+
+	protected int doGetEntityCount(Filter filter) {
 		Query query;
 		if (getEntityClassMetadata().hasEmbeddedIdentifier()) {
 			/*
@@ -386,7 +395,11 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 		}
 	}
 
-	public Object getFirstEntityIdentifier(Filter filter, List<SortBy> sortBy) {
+	public int getEntityCount(Filter filter) {
+		return doGetEntityCount(filter);
+	}
+
+	protected Object doGetFirstEntityIdentifier(Filter filter, List<SortBy> sortBy) {
 		assert sortBy != null : "sortBy must not be null";
 		Query query = createFilteredQuery("obj."
 				+ getEntityClassMetadata().getIdentifierProperty().getName(),
@@ -400,7 +413,11 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 		}
 	}
 
-	public Object getLastEntityIdentifier(Filter filter, List<SortBy> sortBy) {
+	public Object getFirstEntityIdentifier(Filter filter, List<SortBy> sortBy) {
+		return doGetFirstEntityIdentifier(filter, sortBy);
+	}
+
+	protected Object doGetLastEntityIdentifier(Filter filter, List<SortBy> sortBy) {
 		assert sortBy != null : "sortBy must not be null";
 		Query query = createFilteredQuery("obj."
 				+ getEntityClassMetadata().getIdentifierProperty().getName(),
@@ -412,6 +429,10 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 		} else {
 			return result.get(0);
 		}
+	}
+
+	public Object getLastEntityIdentifier(Filter filter, List<SortBy> sortBy) {
+		return doGetLastEntityIdentifier(filter, sortBy);
 	}
 
 	/**
@@ -533,14 +554,24 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 		return query;
 	}
 
-	public Object getNextEntityIdentifier(Object entityId, Filter filter,
+	protected Object doGetNextEntityIdentifier(Object entityId, Filter filter,
 			List<SortBy> sortBy) {
 		return getSibling(entityId, filter, sortBy, false);
 	}
 
-	public Object getPreviousEntityIdentifier(Object entityId, Filter filter,
+	public Object getNextEntityIdentifier(Object entityId, Filter filter,
+			List<SortBy> sortBy) {
+		return doGetNextEntityIdentifier(entityId, filter, sortBy);
+	}
+
+	protected Object doGetPreviousEntityIdentifier(Object entityId, Filter filter,
 			List<SortBy> sortBy) {
 		return getSibling(entityId, filter, sortBy, true);
+	}
+
+	public Object getPreviousEntityIdentifier(Object entityId, Filter filter,
+			List<SortBy> sortBy) {
+		return doGetPreviousEntityIdentifier(entityId, filter, sortBy);
 	}
 
 	/**
@@ -575,8 +606,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 				ByteArrayOutputStream os = new ByteArrayOutputStream();
 				ObjectOutputStream oos = new ObjectOutputStream(os);
 				oos.writeObject(entity);
-				ByteArrayInputStream is = new ByteArrayInputStream(os.
-						toByteArray());
+				ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
 				ObjectInputStream ois = new ObjectInputStream(is);
 				return getEntityClassMetadata().getMappedClass().cast(
 						ois.readObject());
@@ -600,11 +630,16 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Object> getAllEntityIdentifiers(Filter filter,
+	protected List<Object> doGetAllEntityIdentifiers(Filter filter,
 			List<SortBy> sortBy) {
 		Query query = createFilteredQuery("obj."
 				+ getEntityClassMetadata().getIdentifierProperty().getName(),
 				"obj", filter, sortBy, false, null);
 		return Collections.unmodifiableList(query.getResultList());
+	}
+
+	public List<Object> getAllEntityIdentifiers(Filter filter,
+			List<SortBy> sortBy) {
+		return doGetAllEntityIdentifiers(filter, sortBy);
 	}
 }

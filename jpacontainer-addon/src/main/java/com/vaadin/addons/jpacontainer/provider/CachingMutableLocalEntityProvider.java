@@ -24,10 +24,10 @@ import java.util.List;
 import javax.persistence.EntityManager;
 
 /**
- * En extended version of {@link LocalEntityProvider} that also implements the {@link CachingEntityProvider} interface.
+ * En extended version of {@link MutableLocalEntityProvider} that also implements the {@link CachingEntityProvider} interface.
  * <p>
- * This provider can be used in applications in the same manner as {@link LocalEntityProvider}, with a few exceptions. By default,
- * the cache is turned off which means that this provider effectively works as a {@link LocalEntityProvider}. The cache
+ * This provider can be used in applications in the same manner as {@link MutableLocalEntityProvider}, with a few exceptions. By default,
+ * the cache is turned off which means that this provider effectively works as a {@link MutableLocalEntityProvider}. The cache
  * can be turned on using {@link #setCacheInUse(boolean) }.
  * <p>
  * If you are going to edit the entities returned by the container, you should check the {@link #setCloneCachedEntities(boolean) } before
@@ -36,11 +36,21 @@ import javax.persistence.EntityManager;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T>
-		implements CachingEntityProvider<T> {
+public class CachingMutableLocalEntityProvider<T> extends MutableLocalEntityProvider<T> implements CachingEntityProvider<T> {
 
-	private static final long serialVersionUID = 302600441430870363L;
 	private CachingSupport<T> cachingSupport = new CachingSupport<T>(this);
+
+	/**
+	 * Creates a new <code>CachingMutableLocalEntityProvider</code>.
+	 *
+	 * @param entityClass
+	 *            the entity class (must not be null).
+	 * @param entityManager
+	 *            the entity manager to use (must not be null).
+	 */
+	public CachingMutableLocalEntityProvider(Class<T> entityClass, EntityManager entityManager) {
+		super(entityClass, entityManager);
+	}
 
 	/**
 	 * Creates a new <code>CachingLocalEntityProvider</code>. The entity manager must
@@ -49,21 +59,8 @@ public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T>
 	 * @param entityClass
 	 *            the entity class (must not be null).
 	 */
-	public CachingLocalEntityProvider(Class<T> entityClass) {
+	public CachingMutableLocalEntityProvider(Class<T> entityClass) {
 		super(entityClass);
-	}
-
-	/**
-	 * Creates a new <code>CachingLocalEntityProvider</code>.
-	 *
-	 * @param entityClass
-	 *            the entity class (must not be null).
-	 * @param entityManager
-	 *            the entity manager to use (must not be null).
-	 */
-	public CachingLocalEntityProvider(Class<T> entityClass,
-			EntityManager entityManager) {
-		super(entityClass, entityManager);
 	}
 
 	public void flush() {
@@ -147,5 +144,31 @@ public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T>
 	public Object getPreviousEntityIdentifier(Object entityId, Filter filter,
 			List<SortBy> sortBy) {
 		return cachingSupport.getPreviousEntityIdentifier(entityId, filter, sortBy);
+	}
+
+	@Override
+	public T addEntity(T entity) {
+		T result = super.addEntity(entity);
+		cachingSupport.entityAdded(result);
+		return result;
+	}
+
+	@Override
+	public void removeEntity(Object entityId) {
+		super.removeEntity(entityId);
+		cachingSupport.invalidate(entityId);
+	}
+
+	@Override
+	public T updateEntity(T entity) {
+		T result = super.updateEntity(entity);
+		cachingSupport.invalidate(getEntityClassMetadata().getPropertyValue(entity, getEntityClassMetadata().getIdentifierProperty().getName()));
+		return result;
+	}
+
+	@Override
+	public void updateEntityProperty(Object entityId, String propertyName, Object propertyValue) throws IllegalArgumentException {
+		super.updateEntityProperty(entityId, propertyName, propertyValue);
+		cachingSupport.invalidate(entityId);
 	}
 }
