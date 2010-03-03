@@ -199,7 +199,10 @@ container.addFilter(Filters.or(Filters.eq("lastName", "Smith", false), Filters.e
 			until all the filters have been defined before applying them. In this case, <methodname>AdvancedFilterable.applyFilters()</methodname> has to be called to apply
 			the filters.
 		</para>
-
+		<para>
+			Please note, that all filtering is done in the database. Therefore special care should be taken to make sure filterable columns are indexed properly, especially
+			if the number of records is large.
+		</para>
 	</section>
 	<section>
 		<title>Editing</title>
