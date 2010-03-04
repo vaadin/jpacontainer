@@ -811,9 +811,14 @@ public class JPAContainer<T> implements EntityContainer<T>,
 		return id;
 	}
 
+	/**
+	 * <strong>This functionality is not supported by this
+	 * implementation.</strong>
+	 * <p>
+	 * {@inheritDoc }
+	 */
 	public boolean removeAllItems() throws UnsupportedOperationException {
-		// FIXME MISSING Implement me!
-		throw new UnsupportedOperationException("Not supported yet.");
+		throw new UnsupportedOperationException();
 	}
 
 	public boolean removeItem(Object itemId)
