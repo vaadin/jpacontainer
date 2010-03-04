@@ -17,15 +17,10 @@
  */
 package com.vaadin.addons.jpacontainer.provider;
 
-import com.vaadin.addons.jpacontainer.EntityProvider;
 import com.vaadin.addons.jpacontainer.EntityProviderChangeEvent;
 import com.vaadin.addons.jpacontainer.EntityProviderChangeListener;
 import com.vaadin.addons.jpacontainer.EntityProviderChangeNotifier;
 import com.vaadin.addons.jpacontainer.MutableEntityProvider;
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedList;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -134,7 +129,7 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
 			}
 		});
 		T dEntity = detachEntity(entity);
-		fireEntityProviderChangeEvent(new EntitiesAddedEvent(dEntity));
+		fireEntityProviderChangeEvent(new EntitiesAddedEvent<T>(this, dEntity));
 		return dEntity;
 	}
 
@@ -156,8 +151,8 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
 			}
 		});
 		if (entityA[0] != null) {
-			fireEntityProviderChangeEvent(new EntitiesRemovedEvent(
-					(T) entityA[0]));
+			fireEntityProviderChangeEvent(new EntitiesRemovedEvent<T>(
+					this,(T) entityA[0]));
 		}
 	}
 
@@ -174,7 +169,7 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
 			}
 		});
 		T dEntity = detachEntity((T) entityA[0]);
-		fireEntityProviderChangeEvent(new EntitiesUpdatedEvent(dEntity));
+		fireEntityProviderChangeEvent(new EntitiesUpdatedEvent<T>(this, dEntity));
 		return dEntity;
 	}
 
@@ -200,8 +195,8 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
 			}
 		});
 		if (entityA[0] != null) {
-			fireEntityProviderChangeEvent(new EntitiesUpdatedEvent(
-					(T) entityA[0]));
+			fireEntityProviderChangeEvent(new EntitiesUpdatedEvent<T>(
+					this,(T) entityA[0]));
 		}
 	}
 
@@ -255,86 +250,6 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
 				.clone();
 		for (EntityProviderChangeListener<T> l : list) {
 			l.entityProviderChanged(event);
-		}
-	}
-
-	/**
-	 * Base class for {@link EntityProviderChangeEvent}s.
-	 * 
-	 * @author Petter Holmström (IT Mill)
-	 * @since 1.0
-	 */
-	protected abstract class EntityEvent implements
-			EntityProviderChangeEvent<T>, Serializable {
-
-		private static final long serialVersionUID = -3703337782681273703L;
-		private Collection<T> entities;
-
-		/**
-		 * Creates a new <code>EntityEvent</code>.
-		 * 
-		 * @param entities the affected entities.
-		 */
-		protected EntityEvent(T... entities) {
-			if (entities.length == 0) {
-				this.entities = Collections.emptyList();
-			} else {
-				this.entities = Collections.unmodifiableCollection(Arrays
-						.asList(entities));
-			}
-		}
-
-		public Collection<T> getAffectedEntities() {
-			return entities;
-		}
-
-		public EntityProvider<T> getEntityProvider() {
-			return (EntityProvider<T>) MutableLocalEntityProvider.this;
-		}
-	}
-
-	/**
-	 * Event indicating that one or more entities have been added.
-	 * 
-	 * @author Petter Holmström (IT Mill)
-	 * @since 1.0
-	 */
-	protected class EntitiesAddedEvent extends EntityEvent {
-
-		private static final long serialVersionUID = -7251967169102897952L;
-
-		public EntitiesAddedEvent(T... entities) {
-			super(entities);
-		}
-	}
-
-	/**
-	 * Event indicating that one or more entities have been updated.
-	 * 
-	 * @author Petter Holmström (IT Mill)
-	 * @since 1.0
-	 */
-	protected class EntitiesUpdatedEvent extends EntityEvent {
-
-		private static final long serialVersionUID = -7472733082448613781L;
-
-		public EntitiesUpdatedEvent(T... entities) {
-			super(entities);
-		}
-	}
-
-	/**
-	 * Event indicating that one or more entities have been removed.
-	 * 
-	 * @author Petter Holmström (IT Mill)
-	 * @since 1.0
-	 */
-	protected class EntitiesRemovedEvent extends EntityEvent {
-
-		private static final long serialVersionUID = -7174185739064265869L;
-
-		public EntitiesRemovedEvent(T... entities) {
-			super(entities);
 		}
 	}
 }
