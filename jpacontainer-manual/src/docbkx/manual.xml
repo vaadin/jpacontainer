@@ -117,30 +117,31 @@
 		<programlisting><![CDATA[@Entity
 public class Person implements Serializable {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
-	@Version
-	private Long version;
-	private String firstName;
-	private String lastName;
-	@Temporal(TemporalType.DATE)
-	private Date dateOfBirth;
-	@Embedded
-	private Address address;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+    @Version
+    private Long version;
+    private String firstName;
+    private String lastName;
+    @Temporal(TemporalType.DATE)
+    private Date dateOfBirth;
+    @Embedded
+    private Address address;
 
-	// Getter and setter methods omitted
+    // Getter and setter methods omitted
 }
 
 @Embeddable
 public class Address implements Serializable, Cloneable {
 
-	private String street;
-	private String postalCode;
-	private String postOffice;
+    private String street;
+    private String postalCode;
+    private String postOffice;
 
-	// Getter and setter methods omitted
-		}]]></programlisting>
+    // Getter and setter methods omitted
+}
+		]]></programlisting>
 
 		<para>
 			Now, let's say you want to show a list of persons, together with their addresses, in a Vaadin table. You also want to be able to filter
@@ -423,6 +424,16 @@ item = customerContainer.getItem(id);
 
 <section xml:id="providers">
 	<title>Built-in EntityProviders</title>
+	<para>
+		There are two kinds of built-in entity providers. The <classname>LocalEntityProvider</classname> is the simplest one, which reads all the information
+		directly from an <interfacename>EntityManager</interfacename>. In applications where the amount of data is small and database round-trips are fast, this
+		provider is the safest choice.
+	</para>
+	<para>
+		If the number of database round-trips should be reduced, <classname>CachingLocalEntityProvider</classname> should be used instead. It maintains a local
+		cache of entities and query results and hence should perform faster than <classname>LocalEntityProvider</classname> if database round-trips are slow.
+		However, it also requires more memory than <classname>LocalEntityProvider</classname>.
+	</para>
 	<section>
 		<title>The LocalEntityProvider</title>
 		<mediaobject>
@@ -436,7 +447,8 @@ item = customerContainer.getItem(id);
 				<listitem>
 					<para>
 						A read-only, lazy loading entity provider that performs no caching and reads
-						its data directly from an <interfacename>EntityManager</interfacename>.
+						its data directly from an <interfacename>EntityManager</interfacename>. In other words,
+						basically all calls to the entity provider result in a query being sent to the <interfacename>EntityManager</interfacename>.
 					</para>
 				</listitem>
 			</varlistentry>
@@ -466,8 +478,158 @@ item = customerContainer.getItem(id);
 	<section>
 		<title>The CachingLocalEntityProvider</title>
 		<para>
-			TODO The implementation of <classname>CachingLocalEntityProvider</classname> is still incomplete. More information will come when it is ready.
+			All the caching entity providers are basically extensions of the local entity providers, with caching support
+			added by a delegate class <classname>CachingSupport</classname>.
 		</para>
+		<mediaobject>
+			<imageobject role="html">
+				<imagedata align="center" fileref="cachinglocalentityprovider.png"/>
+			</imageobject>
+		</mediaobject>
+		<variablelist>
+			<varlistentry>
+				<term><classname>CachingLocalEntityProvider</classname></term>
+				<listitem>
+					<para>
+						A read-only, lazy loading entity provider that caches both entities and query results for different filter/sortBy combinations.
+						When the cache gets full, the oldest entries in the cache are removed. The maximum number of entities to cache and the maximum number
+						of entityIds to cache for each filter/sortBy combination can be manually set. The cache can also be manually flushed. When the
+						cache grows full, the oldest items are removed.
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><classname>CachingMutableLocalEntityProvider</classname></term>
+				<listitem>
+					<para>
+						A caching entity-provider with caching support. When an entity is added or updated, the cache is flushed in order to make sure
+						the added or updated entity shows up correctly when using filters and/or sorting. When an entity is removed, only the filter/sortBy-caches
+						that actually contain the item are flushed. Otherwise, this class works just like <classname>MutableLocalEntityProvider</classname>.
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><classname>CachingBatchableLocalEntityProvider</classname></term>
+				<listitem>
+					<para>
+						An extension of <classname>CachableMutableLocalEntityProvider</classname> that implements the <interfacename>BatchableEntityProvider</interfacename> and
+						passes itself to the <methodname>batchUpdate(..)</methodname> method. This will work properly if the entities do not contain any references to
+						other entities that are managed by the same container.
+					</para>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+	</section>
+	<section>
+		<title>EntityProviders as Spring-managed Beans</title>
+		<para>
+			If you are creating an enterprise application using the Spring Framework, you might want to configure your entity providers as Spring managed beans.
+			In the demo application, this is done by subclassing one of the built-in entity providers and adding the appropriate annotations to the subclass. For example:
+		</para>
+		<programlisting><![CDATA[
+@Repository(value = "myEntityProvider")
+public class MyEntityProviderBean extends MutableLocalEntityProvider<MyEntity> {
+
+    @PersistenceContext
+    private EntityManager em;
+
+    protected LocalEntityProviderBean() {
+        super(MyEntity.class);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public MyEntity updateEntity(MyEntity entity) {
+        return super.updateEntity(entity);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public MyEntity addEntity(MyEntity entity) {
+        return super.addEntity(entity);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void removeEntity(Object entityId) {
+        super.removeEntity(entityId);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void updateEntityProperty(Object entityId, String propertyName,
+            Object propertyValue) throws IllegalArgumentException {
+        super.updateEntityProperty(entityId, propertyName, propertyValue);
+    }
+
+    @PostConstruct
+    public void init() {
+        setEntityManager(em);
+        /*
+         * The entity manager is transaction scoped, which means that the
+         * entities will be automatically detached when the transaction is closed.
+         * Therefore, we do not need to explicitly detach them.
+         */
+        setEntitiesDetached(false);
+    }
+}
+	]]></programlisting>
+	</section>
+	<section>
+		<title>EntityProviders as Stateless Session Beans</title>
+		<para>
+			You can also deploy your entity providers as stateless session beans (or, if you are using one of the caching providers, as stateful session beans).
+			The idea is the same as for Spring managed beans:
+		</para>
+		<programlisting><![CDATA[
+@Stateless
+@TransactionManagement
+public class MyEntityProviderBean extends MutableLocalEntityProvider<MyEntity> {
+
+    @PersistenceContext
+    private EntityManager em;
+
+    protected LocalEntityProviderBean() {
+        super(MyEntity.class);
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public MyEntity updateEntity(MyEntity entity) {
+        return super.updateEntity(entity);
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
+    public MyEntity addEntity(MyEntity entity) {
+        return super.addEntity(entity);
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
+    public void removeEntity(Object entityId) {
+        super.removeEntity(entityId);
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
+    public void updateEntityProperty(Object entityId, String propertyName,
+            Object propertyValue) throws IllegalArgumentException {
+        super.updateEntityProperty(entityId, propertyName, propertyValue);
+    }
+
+    @PostConstruct
+    public void init() {
+        setEntityManager(em);
+        /*
+         * The entity manager is transaction scoped, which means that the
+         * entities will be automatically detached when the transaction is closed.
+         * Therefore, we do not need to explicitly detach them.
+         */
+        setEntitiesDetached(false);
+    }
+}
+	]]></programlisting>
 	</section>
 </section>
 
