@@ -39,6 +39,10 @@ import javax.persistence.EntityManager;
 public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T>
 		implements CachingEntityProvider<T> {
 
+	// TODO Check how well caching works with concurrent users
+	// Maybe some of the collections/maps should be replaced with
+	// concurrent implementations? What about synchronization?
+
 	private static final long serialVersionUID = 302600441430870363L;
 	private CachingSupport<T> cachingSupport = new CachingSupport<T>(this);
 
