@@ -389,11 +389,17 @@ class CachingSupport<T> implements Serializable {
 	 * TODO Document me!
 	 *
 	 * @param entityId
+	 * @param updated
 	 */
-	public synchronized void invalidate(Object entityId) {
+	public synchronized void invalidate(Object entityId, boolean updated) {
 		getEntityCache().remove(entityId);
-		for (FilterCacheEntry fce : getFilterCache().values()) {
-			fce.invalidate(entityId);
+		if (updated) {
+			// TODO Do something smarter than flushing the entire cache!
+			getFilterCache().clear();
+		} else {
+			for (FilterCacheEntry fce : getFilterCache().values()) {
+				fce.invalidate(entityId);
+			}
 		}
 	}
 

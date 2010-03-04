@@ -156,19 +156,19 @@ public class CachingMutableLocalEntityProvider<T> extends MutableLocalEntityProv
 	@Override
 	public void removeEntity(Object entityId) {
 		super.removeEntity(entityId);
-		cachingSupport.invalidate(entityId);
+		cachingSupport.invalidate(entityId, false);
 	}
 
 	@Override
 	public T updateEntity(T entity) {
 		T result = super.updateEntity(entity);
-		cachingSupport.invalidate(getEntityClassMetadata().getPropertyValue(entity, getEntityClassMetadata().getIdentifierProperty().getName()));
+		cachingSupport.invalidate(getEntityClassMetadata().getPropertyValue(entity, getEntityClassMetadata().getIdentifierProperty().getName()), true);
 		return result;
 	}
 
 	@Override
 	public void updateEntityProperty(Object entityId, String propertyName, Object propertyValue) throws IllegalArgumentException {
 		super.updateEntityProperty(entityId, propertyName, propertyValue);
-		cachingSupport.invalidate(entityId);
+		cachingSupport.invalidate(entityId, true);
 	}
 }
