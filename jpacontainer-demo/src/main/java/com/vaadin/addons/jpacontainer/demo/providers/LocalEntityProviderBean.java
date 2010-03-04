@@ -17,7 +17,7 @@
  */
 package com.vaadin.addons.jpacontainer.demo.providers;
 
-import com.vaadin.addons.jpacontainer.provider.BatchableLocalEntityProvider;
+import com.vaadin.addons.jpacontainer.provider.CachingBatchableLocalEntityProvider;
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -33,7 +33,7 @@ import org.springframework.util.Assert;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public abstract class LocalEntityProviderBean<T> extends BatchableLocalEntityProvider<T> {
+public abstract class LocalEntityProviderBean<T> extends CachingBatchableLocalEntityProvider<T> {
 
     protected final Log logger = LogFactory.getLog(getClass());
     @PersistenceContext
@@ -94,5 +94,7 @@ public abstract class LocalEntityProviderBean<T> extends BatchableLocalEntityPro
          * Therefore, we do not need to explicitly detach them.
          */
         setEntitiesDetached(false);
+		setCacheInUse(true);
+		setCloneCachedEntities(false);
     }
 }
