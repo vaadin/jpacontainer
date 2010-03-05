@@ -259,7 +259,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 			}
 		}
 
-		if (sortBy != null) {
+		if (sortBy != null && sortBy.size() > 0) {
 			sb.append(" order by ");
 			for (Iterator<SortBy> it = sortBy.iterator(); it.hasNext();) {
 				SortBy sortedProperty = it.next();
