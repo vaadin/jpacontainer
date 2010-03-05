@@ -31,6 +31,8 @@ import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Validator.InvalidValueException;
+import java.util.Arrays;
+import java.util.HashSet;
 
 /**
  * Implementation of {@link EntityContainer} that uses an {@link EntityProvider}
@@ -122,10 +124,35 @@ public class JPAContainer<T> implements EntityContainer<T>,
 		updateFilterableProperties();
 	}
 
+	private Collection<String> additionalFilterableProperties;
+
+	/**
+	 * Sometimes, it may be necessary to filter by properties that do not
+	 * show up the container. This method can be used to add additional
+	 * property IDs to the {@link #getFilterablePropertyIds() } collection.
+	 * This method performs no propertyId validation, so it is up to the
+	 * client to make sure the propertyIds are valid.
+	 * 
+	 * @param propertyIds an array of additional propertyIds, may be null.
+	 */
+	public void setAdditionalFilterableProperties(String ... propertyIds) {
+		if (propertyIds == null || propertyIds.length == 0) {
+			additionalFilterableProperties = null;
+		} else {
+			additionalFilterableProperties = Arrays.asList(propertyIds);
+		}
+	}
+
 	protected void updateFilterableProperties() {
-		this.filterSupport
-				.setFilterablePropertyIds((Collection<?>) propertyList
-						.getPersistentPropertyNames());
+		//this.filterSupport
+		//		.setFilterablePropertyIds((Collection<?>) propertyList
+		//				.getPersistentPropertyNames());
+		HashSet<String> properties = new HashSet<String>();
+		properties.addAll(propertyList.getPersistentPropertyNames());
+		if (additionalFilterableProperties != null) {
+			properties.addAll(additionalFilterableProperties);
+		}
+		this.filterSupport.setFilterablePropertyIds((Collection<?>) properties);
 	}
 
 	/**
