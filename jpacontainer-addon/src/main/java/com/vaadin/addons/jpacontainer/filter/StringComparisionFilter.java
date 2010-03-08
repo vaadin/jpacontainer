@@ -33,7 +33,7 @@ public class StringComparisionFilter extends AbstractStringFilter {
 
 	protected StringComparisionFilter(Object propertyId, String value,
 			boolean caseSensitive, String operator) {
-		super(propertyId, value, caseSensitive);
+		super(propertyId, caseSensitive ? value : value.toUpperCase(), caseSensitive);
 		assert operator != null : "operator must not be null";
 		this.operator = operator;
 	}
@@ -50,7 +50,7 @@ public class StringComparisionFilter extends AbstractStringFilter {
 		if (isCaseSensitive()) {
 			s = "(%s %s :%s)";
 		} else {
-			s = "(upper(%s) %s upper(:%s))";
+			s = "(upper(%s) %s :%s)";
 		}
 		return String.format(s,
 				propertyIdPreprocessor.process(getPropertyId()), operator,
