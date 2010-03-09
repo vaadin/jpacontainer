@@ -34,6 +34,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +46,9 @@ import org.springframework.transaction.annotation.Transactional;
  * <p>
  * When running inside a web application, this means that the data will be
  * generated once the application context has been fully initialized.
+ * <p>
+ * When initialized, the test database will be emptied and regenerated once
+ * every hour.
  * <p>
  * If you don't want the test data to be generated, either completely
  * delete this class or comment out the <code>@Repository</code>
@@ -71,27 +75,49 @@ public class TestDataGenerator implements
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
+	//* 15 9-17 * * MON-FRI
+	@Scheduled(cron="0 30 * * * *")
+	public void deleteTestData() {
+        if (entityManager == null) {
+            throw new IllegalStateException("No EntityManager provided");
+        }
+		if (logger.isInfoEnabled()) {
+			logger.info("Emptying test database");
+		}
+		long t = System.currentTimeMillis();
+		entityManager.createQuery("DELETE InvoiceItem").executeUpdate();
+		entityManager.createQuery("DELETE Invoice").executeUpdate();
+		entityManager.createQuery("DELETE OrderItem").executeUpdate();
+		entityManager.createQuery("DELETE CustomerOrder").executeUpdate();
+		entityManager.createQuery("DELETE Customer").executeUpdate();
+		entityManager.flush();
+		if (logger.isInfoEnabled()) {
+			logger.info("Test database emptied in " + (System.currentTimeMillis() - t) + " ms");
+		}
+	}
+
+    @Transactional(propagation = Propagation.REQUIRED)
+	@Scheduled(cron="10 30 * * * *")
     public void createTestData() {
         if (entityManager == null) {
             throw new IllegalStateException("No EntityManager provided");
         }
-        if (logger.isDebugEnabled()) {
-            logger.debug(
-                    "Generating test data for entity manager [" + entityManager + "]");
-        }
+		if (logger.isInfoEnabled()) {
+			logger.info("Generating test data");
+		}
+		long t = System.currentTimeMillis();
         createCustomerTestData();
         createOrderTestData();
         createInvoiceTestData();
         entityManager.flush();
-        if (logger.isDebugEnabled()) {
-            logger.debug("Test data generation complete");
-        }
-
         // Clean up
         customerIds.clear();
         customerIds = null;
         orderIds.clear();
         orderIds = null;
+        if (logger.isInfoEnabled()) {
+            logger.info("Test data generation completed in " + (System.currentTimeMillis() - t + " ms"));
+        }
     }
     final String[] salesReps = {"John Smith",
         "Scrooge McDuck",
