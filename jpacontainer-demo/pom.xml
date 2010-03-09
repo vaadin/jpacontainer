@@ -2,7 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.vaadin.addons</groupId>
+        <groupId>com.vaadin.addon</groupId>
         <artifactId>jpacontainer</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
@@ -11,11 +11,11 @@
 
     <!-- Based on http://dev.vaadin.com/browser/incubator/SpringApplication/pom.xml by Petri Hakala -->
 
-    <name>JPAContainer Demo</name>
+    <name>Vaadin JPAContainer Demo</name>
 
     <dependencies>
         <dependency>
-            <groupId>com.vaadin.addons</groupId>
+            <groupId>com.vaadin.addon</groupId>
             <artifactId>jpacontainer-addon</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
@@ -169,7 +169,7 @@
                     <!-- ### -->
                     <weaveDependencies>
                         <weaveDependency>
-                            <groupId>com.vaadin.addons</groupId>
+                            <groupId>com.vaadin.addon</groupId>
                             <artifactId>jpacontainer-addon</artifactId>
                         </weaveDependency>
                     </weaveDependencies>
