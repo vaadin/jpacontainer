@@ -17,7 +17,6 @@
  */
 package com.vaadin.addon.jpacontainer;
 
-import com.vaadin.addon.jpacontainer.PropertyList;
 import com.vaadin.addon.jpacontainer.metadata.ClassMetadata;
 import com.vaadin.addon.jpacontainer.metadata.MetadataFactory;
 import com.vaadin.addon.jpacontainer.testdata.Address;

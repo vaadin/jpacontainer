@@ -17,10 +17,6 @@
  */
 package com.vaadin.addon.jpacontainer.metadata;
 
-import com.vaadin.addon.jpacontainer.metadata.EntityClassMetadata;
-import com.vaadin.addon.jpacontainer.metadata.ClassMetadata;
-import com.vaadin.addon.jpacontainer.metadata.PersistentPropertyMetadata;
-import com.vaadin.addon.jpacontainer.metadata.PropertyMetadata;
 import static com.vaadin.addon.jpacontainer.metadata.TestClasses.*;
 import org.junit.Test;
 import static org.junit.Assert.*;

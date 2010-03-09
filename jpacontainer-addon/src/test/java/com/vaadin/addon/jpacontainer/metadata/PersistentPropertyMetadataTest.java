@@ -17,8 +17,6 @@
  */
 package com.vaadin.addon.jpacontainer.metadata;
 
-import com.vaadin.addon.jpacontainer.metadata.ClassMetadata;
-import com.vaadin.addon.jpacontainer.metadata.PersistentPropertyMetadata;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import javax.persistence.Version;

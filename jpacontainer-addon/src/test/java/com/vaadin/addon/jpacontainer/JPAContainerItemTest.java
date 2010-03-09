@@ -17,8 +17,6 @@
  */
 package com.vaadin.addon.jpacontainer;
 
-import com.vaadin.addon.jpacontainer.JPAContainer;
-import com.vaadin.addon.jpacontainer.JPAContainerItem;
 import com.vaadin.addon.jpacontainer.testdata.Address;
 import com.vaadin.addon.jpacontainer.testdata.Person;
 import com.vaadin.data.Property;

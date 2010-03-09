@@ -17,13 +17,6 @@
  */
 package com.vaadin.addon.jpacontainer;
 
-import com.vaadin.addon.jpacontainer.BatchableEntityProvider;
-import com.vaadin.addon.jpacontainer.MutableEntityProvider;
-import com.vaadin.addon.jpacontainer.SortBy;
-import com.vaadin.addon.jpacontainer.EntityItem;
-import com.vaadin.addon.jpacontainer.CachingEntityProvider;
-import com.vaadin.addon.jpacontainer.EntityProvider;
-import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.filter.Filters;
 import com.vaadin.addon.jpacontainer.testdata.Address;
 import com.vaadin.addon.jpacontainer.testdata.Person;

@@ -17,7 +17,6 @@
  */
 package com.vaadin.addon.jpacontainer.filter.util;
 
-import com.vaadin.addon.jpacontainer.filter.util.AdvancedFilterableSupport;
 import com.vaadin.addon.jpacontainer.filter.CompositeFilter;
 import com.vaadin.addon.jpacontainer.Filter;
 import com.vaadin.addon.jpacontainer.filter.PropertyFilter;

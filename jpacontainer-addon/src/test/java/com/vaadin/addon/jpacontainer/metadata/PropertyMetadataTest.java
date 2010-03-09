@@ -17,7 +17,6 @@
  */
 package com.vaadin.addon.jpacontainer.metadata;
 
-import com.vaadin.addon.jpacontainer.metadata.PropertyMetadata;
 import java.lang.reflect.Method;
 import javax.persistence.Id;
 import javax.persistence.Version;
