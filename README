@@ -39,7 +39,7 @@ READING THE MANUAL
   1. Generate the manual:
 
     $ cd jpacontainer-manual
-    $ mvn docbkx:generate-html generate-sources
+    $ mvn docbkx:generate-html
 
   2. Open the file jpacontainer-manual/target/docbkx/html/manual.html
      in your favorite web browser.
