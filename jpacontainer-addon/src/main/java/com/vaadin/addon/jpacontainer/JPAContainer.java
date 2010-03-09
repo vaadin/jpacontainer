@@ -77,7 +77,7 @@ import java.util.HashSet;
  * @since 1.0
  */
 public class JPAContainer<T> implements EntityContainer<T>,
-		EntityProviderChangeListener<T> {
+		EntityProviderChangeListener<T>, HierarchicalEntityContainer<T> {
 
 	private static final long serialVersionUID = -4031940552175752858L;
 	private EntityProvider<T> entityProvider;
@@ -1065,6 +1065,96 @@ public class JPAContainer<T> implements EntityContainer<T>,
 
 	public boolean isAutoCommit() {
 		return isWriteThrough();
+	}
+
+	private String parentProperty;
+
+	private String parentIdProperty;
+
+	public String getParentProperty() {
+		return parentProperty;
+	}
+
+	public void setParentProperty(String parentProperty) {
+		this.parentProperty = parentProperty;
+		if (parentProperty == null) {
+			parentIdProperty = null;
+		} else {
+			StringBuilder sb = new StringBuilder(parentProperty);
+			sb.append('.');
+			sb.append(getEntityClassMetadata().getIdentifierProperty().getName());
+			parentIdProperty = sb.toString();
+		}
+	}
+
+	public boolean areChildrenAllowed(Object itemId) {
+		assert itemId != null : "itemId must not be null";
+		return parentProperty != null && containsId(itemId);
+	}
+
+	private Filter getChildrenFilter(Object parentId) {
+		Filter parentFilter;
+		if (parentId == null) {
+			parentFilter = Filters.isNull(parentIdProperty);
+		} else {
+			parentFilter = Filters.eq(parentIdProperty, parentId);
+		}
+		Filter appliedFilter = getAppliedFiltersAsConjunction();
+		if (appliedFilter == null) {
+			return parentFilter;
+		} else {
+			return Filters.and(parentFilter, appliedFilter);
+		}
+	}
+
+	public Collection<?> getChildren(Object itemId) {
+		assert itemId != null : "itemId must not be null";
+		if (getParentProperty() == null) {
+			return Collections.emptyList();
+		} else {
+			return doGetEntityProvider().getAllEntityIdentifiers(getChildrenFilter(itemId), getSortByList());
+		}
+	}
+
+	public Object getParent(Object itemId) {
+		if (parentProperty == null) {
+			return null;
+		} else {
+			EntityItem<T> item = getItem(itemId);
+			return item == null ? null : item.getItemProperty(parentProperty).getValue();
+		}
+	}
+
+	public boolean hasChildren(Object itemId) {
+		return !getChildren(itemId).isEmpty();
+	}
+
+	public boolean isRoot(Object itemId) {
+		return getParent(itemId) == null;
+	}
+
+	public Collection<?> rootItemIds() {
+		return getChildren(null);
+	}
+
+	/**
+	 * <strong>This functionality is not supported by this
+	 * implementation.</strong>
+	 * <p>
+	 * {@inheritDoc }
+	 */
+	public boolean setChildrenAllowed(Object itemId, boolean areChildrenAllowed) throws UnsupportedOperationException {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * <strong>This functionality is not supported by this
+	 * implementation.</strong>
+	 * <p>
+	 * {@inheritDoc }
+	 */
+	public boolean setParent(Object itemId, Object newParentId) throws UnsupportedOperationException {
+		throw new UnsupportedOperationException();
 	}
 
 	/**
