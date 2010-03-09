@@ -1,57 +1,50 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>com.vaadin.addons</groupId>
-        <artifactId>jpacontainer</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
-    </parent>
-    <artifactId>jpacontainer-manual</artifactId>
-    <packaging>pom</packaging>
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.vaadin.addons</groupId>
+		<artifactId>jpacontainer</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+	<artifactId>jpacontainer-manual</artifactId>
+	<packaging>pom</packaging>
 
-    <name>JPAContainer Manual</name>
+	<name>JPAContainer Manual</name>
 
-    <build>
-        <!-- To use the plugin goals in your POM or parent POM -->
-        <plugins>
-            <plugin>
-                <groupId>com.agilejava.docbkx</groupId>
-                <artifactId>docbkx-maven-plugin</artifactId>
-                <version>2.0.9</version>
-                <executions>
-                    <execution>
-                        <id>generate-html-docs</id>
-                        <goals>
-                            <goal>generate-html</goal>
-                        </goals>
-                        <phase>generate-sources</phase>
-                        <configuration>
-                            <preProcess>
-                                <copy todir="target/docbkx/html">
-                                    <fileset dir="src/docbkx/img"/>
-                                </copy>
-                            </preProcess>
-                        </configuration>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>net.sf.docbook</groupId>
-                        <artifactId>docbook-xml</artifactId>
-                        <version>5.0-all</version>
-                        <type>zip</type>
-                        <classifier>resources</classifier>
-                    </dependency>
-                    <dependency>
-                        <groupId>net.sf.docbook</groupId>
-                        <artifactId>docbook-xsl</artifactId>
-                        <version>1.75.1</version>
-                        <type>zip</type>
-                        <classifier>ns-resources</classifier>
-                    </dependency>
-                </dependencies>
-            </plugin>
-        </plugins>
-    </build>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>com.agilejava.docbkx</groupId>
+				<artifactId>docbkx-maven-plugin</artifactId>
+				<version>2.0.9</version>
+				<configuration>
+					<imgSrcPath>file:///${basedir}/src/docbkx/img/</imgSrcPath>
+					<preProcess>
+						<copy todir="target/docbkx/html">
+							<fileset dir="src/docbkx/img"/>
+						</copy>
+					</preProcess>
+					<highlightSource>1</highlightSource>
+					<foCustomization>src/docbkx/fopdf.xsl</foCustomization>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>net.sf.docbook</groupId>
+						<artifactId>docbook-xml</artifactId>
+						<version>5.0-all</version>
+						<type>zip</type>
+						<classifier>resources</classifier>
+					</dependency>
+					<dependency>
+						<groupId>net.sf.docbook</groupId>
+						<artifactId>docbook-xsl</artifactId>
+						<version>1.75.1</version>
+						<type>zip</type>
+						<classifier>ns-resources</classifier>
+					</dependency>
+				</dependencies>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>
