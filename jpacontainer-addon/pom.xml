@@ -2,14 +2,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.vaadin.addons</groupId>
+        <groupId>com.vaadin.addon</groupId>
         <artifactId>jpacontainer</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
     <artifactId>jpacontainer-addon</artifactId>
     <packaging>jar</packaging>
 
-    <name>JPAContainer Addon</name>
+    <name>Vaadin JPAContainer Addon</name>
 
     <dependencies>
         <dependency>
