@@ -25,6 +25,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -58,6 +59,8 @@ public class Person implements Serializable, Cloneable {
     @Embedded
     private Address address;
     private transient String tempData;
+	@ManyToOne
+	private Person manager;
 
     public Address getAddress() {
         return address;
@@ -123,6 +126,14 @@ public class Person implements Serializable, Cloneable {
         this.tempData = tempData;
     }
 
+	public Person getManager() {
+		return manager;
+	}
+
+	public void setManager(Person manager) {
+		this.manager = manager;
+	}
+
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Person) {
@@ -131,7 +142,8 @@ public class Person implements Serializable, Cloneable {
                     && (ObjectUtils.equals(dateOfBirth, p.dateOfBirth) || (dateOfBirth != null && p.dateOfBirth != null && DateUtils.
                     isSameDay(dateOfBirth, p.dateOfBirth)))
                     && ObjectUtils.equals(firstName, p.firstName)
-                    && ObjectUtils.equals(lastName, p.lastName);
+                    && ObjectUtils.equals(lastName, p.lastName)
+					&& ObjectUtils.equals(manager, p.manager);
         }
 
         return super.equals(obj);
@@ -142,7 +154,8 @@ public class Person implements Serializable, Cloneable {
         return ObjectUtils.hashCode(address)
                 + 7 * ObjectUtils.hashCode(dateOfBirth)
                 + 7 * ObjectUtils.hashCode(firstName)
-                + 7 * ObjectUtils.hashCode(lastName);
+                + 7 * ObjectUtils.hashCode(lastName)
+				+ 7 * ObjectUtils.hashCode(manager);
     }
 
     @Override
@@ -165,6 +178,7 @@ public class Person implements Serializable, Cloneable {
         p.lastName = lastName;
         p.tempData = tempData;
         p.version = version;
+		p.manager = manager;
         return p;
     }
 }

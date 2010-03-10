@@ -652,6 +652,8 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	protected Filter getAppliedFiltersAsConjunction() {
 		if (getAppliedFilters().isEmpty()) {
 			return null;
+		} else if (getAppliedFilters().size() == 1) {
+			return getAppliedFilters().iterator().next();
 		} else {
 			return Filters.and(getAppliedFilters());
 		}
@@ -1095,7 +1097,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	private Filter getChildrenFilter(Object parentId) {
 		Filter parentFilter;
 		if (parentId == null) {
-			parentFilter = Filters.isNull(parentIdProperty);
+			parentFilter = Filters.isNull(parentProperty);
 		} else {
 			parentFilter = Filters.eq(parentIdProperty, parentId);
 		}
@@ -1108,9 +1110,12 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	}
 
 	public Collection<?> getChildren(Object itemId) {
-		assert itemId != null : "itemId must not be null";
 		if (getParentProperty() == null) {
-			return Collections.emptyList();
+			if (itemId == null) {
+				return getItemIds();
+			} else {
+				return Collections.emptyList();
+			}
 		} else {
 			return doGetEntityProvider().getAllEntityIdentifiers(getChildrenFilter(itemId), getSortByList());
 		}
@@ -1121,7 +1126,13 @@ public class JPAContainer<T> implements EntityContainer<T>,
 			return null;
 		} else {
 			EntityItem<T> item = getItem(itemId);
-			return item == null ? null : item.getItemProperty(parentProperty).getValue();
+			T parent = item == null ? null : (T) item.getItemProperty(parentProperty).getValue();
+			if (parent == null) {
+				return null;
+			} else {
+				return getEntityClassMetadata().getPropertyValue(parent,
+						getEntityClassMetadata().getIdentifierProperty().getName());
+			}
 		}
 	}
 

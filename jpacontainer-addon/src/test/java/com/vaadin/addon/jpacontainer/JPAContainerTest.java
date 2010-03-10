@@ -27,6 +27,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import org.easymock.Capture;
@@ -393,8 +394,8 @@ public class JPAContainerTest {
 				entityProviderMock.getEntityIdentifierAt(null,
 						new LinkedList<SortBy>(), 2)).andReturn(null);
 		expect(
-				entityProviderMock.getEntityIdentifierAt(Filters.and(Filters
-						.eq("firstName", "Hello", false)), orderby, 3))
+				entityProviderMock.getEntityIdentifierAt(Filters
+						.eq("firstName", "Hello", false), orderby, 3))
 				.andReturn("id3");
 		replay(entityProviderMock);
 
@@ -425,7 +426,7 @@ public class JPAContainerTest {
 						new LinkedList<SortBy>(), 1)).andStubReturn(null);
 		expect(
 				batchableEntityProviderMock.getEntityIdentifierAt(Filters
-						.and(Filters.eq("firstName", "Hello", false)), orderby,
+						.eq("firstName", "Hello", false), orderby,
 						2)).andStubReturn("id3");
 		expect(batchableEntityProviderMock.containsEntity("id3", null))
 				.andStubReturn(true);
@@ -674,8 +675,8 @@ public class JPAContainerTest {
 	public void testContainsId_WriteThrough() {
 		expect(entityProviderMock.containsEntity("id", null)).andReturn(true);
 		expect(
-				entityProviderMock.containsEntity("id2", Filters.and(Filters
-						.eq("firstName", "Hello", false)))).andReturn(false);
+				entityProviderMock.containsEntity("id2", Filters
+						.eq("firstName", "Hello", false))).andReturn(false);
 		replay(entityProviderMock);
 
 		container.setEntityProvider(entityProviderMock);
@@ -696,12 +697,10 @@ public class JPAContainerTest {
 		expect(batchableEntityProviderMock.containsEntity("id2", null))
 				.andStubReturn(true);
 		expect(
-				batchableEntityProviderMock.containsEntity("id", Filters
-						.and(Filters.eq("firstName", "Hello", false))))
+				batchableEntityProviderMock.containsEntity("id", Filters.eq("firstName", "Hello", false)))
 				.andStubReturn(true);
 		expect(
-				batchableEntityProviderMock.containsEntity("id2", Filters
-						.and(Filters.eq("firstName", "Hello", false))))
+				batchableEntityProviderMock.containsEntity("id2", Filters.eq("firstName", "Hello", false)))
 				.andStubReturn(false);
 		replay(batchableEntityProviderMock);
 
@@ -745,8 +744,8 @@ public class JPAContainerTest {
 				entityProviderMock.getFirstEntityIdentifier(null,
 						new LinkedList<SortBy>())).andReturn(null).times(2);
 		expect(
-				entityProviderMock.getFirstEntityIdentifier(Filters.and(Filters
-						.eq("firstName", "Hello", false)), orderby)).andReturn(
+				entityProviderMock.getFirstEntityIdentifier(Filters
+						.eq("firstName", "Hello", false), orderby)).andReturn(
 				"id2").times(3);
 		replay(entityProviderMock);
 
@@ -779,8 +778,7 @@ public class JPAContainerTest {
 						new LinkedList<SortBy>())).andReturn("id1").times(2)
 				.andReturn(null).times(2);
 		expect(
-				batchableEntityProviderMock.getFirstEntityIdentifier(Filters
-						.and(Filters.eq("firstName", "Hello", false)), orderby))
+				batchableEntityProviderMock.getFirstEntityIdentifier(Filters.eq("firstName", "Hello", false), orderby))
 				.andReturn("id2").times(3);
 		replay(batchableEntityProviderMock);
 
@@ -840,8 +838,8 @@ public class JPAContainerTest {
 				entityProviderMock.getLastEntityIdentifier(null,
 						new LinkedList<SortBy>())).andReturn(null).times(2);
 		expect(
-				entityProviderMock.getLastEntityIdentifier(Filters.and(Filters
-						.eq("firstName", "Hello", false)), orderby)).andReturn(
+				entityProviderMock.getLastEntityIdentifier(Filters
+						.eq("firstName", "Hello", false), orderby)).andReturn(
 				"id2").times(3);
 		replay(entityProviderMock);
 
@@ -874,8 +872,7 @@ public class JPAContainerTest {
 						new LinkedList<SortBy>())).andReturn("id1").times(2)
 				.andReturn(null).times(2);
 		expect(
-				batchableEntityProviderMock.getLastEntityIdentifier(Filters
-						.and(Filters.eq("firstName", "Hello", false)), orderby))
+				batchableEntityProviderMock.getLastEntityIdentifier(Filters.eq("firstName", "Hello", false), orderby))
 				.andReturn("id2").times(6).andReturn(null).times(3);
 		replay(batchableEntityProviderMock);
 
@@ -932,11 +929,11 @@ public class JPAContainerTest {
 						new LinkedList<SortBy>())).andReturn(null);
 		expect(
 				entityProviderMock.getNextEntityIdentifier("id3", Filters
-						.and(Filters.eq("firstName", "Hello", false)), orderby))
+				.eq("firstName", "Hello", false), orderby))
 				.andReturn("id4");
 		expect(
 				entityProviderMock.getNextEntityIdentifier("id4", Filters
-						.and(Filters.eq("firstName", "Hello", false)), orderby))
+				.eq("firstName", "Hello", false), orderby))
 				.andReturn(null);
 		replay(entityProviderMock);
 
@@ -972,11 +969,11 @@ public class JPAContainerTest {
 						new LinkedList<SortBy>())).andReturn(null);
 		expect(
 				entityProviderMock.getPreviousEntityIdentifier("id3", Filters
-						.and(Filters.eq("firstName", "Hello", false)), orderby))
+				.eq("firstName", "Hello", false), orderby))
 				.andReturn("id4");
 		expect(
 				entityProviderMock.getPreviousEntityIdentifier("id4", Filters
-						.and(Filters.eq("firstName", "Hello", false)), orderby))
+				.eq("firstName", "Hello", false), orderby))
 				.andReturn(null);
 		replay(entityProviderMock);
 
@@ -1372,5 +1369,146 @@ public class JPAContainerTest {
 				.getEntityClassMetadata());
 		assertEquals(container.getEntityClass(), otherContainer
 				.getEntityClass());
+	}
+
+	@Test
+	public void testGetChildren() {
+		LinkedList<SortBy> orderby = new LinkedList<SortBy>();
+		orderby.add(new SortBy("firstName", true));
+
+		LinkedList<Object> result = new LinkedList<Object>();
+
+		// Instruct mocks
+		expect(entityProviderMock.getAllEntityIdentifiers(Filters.eq("manager.id", 123l), orderby)).andReturn(result);
+		replay(entityProviderMock);
+
+		// Set up container
+		container.setParentProperty("manager");
+		container.setEntityProvider(entityProviderMock);
+		container.sort(new Object[] { "firstName" }, new boolean[] { true });
+
+		// Run test
+		assertSame(result, container.getChildren(123l));
+
+		// Verify
+		verify(entityProviderMock);
+	}
+
+	@Test
+	public void testGetChildren_Filtered() {
+		LinkedList<SortBy> orderby = new LinkedList<SortBy>();
+		orderby.add(new SortBy("firstName", true));
+
+		LinkedList<Object> result = new LinkedList<Object>();
+
+		// Instruct mocks
+		expect(entityProviderMock.getAllEntityIdentifiers(Filters.and(Filters.eq("manager.id", 123l), Filters.eq("firstName", "blah")), orderby)).andReturn(result);
+		replay(entityProviderMock);
+
+		// Set up container
+		container.setParentProperty("manager");
+		container.setEntityProvider(entityProviderMock);
+		container.sort(new Object[] { "firstName" }, new boolean[] { true });
+		container.addFilter(Filters.eq("firstName", "blah"));
+
+		// Run test
+		assertSame(result, container.getChildren(123l));
+
+		// Verify
+		verify(entityProviderMock);
+	}
+
+	@Test
+	public void testRootItemIds() {
+		LinkedList<SortBy> orderby = new LinkedList<SortBy>();
+		orderby.add(new SortBy("firstName", true));
+
+		LinkedList<Object> result = new LinkedList<Object>();
+
+		// Instruct mocks
+		expect(entityProviderMock.getAllEntityIdentifiers(Filters.isNull("manager"), orderby)).andReturn(result);
+		replay(entityProviderMock);
+
+		// Set up container
+		container.setParentProperty("manager");
+		container.setEntityProvider(entityProviderMock);
+		container.sort(new Object[] { "firstName" }, new boolean[] { true });
+
+		// Run test
+		assertSame(result, container.rootItemIds());
+
+		// Verify
+		verify(entityProviderMock);
+	}
+
+	@Test
+	public void testHasChildren() {
+		LinkedList<SortBy> orderby = new LinkedList<SortBy>();
+		orderby.add(new SortBy("firstName", true));
+
+		LinkedList<Object> result = new LinkedList<Object>();
+		result.add(12l);
+
+		// Instruct mocks
+		expect(entityProviderMock.getAllEntityIdentifiers(Filters.eq("manager.id", 123l), orderby)).andReturn(Collections.emptyList());
+		expect(entityProviderMock.getAllEntityIdentifiers(Filters.eq("manager.id", 123l), orderby)).andReturn(result);
+		replay(entityProviderMock);
+
+		// Set up container
+		container.setParentProperty("manager");
+		container.setEntityProvider(entityProviderMock);
+		container.sort(new Object[] { "firstName" }, new boolean[] { true });
+
+		// Run test
+		assertFalse(container.hasChildren(123l));
+		assertTrue(container.hasChildren(123l));
+
+		// Verify
+		verify(entityProviderMock);
+	}
+
+	@Test
+	public void testGetParent_andIsRoot() {
+		Person manager = new Person();
+		manager.setId(123l);
+		Person person = new Person();
+		person.setId(456l);
+		person.setManager(manager);
+
+		// Instruct mocks
+		expect(entityProviderMock.getEntity(456l)).andStubReturn(person);
+		replay(entityProviderMock);
+
+		// Set up container
+		container.setParentProperty("manager");
+		container.setEntityProvider(entityProviderMock);
+
+		// Run test
+		assertEquals(123l, container.getParent(456l));
+		assertFalse(container.isRoot(456l));
+
+		// Verify
+		verify(entityProviderMock);
+	}
+
+	@Test
+	public void testGetParent_andIsRoot_Root() {
+		Person person = new Person();
+		person.setId(456l);
+
+		// Instruct mocks
+		expect(entityProviderMock.getEntity(456l)).andStubReturn(person);
+		replay(entityProviderMock);
+
+		// Set up container
+		container.setParentProperty("manager");
+		container.setEntityProvider(entityProviderMock);
+
+		// Run test
+		assertNull(container.getParent(456l));
+		assertTrue(container.isRoot(456l));
+
+		// Verify
+		verify(entityProviderMock);
 	}
 }

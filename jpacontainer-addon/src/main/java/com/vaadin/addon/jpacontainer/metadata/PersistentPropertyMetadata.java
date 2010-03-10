@@ -313,13 +313,20 @@ public class PersistentPropertyMetadata extends PropertyMetadata {
 		return true; // field != null || super.isWritable();
 	}
 
+	/*
+	 * Note, that we only compare the mapped classes of the typeMetadata
+	 * fields. If we compared the typeMetadata fields themselves, we could
+	 * run into an infinite loop if there are circular references (e.g.
+	 * a parent-property of the same type) in the metadata.
+	 */
+
 	@Override
 	public boolean equals(Object obj) {
 		if (super.equals(obj)) { // Includes check of parameter type
 			PersistentPropertyMetadata other = (PersistentPropertyMetadata) obj;
 			return propertyKind.equals(other.propertyKind)
 					&& (typeMetadata == null ? other.typeMetadata == null
-							: typeMetadata.equals(other.typeMetadata))
+							: typeMetadata.getMappedClass().equals(other.typeMetadata.getMappedClass()))
 					&& (field == null ? other.field == null : field
 							.equals(other.field));
 		}
@@ -331,7 +338,7 @@ public class PersistentPropertyMetadata extends PropertyMetadata {
 		int hash = super.hashCode();
 		hash = hash * 31 + propertyKind.hashCode();
 		if (typeMetadata != null) {
-			hash = hash * 31 + typeMetadata.hashCode();
+			hash = hash * 31 + typeMetadata.getMappedClass().hashCode();
 		}
 		if (field != null) {
 			hash = hash * 31 + field.hashCode();
