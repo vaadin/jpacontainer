@@ -4,7 +4,7 @@
          xmlns:html="http://www.w3.org/1999/xhtml"
          xmlns:xl="http://www.w3.org/1999/xlink">
     <info>
-        <title>JPAContainer Manual</title>
+        <title>Vaadin JPAContainer Manual</title>
         <author>
             <personname>
                 <firstname>Petter</firstname>
@@ -21,20 +21,22 @@
     <section xml:id="introduction">
         <title>Introduction</title>
         <para>
-            JPAContainer is a <link xl:href="http://vaadin.com">Vaadin</link> data container that uses the Java Persistence API (JPA) for retrieving and storing data.
+            Vaadin JPAContainer is a <link xl:href="http://vaadin.com">Vaadin</link> data container that uses the Java Persistence API 1.0 (JPA) for retrieving and storing data.
             It supports the most common features required by JEE applications out of the box, such as lazy loading, advanced filtering, nested property names and caching.
-            It will probably not solve all the container problems you as a JEE application developers might face, but it will hopefully make your life a little easier.
+            It will probably not solve all the container problems you as a JEE application developer might face, but it will hopefully make your life a little easier.
         </para>
         <para>
-            The purpose of this manual is to briefly explain how JPAContainer works and how you can use it in your applications. TODO Continue...
+            The purpose of this manual is to briefly explain how JPAContainer works and how you can use it in your applications. The manual describes the architecture of JPAContainer and
+			the idea behind the components that it consists of. Next, the manual covers the most important features of JPAContainer and also points out some potential issues
+			that developers should be aware of when using JPAContainer. Finally, it gives a brief description of how JPAContainer can be customized by developers.
         </para>
-        <note>
+<!--        <note>
             <title>Work in progress</title>
             <para>
                 This manual is a work in progress. Many sections have been described very shallowly, more depth will be added later. If you think something is missing,
                 please let me now ASAP!
             </para>
-        </note>
+        </note>-->
         <section>
             <title>Architecture</title>
             <para>
@@ -193,7 +195,7 @@ public class Address implements Serializable, Cloneable {
                 persistent properties can be filtered. All filters generate standard JPA QL-language that can be used by entity providers when constructing queries to be passed to an <interfacename>EntityManager</interfacename>.
             </para>
             <para>
-                There are several predefined filters available in the <classname>Filters</classname> class, found in the <package>com.vaadin.addons.jpacontainer.filter</package> package:
+                There are several predefined filters available in the <classname>Filters</classname> class, found in the <package>com.vaadin.addon.jpacontainer.filter</package> package:
             </para>
 
             <programlisting language="java"><![CDATA[
@@ -647,12 +649,12 @@ public class MyEntityProviderBean extends
         </section>
     </section>
 
-    <section xml:id="demo">
+<!--    <section xml:id="demo">
         <title>The Hitchhiker's Guide to The Demo Application</title>
         <para>
             TODO Write about the demo application
         </para>
-    </section>
+    </section>-->
 
     <section xml:id="custom-entity-providers">
         <title>Developing Custom Entity Providers</title>
