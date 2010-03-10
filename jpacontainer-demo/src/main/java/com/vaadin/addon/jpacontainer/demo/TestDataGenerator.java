@@ -77,7 +77,7 @@ public class TestDataGenerator implements
     @Transactional(propagation = Propagation.REQUIRED)
 	//* 15 9-17 * * MON-FRI
 	@Scheduled(cron="0 30 * * * *")
-	public void deleteTestData() {
+	public synchronized void deleteTestData() {
         if (entityManager == null) {
             throw new IllegalStateException("No EntityManager provided");
         }
@@ -98,7 +98,7 @@ public class TestDataGenerator implements
 
     @Transactional(propagation = Propagation.REQUIRED)
 	@Scheduled(cron="10 30 * * * *")
-    public void createTestData() {
+    public synchronized void createTestData() {
         if (entityManager == null) {
             throw new IllegalStateException("No EntityManager provided");
         }
