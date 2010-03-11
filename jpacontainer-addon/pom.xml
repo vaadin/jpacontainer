@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.vaadin.addon</groupId>
         <artifactId>jpacontainer</artifactId>
-        <version>0.9.0-SNAPSHOT</version>
+        <version>0.9.0</version>
     </parent>
     <artifactId>jpacontainer-addon</artifactId>
     <packaging>jar</packaging>
@@ -73,6 +73,27 @@
                     <skip>false</skip>
                 </configuration>
             </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<configuration>
+					<links>
+						<link>http://vaadin.com/api/</link>
+						<link>http://java.sun.com/j2se/1.5.0/docs/api/</link>
+						<link>http://java.sun.com/javaee/5/docs/api/</link>
+					</links>
+	                <encoding>UTF-8</encoding>
+					<source>1.5</source>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>install</phase>
+						<goals>
+							<goal>javadoc</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
         </plugins>
     </build>
 	<repositories>

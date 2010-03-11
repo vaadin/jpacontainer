@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.vaadin.addon</groupId>
 		<artifactId>jpacontainer</artifactId>
-		<version>0.9.0-SNAPSHOT</version>
+		<version>0.9.0</version>
 	</parent>
 	<artifactId>jpacontainer-manual</artifactId>
 	<packaging>pom</packaging>
@@ -20,12 +20,12 @@
 				<configuration>
 					<imgSrcPath>file:///${basedir}/src/docbkx/img/</imgSrcPath>
 					<preProcess>
-						<copy todir="target/docbkx/html">
-							<fileset dir="src/docbkx/img"/>
+						<copy todir="${basedir}/target/docbkx/html">
+							<fileset dir="${basedir}/src/docbkx/img"/>
 						</copy>
 					</preProcess>
 					<highlightSource>1</highlightSource>
-					<foCustomization>src/docbkx/fopdf.xsl</foCustomization>
+					<foCustomization>${basedir}/src/docbkx/fopdf.xsl</foCustomization>
 				</configuration>
 				<dependencies>
 					<dependency>

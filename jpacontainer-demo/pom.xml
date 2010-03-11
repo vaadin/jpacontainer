@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.vaadin.addon</groupId>
         <artifactId>jpacontainer</artifactId>
-        <version>0.9.0-SNAPSHOT</version>
+        <version>0.9.0</version>
     </parent>
     <artifactId>jpacontainer-demo</artifactId>
     <packaging>war</packaging>
@@ -17,7 +17,7 @@
         <dependency>
             <groupId>com.vaadin.addon</groupId>
             <artifactId>jpacontainer-addon</artifactId>
-            <version>0.9.0-SNAPSHOT</version>
+            <version>0.9.0</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
