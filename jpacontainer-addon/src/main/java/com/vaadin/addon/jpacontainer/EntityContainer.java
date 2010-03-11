@@ -168,7 +168,7 @@ public interface EntityContainer<T> extends Container.Sortable,
 	 * specified parameters and applies the filter immediately, regardless of
 	 * the state of {@link #isApplyFiltersImmediately() }.
 	 * 
-	 * @see #addFilter(com.vaadin.addons.jpacontainer.Filter)
+	 * @see #addFilter(com.vaadin.addon.jpacontainer.Filter)
 	 * @see #applyFilters()
 	 */
 	public void addContainerFilter(Object propertyId, String filterString,

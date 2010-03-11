@@ -186,9 +186,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 	/**
 	 * Creates a filtered query that does not do any sorting.
 	 * 
-	 * @see #createFilteredQuery(java.lang.String, java.lang.String,
-	 *      com.vaadin.addons.jpacontainer.Filter, java.util.List, boolean,
-	 *      com.vaadin.addons.jpacontainer.Filter.PropertyIdPreprocessor)
+	 * @see #createFilteredQuery(java.lang.String, java.lang.String, com.vaadin.addon.jpacontainer.Filter, java.util.List, boolean, com.vaadin.addon.jpacontainer.Filter.PropertyIdPreprocessor)
 	 * @param fieldsToSelect
 	 *            the fields to select (must not be null).
 	 * @param entityAlias
@@ -224,7 +222,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 	 *            <code>sortBy</code> is not null.
 	 * @param propertyIdPreprocessor
 	 *            the property ID preprocessor to pass to
-	 *            {@link Filter#toQLString(com.vaadin.addons.jpacontainer.filter.PropertyIdPreprocessor) }
+	 *            {@link Filter#toQLString(com.vaadin.addon.jpacontainer.Filter.PropertyIdPreprocessor)  }
 	 *            , or null to use a default preprocessor (should be sufficient
 	 *            in most cases).
 	 * @return the query (never null).

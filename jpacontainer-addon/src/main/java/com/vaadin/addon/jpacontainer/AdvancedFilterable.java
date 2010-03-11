@@ -142,7 +142,7 @@ public interface AdvancedFilterable extends Container {
 	/**
 	 * This event indicates that the filters of a {@link AdvancedFilterable}
 	 * have been applied. If an implementation of {@link AdvancedFilterable}
-	 * also implements {@link ItemSetChangeNotifier}, this event should be fired
+	 * also implements {@link com.vaadin.data.Container$ItemSetChangeNotifier}, this event should be fired
 	 * every time {@link AdvancedFilterable#applyFilters() } has been executed
 	 * successfully.
 	 * 

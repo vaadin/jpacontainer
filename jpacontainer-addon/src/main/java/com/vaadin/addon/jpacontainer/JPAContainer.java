@@ -93,7 +93,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	/**
 	 * Creates a new <code>JPAContainer</code> instance for entities of class
 	 * <code>entityClass</code>. An entity provider must be provided using the
-	 * {@link #setEntityProvider(com.vaadin.addons.jpacontainer.EntityProvider) }
+	 * {@link #setEntityProvider(com.vaadin.addon.jpacontainer.EntityProvider) }
 	 * before the container can be used.
 	 * 
 	 * @param entityClass
@@ -647,7 +647,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	 * null.
 	 * 
 	 * @see #getAppliedFilters()
-	 * @see Filters#and(com.vaadin.addons.jpacontainer.Filter[])
+	 * @see Filters#and(com.vaadin.addon.jpacontainer.Filter[])
 	 * @return a conjunction filter or null.
 	 */
 	protected Filter getAppliedFiltersAsConjunction() {

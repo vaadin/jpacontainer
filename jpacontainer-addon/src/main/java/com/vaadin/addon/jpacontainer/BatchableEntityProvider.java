@@ -62,7 +62,7 @@ public interface BatchableEntityProvider<T> extends MutableEntityProvider<T> {
 
 	/**
 	 * Callback interface used by the
-	 * {@link BatchableEntityProvider#batchUpdate(com.vaadin.addons.jpacontainer.BatchableEntityProvider.BatchUpdateCallback) }
+	 * {@link BatchableEntityProvider#batchUpdate(com.vaadin.addon.jpacontainer.BatchableEntityProvider.BatchUpdateCallback) }
 	 * method.
 	 * 
 	 * @author Petter Holmström (IT Mill)

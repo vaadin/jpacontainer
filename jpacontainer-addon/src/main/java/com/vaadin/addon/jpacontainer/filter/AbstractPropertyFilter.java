@@ -19,7 +19,7 @@ package com.vaadin.addon.jpacontainer.filter;
 
 /**
  * Abstract base class for {@link PropertyFilter}s. Subclasses should implement
- * {@link #toQLString(com.vaadin.addons.jpacontainer.filter.PropertyFilter.PropertyIdPreprocessor) }
+ * {@link #toQLString(com.vaadin.addon.jpacontainer.Filter.PropertyIdPreprocessor) }
  * .
  * 
  * @author Petter Holmström (IT Mill)

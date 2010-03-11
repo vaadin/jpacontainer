@@ -28,7 +28,7 @@ import javax.persistence.EntityTransaction;
 /**
  * Extended version of {@link LocalEntityProvider} that provides editing
  * support. In addition to all the features of the
- * <code>LocalEntityProvider<code>, it supports
+ * <code>LocalEntityProvider</code>, it supports
  * both internal and external transaction handling.
  *
  * TODO Improve documentation

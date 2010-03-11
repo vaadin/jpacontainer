@@ -168,7 +168,7 @@ public class AdvancedFilterableSupport implements Serializable {
 	}
 
 	/**
-	 * @see AdvancedFilterable#addFilter(com.vaadin.addons.jpacontainer.filter.Filter)
+	 * @see AdvancedFilterable#addFilter(com.vaadin.addon.jpacontainer.Filter) 
 	 */
 	public void addFilter(Filter filter) throws IllegalArgumentException {
 		if (!isValidFilter(filter)) {
@@ -183,7 +183,7 @@ public class AdvancedFilterableSupport implements Serializable {
 	}
 
 	/**
-	 * @see AdvancedFilterable#removeFilter(com.vaadin.addons.jpacontainer.filter.Filter)
+	 * @see AdvancedFilterable#removeFilter(com.vaadin.addon.jpacontainer.Filter)
 	 */
 	public void removeFilter(Filter filter) {
 		assert filter != null : "filter must not be null";
