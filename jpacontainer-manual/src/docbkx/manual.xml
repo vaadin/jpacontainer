@@ -70,7 +70,7 @@
 
             <para>
                 Most of the public API of JPAContainer is defined in interfaces. The following diagram displays the most important classes and interfaces, and their relations. The gray
-                interfaces are part of the official Vaadin API
+                interfaces are part of the official Vaadin API.
             </para>
 
             <mediaobject>
@@ -82,9 +82,9 @@
                 </imageobject>
             </mediaobject>
 
-            <para>
-                The <classname>JPAContainer</classname> class is the default implementation of the <interfacename>EntityContainer</interfacename> interface. TODO Continue...
-            </para>
+<!--            <para>
+                The <classname>JPAContainer</classname> class is the default implementation of the <interfacename>EntityContainer</interfacename> interface.
+            </para>-->
         </section>
     </section>
 
