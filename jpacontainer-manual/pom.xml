@@ -9,7 +9,7 @@
 	<artifactId>jpacontainer-manual</artifactId>
 	<packaging>pom</packaging>
 
-	<name>JPAContainer Manual</name>
+	<name>Vaadin JPAContainer Manual</name>
 
 	<build>
 		<plugins>
