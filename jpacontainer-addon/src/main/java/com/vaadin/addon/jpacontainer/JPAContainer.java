@@ -141,6 +141,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 		} else {
 			additionalFilterableProperties = Arrays.asList(propertyIds);
 		}
+		updateFilterableProperties();
 	}
 
 	protected void updateFilterableProperties() {
