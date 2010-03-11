@@ -23,10 +23,17 @@
         <!-- Copy the manual to the builds directory -->
         <copy tofile="${builds.dir}/manual-${DSTAMP}.pdf" file="${basedir}/jpacontainer-manual/target/docbkx/pdf/manual.pdf"/>
         <!-- Create the zip file -->
-        <zip file="${builds.dir}/vaadin-jpacontainer-${version}.zip" compress="true">
+        <jar file="${builds.dir}/vaadin-jpacontainer-${version}.zip" compress="true">
             <fileset dir="${basedir}/jpacontainer-addon/target" includes="*.jar"/>
             <fileset dir="${basedir}/jpacontainer-manual/target/docbkx/pdf" includes="*.pdf"/>
             <fileset dir="${basedir}/jpacontainer-addon/target/site" includes="apidocs/**"/>
-        </zip>
+            <manifest>
+               <attribute name="Vaadin-Package-Version" value="1"/>
+               <attribute name="Implementation-Title" value="Vaadin JPAContainer"/>
+               <attribute name="Implementation-Version" value="${version}"/>
+               <attribute name="Implementation-Vendor" value="Oy IT Mill Ltd"/>
+               <attribute name="Vaadin-Addon" value="jpacontainer-addon-${version}.jar"/>
+            </manifest>
+        </jar>
     </target>
 </project>
