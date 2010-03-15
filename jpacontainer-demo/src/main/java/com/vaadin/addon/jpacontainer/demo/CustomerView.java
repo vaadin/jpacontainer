@@ -28,6 +28,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window.Notification;
@@ -70,6 +71,8 @@ public class CustomerView extends CustomComponent {
         VerticalLayout layout = new VerticalLayout();
         layout.setSizeFull();
         layout.setMargin(true);
+
+		layout.addComponent(new Label("When <strong>Auto-Commit</strong> is off (default), all the changes that you make are buffered inside the application. Thus, you have to click the <strong>Commit</strong> button to commit the changes to the database. If auto-commit is on, the changes are committed to the database immediately.", Label.CONTENT_XHTML));
 
         HorizontalLayout toolbar = new HorizontalLayout();
         {

@@ -71,12 +71,26 @@ public class TestDataGenerator implements
         if (logger.isInfoEnabled()) {
             logger.info("Received ContextRefreshedEvent, creating test data");
         }
-        createTestData();
+//        createTestData();
+		resetDatabase();
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
-	//* 15 9-17 * * MON-FRI
 	@Scheduled(cron="0 30 * * * *")
+	public synchronized void resetDatabase() {
+		try {
+			deleteTestData();
+		} catch (Exception e) {
+			logger.info("Could not delete test data", e);
+		}
+		try {
+			createTestData();
+		} catch (Exception e) {
+			logger.error("Could not generate test data", e);
+		}
+	}
+
+    @Transactional(propagation = Propagation.REQUIRED)
+//	@Scheduled(cron="0 30 * * * *")
 	public synchronized void deleteTestData() {
         if (entityManager == null) {
             throw new IllegalStateException("No EntityManager provided");
@@ -97,7 +111,7 @@ public class TestDataGenerator implements
 	}
 
     @Transactional(propagation = Propagation.REQUIRED)
-	@Scheduled(cron="10 30 * * * *")
+//	@Scheduled(cron="10 30 * * * *")
     public synchronized void createTestData() {
         if (entityManager == null) {
             throw new IllegalStateException("No EntityManager provided");

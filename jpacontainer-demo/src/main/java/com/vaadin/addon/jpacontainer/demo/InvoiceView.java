@@ -91,7 +91,7 @@ public class InvoiceView extends CustomComponent {
             customerContainer.setReadOnly(true);
 
             filterCustomer.setNullSelectionAllowed(true);
-            filterCustomer.setFilteringMode(ComboBox.FILTERINGMODE_STARTSWITH);
+            filterCustomer.setFilteringMode(ComboBox.FILTERINGMODE_CONTAINS);
             filterCustomer.setContainerDataSource(customerContainer);
             filterCustomer.setImmediate(true);
 

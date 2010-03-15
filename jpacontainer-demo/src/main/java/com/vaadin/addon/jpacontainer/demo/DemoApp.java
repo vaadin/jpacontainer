@@ -53,6 +53,9 @@ public class DemoApp extends Application {
         header.setStyleName("h1");
         layout.addComponent(header);
 
+		Label infoLbl = new Label("The database will be <strong>regenerated every half hour</strong>. The generation process takes about a minute, during which the demo application might be acting a bit strangely.", Label.CONTENT_XHTML);
+		layout.addComponent(infoLbl);
+
         tabs = new TabSheet();
         tabs.setSizeFull();
         layout.addComponent(tabs);
