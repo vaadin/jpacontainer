@@ -24,7 +24,9 @@
 
     <bean class="org.springframework.jdbc.datasource.DriverManagerDataSource" id="dataSource">
         <property name="driverClassName" value="${database.driverClassName}"/>
-        <property name="url" value="${database.url}"/>
+        <!--<property name="url" value="${database.url}"/>-->
+		<!-- This is only used for demonstrational purporses. Real applications should use ${database.url} -->
+		<property name="url" value="jdbc:hsqldb:file:${java.io.tmpdir}${file.separator}JPAContainerDemo"/>
         <property name="username" value="${database.username}"/>
         <property name="password" value="${database.password}"/>
     </bean>
