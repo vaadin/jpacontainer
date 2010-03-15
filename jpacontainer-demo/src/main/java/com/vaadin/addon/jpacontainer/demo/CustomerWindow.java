@@ -62,7 +62,6 @@ public class CustomerWindow extends Window {
                 Component uiContext) {
             Field f = super.createField(item, propertyId, uiContext);
             EntityItem<Customer> i = (EntityItem<Customer>) item;
-
             if ("custNo".equals(propertyId)) {
                 TextField tf = (TextField) f;
                 tf.setNullRepresentation("");
@@ -72,6 +71,7 @@ public class CustomerWindow extends Window {
                 tf.setRequiredError("Please enter a customer no");
                 tf.addValidator(new IntegerValidator(
                         "The customer no has to be an integer"));
+				tf.setImmediate(true);
             } else if ("customerName".equals(propertyId)) {
                 TextField tf = (TextField) f;
                 tf.setRequired(true);
@@ -80,6 +80,7 @@ public class CustomerWindow extends Window {
                 tf.addValidator(new StringLengthValidator(
                         "Company name must be at least 2 characters", 2, 255,
                         false));
+				tf.setImmediate(true);
             } else if ("notes".equals(propertyId)) {
                 TextField tf = (TextField) f;
                 tf.setWidth(COMMON_FIELD_WIDTH);
@@ -95,6 +96,7 @@ public class CustomerWindow extends Window {
                         "Postal code must be 5 characters", 5,
                         5, true));
                 f.setWidth("4em");
+				((TextField) f).setImmediate(true);
             } else if (propertyId.toString().endsWith("postOffice")) {
                 f.setCaption("Post Office");
                 f.setWidth(COMMON_FIELD_WIDTH);
