@@ -37,15 +37,13 @@ import org.hibernate.ejb.Ejb3Configuration;
 public class LocalEntityProviderHibernateTest extends
 		AbstractLocalEntityProviderEMTest {
 
-	private EntityManager entityManager;
-
-	private void setupEntityManager() throws Exception {
+	protected EntityManager createEntityManager() throws Exception {
 		Ejb3Configuration cfg = new Ejb3Configuration().setProperty(
 				"hibernate.dialect", "org.hibernate.dialect.HSQLDialect")
 				.setProperty("hibernate.connection.driver_class",
 						"org.hsqldb.jdbcDriver").setProperty(
 						"hibernate.connection.url",
-						"jdbc:hsqldb:mem:integrationtest").setProperty(
+						getDatabaseUrl()).setProperty(
 						"hibernate.connection.username", "sa").setProperty(
 						"hibernate.connection.password", "").setProperty(
 						"hibernate.connection.pool_size", "1").setProperty(
@@ -57,14 +55,6 @@ public class LocalEntityProviderHibernateTest extends
 						Person.class).addAnnotatedClass(Address.class).addAnnotatedClass(
 				EmbeddedIdPerson.class).addAnnotatedClass(Name.class);
 		EntityManagerFactory emf = cfg.buildEntityManagerFactory();
-		entityManager = emf.createEntityManager();
-	}
-
-	@Override
-	protected EntityManager getEntityManager() throws Exception {
-		if (entityManager == null) {
-			setupEntityManager();
-		}
-		return entityManager;
+		return emf.createEntityManager();
 	}
 }

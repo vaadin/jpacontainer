@@ -25,6 +25,8 @@ import com.vaadin.addon.jpacontainer.Filter;
 import com.vaadin.addon.jpacontainer.filter.Filters;
 import com.vaadin.addon.jpacontainer.testdata.EmbeddedIdPerson;
 import com.vaadin.addon.jpacontainer.testdata.Name;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -35,6 +37,7 @@ import javax.persistence.EntityManager;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import static org.junit.Assert.*;
 
 /**
@@ -48,19 +51,37 @@ import static org.junit.Assert.*;
  */
 public abstract class AbstractEntityProviderEMTest {
 
-	protected abstract EntityManager getEntityManager() throws Exception;
+    protected static String getDatabaseFileName() throws IOException {
+        File f = File.createTempFile("jpacontainer_integration_test", "");
+        return f.getAbsolutePath();
+    }
+
+    protected static String getDatabaseUrl() throws IOException {
+        return "jdbc:hsqldb:file:" + getDatabaseFileName();
+    }
+
+    protected abstract EntityManager createEntityManager() throws Exception;
+
+    private static EntityManager entityManager;
+
+	protected EntityManager getEntityManager() throws Exception {
+        if (entityManager == null) {
+            entityManager = createEntityManager();
+        }
+        return entityManager;
+    }
 	
 	protected EntityProvider<Person> entityProvider;
 	protected EntityProvider<EmbeddedIdPerson> entityProvider_EmbeddedId;
-	protected List<Person> testDataSortedByPrimaryKey;
-	protected List<Person> testDataSortedByName;
-	protected List<EmbeddedIdPerson> testDataEmbeddedIdSortedByName;
-	protected List<Person> testDataSortedByLastNameAndStreet;
-	protected List<Person> filteredTestDataSortedByPrimaryKey;
-	protected List<Person> filteredTestDataSortedByName;
-	protected Filter testFilter;
-	protected List<SortBy> sortByName;
-	protected List<SortBy> sortByLastNameAndStreet;
+	protected static List<Person> testDataSortedByPrimaryKey;
+	protected static List<Person> testDataSortedByName;
+	protected static List<EmbeddedIdPerson> testDataEmbeddedIdSortedByName;
+	protected static List<Person> testDataSortedByLastNameAndStreet;
+	protected static List<Person> filteredTestDataSortedByPrimaryKey;
+	protected static List<Person> filteredTestDataSortedByName;
+	protected static Filter testFilter;
+	protected static List<SortBy> sortByName;
+	protected static List<SortBy> sortByLastNameAndStreet;
 	protected static String[] firstNames = { "John", "Maxwell", "Joe", "Bob",
 			"Eve", "Alice", "Scrooge", "Donald", "Mick", "Zandra" };
 	protected static String[] lastNames = { "Smith", "Smart", "Cool",
@@ -73,14 +94,18 @@ public abstract class AbstractEntityProviderEMTest {
 			"London", "Luxemburg", "Duckburg", "New York", "Tokyo", "Athens",
 			"Sydney" };
 
+    @BeforeClass
+    public static void setUpClass() throws Exception {
+        createTestData();
+    }
+
 	@Before
 	public void setUp() throws Exception {
-		entityProvider = createEntityProvider();
-		entityProvider_EmbeddedId = createEntityProvider_EmbeddedId();
-		createTestData();
+        entityProvider = createEntityProvider();
+        entityProvider_EmbeddedId = createEntityProvider_EmbeddedId();
+        persistTestData();
 	}
-
-	
+    
 	@After
 	public void tearDown() throws Exception {
 		entityProvider = null;
@@ -104,9 +129,8 @@ public abstract class AbstractEntityProviderEMTest {
 			throws Exception;
 
 	@SuppressWarnings("unchecked")
-	protected void createTestData() throws Exception {
+	protected static void createTestData() throws Exception {
 		// Create the test data
-		getEntityManager().getTransaction().begin();
 		Random rnd = new Random();
 		testDataSortedByPrimaryKey = new ArrayList<Person>();
 		filteredTestDataSortedByPrimaryKey = new ArrayList<Person>();
@@ -127,7 +151,6 @@ public abstract class AbstractEntityProviderEMTest {
 				pc.append(rnd.nextInt(10));
 			}
 			p.getAddress().setPostalCode(pc.toString());
-			getEntityManager().persist(p);
 			testDataSortedByPrimaryKey.add(p);
 			/*
 			 * Our filter only includes persons whose lastname begin with S
@@ -143,11 +166,8 @@ public abstract class AbstractEntityProviderEMTest {
 			eip.getName().setLastName(p.getLastName());
 			eip.setAddress(p.getAddress().clone());
 			eip.setDateOfBirth(p.getDateOfBirth());
-			getEntityManager().persist(eip);
 			testDataEmbeddedIdSortedByName.add(eip);
 		}
-		getEntityManager().flush();
-		getEntityManager().getTransaction().commit();
 
 		testDataSortedByName = (ArrayList<Person>) ((ArrayList<Person>) testDataSortedByPrimaryKey)
 				.clone();
@@ -155,6 +175,17 @@ public abstract class AbstractEntityProviderEMTest {
 				.clone();
 		filteredTestDataSortedByName = (ArrayList<Person>) ((ArrayList<Person>) filteredTestDataSortedByPrimaryKey)
 				.clone();
+		// Set up some helper fields
+
+		sortByName = new ArrayList<SortBy>();
+		sortByName.add(new SortBy("lastName", true));
+		sortByName.add(new SortBy("firstName", true));
+
+		sortByLastNameAndStreet = new ArrayList<SortBy>();
+		sortByLastNameAndStreet.add(new SortBy("lastName", true));
+		sortByLastNameAndStreet.add(new SortBy("address.street", true));
+
+		testFilter = Filters.like("lastName", "S%", true);
 
 		// Sort the test data lists
 
@@ -164,9 +195,9 @@ public abstract class AbstractEntityProviderEMTest {
 				int result = o1.getLastName().compareTo(o2.getLastName());
 				if (result == 0) {
 					result = o1.getFirstName().compareTo(o2.getFirstName());
-					if (result == 0) {
+					/*if (result == 0) {
 						result = o1.getId().compareTo(o2.getId());
-					}
+					}*/
 				}
 				return result;
 			}
@@ -191,9 +222,9 @@ public abstract class AbstractEntityProviderEMTest {
 				if (result == 0) {
 					result = o1.getAddress().getStreet().compareTo(
 							o2.getAddress().getStreet());
-					if (result == 0) {
+					/*if (result == 0) {
 						result = o1.getId().compareTo(o2.getId());
-					}
+					}*/
 				}
 				return result;
 			}
@@ -211,17 +242,27 @@ public abstract class AbstractEntityProviderEMTest {
 		assertFalse(filteredTestDataSortedByName
 				.equals(filteredTestDataSortedByPrimaryKey));
 
-		// Set up some helper fields
+        // Make the collections unmodifiable
+        testDataEmbeddedIdSortedByName = Collections.unmodifiableList(testDataEmbeddedIdSortedByName);
+        testDataSortedByLastNameAndStreet = Collections.unmodifiableList(
+                testDataSortedByLastNameAndStreet);
+        testDataSortedByName = Collections.unmodifiableList(testDataSortedByName);
+        testDataSortedByPrimaryKey = Collections.unmodifiableList(testDataSortedByPrimaryKey);
+	}
 
-		sortByName = new ArrayList<SortBy>();
-		sortByName.add(new SortBy("lastName", true));
-		sortByName.add(new SortBy("firstName", true));
-
-		sortByLastNameAndStreet = new ArrayList<SortBy>();
-		sortByLastNameAndStreet.add(new SortBy("lastName", true));
-		sortByLastNameAndStreet.add(new SortBy("address.street", true));
-
-		testFilter = Filters.like("lastName", "S%", true);
+	@SuppressWarnings("unchecked")
+	protected void persistTestData() throws Exception {
+		// Create the test data
+		getEntityManager().getTransaction().begin();
+        for (Person p : testDataSortedByPrimaryKey) {
+            p.setId(null);
+            getEntityManager().persist(p);
+        }
+        for (EmbeddedIdPerson p : testDataEmbeddedIdSortedByName) {
+            getEntityManager().persist(p);
+        }
+        getEntityManager().flush();
+		getEntityManager().getTransaction().commit();
 	}
 
 	protected void doTestGetEntity(final List<Person> testData) {

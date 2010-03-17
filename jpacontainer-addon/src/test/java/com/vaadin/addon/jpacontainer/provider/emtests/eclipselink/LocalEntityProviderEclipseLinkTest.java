@@ -39,16 +39,14 @@ import org.junit.Assert;
  */
 public class LocalEntityProviderEclipseLinkTest extends AbstractLocalEntityProviderEMTest {
 
-	private EntityManager entityManager;
-
-	private void setupEntityManager() throws Exception {
+	protected EntityManager createEntityManager() throws Exception {
 		Map properties = new HashMap();
 
 		properties.put(TRANSACTION_TYPE,
 				PersistenceUnitTransactionType.RESOURCE_LOCAL.name());
 
 		properties.put(JDBC_DRIVER, "org.hsqldb.jdbcDriver");
-		properties.put(JDBC_URL, "jdbc:hsqldb:mem:integrationtest");
+		properties.put(JDBC_URL, getDatabaseUrl());
 		properties.put(JDBC_USER, "sa");
 		properties.put(JDBC_PASSWORD, "");
 		properties.put(JDBC_READ_CONNECTIONS_MIN, "1");
@@ -62,14 +60,6 @@ public class LocalEntityProviderEclipseLinkTest extends AbstractLocalEntityProvi
 		PersistenceProvider pp = new PersistenceProvider();
 		EntityManagerFactory emf = pp.createEntityManagerFactory("eclipselink-pu", properties);
 		Assert.assertNotNull("EntityManagerFactory should not be null", emf);
-		entityManager = emf.createEntityManager();
-	}
-
-	@Override
-	protected EntityManager getEntityManager() throws Exception {
-		if (entityManager == null) {
-			setupEntityManager();
-		}
-		return entityManager;
+		return emf.createEntityManager();
 	}
 }
