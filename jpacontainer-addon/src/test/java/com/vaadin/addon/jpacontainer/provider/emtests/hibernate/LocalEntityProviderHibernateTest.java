@@ -23,6 +23,8 @@ import com.vaadin.addon.jpacontainer.testdata.Address;
 import com.vaadin.addon.jpacontainer.testdata.EmbeddedIdPerson;
 import com.vaadin.addon.jpacontainer.testdata.Name;
 import com.vaadin.addon.jpacontainer.testdata.Person;
+import com.vaadin.addon.jpacontainer.testdata.PersonSkill;
+import com.vaadin.addon.jpacontainer.testdata.Skill;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import org.hibernate.ejb.Ejb3Configuration;
@@ -51,9 +53,13 @@ public class LocalEntityProviderHibernateTest extends
 						"hibernate.cache.provider_class",
 						"org.hibernate.cache.HashtableCacheProvider")
 				.setProperty("hibernate.hbm2ddl.auto", "create-drop")
-				.setProperty("hibernate.show_sql", "false").addAnnotatedClass(
-						Person.class).addAnnotatedClass(Address.class).addAnnotatedClass(
-				EmbeddedIdPerson.class).addAnnotatedClass(Name.class);
+				.setProperty("hibernate.show_sql", "false")
+				.addAnnotatedClass(Person.class)
+				.addAnnotatedClass(Address.class)
+				.addAnnotatedClass(EmbeddedIdPerson.class)
+				.addAnnotatedClass(Name.class)
+				.addAnnotatedClass(PersonSkill.class)
+				.addAnnotatedClass(Skill.class);
 		EntityManagerFactory emf = cfg.buildEntityManagerFactory();
 		return emf.createEntityManager();
 	}

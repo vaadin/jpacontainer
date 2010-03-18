@@ -47,7 +47,7 @@ public class PropertyListTest {
 
 	@Test
 	public void testInitialPropertyList() {
-		assertEquals(7, propertyList.getPersistentPropertyNames().size());
+		assertEquals(8, propertyList.getPersistentPropertyNames().size());
 		assertTrue(propertyList.getPersistentPropertyNames().contains("id"));
 		assertTrue(propertyList.getPersistentPropertyNames()
 				.contains("version"));
@@ -61,8 +61,9 @@ public class PropertyListTest {
 				.contains("address"));
 		assertTrue(propertyList.getPersistentPropertyNames()
 				.contains("manager"));
+		assertTrue(propertyList.getPersistentPropertyNames().contains("skills"));
 
-		assertEquals(10, propertyList.getPropertyNames().size());
+		assertEquals(11, propertyList.getPropertyNames().size());
 		assertTrue(propertyList.getPropertyNames().containsAll(
 				propertyList.getPersistentPropertyNames()));
 		assertTrue(propertyList.getPropertyNames().contains("fullName"));

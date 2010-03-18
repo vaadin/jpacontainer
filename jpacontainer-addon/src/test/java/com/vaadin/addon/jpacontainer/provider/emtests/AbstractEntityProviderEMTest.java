@@ -65,9 +65,9 @@ public abstract class AbstractEntityProviderEMTest {
     private static EntityManager entityManager;
 
 	protected EntityManager getEntityManager() throws Exception {
-        if (entityManager == null) {
+        /*if (entityManager == null) {
             entityManager = createEntityManager();
-        }
+        }*/
         return entityManager;
     }
 	
@@ -101,6 +101,7 @@ public abstract class AbstractEntityProviderEMTest {
 
 	@Before
 	public void setUp() throws Exception {
+		entityManager = createEntityManager();
         entityProvider = createEntityProvider();
         entityProvider_EmbeddedId = createEntityProvider_EmbeddedId();
         persistTestData();
@@ -110,16 +111,8 @@ public abstract class AbstractEntityProviderEMTest {
 	public void tearDown() throws Exception {
 		entityProvider = null;
 		entityProvider_EmbeddedId = null;
-		if (!getEntityManager().getTransaction().isActive()) {
-			getEntityManager().getTransaction().begin();
-		}
-
-		getEntityManager().createNativeQuery("DELETE FROM Person").executeUpdate();
-		getEntityManager().createNativeQuery("DELETE FROM EmbeddedIdPerson").executeUpdate();
-		
-		getEntityManager().flush();
-		getEntityManager().getTransaction().commit();
-		getEntityManager().clear();
+		entityManager.close();
+		entityManager = null;
 	}
 
 	protected abstract EntityProvider<Person> createEntityProvider()
