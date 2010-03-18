@@ -23,16 +23,23 @@ import com.vaadin.addon.jpacontainer.EntityProvider;
 import com.vaadin.addon.jpacontainer.SortBy;
 import com.vaadin.addon.jpacontainer.Filter;
 import com.vaadin.addon.jpacontainer.filter.Filters;
+import com.vaadin.addon.jpacontainer.filter.JoinFilter.JoinType;
 import com.vaadin.addon.jpacontainer.testdata.EmbeddedIdPerson;
 import com.vaadin.addon.jpacontainer.testdata.Name;
+import com.vaadin.addon.jpacontainer.testdata.Skill;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import javax.persistence.EntityManager;
 import org.junit.After;
 import org.junit.Test;
@@ -82,6 +89,7 @@ public abstract class AbstractEntityProviderEMTest {
 	protected static Filter testFilter;
 	protected static List<SortBy> sortByName;
 	protected static List<SortBy> sortByLastNameAndStreet;
+	protected static List<Skill> skills;
 	protected static String[] firstNames = { "John", "Maxwell", "Joe", "Bob",
 			"Eve", "Alice", "Scrooge", "Donald", "Mick", "Zandra" };
 	protected static String[] lastNames = { "Smith", "Smart", "Cool",
@@ -93,6 +101,7 @@ public abstract class AbstractEntityProviderEMTest {
 	protected static String[] postOffices = { "Stockholm", "Helsinki", "Paris",
 			"London", "Luxemburg", "Duckburg", "New York", "Tokyo", "Athens",
 			"Sydney" };
+	protected static String[] skillNames = { "Java", "C", "C++", "Delphi", "PHP", "Vaadin", "JavaScript", "SQL", "HTML", "SOA"};
 
     @BeforeClass
     public static void setUpClass() throws Exception {
@@ -124,6 +133,13 @@ public abstract class AbstractEntityProviderEMTest {
 	@SuppressWarnings("unchecked")
 	protected static void createTestData() throws Exception {
 		// Create the test data
+		skills = new ArrayList<Skill>();
+		for (String skillName : skillNames) {
+			Skill skill = new Skill();
+			skill.setSkillName(skillName);
+			skills.add(skill);
+		}
+
 		Random rnd = new Random();
 		testDataSortedByPrimaryKey = new ArrayList<Person>();
 		filteredTestDataSortedByPrimaryKey = new ArrayList<Person>();
@@ -245,8 +261,11 @@ public abstract class AbstractEntityProviderEMTest {
 
 	@SuppressWarnings("unchecked")
 	protected void persistTestData() throws Exception {
-		// Create the test data
 		getEntityManager().getTransaction().begin();
+		for (Skill s : skills) {
+			s.setId(null);;
+			getEntityManager().persist(s);
+		}
         for (Person p : testDataSortedByPrimaryKey) {
             p.setId(null);
             getEntityManager().persist(p);
@@ -734,5 +753,39 @@ public abstract class AbstractEntityProviderEMTest {
 		doTestGetEntityIdentifierAtBackwards(filteredTestDataSortedByPrimaryKey,
 				testFilter, emptyList);
 	}
+
+	@Test
+	public void testJoinFilter() throws Exception {
+		// Save some testing data
+		Random rnd = new Random();
+		Map<Skill, Collection<Object>> skillPersonMap = new HashMap<Skill, Collection<Object>>();
+		getEntityManager().getTransaction().begin();
+		for (Skill s : skills) {
+			Set<Object> persons = new HashSet<Object>();
+			for (int i = 0; i < 10; i++) {
+				Person p = testDataSortedByPrimaryKey.get(rnd.nextInt(testDataSortedByPrimaryKey.size()));
+				System.out.println("Skill: " + s+ " Person: " + p);
+				if (!persons.contains(p.getId())) {
+					persons.add(p.getId());
+					p.addSkill(s, i+1);
+					getEntityManager().merge(p);
+				}
+			}
+			skillPersonMap.put(s, persons);
+		}
+		getEntityManager().flush();
+		getEntityManager().getTransaction().commit();
+
+		// Now try out the filter
+		List<SortBy> emptyList = Collections.emptyList();
+		for (Skill s : skills) {
+			Filter filter = Filters.joinFilter("skills", JoinType.INNER_JOIN,
+					Filters.eq("skill", s));
+			Collection<Object> returnedIds = entityProvider.getAllEntityIdentifiers(filter, emptyList);
+			assertTrue(skillPersonMap.get(s).containsAll(returnedIds));
+			assertEquals(skillPersonMap.get(s).size(), returnedIds.size());
+		}
+	}
+
 	// TODO Add test for getAllEntityIdentifiers
 }

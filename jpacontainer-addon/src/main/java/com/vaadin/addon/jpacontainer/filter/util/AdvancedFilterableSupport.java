@@ -20,6 +20,7 @@ package com.vaadin.addon.jpacontainer.filter.util;
 import com.vaadin.addon.jpacontainer.AdvancedFilterable;
 import com.vaadin.addon.jpacontainer.filter.CompositeFilter;
 import com.vaadin.addon.jpacontainer.Filter;
+import com.vaadin.addon.jpacontainer.filter.JoinFilter;
 import com.vaadin.addon.jpacontainer.filter.PropertyFilter;
 import java.io.Serializable;
 import java.util.Arrays;
@@ -155,7 +156,9 @@ public class AdvancedFilterableSupport implements Serializable {
 	 */
 	public boolean isValidFilter(Filter filter) {
 		assert filter != null : "filter must not be null";
-		if (filter instanceof PropertyFilter) {
+        if (filter instanceof JoinFilter) {
+            return isFilterable(((JoinFilter) filter).getJoinProperty());
+        } else if (filter instanceof PropertyFilter) {
 			return isFilterable(((PropertyFilter) filter).getPropertyId());
 		} else if (filter instanceof CompositeFilter) {
 			for (Filter f : ((CompositeFilter) filter).getFilters()) {

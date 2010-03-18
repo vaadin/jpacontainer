@@ -24,6 +24,7 @@ import com.vaadin.addon.jpacontainer.SortBy;
 import com.vaadin.addon.jpacontainer.filter.CompositeFilter;
 import com.vaadin.addon.jpacontainer.filter.Filters;
 import com.vaadin.addon.jpacontainer.filter.IntervalFilter;
+import com.vaadin.addon.jpacontainer.filter.JoinFilter;
 import com.vaadin.addon.jpacontainer.filter.Junction;
 import com.vaadin.addon.jpacontainer.filter.ValueFilter;
 import com.vaadin.addon.jpacontainer.metadata.EntityClassMetadata;
@@ -204,6 +205,32 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 				false, propertyIdPreprocessor);
 	}
 
+    private void addJoins(Filter filter, StringBuffer sb, String entityAlias) {
+        if (filter instanceof JoinFilter) {
+            sb.append(" ");
+            JoinFilter jf = (JoinFilter) filter;
+            if (jf.getJoinType() == JoinFilter.JoinType.INNER_JOIN) {
+                sb.append("join");
+            } else { /* if (jf.getJoinType() == JoinFilter.JoinType.LEFT_OUTER_JOIN) */
+                sb.append("left join");
+            }
+            sb.append(" ");
+            sb.append(entityAlias);
+            sb.append(".");
+            sb.append(jf.getJoinProperty());
+			sb.append(" as ");
+			sb.append(jf.getJoinProperty());
+        } else if (filter instanceof CompositeFilter) {
+            /*
+             * Although JoinFilter is a composite filter, JoinFilters may never
+             * be nested inside each other.
+             */
+            for (Filter f : ((CompositeFilter) filter).getFilters()) {
+                addJoins(f, sb, entityAlias);
+            }
+        }
+    }
+
 	/**
 	 * Creates a filtered, optionally sorted, query.
 	 * 
@@ -241,6 +268,10 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 		sb.append(getEntityClassMetadata().getEntityName());
 		sb.append(" as ");
 		sb.append(entityAlias);
+
+        if (filter != null) {
+            addJoins(filter, sb, entityAlias);
+        }
 
 		if (filter != null) {
 			sb.append(" where ");
@@ -630,6 +661,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 	@SuppressWarnings("unchecked")
 	protected List<Object> doGetAllEntityIdentifiers(Filter filter,
 			List<SortBy> sortBy) {
+		sortBy = addPrimaryKeyToSortList(sortBy);
 		Query query = createFilteredQuery("obj."
 				+ getEntityClassMetadata().getIdentifierProperty().getName(),
 				"obj", filter, sortBy, false, null);

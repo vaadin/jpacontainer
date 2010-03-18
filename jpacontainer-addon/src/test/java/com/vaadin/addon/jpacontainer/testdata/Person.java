@@ -66,8 +66,7 @@ public class Person implements Serializable, Cloneable {
 	private transient String tempData;
 	@ManyToOne
 	private Person manager;
-	@OneToMany(cascade=CascadeType.ALL)
-	@JoinColumn(name="person_fk")
+	@OneToMany(cascade=CascadeType.ALL, mappedBy="person")
 	private Set<PersonSkill> skills = new HashSet<PersonSkill>();
 
 	public Address getAddress() {

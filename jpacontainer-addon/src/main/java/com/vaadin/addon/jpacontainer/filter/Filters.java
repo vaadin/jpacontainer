@@ -187,4 +187,13 @@ public final class Filters {
 	public static Junction or(List<Filter> filters) {
 		return new Disjunction(filters);
 	}
+
+	/**
+	 * Creates a filter that applies <code>filters</code> (as a conjunction) to the joined property <code>joinProperty</code>, performing a
+	 * <code>joinType</code> of join.
+	 */
+	public static JoinFilter joinFilter(String joinProperty,
+			JoinFilter.JoinType joinType, Filter... filters) {
+		return new SimpleJoinFilter(joinProperty, joinType, filters);
+	}
 }

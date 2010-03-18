@@ -50,8 +50,7 @@ public class PersonSkill implements Serializable, Cloneable {
 	@JoinColumn(name = "skill_fk", nullable = false)
 	private Skill skill;
 	@ManyToOne
-	@JoinColumn(name = "person_fk", nullable = false, insertable = false,
-	updatable = false)
+	@JoinColumn(name = "person_fk", nullable = false)
 	private Person person;
 	private Integer level;
 
