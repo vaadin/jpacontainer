@@ -209,11 +209,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         if (filter instanceof JoinFilter) {
             sb.append(" ");
             JoinFilter jf = (JoinFilter) filter;
-            if (jf.getJoinType() == JoinFilter.JoinType.INNER_JOIN) {
-                sb.append("join");
-            } else { /* if (jf.getJoinType() == JoinFilter.JoinType.LEFT_OUTER_JOIN) */
-                sb.append("left join");
-            }
+            sb.append("join");
             sb.append(" ");
             sb.append(entityAlias);
             sb.append(".");

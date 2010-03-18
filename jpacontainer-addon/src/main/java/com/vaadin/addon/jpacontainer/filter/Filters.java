@@ -189,11 +189,9 @@ public final class Filters {
 	}
 
 	/**
-	 * Creates a filter that applies <code>filters</code> (as a conjunction) to the joined property <code>joinProperty</code>, performing a
-	 * <code>joinType</code> of join.
+	 * Creates a filter that applies <code>filters</code> (as a conjunction) to the joined property <code>joinProperty</code>.
 	 */
-	public static JoinFilter joinFilter(String joinProperty,
-			JoinFilter.JoinType joinType, Filter... filters) {
-		return new SimpleJoinFilter(joinProperty, joinType, filters);
+	public static JoinFilter joinFilter(String joinProperty, Filter... filters) {
+		return new SimpleJoinFilter(joinProperty, filters);
 	}
 }

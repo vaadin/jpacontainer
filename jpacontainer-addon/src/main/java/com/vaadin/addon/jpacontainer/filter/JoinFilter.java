@@ -27,26 +27,9 @@ package com.vaadin.addon.jpacontainer.filter;
 public interface JoinFilter extends CompositeFilter {
 
     /**
-     * Enumeration defining the supported join types.
-	 *
-	 * @author Petter Holmström (IT Mill)
-	 * @since 1.0
-     */
-    public static enum JoinType {
-
-        INNER_JOIN,
-        LEFT_OUTER_JOIN
-    }
-
-    /**
      * Gets the property that should be joined.
      * @return the property name (never null).
      */
     public String getJoinProperty();
 
-    /**
-     * Gets the type of join to be performed.
-     * @return the join type (never null).
-     */
-    public JoinType getJoinType();
 }

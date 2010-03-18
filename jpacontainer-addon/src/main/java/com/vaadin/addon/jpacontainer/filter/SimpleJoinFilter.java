@@ -31,22 +31,15 @@ import com.vaadin.addon.jpacontainer.Filter;
 public class SimpleJoinFilter extends Conjunction implements JoinFilter {
 
     private String joinProperty;
-    private JoinType joinType;
 
-    protected SimpleJoinFilter(String joinProperty, JoinType joinType,
-            Filter... filters) {
+    protected SimpleJoinFilter(String joinProperty, Filter... filters) {
         super(filters);
         this.joinProperty = joinProperty;
-        this.joinType = joinType;
         // TODO Check that join filters are not nested
     }
 
     public String getJoinProperty() {
         return joinProperty;
-    }
-
-    public JoinType getJoinType() {
-        return joinType;
     }
 
 	/**

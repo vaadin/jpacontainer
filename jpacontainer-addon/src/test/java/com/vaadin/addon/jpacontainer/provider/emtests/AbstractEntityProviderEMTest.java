@@ -23,7 +23,6 @@ import com.vaadin.addon.jpacontainer.EntityProvider;
 import com.vaadin.addon.jpacontainer.SortBy;
 import com.vaadin.addon.jpacontainer.Filter;
 import com.vaadin.addon.jpacontainer.filter.Filters;
-import com.vaadin.addon.jpacontainer.filter.JoinFilter.JoinType;
 import com.vaadin.addon.jpacontainer.testdata.EmbeddedIdPerson;
 import com.vaadin.addon.jpacontainer.testdata.Name;
 import com.vaadin.addon.jpacontainer.testdata.Skill;
@@ -779,8 +778,7 @@ public abstract class AbstractEntityProviderEMTest {
 		// Now try out the filter
 		List<SortBy> emptyList = Collections.emptyList();
 		for (Skill s : skills) {
-			Filter filter = Filters.joinFilter("skills", JoinType.INNER_JOIN,
-					Filters.eq("skill", s));
+			Filter filter = Filters.joinFilter("skills", Filters.eq("skill", s));
 			Collection<Object> returnedIds = entityProvider.getAllEntityIdentifiers(filter, emptyList);
 			assertTrue(skillPersonMap.get(s).containsAll(returnedIds));
 			assertEquals(skillPersonMap.get(s).size(), returnedIds.size());
