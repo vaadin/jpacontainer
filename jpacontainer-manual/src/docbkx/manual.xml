@@ -30,12 +30,14 @@
             implementation. However, it has only been tested on Hibernate and EclipseLink.
         </para>
         <para>
-            It is even possible to customize JPAContainer to use a completely different
+            It is possible to customize JPAContainer to use a completely different
             object persistence framework than JPA, as long as the entity classes are still annotated with JPA-annotations (JPAContainer deduces primary keys and persistent/filterable fields from
             these annotations).
         </para>
         <para>
-            JPAContainer currently does not support joined queries. Thus, it can only be used to display entities of a specific class. IdClass-primary keys are also not supported.
+            JPAContainer currently has limited support for joins in the form of a special kind of filter that can be applied to joined properties.
+            JPAContainer implements the <interfacename>Container.Hierarchical</interfacename> interface, but the implementation is to be considered experimental in this version.
+            IdClass-primary keys are not supported.
         </para>
         <para>
             The purpose of this manual is to briefly explain how JPAContainer works and how you can use it in your applications. The manual describes the architecture of JPAContainer and
@@ -53,7 +55,10 @@
                     <para>JEE 6 / JPA 2.0</para>
                 </listitem>
                 <listitem>
-                    <para>Support for joined queries</para>
+                    <para>Improved support for joined queries</para>
+                </listitem>
+                <listitem>
+                    <para>Improved implementation of the <interfacename>Container.Hierarchical</interfacename> interface</para>
                 </listitem>
                 <listitem>
                     <para>Support for displaying query results that do not consist of entire entities, but arrays of property values</para>
@@ -278,6 +283,33 @@
                     </para>
                 </note>
             </section>
+        </section>
+
+        <section>
+            <title>Experimental Hierarchical Support</title>
+            <para>
+                It is possible to use JPAContainer as a hierarchical container if the entities in the container can be related to each other by means of a parent property. For example:
+            </para>
+            <programlisting language="java"><![CDATA[
+@Entity
+public class Node {
+    ...
+    @ManyToOne
+    private Node parent;
+    ...
+}
+            ]]></programlisting>
+            <para>
+                The API is defined in the <interfacename>HierarchicalEntityContainer</interfacename> interface.
+            </para>
+            <note>
+                <para>
+                    Currently, buffered mode does not work when JPAContainer is used as a hierarchical container. The data is always read directly from the entity provider.
+                </para>
+                <para>
+                    Also note, that the hierarchical support is <emphasis>experimental</emphasis> and should be used with care in production systems!
+                </para>
+            </note>
         </section>
 
         <section>
@@ -577,6 +609,35 @@ container.addFilter(Filters.or(
                 until all the filters have been defined before applying them. In this case, <methodname>AdvancedFilterable.applyFilters()</methodname> has to be called to apply
                 the filters.
             </para>
+            <section>
+                <title>Filtering Joined Properties</title>
+                <para>
+                    The <interfacename>JoinFilter</interfacename> is treated in a different way than the other filters. The filter is used to apply filters to
+                    a joined property. The alias of the joined property is always the name of the joined property. For example, the following filter applied to a
+                    container of <classname>Person</classname> entities:
+                </para>
+            <programlisting language="java"><![CDATA[
+Filters.joinFilter("skills", Filters.eq("skill", s));
+            ]]></programlisting>
+                <para>
+                    generates a JPA-QL query similar to this:
+                </para>
+            <programlisting><![CDATA[
+SELECT obj.id
+    FROM Person AS obj
+    JOIN obj.skills AS skills
+    WHERE skills.skill = :someparametername
+            ]]></programlisting>
+                <note>
+                    <para>
+                        The queries are not distinct. The reason for this is that some JPA implementations require the properties used in the order by clause to be distinct,
+                        which is not possible in JPAContainer.
+                    </para>
+                </note>
+                <para>
+                    A <interfacename>JoinFilter</interfacename> may not contain other <interfacename>JoinFilter</interfacename>s.e
+                </para>
+            </section>
         </section>
         <section>
             <title>Editing Items Without Adding Them to the Container</title>
