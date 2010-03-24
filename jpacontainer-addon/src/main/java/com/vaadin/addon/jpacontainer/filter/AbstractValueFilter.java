@@ -21,7 +21,7 @@ import java.util.Random;
 
 /**
  * Abstract implementation of {@link ValueFilter} that constructs the QL
- * paremter name by appending a random integer to the property ID.
+ * parameter name by appending a random integer to the property ID.
  * 
  * @author Petter Holmström (IT Mill)
  * @since 1.0

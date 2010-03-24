@@ -21,7 +21,8 @@ import java.io.Serializable;
 import java.util.Collection;
 
 /**
- * Event indicating that a {@link EntityProvider} has been changed.
+ * Event indicating that an {@link EntityProvider} has been changed (e.g.
+ * entities have been added or removed).
  * 
  * @author Petter Holmström (IT Mill)
  * @since 1.0
@@ -29,7 +30,7 @@ import java.util.Collection;
 public interface EntityProviderChangeEvent<T> extends Serializable {
 
 	/**
-	 * Gets the entity manager that has been changed.
+	 * Gets the entity provider that has been changed.
 	 * 
 	 * @return the entity manager (never null).
 	 */

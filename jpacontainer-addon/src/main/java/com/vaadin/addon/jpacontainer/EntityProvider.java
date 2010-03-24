@@ -25,7 +25,7 @@ import java.util.List;
  * provide entities to {@link EntityContainer}s.
  * <p>
  * Please note the {@link #isEntitiesDetached() } flag, as this may have weird
- * consequences if used inproperly.
+ * consequences if used improperly.
  * 
  * @see MutableEntityProvider
  * @see CachingEntityProvider
