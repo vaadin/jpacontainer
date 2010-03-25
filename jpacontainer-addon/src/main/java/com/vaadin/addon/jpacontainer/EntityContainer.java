@@ -17,7 +17,7 @@
  */
 package com.vaadin.addon.jpacontainer;
 
-import com.vaadin.addon.jpacontainer.filter.StringComparisionFilter;
+import com.vaadin.addon.jpacontainer.filter.StringComparisonFilter;
 import com.vaadin.data.Buffered;
 import com.vaadin.data.Container;
 import com.vaadin.data.Validator.InvalidValueException;
@@ -31,7 +31,7 @@ import com.vaadin.data.Validator.InvalidValueException;
  * @since 1.0
  */
 public interface EntityContainer<T> extends Container.Sortable,
-		AdvancedFilterable, Container.ItemSetChangeNotifier, Container.Indexed,
+		AdvancedFilterable, Container.ItemSetChangeNotifier,
 		Buffered, Container.Filterable {
 
 	/**
@@ -43,7 +43,8 @@ public interface EntityContainer<T> extends Container.Sortable,
 	public EntityProvider<T> getEntityProvider();
 
 	/**
-	 * Sets the entity provider to use for fetching and storing entities.
+	 * Sets the entity provider to use for fetching and storing entities. The EntityProvider
+	 * can be changed once set, if necessary.
 	 * 
 	 * @param entityProvider
 	 *            the entity provider to use (must not be null).
@@ -77,6 +78,10 @@ public interface EntityContainer<T> extends Container.Sortable,
 	 * <p>
 	 * Note, that the wildcard cannot be used in the middle of a chain
 	 * of property names. E.g. <code>myprop.*.something</code> is illegal.
+	 * <p>
+	 * Nested properties may be transient, but only persistent nested properties
+	 * (i.e. embedded properties or ManyToOne references) may be used for filtering
+	 * or sorting.
 	 *
 	 * @param nestedProperty
 	 *            the nested property to add (must not be null).
@@ -164,7 +169,7 @@ public interface EntityContainer<T> extends Container.Sortable,
 	/**
 	 * {@inheritDoc }
 	 * <p>
-	 * This method creates a new {@link StringComparisionFilter} for the
+	 * This method creates a new {@link StringComparisonFilter} for the
 	 * specified parameters and applies the filter immediately, regardless of
 	 * the state of {@link #isApplyFiltersImmediately() }.
 	 * 
@@ -190,6 +195,8 @@ public interface EntityContainer<T> extends Container.Sortable,
 	 * <p>
 	 * The container is updated immediately regardless of the state of
 	 * {@link #isApplyFiltersImmediately() }.
+	 *
+	 * @see #removeFilter(com.vaadin.addon.jpacontainer.Filter) 
 	 */
 	public void removeContainerFilters(Object propertyId);
 }

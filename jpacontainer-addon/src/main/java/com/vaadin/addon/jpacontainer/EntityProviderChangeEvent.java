@@ -21,7 +21,7 @@ import java.io.Serializable;
 import java.util.Collection;
 
 /**
- * Event indicating that an {@link EntityProvider} has been changed (e.g.
+ * Event indicating that the contents of a {@link EntityProvider} has been changed (e.g.
  * entities have been added or removed).
  * 
  * @author Petter Holmström (IT Mill)
@@ -30,14 +30,18 @@ import java.util.Collection;
 public interface EntityProviderChangeEvent<T> extends Serializable {
 
 	/**
-	 * Gets the entity provider that has been changed.
+	 * Gets the entity provider whose contents has been changed.
 	 * 
 	 * @return the entity manager (never null).
 	 */
 	public EntityProvider<T> getEntityProvider();
 
 	/**
-	 * Gets the affected entities, if applicable.
+	 * Gets the affected entities, if supported by the implementation. If entities
+	 * have been modified, this collection may contain all modified entities,
+	 * if entities have been added, this collection may contain all added entities,
+	 * etc. If the number of changed entities is very large, e.g. due to a major change
+	 * in the entire data source, the collection may be empty.
 	 * 
 	 * @return an unmodifiable collection of affected entities (never null, but
 	 *         may be empty).

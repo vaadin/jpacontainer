@@ -44,7 +44,7 @@ class CachingSupport<T> implements Serializable {
 
 	private final LocalEntityProvider<T> entityProvider;
 	private int maxCacheSize = 1000;
-	private boolean cacheInUse = false;
+	private boolean cacheInUse = true;
 	private boolean cloneCachedEntities = false;
 	/**
 	 * The number of entity IDs to fetch every time a query is made.

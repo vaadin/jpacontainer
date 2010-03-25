@@ -37,7 +37,7 @@ public class AdvancedFilterableSupportTest {
 
 	private AdvancedFilterableSupport testObject;
 
-	private AdvancedFilterableSupport.Listener listenerMock;
+	private AdvancedFilterableSupport.ApplyFiltersListener listenerMock;
 
 	private Filter filterMock;
 
@@ -48,7 +48,7 @@ public class AdvancedFilterableSupportTest {
 	@Before
 	public void setUp() {
 		testObject = new AdvancedFilterableSupport();
-		listenerMock = createMock(AdvancedFilterableSupport.Listener.class);
+		listenerMock = createMock(AdvancedFilterableSupport.ApplyFiltersListener.class);
 		testObject.addListener(listenerMock);
 		filterMock = createMock(Filter.class);
 		propertyFilterMock = createMock(PropertyFilter.class);

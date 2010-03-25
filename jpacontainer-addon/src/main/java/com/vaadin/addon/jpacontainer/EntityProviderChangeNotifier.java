@@ -21,7 +21,20 @@ import java.io.Serializable;
 
 /**
  * Interface to be implemented by {@link EntityProvider}s that wish to notify
- * clients when they change (eg. when entities are added or removed).
+ * clients (in practice EntityContainers) when their contents change.
+ * <p>
+ * The EntityProvider should at least notify its listeners of the following events:
+ *
+ * <ul>
+ *   <li>An entity is added to the entity provider</li>
+ *   <li>An already existing entity is updated</li>
+ *   <li>An entity is removed from the entity provider</li>
+ *   <li>The contents of the entity provider is changed completely</li>
+ * </ul>
+ * <p>
+ * This is useful in situations where several EntityContainers share the same
+ * entity provider.
+ * 
  * 
  * @author Petter Holmström (IT Mill)
  * @since 1.0

@@ -77,7 +77,7 @@ import java.util.HashSet;
  * @since 1.0
  */
 public class JPAContainer<T> implements EntityContainer<T>,
-		EntityProviderChangeListener<T>, HierarchicalEntityContainer<T> {
+		EntityProviderChangeListener<T>, HierarchicalEntityContainer<T>, Container.Indexed {
 
 	private static final long serialVersionUID = -4031940552175752858L;
 	private EntityProvider<T> entityProvider;
@@ -112,7 +112,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 		 * that use our container that the data has been filtered.
 		 */
 		this.filterSupport
-				.addListener(new AdvancedFilterableSupport.Listener() {
+				.addListener(new AdvancedFilterableSupport.ApplyFiltersListener() {
 
 					private static final long serialVersionUID = -23196201919497112L;
 
@@ -278,7 +278,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 		return fireItemSetChangeOnProviderChange;
 	}
 
-	public void entityProviderChanged(EntityProviderChangeEvent<T> event) {
+	public void entityProviderChange(EntityProviderChangeEvent<T> event) {
 		if (isFireItemSetChangeOnProviderChange()) {
 			fireContainerItemSetChange(new ProviderChangedEvent(event));
 		}

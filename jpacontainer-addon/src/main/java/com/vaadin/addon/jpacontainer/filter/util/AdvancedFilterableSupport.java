@@ -41,13 +41,13 @@ public class AdvancedFilterableSupport implements Serializable {
 	private static final long serialVersionUID = 398382431841547719L;
 
 	/**
-	 * Listener interface to be implemented by classes that want to be notified
+	 * ApplyFiltersListener interface to be implemented by classes that want to be notified
 	 * when the filters are applied.
 	 * 
 	 * @author Petter Holmström (IT Mill)
 	 * @since 1.0
 	 */
-	public static interface Listener extends Serializable {
+	public static interface ApplyFiltersListener extends Serializable {
 
 		/**
 		 * Called when the filters have been applied.
@@ -66,7 +66,7 @@ public class AdvancedFilterableSupport implements Serializable {
 	 * @param listener
 	 *            the listener to add (must not be null).
 	 */
-	public void addListener(Listener listener) {
+	public void addListener(ApplyFiltersListener listener) {
 		assert listener != null : "listener must not be null";
 		listeners.add(listener);
 	}
@@ -79,23 +79,23 @@ public class AdvancedFilterableSupport implements Serializable {
 	 * @param listener
 	 *            the listener to remove (must not be null).
 	 */
-	public void removeListener(Listener listener) {
+	public void removeListener(ApplyFiltersListener listener) {
 		assert listener != null : "listener must not be null";
 		listeners.remove(listener);
 	}
 
 	@SuppressWarnings("unchecked")
 	protected void fireListeners() {
-		LinkedList<Listener> listenerList = (LinkedList<Listener>) listeners
+		LinkedList<ApplyFiltersListener> listenerList = (LinkedList<ApplyFiltersListener>) listeners
 				.clone();
-		for (Listener l : listenerList) {
+		for (ApplyFiltersListener l : listenerList) {
 			l.filtersApplied(this);
 		}
 	}
 
 	private Collection<Object> filterablePropertyIds;
 
-	private LinkedList<Listener> listeners = new LinkedList<Listener>();
+	private LinkedList<ApplyFiltersListener> listeners = new LinkedList<ApplyFiltersListener>();
 
 	private LinkedList<Filter> appliedFilters = new LinkedList<Filter>();
 

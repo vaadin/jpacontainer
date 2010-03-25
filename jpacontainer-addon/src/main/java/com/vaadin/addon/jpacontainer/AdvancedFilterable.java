@@ -24,6 +24,8 @@ import java.util.List;
 
 /**
  * Container that supports a bit more advanced filtering than {@link Filterable}.
+ * It has been designed to be used explicitly with JPA (e.g. all filters
+ * generate JPA-QL).
  * 
  * @author Petter Holmström (IT Mill)
  * @since 1.0
@@ -130,8 +132,11 @@ public interface AdvancedFilterable extends Container {
 	public void applyFilters();
 
 	/**
-	 * Checks if there are filters that have not yet been applied. If
-	 * {@link #isApplyFiltersImmediately() } is true, this method always returns
+	 * Checks if there are filters that have not yet been applied, or applied
+	 * filters that have been removed using {@link #removeAllFilters() } or
+	 * {@link #removeFilter(com.vaadin.addon.jpacontainer.Filter) }.
+	 * <p>
+	 * If {@link #isApplyFiltersImmediately() } is true, this method always returns
 	 * false.
 	 * 
 	 * @see #applyFilters()

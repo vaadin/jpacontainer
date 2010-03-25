@@ -27,7 +27,7 @@ package com.vaadin.addon.jpacontainer;
 public interface CachingEntityProvider<T> extends EntityProvider<T> {
 
 	/**
-	 * Gets the maximum size of the internal cache. The default value is
+	 * Gets the maximum number of entities to store in the cache. The default value is
 	 * implementation specific.
 	 * 
 	 * @return the max size, or -1 for unlimited size.
@@ -35,7 +35,7 @@ public interface CachingEntityProvider<T> extends EntityProvider<T> {
 	public int getMaxCacheSize();
 
 	/**
-	 * Sets the maximum size of the internal cache. The implementation may
+	 * Sets the maximum number of entities to store in the cache. The implementation may
 	 * decide what to do when the cache is full, but a full cache may never
 	 * cause an exception. This feature is optional.
 	 * 
@@ -50,21 +50,21 @@ public interface CachingEntityProvider<T> extends EntityProvider<T> {
 
 	/**
 	 * Flushes the cache, forcing all entities to be loaded from the persistence
-	 * storage upon next request. This feature is compulsory.
+	 * storage upon next request. This feature should be implemented by all caching entity providers.
 	 */
 	public void flush();
 
 	/**
 	 * Returns whether the entity provider is currently using the internal
 	 * cache, or if data is fetched/stored directly from/to the persistence
-	 * storage.
+	 * storage. By default, caching should be in use.
 	 * 
 	 * @return true if the cache is in use, false otherwise.
 	 */
 	public boolean isCacheInUse();
 
 	/**
-	 * Turns the cache on or off.
+	 * Turns the cache on or off. When the cache is turned off, it is automatically flushed.
 	 *
 	 * @param cacheInUse true to turn the cache on, false to turn it off.
 	 * @throws UnsupportedOperationException if the cache cannot be turned on or off programmatically.

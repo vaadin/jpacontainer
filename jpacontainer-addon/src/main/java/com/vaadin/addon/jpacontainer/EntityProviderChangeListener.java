@@ -21,7 +21,7 @@ import java.io.Serializable;
 
 /**
  * Listener interface to be implemented by classes that want to be notified when
- * an {@link EntityProvider} is changed (e.g. entities are added or removed).
+ * the contents of a {@link EntityProvider} is changed (e.g. entities are added or removed).
  * 
  * @see EntityProviderChangeNotifier
  * @author Petter Holmström (IT Mill)
@@ -35,5 +35,5 @@ public interface EntityProviderChangeListener<T> extends Serializable {
 	 * @param event
 	 *            the occurred event (never null).
 	 */
-	public void entityProviderChanged(EntityProviderChangeEvent<T> event);
+	public void entityProviderChange(EntityProviderChangeEvent<T> event);
 }

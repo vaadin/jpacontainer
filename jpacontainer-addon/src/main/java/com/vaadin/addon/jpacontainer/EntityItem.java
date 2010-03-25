@@ -20,12 +20,15 @@ package com.vaadin.addon.jpacontainer;
 import com.vaadin.data.Buffered;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
+import java.lang.annotation.Inherited;
 import java.util.Collection;
 
 /**
  * Interface defining the Items that are contained in a {@link EntityContainer}.
  * Each item is always backed by an underlying Entity instance that normally is
  * a POJO.
+ * EntityItems are always linked to a specific {@link EntityContainer} instance
+ * and cannot be added to other {@link com.vaadin.data.Container}s.
  * <p>
  * By default, whenever a Property of the item is changed, the corresponding
  * property of the Entity is updated accordingly. However, it is also possible
@@ -75,22 +78,38 @@ public interface EntityItem<T> extends Item, Buffered,
 	public boolean isPersistent();
 
 	/**
-	 * Checks whether the underlying entity ({@link #getEntity() }) has been
+	 * Checks whether the underlying entity (returned by {@link #getEntity() }) has been
 	 * modified after it was fetched from the entity provider. When the changes
 	 * have been persisted, this flag will be reset.
 	 * <p>
-	 * Note, that this is not the same as the {@link #isModified() } flag. It is
-	 * possible for an entity item to be dirty and not modified and vice versa.
-	 * For example, if the item has changes that have not yet been committed,
-	 * the item will be modified but not dirty, as the underlying entity object
-	 * has not yet been altered. After the item is committed, the item will be
-	 * dirty but not modified.
+	 * This flag is only of relevance when container buffering is used. If the container
+	 * is in write-through mode, any changes made to the entity will automatically be
+	 * propagated back to the entity provider and hence, this method will always return false
+	 * as there are no dirty entities.
+	 * <p>
+	 * However, if container write-through mode is turned off, any changes made to the entity will
+	 * not be propagated back until explicitly committed. Modified entities that have not yet
+	 * been propagated back to the entity provider are considered dirty.
+	 * <p>
+	 * Please note, that this is not the same as the {@link #isModified() } flag, which is of relevance
+	 * when item buffering is used.
 	 * <p>
 	 * If the item is not persistent, this method always returns false.
 	 * 
 	 * @return true if the underlying entity has been modified, false if not.
 	 */
 	public boolean isDirty();
+
+	/**
+	 * When using item-level buffering, this method tests whether there are changes
+	 * made to the EntityItem that have not yet been committed to the underlying Entity ({@link #getEntity() }).
+	 * If item-level buffering is not used, this method always returns false.
+	 *
+	 * @see #isDirty() 
+	 *
+	 * @return true if {@link #isWriteThrough() } returns false and there are changes that have not yet been commited to the underlying Entity, false otherwise.
+	 */
+	public boolean isModified();
 
 	/**
 	 * Checks whether this item has been marked for deletion. This method can

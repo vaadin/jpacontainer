@@ -68,6 +68,9 @@ public abstract class AbstractJunction implements Junction {
 
 	@Override
 	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
 		return obj.getClass() == getClass()
 				&& ((AbstractJunction) obj).filters.equals(filters);
 	}

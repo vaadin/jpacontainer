@@ -29,7 +29,7 @@ public abstract class AbstractStringFilter extends AbstractValueFilter {
 
 	private boolean caseSensitive;
 
-	protected AbstractStringFilter(Object propertyId, Object value,
+	protected AbstractStringFilter(Object propertyId, String value,
 			boolean caseSensitive) {
 		super(propertyId, value);
 		this.caseSensitive = caseSensitive;

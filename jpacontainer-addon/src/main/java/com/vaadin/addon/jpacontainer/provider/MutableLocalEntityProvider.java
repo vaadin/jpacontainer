@@ -249,7 +249,7 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
 		LinkedList<EntityProviderChangeListener<T>> list = (LinkedList<EntityProviderChangeListener<T>>) listeners
 				.clone();
 		for (EntityProviderChangeListener<T> l : list) {
-			l.entityProviderChanged(event);
+			l.entityProviderChange(event);
 		}
 	}
 }

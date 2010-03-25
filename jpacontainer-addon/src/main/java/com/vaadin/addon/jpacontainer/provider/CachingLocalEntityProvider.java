@@ -26,9 +26,8 @@ import javax.persistence.EntityManager;
 /**
  * En extended version of {@link LocalEntityProvider} that also implements the {@link CachingEntityProvider} interface.
  * <p>
- * This provider can be used in applications in the same manner as {@link LocalEntityProvider}, with a few exceptions. By default,
- * the cache is turned off which means that this provider effectively works as a {@link LocalEntityProvider}. The cache
- * can be turned on using {@link #setCacheInUse(boolean) }.
+ * This provider can be used in applications in the same manner as {@link LocalEntityProvider}, with a few exceptions. By default the cache is on.
+ * The cache can be turned off using {@link #setCacheInUse(boolean) }, in which case the provider effectively works as a {@link LocalEntityProvider}.
  * <p>
  * If you are going to edit the entities returned by the container, you should check the {@link #setCloneCachedEntities(boolean) } before
  * continuing.

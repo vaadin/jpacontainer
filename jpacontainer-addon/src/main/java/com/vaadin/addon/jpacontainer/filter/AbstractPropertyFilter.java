@@ -45,6 +45,9 @@ public abstract class AbstractPropertyFilter implements PropertyFilter {
 
 	@Override
 	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
 		return obj.getClass() == getClass()
 				&& ((AbstractPropertyFilter) obj).propertyId.equals(propertyId);
 	}
