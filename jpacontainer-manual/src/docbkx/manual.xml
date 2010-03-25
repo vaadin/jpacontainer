@@ -31,7 +31,7 @@
         </para>
         <para>
             It is possible to customize JPAContainer to use a completely different
-            object persistence framework than JPA, as long as the entity classes are still annotated with JPA-annotations (JPAContainer deduces primary keys and persistent/filterable fields from
+            object persistence framework than JPA, as long as the entity classes are still annotated with JPA annotations (JPAContainer deduces primary keys and persistent/filterable fields from
             these annotations).
         </para>
         <para>
@@ -337,7 +337,7 @@ public class Node {
                 </listitem>
                 <listitem>
                     <para>
-                        The entitities returned from the entity provider must not be serialized and deserialized before they reach the container. In practice, this means
+                        The entities returned from the entity provider must not be serialized and deserialized before they reach the container. In practice, this means
                         that the entity provider and the container must run inside the same JVM.
                     </para>
                 </listitem>
@@ -514,7 +514,7 @@ container.setEntityProvider(myEntityProvider);
         <para>
             JPAContainer differs between persistent properties and transient properties. Persistent properties are determined from the JPA annotations. If an entity
             class uses field annotations, the names of the persistent properties are the names of the non-transient fields. This is important to remember, especially if
-            the field names and their corresponding getter/setter methods do not have mathing names.
+            the field names and their corresponding getter/setter methods do not have matching names.
         </para>
         <para>
             If an entity class uses method annotations, the names of the persistent properties are the JavaBean names of the non-transient getter methods. This also
@@ -603,7 +603,7 @@ container.addFilter(Filters.or(
                 such as integers and timestamps. It is also possible to create custom filters by implementing the <interfacename>Filter</interfacename> interface.
             </para>
             <para>
-                Filters can be either applied immediately or explicitly, depending on the state of the <varname>AdvancedFilterabe.isApplyFiltersImmediately</varname> flag.
+                Filters can be either applied immediately or explicitly, depending on the state of the <varname>AdvancedFilterable.isApplyFiltersImmediately</varname> flag.
                 When applied immediately, each call to <methodname>AdvancedFilterable.addFilter(..)</methodname> forces
                 the container to refresh itself. If only one filter is to be added, this may be desirable. However, if several filters are to be added it may be better to wait
                 until all the filters have been defined before applying them. In this case, <methodname>AdvancedFilterable.applyFilters()</methodname> has to be called to apply
@@ -635,7 +635,7 @@ SELECT obj.id
                     </para>
                 </note>
                 <para>
-                    A <interfacename>JoinFilter</interfacename> may not contain other <interfacename>JoinFilter</interfacename>s.e
+                    A <interfacename>JoinFilter</interfacename> may not contain other <interfacename>JoinFilter</interfacename>s.
                 </para>
             </section>
         </section>
@@ -789,7 +789,7 @@ public class MyEntityProviderBean extends
         <para>
             Although the built-in entity providers should be sufficient in every-day usage, there are use cases where you might have to develop a custom entity provider.
             These include customized queries, complex object structures that require special handling, or loading data from a different data store.
-            Althogh JPAContainer requires JPA annotations in order to properly analyze the classes and extract the available properties, the entities themselves
+            Although JPAContainer requires JPA annotations in order to properly analyze the classes and extract the available properties, the entities themselves
             must not necessarily come from an EntityManager. In fact, by implementing your own entity provider, you can store them in any way you like.
         </para>
         <para>
