@@ -28,7 +28,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 /**
- * TODO Document me!
+ * This is an extended version of {@link BatchableLocalEntityProvider} that adds
+ * declarative transactions and logging to the entity provider. It receives the
+ * entity manager instance through dependency injection.
  * 
  * @author Petter Holmström (IT Mill)
  * @since 1.0

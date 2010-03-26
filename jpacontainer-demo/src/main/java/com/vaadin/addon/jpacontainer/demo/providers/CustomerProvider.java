@@ -26,8 +26,6 @@ import org.springframework.stereotype.Repository;
  * which means that the Spring container will automatically detect it and
  * add it to the container.
  *
- * TODO Add a more detailed description of this class.
- *
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
