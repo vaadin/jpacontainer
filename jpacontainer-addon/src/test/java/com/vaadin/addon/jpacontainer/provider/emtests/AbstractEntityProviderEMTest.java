@@ -102,13 +102,23 @@ public abstract class AbstractEntityProviderEMTest {
 			"Sydney" };
 	protected static String[] skillNames = { "Java", "C", "C++", "Delphi", "PHP", "Vaadin", "JavaScript", "SQL", "HTML", "SOA"};
 
-    @BeforeClass
+/*    @BeforeClass
     public static void setUpClass() throws Exception {
         createTestData();
-    }
+    }*/
+
+	/*
+	 * The original idea was to create the test data once, persist it every
+	 * time into a new, clean database and then run the test. Unfortunately,
+	 * some changes made to the database seem to be reflected in the test data.
+	 * Therefore, the test data is currently created in the beginning of each
+	 * test.
+	 */
 
 	@Before
 	public void setUp() throws Exception {
+		createTestData();
+		System.out.println("Setting up " + getClass());
 		entityManager = createEntityManager();
         entityProvider = createEntityProvider();
         entityProvider_EmbeddedId = createEntityProvider_EmbeddedId();
@@ -117,6 +127,7 @@ public abstract class AbstractEntityProviderEMTest {
     
 	@After
 	public void tearDown() throws Exception {
+		System.out.println("Tearing down " + getClass());
 		entityProvider = null;
 		entityProvider_EmbeddedId = null;
 		entityManager.close();
@@ -262,11 +273,14 @@ public abstract class AbstractEntityProviderEMTest {
 	protected void persistTestData() throws Exception {
 		getEntityManager().getTransaction().begin();
 		for (Skill s : skills) {
-			s.setId(null);;
+			s.setId(null);
 			getEntityManager().persist(s);
 		}
         for (Person p : testDataSortedByPrimaryKey) {
             p.setId(null);
+			if (p.getManager() != null) {
+				p.getManager().setId(null);
+			}
             getEntityManager().persist(p);
         }
         for (EmbeddedIdPerson p : testDataEmbeddedIdSortedByName) {
