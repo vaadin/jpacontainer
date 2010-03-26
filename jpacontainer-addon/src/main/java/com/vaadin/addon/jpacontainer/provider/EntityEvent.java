@@ -31,7 +31,7 @@ import java.util.Collections;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public abstract class EntityEvent<T> implements EntityProviderChangeEvent<T>,
+abstract class EntityEvent<T> implements EntityProviderChangeEvent<T>,
 		Serializable {
 
 	private static final long serialVersionUID = -3703337782681273703L;

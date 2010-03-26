@@ -47,4 +47,34 @@ public interface EntityProviderChangeEvent<T> extends Serializable {
 	 *         may be empty).
 	 */
 	public Collection<T> getAffectedEntities();
+
+	/**
+	 * Event indicating that one or more entities have been added to the entity provider.
+	 *
+	 * @author Petter Holmström (IT Mill)
+	 * @since 1.0
+	 */
+	public interface EntitiesAddedEvent<T> extends EntityProviderChangeEvent<T> {
+		// No additional methods
+	}
+
+	/**
+	 * Event indicating that one or more entities have been updated in the entity provider.
+	 *
+	 * @author Petter Holmström (IT Mill)
+	 * @since 1.0
+	 */
+	public interface EntitiesUpdatedEvent<T> extends EntityProviderChangeEvent<T> {
+		// No additional methods
+	}
+
+	/**
+	 * Event indicating that one or more entities have been removed from the entity provider.
+	 *
+	 * @author Petter Holmström (IT Mill)
+	 * @since 1.0
+	 */
+	public interface EntitiesRemovedEvent<T> extends EntityProviderChangeEvent<T> {
+		// No additional methods
+	}
 }

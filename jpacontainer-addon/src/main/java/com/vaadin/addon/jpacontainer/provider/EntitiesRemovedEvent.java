@@ -17,6 +17,7 @@
  */
 package com.vaadin.addon.jpacontainer.provider;
 
+import com.vaadin.addon.jpacontainer.EntityProviderChangeEvent;
 import com.vaadin.addon.jpacontainer.MutableEntityProvider;
 
 /**
@@ -25,7 +26,7 @@ import com.vaadin.addon.jpacontainer.MutableEntityProvider;
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
-public class EntitiesRemovedEvent<T> extends EntityEvent<T> {
+class EntitiesRemovedEvent<T> extends EntityEvent<T> implements EntityProviderChangeEvent.EntitiesRemovedEvent<T> {
 
 	private static final long serialVersionUID = -7174185739064265869L;
 
