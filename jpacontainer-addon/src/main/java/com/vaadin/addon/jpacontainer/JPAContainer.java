@@ -193,7 +193,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	@SuppressWarnings("unchecked")
 	protected void fireContainerItemSetChange(final ItemSetChangeEvent event) {
 		assert event != null : "event must not be null";
-		if (listeners == null) {
+		if (listeners == null || !fireContainerItemSetChangeEvents) {
 			return;
 		}
 		LinkedList<ItemSetChangeListener> list = (LinkedList<ItemSetChangeListener>) listeners
@@ -201,6 +201,28 @@ public class JPAContainer<T> implements EntityContainer<T>,
 		for (ItemSetChangeListener l : list) {
 			l.containerItemSetChange(event);
 		}
+	}
+
+	private boolean fireContainerItemSetChangeEvents = true;
+
+	/**
+	 * Specifies whether the container should fire an item set change event
+	 * when it detects a change in the entity provider (such as an entity
+	 * being added, updated or deleted).
+	 */
+	public void setFireContainerItemSetChangeEvents(boolean value) {
+		this.fireContainerItemSetChangeEvents = value;
+	}
+
+	/**
+	 * Tests whether the container should fire an item set change event
+	 * when it detects a change in the entity provider (such as an entity being
+	 * added, updated or deleted).
+	 *
+	 * @return true if item set change events should be fired (default), false otherwise.
+	 */
+	public boolean isFireContainerItemSetChangeEvents() {
+		return fireContainerItemSetChangeEvents;
 	}
 
 	public void addNestedContainerProperty(String nestedProperty)
