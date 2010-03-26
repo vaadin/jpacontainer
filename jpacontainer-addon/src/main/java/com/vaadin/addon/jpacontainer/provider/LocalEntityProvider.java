@@ -292,8 +292,8 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 				SortBy sortedProperty = it.next();
 				sb.append(entityAlias);
 				sb.append(".");
-				sb.append(sortedProperty.propertyId);
-				if (sortedProperty.ascending != swapSortOrder) {
+				sb.append(sortedProperty.getPropertyId());
+				if (sortedProperty.isAscending() != swapSortOrder) {
 					sb.append(" asc");
 				} else {
 					sb.append(" desc");
@@ -378,7 +378,9 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 	}
 
 	protected Object doGetEntityIdentifierAt(Filter filter, List<SortBy> sortBy, int index) {
-		assert sortBy != null : "sortBy must not be null";
+		if (sortBy == null) {
+			sortBy = Collections.emptyList();
+		}
 		Query query = createFilteredQuery("obj."
 				+ getEntityClassMetadata().getIdentifierProperty().getName(),
 				"obj", filter, addPrimaryKeyToSortList(sortBy), false, null);
@@ -427,7 +429,9 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 	}
 
 	protected Object doGetFirstEntityIdentifier(Filter filter, List<SortBy> sortBy) {
-		assert sortBy != null : "sortBy must not be null";
+		if (sortBy == null) {
+			sortBy = Collections.emptyList();
+		}
 		Query query = createFilteredQuery("obj."
 				+ getEntityClassMetadata().getIdentifierProperty().getName(),
 				"obj", filter, addPrimaryKeyToSortList(sortBy), false, null);
@@ -445,7 +449,9 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 	}
 
 	protected Object doGetLastEntityIdentifier(Filter filter, List<SortBy> sortBy) {
-		assert sortBy != null : "sortBy must not be null";
+		if (sortBy == null) {
+			sortBy = Collections.emptyList();
+		}
 		Query query = createFilteredQuery("obj."
 				+ getEntityClassMetadata().getIdentifierProperty().getName(),
 				"obj", filter, addPrimaryKeyToSortList(sortBy), true, null);
@@ -540,9 +546,9 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 			// Collect the values into a map for easy access
 			Map<Object, Object> filterValues = new HashMap<Object, Object>();
 			for (SortBy sb : sortBy) {
-				filterValues.put(sb.propertyId, getEntityClassMetadata().
+				filterValues.put(sb.getPropertyId(), getEntityClassMetadata().
 						getPropertyValue(currentEntity,
-						sb.propertyId.toString()));
+						sb.getPropertyId().toString()));
 			}
 			// Now we can build a filter that limits the query to the entities
 			// below entityId
@@ -554,16 +560,16 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 				SortBy sb;
 				for (int j = 0; j < i; j++) {
 					sb = sortBy.get(j);
-					caseFilter.add(Filters.eq(sb.propertyId, filterValues.get(
-							sb.propertyId)));
+					caseFilter.add(Filters.eq(sb.getPropertyId(), filterValues.get(
+							sb.getPropertyId())));
 				}
 				sb = sortBy.get(i);
-				if (sb.ascending ^ backwards) {
-					caseFilter.add(Filters.gt(sb.propertyId, filterValues.get(
-							sb.propertyId)));
+				if (sb.isAscending() ^ backwards) {
+					caseFilter.add(Filters.gt(sb.getPropertyId(), filterValues.get(
+							sb.getPropertyId())));
 				} else {
-					caseFilter.add(Filters.lt(sb.propertyId, filterValues.get(
-							sb.propertyId)));
+					caseFilter.add(Filters.lt(sb.getPropertyId(), filterValues.get(
+							sb.getPropertyId())));
 				}
 				((Junction) limitingFilter).add(caseFilter);
 			}
@@ -583,6 +589,9 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 
 	protected Object doGetNextEntityIdentifier(Object entityId, Filter filter,
 			List<SortBy> sortBy) {
+		if (sortBy == null) {
+			sortBy = Collections.emptyList();
+		}
 		return getSibling(entityId, filter, sortBy, false);
 	}
 
@@ -593,6 +602,9 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 
 	protected Object doGetPreviousEntityIdentifier(Object entityId, Filter filter,
 			List<SortBy> sortBy) {
+		if (sortBy == null) {
+			sortBy = Collections.emptyList();
+		}
 		return getSibling(entityId, filter, sortBy, true);
 	}
 
@@ -659,6 +671,9 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 	@SuppressWarnings("unchecked")
 	protected List<Object> doGetAllEntityIdentifiers(Filter filter,
 			List<SortBy> sortBy) {
+		if (sortBy == null) {
+			sortBy = Collections.emptyList();
+		}
 		sortBy = addPrimaryKeyToSortList(sortBy);
 		Query query = createFilteredQuery("obj."
 				+ getEntityClassMetadata().getIdentifierProperty().getName(),

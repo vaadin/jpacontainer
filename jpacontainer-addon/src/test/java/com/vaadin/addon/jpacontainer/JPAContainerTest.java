@@ -1026,10 +1026,10 @@ public class JPAContainerTest {
 				true, false });
 		assertTrue(listenerCalled[0]);
 		assertEquals(2, container.getSortByList().size());
-		assertEquals("firstName", container.getSortByList().get(0).propertyId);
-		assertEquals("lastName", container.getSortByList().get(1).propertyId);
-		assertTrue(container.getSortByList().get(0).ascending);
-		assertFalse(container.getSortByList().get(1).ascending);
+		assertEquals("firstName", container.getSortByList().get(0).getPropertyId());
+		assertEquals("lastName", container.getSortByList().get(1).getPropertyId());
+		assertTrue(container.getSortByList().get(0).isAscending());
+		assertFalse(container.getSortByList().get(1).isAscending());
 
 		verify(entityProviderMock);
 	}

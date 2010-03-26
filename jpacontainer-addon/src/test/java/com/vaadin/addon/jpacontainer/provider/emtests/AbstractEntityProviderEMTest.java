@@ -489,9 +489,8 @@ public abstract class AbstractEntityProviderEMTest {
 	@Test
 	public void testGetFirstEntity_EmbeddedId() {
 		System.out.println("testGetFirstEntity_EmbeddedId");
-		List<SortBy> emptyList = Collections.emptyList();
 		doTestGetFirstEntity_EmbeddedId(testDataEmbeddedIdSortedByName,
-				null, emptyList);
+				null, null);
 	}
 
 	@Test
@@ -503,9 +502,8 @@ public abstract class AbstractEntityProviderEMTest {
 	@Test
 	public void testGetNextEntity_EmbeddedId() {
 		System.out.println("testGetNextEntity_EmbeddedId");
-		List<SortBy> emptyList = Collections.emptyList();
 		doTestGetNextEntity_EmbeddedId(testDataEmbeddedIdSortedByName,
-				null, emptyList);
+				null, null);
 	}
 
 	@Test
@@ -517,9 +515,8 @@ public abstract class AbstractEntityProviderEMTest {
 	@Test
 	public void testGetLastEntity_EmbeddedId() {
 		System.out.println("testGetLastEntity_EmbeddedID");
-		List<SortBy> emptyList = Collections.emptyList();
 		doTestGetLastEntity_EmbeddedId(testDataEmbeddedIdSortedByName,
-				null, emptyList);
+				null, null);
 	}
 
 	@Test
@@ -531,9 +528,8 @@ public abstract class AbstractEntityProviderEMTest {
 	@Test
 	public void testGetPreviousEntity_EmbeddedId() {
 		System.out.println("testGetPreviousEntity_EmbeddedId");
-		List<SortBy> emptyList = Collections.emptyList();
 		doTestGetPreviousEntity_EmbeddedId(testDataEmbeddedIdSortedByName,
-				null, emptyList);
+				null, null);
 	}
 
 	@Test
@@ -551,15 +547,13 @@ public abstract class AbstractEntityProviderEMTest {
 	@Test
 	public void testGetEntityIdentifierAt_EmbeddedId() {
 		System.out.println("testGetEntityIdentifierAt_EmbeddedId");
-		List<SortBy> emptyList = Collections.emptyList();
-		doTestGetEntityIdentifierAt_EmbeddedId(testDataEmbeddedIdSortedByName, null, emptyList);
+		doTestGetEntityIdentifierAt_EmbeddedId(testDataEmbeddedIdSortedByName, null, null);
 	}
 
 	@Test
 	public void testGetEntityIdentifierAtBackwards_EmbeddedId() {
 		System.out.println("testGetEntityIdentifierAtBackwards_EmbeddedId");
-		List<SortBy> emptyList = Collections.emptyList();
-		doTestGetEntityIdentifierAtBackwards_EmbeddedId(testDataEmbeddedIdSortedByName, null, emptyList);
+		doTestGetEntityIdentifierAtBackwards_EmbeddedId(testDataEmbeddedIdSortedByName, null, null);
 	}
 	// TODO Add tests for container with duplicate sorted values
 
@@ -610,43 +604,37 @@ public abstract class AbstractEntityProviderEMTest {
 	@Test
 	public void testGetFirstEntity_SortedByPrimaryKey() {
 		System.out.println("testGetFirstEntity_SortedByPrimaryKey");
-		List<SortBy> emptyList = Collections.emptyList();
-		doTestGetFirstEntity(testDataSortedByPrimaryKey, null, emptyList);
+		doTestGetFirstEntity(testDataSortedByPrimaryKey, null, null);
 	}
 
 	@Test
 	public void testGetNextEntity_SortedByPrimaryKey() {
 		System.out.println("testGetNextEntity_SortedByPrimaryKey");
-		List<SortBy> emptyList = Collections.emptyList();
-		doTestGetNextEntity(testDataSortedByPrimaryKey, null, emptyList);
+		doTestGetNextEntity(testDataSortedByPrimaryKey, null, null);
 	}
 
 	@Test
 	public void testGetLastEntity_SortedByPrimaryKey() {
 		System.out.println("testGetLastEntity_SortedByPrimaryKey");
-		List<SortBy> emptyList = Collections.emptyList();
-		doTestGetLastEntity(testDataSortedByPrimaryKey, null, emptyList);
+		doTestGetLastEntity(testDataSortedByPrimaryKey, null, null);
 	}
 
 	@Test
 	public void testGetPreviousEntity_SortedByPrimaryKey() {
 		System.out.println("testGetPreviousEntity_SortedByPrimaryKey");
-		List<SortBy> emptyList = Collections.emptyList();
-		doTestGetPreviousEntity(testDataSortedByPrimaryKey, null, emptyList);
+		doTestGetPreviousEntity(testDataSortedByPrimaryKey, null, null);
 	}
 
 	@Test
 	public void testGetEntityIdentifierAt_SortedByPrimaryKey() {
 		System.out.println("testGetEntityIdentifierAt_SortedByPrimaryKey");
-		List<SortBy> emptyList = Collections.emptyList();
-		doTestGetEntityIdentifierAt(testDataSortedByPrimaryKey, null, emptyList);
+		doTestGetEntityIdentifierAt(testDataSortedByPrimaryKey, null, null);
 	}
 
 	@Test
 	public void testGetEntityIdentifierAtBackwards_SortedByPrimaryKey() {
 		System.out.println("testGetEntityIdentifierAtBackwards_SortedByPrimaryKey");
-		List<SortBy> emptyList = Collections.emptyList();
-		doTestGetEntityIdentifierAtBackwards(testDataSortedByPrimaryKey, null, emptyList);
+		doTestGetEntityIdentifierAtBackwards(testDataSortedByPrimaryKey, null, null);
 	}
 
 	@Test
@@ -706,51 +694,45 @@ public abstract class AbstractEntityProviderEMTest {
 	@Test
 	public void testGetFirstEntity_Filtered_SortedByPrimaryKey() {
 		System.out.println("testGetFirstEntity_Filtered_SortedByPrimaryKey");
-		List<SortBy> emptyList = Collections.emptyList();
 		doTestGetFirstEntity(filteredTestDataSortedByPrimaryKey, testFilter,
-				emptyList);
+				null);
 	}
 
 	@Test
 	public void testGetNextEntity_Filtered_SortedByPrimaryKey() {
 		System.out.println("testGetNextEntity_Filtered_SortedByPrimaryKey");
-		List<SortBy> emptyList = Collections.emptyList();
 		doTestGetNextEntity(filteredTestDataSortedByPrimaryKey, testFilter,
-				emptyList);
+				null);
 	}
 
 	@Test
 	public void testGetLastEntity_Filtered_SortedByPrimaryKey() {
 		System.out.println("testGetLastEntity_Filtered_SortedByPrimaryKey");
-		List<SortBy> emptyList = Collections.emptyList();
 		doTestGetLastEntity(filteredTestDataSortedByPrimaryKey, testFilter,
-				emptyList);
+				null);
 	}
 
 	@Test
 	public void testGetPreviousEntity_Filtered_SortedByPrimaryKey() {
 		System.out.println("testGetPreviousEntity_Filtered_SortedByPrimaryKey");
-		List<SortBy> emptyList = Collections.emptyList();
 		doTestGetPreviousEntity(filteredTestDataSortedByPrimaryKey, testFilter,
-				emptyList);
+				null);
 	}
 
 	@Test
 	public void testGetEntityIdentifierAt_Filtered_SortedByPrimaryKey() {
 		System.out
 				.println("testGetEntityIdentifierAt_Filtered_SortedByPrimaryKey");
-		List<SortBy> emptyList = Collections.emptyList();
 		doTestGetEntityIdentifierAt(filteredTestDataSortedByPrimaryKey,
-				testFilter, emptyList);
+				testFilter, null);
 	}
 
 	@Test
 	public void testGetEntityIdentifierAtBackwards_Filtered_SortedByPrimaryKey() {
 		System.out
 				.println("testGetEntityIdentifierAtBackwards_Filtered_SortedByPrimaryKey");
-		List<SortBy> emptyList = Collections.emptyList();
 		doTestGetEntityIdentifierAtBackwards(filteredTestDataSortedByPrimaryKey,
-				testFilter, emptyList);
+				testFilter, null);
 	}
 
 	@Test
@@ -776,10 +758,9 @@ public abstract class AbstractEntityProviderEMTest {
 		getEntityManager().getTransaction().commit();
 
 		// Now try out the filter
-		List<SortBy> emptyList = Collections.emptyList();
 		for (Skill s : skills) {
 			Filter filter = Filters.joinFilter("skills", Filters.eq("skill", s));
-			Collection<Object> returnedIds = entityProvider.getAllEntityIdentifiers(filter, emptyList);
+			Collection<Object> returnedIds = entityProvider.getAllEntityIdentifiers(filter, null);
 			assertTrue(skillPersonMap.get(s).containsAll(returnedIds));
 			assertEquals(skillPersonMap.get(s).size(), returnedIds.size());
 		}

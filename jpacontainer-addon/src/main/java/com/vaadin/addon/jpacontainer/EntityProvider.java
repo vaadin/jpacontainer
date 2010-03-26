@@ -97,8 +97,7 @@ public interface EntityProvider<T> extends Serializable {
 	 *            the filter that should be used to filter the entities (may be
 	 *            null).
 	 * @param sortBy
-	 *            the properties to sort by, if any (never null, but may be
-	 *            empty).
+	 *            the properties to sort by, if any (may be null).
 	 * @param index
 	 *            the index of the entity to fetch.
 	 * @return the entity identifier, or null if not found.
@@ -114,8 +113,7 @@ public interface EntityProvider<T> extends Serializable {
 	 *            the filter that should be used to filter the entities (may be
 	 *            null).
 	 * @param sortBy
-	 *            the properties to sort by, if any (never null, but may be
-	 *            empty).
+	 *            the properties to sort by, if any (may be null).
 	 * @return the identifier of the first entity, or null if there are no
 	 *         entities matching <code>filter</code>.
 	 */
@@ -129,8 +127,7 @@ public interface EntityProvider<T> extends Serializable {
 	 *            the filter that should be used to filter the entities (may be
 	 *            null).
 	 * @param sortBy
-	 *            the properties to sort by, if any (never null, but may be
-	 *            empty).
+	 *            the properties to sort by, if any (may be null).
 	 * @return the identifier of the last entity, or null if there are no
 	 *         entities matching <code>filter</code>.
 	 */
@@ -145,8 +142,7 @@ public interface EntityProvider<T> extends Serializable {
 	 *            the filter that should be used to filter the entities (may be
 	 *            null).
 	 * @param sortBy
-	 *            the properties to sort by, if any (never null, but may be
-	 *            empty).
+	 *            the properties to sort by, if any (may be null).
 	 * @return the identifier of the next entity, or null if there are no
 	 *         entities matching <code>filter</code> or <code>entityId</code> is
 	 *         the last item.
@@ -163,8 +159,7 @@ public interface EntityProvider<T> extends Serializable {
 	 *            the filter that should be used to filter the entities (may be
 	 *            null).
 	 * @param sortBy
-	 *            the properties to sort by, if any (never null, but may be
-	 *            empty).
+	 *            the properties to sort by, if any (may be null).
 	 * @return the identifier of the previous entity, or null if there are no
 	 *         entities matching <code>filter</code> or <code>entityId</code> is
 	 *         the first item.
@@ -183,8 +178,7 @@ public interface EntityProvider<T> extends Serializable {
 	 *            the filter that should be used to filter the entities (may be
 	 *            null).
 	 * @param sortBy
-	 *            the properties to sort by, if any (never null, but may be
-	 *            empty).
+	 *            the properties to sort by, if any (may be null).
 	 * @return an unmodifiable list of entity identifiers (never null).
 	 */
 	public List<Object> getAllEntityIdentifiers(Filter filter,

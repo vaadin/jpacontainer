@@ -35,7 +35,7 @@ import javax.persistence.Query;
 
 /**
  * Delegate class that implements caching for {@link LocalEntityProvider}s and
- * their subclasses.
+ * their subclasses. This class is internal and should never be used outside of JPAContainer.
  *
  * @author Petter Holmström (IT Mill)
  * @since 1.0
@@ -608,6 +608,9 @@ class CachingSupport<T> implements Serializable {
 	 */
 	public void setCacheInUse(boolean cacheInUse) {
 		this.cacheInUse = cacheInUse;
+		if (!cacheInUse) {
+			flush();
+		}
 	}
 
 	/**
@@ -632,6 +635,9 @@ class CachingSupport<T> implements Serializable {
 
 	public List<Object> getAllEntityIdentifiers(Filter filter,
 			List<SortBy> sortBy) {
+		if (sortBy == null) {
+			sortBy = Collections.emptyList();
+		}
 		if (!isCacheInUse()) {
 			return entityProvider.doGetAllEntityIdentifiers(filter, sortBy);
 		} else {
@@ -711,6 +717,9 @@ class CachingSupport<T> implements Serializable {
 
 	public Object getEntityIdentifierAt(Filter filter, List<SortBy> sortBy,
 			int index) {
+		if (sortBy == null) {
+			sortBy = Collections.emptyList();
+		}
 		if (!isCacheInUse()) {
 			return entityProvider.doGetEntityIdentifierAt(filter, sortBy, index);
 		} else {
@@ -719,6 +728,9 @@ class CachingSupport<T> implements Serializable {
 	}
 
 	public Object getFirstEntityIdentifier(Filter filter, List<SortBy> sortBy) {
+		if (sortBy == null) {
+			sortBy = Collections.emptyList();
+		}
 		if (!isCacheInUse()) {
 			return entityProvider.doGetFirstEntityIdentifier(filter, sortBy);
 		} else {
@@ -727,6 +739,9 @@ class CachingSupport<T> implements Serializable {
 	}
 
 	public Object getLastEntityIdentifier(Filter filter, List<SortBy> sortBy) {
+		if (sortBy == null) {
+			sortBy = Collections.emptyList();
+		}
 		if (!isCacheInUse()) {
 			return entityProvider.doGetLastEntityIdentifier(filter, sortBy);
 		} else {
@@ -736,6 +751,9 @@ class CachingSupport<T> implements Serializable {
 
 	public Object getNextEntityIdentifier(Object entityId, Filter filter,
 			List<SortBy> sortBy) {
+		if (sortBy == null) {
+			sortBy = Collections.emptyList();
+		}
 		if (!isCacheInUse()) {
 			return entityProvider.doGetNextEntityIdentifier(entityId, filter, sortBy);
 		} else {
@@ -745,6 +763,9 @@ class CachingSupport<T> implements Serializable {
 
 	public Object getPreviousEntityIdentifier(Object entityId, Filter filter,
 			List<SortBy> sortBy) {
+		if (sortBy == null) {
+			sortBy = Collections.emptyList();
+		}
 		if (!isCacheInUse()) {
 			return entityProvider.doGetPreviousEntityIdentifier(entityId, filter, sortBy);
 		} else {

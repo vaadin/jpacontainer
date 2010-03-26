@@ -34,13 +34,32 @@ public final class SortBy implements Serializable {
 	/**
 	 * The property ID to sort by.
 	 */
-	public final Object propertyId;
+	private final Object propertyId;
 
 	/**
 	 * True to sort ascendingly, false to sort descendingly.
 	 */
-	public final boolean ascending;
+	private final boolean ascending;
 
+	/**
+	 * Gets the property ID to sort by.
+	 */
+	public Object getPropertyId() {
+		return propertyId;
+	}
+
+	/**
+	 * Returns true to sort ascendingly, false to sort descendingly.
+	 */
+	public boolean isAscending() {
+		return ascending;
+	}
+
+	/**
+	 * Creates a new <code>SortBy</code> instance.
+	 * @param propertyId the property ID to sort by (must not be null).
+	 * @param ascending true to sort ascendingly, false to sort descendingly.
+	 */
 	public SortBy(Object propertyId, boolean ascending) {
 		assert propertyId != null : "propertyId must not be null";
 		this.propertyId = propertyId;
@@ -49,6 +68,9 @@ public final class SortBy implements Serializable {
 
 	@Override
 	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
 		if (obj.getClass() == getClass()) {
 			SortBy o = (SortBy) obj;
 			return o.propertyId.equals(propertyId) && o.ascending == ascending;
