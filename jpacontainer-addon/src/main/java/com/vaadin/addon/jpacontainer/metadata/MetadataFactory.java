@@ -132,7 +132,7 @@ public class MetadataFactory {
 		Embeddable embeddable = mappedClass.getAnnotation(Embeddable.class);
 		if (entity != null) {
 			// We have an entity class
-			String entityName = entity.name().isEmpty() ? mappedClass
+			String entityName = entity.name().length() == 0 ? mappedClass
 					.getSimpleName() : entity.name();
 			metadata = new EntityClassMetadata<T>(mappedClass, entityName);
 			// Put the metadata instance in the cache in case it is referenced
