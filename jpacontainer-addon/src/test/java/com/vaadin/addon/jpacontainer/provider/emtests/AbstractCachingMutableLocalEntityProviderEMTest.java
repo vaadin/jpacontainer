@@ -37,8 +37,8 @@ public abstract class AbstractCachingMutableLocalEntityProviderEMTest extends
 				Person.class, getEntityManager());
 		provider.setCacheInUse(true);
 		provider.setCloneCachedEntities(true);
-		provider.setMaxCacheSize(400);
-		provider.setTransactionsHandled(true);
+		provider.setEntityCacheMaxSize(400);
+		provider.setTransactionsHandledByProvider(true);
 		return provider;
 	}
 
@@ -48,7 +48,7 @@ public abstract class AbstractCachingMutableLocalEntityProviderEMTest extends
 				EmbeddedIdPerson.class, getEntityManager());
 		provider.setCacheInUse(true);
 		provider.setCloneCachedEntities(true);
-		provider.setTransactionsHandled(true);
+		provider.setTransactionsHandledByProvider(true);
 		return provider;
 	}
 

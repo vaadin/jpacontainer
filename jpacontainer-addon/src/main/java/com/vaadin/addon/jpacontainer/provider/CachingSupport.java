@@ -77,6 +77,8 @@ class CachingSupport<T> implements Serializable {
 	 */
 	public static final int MAX_SORTBY_CACHE_SIZE = 10;
 
+	// TODO Make chunk size, filter cache size and sortBy cache size user configurable.
+
 	/**
 	 * Creates a new <code>CachingSupport</code> for the specified
 	 * entity provider.

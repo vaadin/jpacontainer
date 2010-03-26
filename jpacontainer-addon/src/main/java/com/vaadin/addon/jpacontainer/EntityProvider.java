@@ -22,7 +22,17 @@ import java.util.List;
 
 /**
  * Like the name suggests, the purpose of the <code>EntityProvider</code> is to
- * provide entities to {@link EntityContainer}s.
+ * provide entities to {@link EntityContainer}s. It basically contains a subset
+ * of the methods found in the standard {@link com.vaadin.data.Container} interface.
+ * Note, that most of the methods return entity IDs and not entity instances - only
+ * {@link #getEntity(java.lang.Object) } actually returns instances.
+ * <p>
+ * Entity providers should at least implement this interface according to the
+ * contracts specified in the methods JavaDocs. Additional functionality may be
+ * added by also implementing e.g. {@link MutableEntityProvider}.
+ * <p>
+ * Once implemented, the entity provider can be plugged into an entity container
+ * by using the {@link EntityContainer#setEntityProvider(com.vaadin.addon.jpacontainer.EntityProvider) } method.
  * <p>
  * Please note the {@link #isEntitiesDetached() } flag, as this may have weird
  * consequences if used inproperly.

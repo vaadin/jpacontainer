@@ -27,12 +27,14 @@ import javax.persistence.EntityTransaction;
 
 /**
  * Extended version of {@link LocalEntityProvider} that provides editing
- * support. In addition to all the features of the
- * <code>LocalEntityProvider</code>, it supports
- * both internal and external transaction handling.
+ * support. Transactions can either be handled internally by the provider,
+ * or by an external container such as Spring or EJB (see the JPAContainer manual
+ * for examples of how to do this). By default, transactions are handled internally
+ * by invoking the transaction methods of the EntityManager.
+ * <p>
+ * This entity provider fires {@link EntityProviderChangeEvent}s every time an entity
+ * is added, updated or deleted.
  *
- * TODO Improve documentation
- * 
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
@@ -66,7 +68,7 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
 		super(entityClass, entityManager);
 	}
 
-	private boolean transactionsHandled = false;
+	private boolean transactionsHandled = true;
 
 	/**
 	 * Specifies whether the entity provider should handle transactions itself
@@ -77,22 +79,22 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
 	 *            true to handle the transactions internally, false to rely on
 	 *            external transaction handling.
 	 */
-	public void setTransactionsHandled(boolean transactionsHandled) {
+	public void setTransactionsHandledByProvider(boolean transactionsHandled) {
 		this.transactionsHandled = transactionsHandled;
 	}
 
 	/**
-	 * Returns whether the entity provider is handling transactions internally
-	 * or relies on external transaction handling (the default).
+	 * Returns whether the entity provider is handling transactions internally (the default)
+	 * or relies on external transaction handling.
 	 * 
 	 * @return true if transactions are handled internally, false if not.
 	 */
-	public boolean isTransactionsHandled() {
+	public boolean isTransactionsHandledByProvider() {
 		return transactionsHandled;
 	}
 
 	/**
-	 * If {@link #isTransactionsHandled() } is true, <code>operation</code> will
+	 * If {@link #isTransactionsHandledByProvider() } is true, <code>operation</code> will
 	 * be executed inside a transaction that is commited after the operation is
 	 * completed. Otherwise, <code>operation</code> will just be executed.
 	 * 
@@ -101,7 +103,7 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
 	 */
 	protected void runInTransaction(Runnable operation) {
 		assert operation != null : "operation must not be null";
-		if (isTransactionsHandled()) {
+		if (isTransactionsHandledByProvider()) {
 			EntityTransaction et = getEntityManager().getTransaction();
 			try {
 				et.begin();

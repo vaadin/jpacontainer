@@ -85,8 +85,10 @@ public interface BatchableEntityProvider<T> extends MutableEntityProvider<T> {
 
 	/**
 	 * Executes a batch update using the specified callback parameter. The batch
-	 * update should be run inside a single transaction. If the batch update
-	 * failes, the entire transaction should be rolled back and an exception
+	 * update should be run inside a single transaction. The implementation may
+	 * either handle the transaction itself, or rely on external transaction handling
+	 * provided by a container such as Spring or EJB. If the batch update
+	 * fails, the entire transaction should be rolled back and an exception
 	 * thrown. Otherwise, it should be committed.
 	 * <p>
 	 * Clients should instantiate {@link BatchUpdateCallback}, implement the

@@ -67,7 +67,7 @@ public class CachingMutableLocalEntityProvider<T> extends MutableLocalEntityProv
 		cachingSupport.flush();
 	}
 
-	public int getMaxCacheSize() {
+	public int getEntityCacheMaxSize() {
 		return cachingSupport.getMaxCacheSize();
 	}
 
@@ -79,7 +79,7 @@ public class CachingMutableLocalEntityProvider<T> extends MutableLocalEntityProv
 		cachingSupport.setCacheInUse(cacheInUse);
 	}
 
-	public void setMaxCacheSize(int maxSize) {
+	public void setEntityCacheMaxSize(int maxSize) {
 		cachingSupport.setMaxCacheSize(maxSize);
 	}
 

@@ -24,7 +24,9 @@ import javax.persistence.EntityManager;
 /**
  * A very simple implementation of {@link BatchableEntityProvider} that simply
  * passes itself to the {@link BatchUpdateCallback}. No data consistency checks
- * are performed.
+ * are performed. On some occations, this can cause trouble in real applications.
+ * Please see the {@link BatchableEntityProvider} interface JavaDocs and the
+ * JPAContainer manual for more information.
  * 
  * @author Petter Holmström (IT Mill)
  * @since 1.0

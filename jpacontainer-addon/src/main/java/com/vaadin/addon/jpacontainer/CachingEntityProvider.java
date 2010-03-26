@@ -27,15 +27,15 @@ package com.vaadin.addon.jpacontainer;
 public interface CachingEntityProvider<T> extends EntityProvider<T> {
 
 	/**
-	 * Gets the maximum number of entities to store in the cache. The default value is
+	 * Gets the maximum number of entity instances to store in the cache. The default value is
 	 * implementation specific.
 	 * 
 	 * @return the max size, or -1 for unlimited size.
 	 */
-	public int getMaxCacheSize();
+	public int getEntityCacheMaxSize();
 
 	/**
-	 * Sets the maximum number of entities to store in the cache. The implementation may
+	 * Sets the maximum number of entity instances to store in the cache. The implementation may
 	 * decide what to do when the cache is full, but a full cache may never
 	 * cause an exception. This feature is optional.
 	 * 
@@ -45,7 +45,7 @@ public interface CachingEntityProvider<T> extends EntityProvider<T> {
 	 *             if this implementation does not support configuring the
 	 *             maximum cache size.
 	 */
-	public void setMaxCacheSize(int maxSize)
+	public void setEntityCacheMaxSize(int maxSize)
 			throws UnsupportedOperationException;
 
 	/**
@@ -96,12 +96,16 @@ public interface CachingEntityProvider<T> extends EntityProvider<T> {
 	 * Returns whether entities found in the cache should be cloned before they
 	 * are returned or not. If this flag is false, two subsequent calls to
 	 * {@link #getEntity(java.lang.Object) } with the same entity ID and without
-	 * flushing the cache in between may return the same Java instance.
+	 * flushing the cache in between may return the same entity instance. This
+	 * could be a problem if the instance is modified, as the cache would then
+	 * contain the locally modified entity instance and not the one that was fetched
+	 * from the persistence storage.
 	 * <p>
-	 * If the Java instance is serialized somewhere on the way, or the container
-	 * is read-only, this is OK. However, if the client makes changes to the
-	 * Java instance, the changes might be automatically reflected in the cache,
-	 * which is not always desired.
+	 * If the entity instances are serialized and deserialized before they reach the container, or the container
+	 * is read-only, entities need not be cloned.
+	 * <p>
+	 * It is undefined what happens if this flag is true and the entities are
+	 * not cloneable.
 	 * <p>
 	 * The default value of this flag is implementation dependent.
 	 * 

@@ -35,7 +35,7 @@ public abstract class AbstractMutableLocalEntityProviderEMTest extends
 	protected EntityProvider<Person> createEntityProvider() throws Exception {
 		MutableLocalEntityProvider<Person> provider = new MutableLocalEntityProvider<Person>(
 				Person.class, getEntityManager());
-		provider.setTransactionsHandled(true);
+		provider.setTransactionsHandledByProvider(true);
 		return provider;
 	}
 
@@ -43,7 +43,7 @@ public abstract class AbstractMutableLocalEntityProviderEMTest extends
 	protected EntityProvider<EmbeddedIdPerson> createEntityProvider_EmbeddedId() throws Exception {
 		MutableLocalEntityProvider<EmbeddedIdPerson> provider = new MutableLocalEntityProvider<EmbeddedIdPerson>(
 				EmbeddedIdPerson.class, getEntityManager());
-		provider.setTransactionsHandled(true);
+		provider.setTransactionsHandledByProvider(true);
 		return provider;
 	}
 	

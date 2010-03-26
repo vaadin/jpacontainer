@@ -73,7 +73,7 @@ public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T>
 		cachingSupport.flush();
 	}
 
-	public int getMaxCacheSize() {
+	public int getEntityCacheMaxSize() {
 		return cachingSupport.getMaxCacheSize();
 	}
 
@@ -85,7 +85,7 @@ public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T>
 		cachingSupport.setCacheInUse(cacheInUse);
 	}
 
-	public void setMaxCacheSize(int maxSize) {
+	public void setEntityCacheMaxSize(int maxSize) {
 		cachingSupport.setMaxCacheSize(maxSize);
 	}
 

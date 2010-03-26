@@ -55,16 +55,18 @@ import javax.persistence.Query;
  * {@link #isEntitiesDetached() })
  * <ul>
  * <li>Performs a serialize-deserialize cycle to clone entities in order to
- * explicitly detach them from the persistence context (<b>This is ugly!</b<)</li>
+ * explicitly detach them from the persistence context (<b>This is ugly!</b>).</li>
  * </ul>
  * </li>
  * <li>Uses lazy-loading of entities (when using detached entities, references
  * and collections within the entities should be configured to be fetched
  * eagerly, though)</li>
- * <li><strong>Does NOT currently support embedded identifiers!</strong></li>
  * </ul>
  * 
- * TODO Improve documentation!
+ * This entity provider does not perform very well, as every method call results
+ * in at least one query being sent to the entity manager. If speed is desired,
+ * {@link CachingLocalEntityProvider} should be used instead. However, this entity provider
+ * consumes less memory than the caching provider.
  * 
  * @author Petter Holmström (IT Mill)
  * @since 1.0
