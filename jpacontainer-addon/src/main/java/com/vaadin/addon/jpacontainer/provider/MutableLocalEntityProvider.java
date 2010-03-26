@@ -105,13 +105,20 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
 		assert operation != null : "operation must not be null";
 		if (isTransactionsHandledByProvider()) {
 			EntityTransaction et = getEntityManager().getTransaction();
-			try {
-				et.begin();
+			if (et.isActive()) {
+				// The transaction has been started outside of this method
+				// and should also be committed/rolled back outside of
+				// this method
 				operation.run();
-				et.commit();
-			} finally {
-				if (et.isActive()) {
-					et.rollback();
+			} else {
+				try {
+					et.begin();
+					operation.run();
+					et.commit();
+				} finally {
+					if (et.isActive()) {
+						et.rollback();
+					}
 				}
 			}
 		} else {
@@ -154,7 +161,7 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
 		});
 		if (entityA[0] != null) {
 			fireEntityProviderChangeEvent(new EntitiesRemovedEvent<T>(
-					this,(T) entityA[0]));
+					this, (T) entityA[0]));
 		}
 	}
 
@@ -198,10 +205,9 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
 		});
 		if (entityA[0] != null) {
 			fireEntityProviderChangeEvent(new EntitiesUpdatedEvent<T>(
-					this,(T) entityA[0]));
+					this, (T) entityA[0]));
 		}
 	}
-
 	private LinkedList<EntityProviderChangeListener<T>> listeners = new LinkedList<EntityProviderChangeListener<T>>();
 
 	public synchronized void addListener(
@@ -215,7 +221,6 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
 		assert listener != null : "listener must not be null";
 		listeners.remove(listener);
 	}
-
 	private boolean fireEntityProviderChangeEvent = true;
 
 	/**
@@ -248,8 +253,8 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
 		if (listeners.isEmpty() && !isFireEntityProviderChangeEvent()) {
 			return;
 		}
-		LinkedList<EntityProviderChangeListener<T>> list = (LinkedList<EntityProviderChangeListener<T>>) listeners
-				.clone();
+		LinkedList<EntityProviderChangeListener<T>> list = (LinkedList<EntityProviderChangeListener<T>>) listeners.
+				clone();
 		for (EntityProviderChangeListener<T> l : list) {
 			l.entityProviderChange(event);
 		}
