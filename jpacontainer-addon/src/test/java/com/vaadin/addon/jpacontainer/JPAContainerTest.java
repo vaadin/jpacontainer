@@ -194,7 +194,7 @@ public class JPAContainerTest {
 						container.getEntityClassMetadata()
 								.getPersistentPropertyNames()));
 		
-		container.setAdditionalFilterableProperties("hello", "world");
+		container.setAdditionalFilterablePropertyIds("hello", "world");
 		assertTrue(container.getFilterablePropertyIds()
 				.containsAll(
 						container.getEntityClassMetadata()

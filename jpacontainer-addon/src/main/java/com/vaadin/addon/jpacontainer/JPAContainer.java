@@ -35,10 +35,43 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 /**
- * Implementation of {@link EntityContainer} that uses an {@link EntityProvider}
- * to fetch the items. A {@link MutableEntityProvider} can be used to make the
- * container writable. Buffered mode (write through turned off) can be used if
- * the entity provider implements the {@link BatchableEntityProvider} interface.
+ * This is the main container class of JPAContainer (and the default implementation
+ * of {@link EntityContainer}). You can use it in your applications like so:
+ * <code><pre>
+ * EntityContainer&lt;MyEntity&gt; container = new JPAContainer&lt;MyEntity&gt;(
+ *   MyEntity.class);
+ * container.setEntityProvider(myEntityProvider);
+ * ...
+ * myTable.setContainerDataSource(container);
+ * </pre></code>
+ * In the example code, <code>myEntityProvider</code> is an instance of an {@link EntityProvider}
+ * that, like the name suggests, is responsible for providing the entities to the container.
+ * If the container should be writable, the entity provider must implement the {@link MutableEntityProvider} interface
+ * and if buffering is desired (i.e. write-through turned off) the {@link BatchableEntityProvider} interface as well.
+ * There are ready-made implementations of all these interfaces that can be used out-of-the-box (check the See Also section
+ * of this Javadoc).
+ * <p>
+ * All sorting and filtering is handled by the entity provider, which in turn normally delegates it to the
+ * database. Therefore, only persistent properties can be filtered and/or sorted by.
+ * <p>
+ * It is possible to use JPAContainer as a hierarchical container if the entities in the container can be
+ * related to each other by means of a parent property. For example:
+ * <pre><code>
+ * &#064;Entity
+ * public class Node {
+ *   ...
+ *   &#064;ManyToOne
+ *   private Node parent;
+ *   ...
+ * }
+ * </code></pre>
+ * Note, however, that the implementation of {@link HierarchicalEntityContainer} is still experimental and
+ * has some limitations. For example, the data is always read directly from the entity provider regardless of whether buffering is used
+ * or not. Therefore, this feature should be used with care in production systems.
+ * 
+ * <h2>Buffering</h2>
+ * Here follows some notes on how buffering has been implemented in this class. If you are not going
+ * to use buffering, you can skip this section.
  * <p>
  * When using buffered mode, the following rules apply:
  * <ul>
@@ -68,11 +101,10 @@ import java.util.HashSet;
  * returned from the entity provider are not explicitly detached (see
  * {@link EntityProvider#isEntitiesDetached() }), but this should be avoided
  * unless you know what you are doing.
- * <p>
- * As the data source is responsible for sorting the items, new items cannot be
- * added to a specific location in the list. Instead, new items are always added
- * to the top of the container.
- * 
+ *
+ * @see com.vaadin.addon.jpacontainer.provider.LocalEntityProvider
+ * @see com.vaadin.addon.jpacontainer.provider.CachingLocalEntityProvider
+ * @see com.vaadin.addon.jpacontainer.provider.BatchableLocalEntityProvider
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
@@ -121,37 +153,37 @@ public class JPAContainer<T> implements EntityContainer<T>,
 								JPAContainer.this));
 					}
 				});
-		updateFilterableProperties();
+		updateFilterablePropertyIds();
 	}
 
-	private Collection<String> additionalFilterableProperties;
+	private Collection<String> additionalFilterablePropertyIds;
 
 	/**
 	 * Sometimes, it may be necessary to filter by properties that do not
-	 * show up the container. This method can be used to add additional
+	 * show up in the container. This method can be used to add additional
 	 * property IDs to the {@link #getFilterablePropertyIds() } collection.
 	 * This method performs no propertyId validation, so it is up to the
 	 * client to make sure the propertyIds are valid.
 	 * 
 	 * @param propertyIds an array of additional propertyIds, may be null.
 	 */
-	public void setAdditionalFilterableProperties(String ... propertyIds) {
+	public void setAdditionalFilterablePropertyIds(String ... propertyIds) {
 		if (propertyIds == null || propertyIds.length == 0) {
-			additionalFilterableProperties = null;
+			additionalFilterablePropertyIds = null;
 		} else {
-			additionalFilterableProperties = Arrays.asList(propertyIds);
+			additionalFilterablePropertyIds = Arrays.asList(propertyIds);
 		}
-		updateFilterableProperties();
+		updateFilterablePropertyIds();
 	}
 
-	protected void updateFilterableProperties() {
+	protected void updateFilterablePropertyIds() {
 		//this.filterSupport
 		//		.setFilterablePropertyIds((Collection<?>) propertyList
 		//				.getPersistentPropertyNames());
 		HashSet<String> properties = new HashSet<String>();
 		properties.addAll(propertyList.getPersistentPropertyNames());
-		if (additionalFilterableProperties != null) {
-			properties.addAll(additionalFilterableProperties);
+		if (additionalFilterablePropertyIds != null) {
+			properties.addAll(additionalFilterablePropertyIds);
 		}
 		this.filterSupport.setFilterablePropertyIds((Collection<?>) properties);
 	}
@@ -228,7 +260,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	public void addNestedContainerProperty(String nestedProperty)
 			throws UnsupportedOperationException {
 		propertyList.addNestedProperty(nestedProperty);
-		updateFilterableProperties();
+		updateFilterablePropertyIds();
 	}
 
 	public Class<T> getEntityClass() {
@@ -636,7 +668,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 			throws UnsupportedOperationException {
 		assert propertyId != null : "propertyId must not be null";
 		boolean result = propertyList.removeProperty(propertyId.toString());
-		updateFilterableProperties();
+		updateFilterablePropertyIds();
 		return result;
 	}
 
@@ -790,7 +822,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	}
 
 	/**
-	 * <strong>This impementation does not use lazy loading and performs
+	 * <strong>This implementation does not use lazy loading and performs
 	 * <b>extremely</b> bad when the number of items is large! Do not use unless
 	 * you absolutely have to!</strong>
 	 * <p>
