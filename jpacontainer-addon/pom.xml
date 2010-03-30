@@ -62,6 +62,7 @@
 		</dependency>
     </dependencies>
     <build>
+		<finalName>vaadin-jpacontainer-${project.version}</finalName>
         <plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
