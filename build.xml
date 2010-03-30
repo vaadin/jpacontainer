@@ -25,6 +25,7 @@
         <copy tofile="${builds.dir}/manual-${DSTAMP}.pdf" file="${basedir}/jpacontainer-manual/target/docbkx/pdf/manual.pdf"/>
         <!-- Create the zip file -->
         <jar file="${builds.dir}/vaadin-jpacontainer-${version}.zip" compress="true">
+            <fileset dir="${basedir}" includes="licens*"/>
             <fileset dir="${basedir}/jpacontainer-addon/target" includes="*.jar"/>
             <fileset dir="${basedir}/jpacontainer-manual/target/docbkx/pdf" includes="*.pdf"/>
             <fileset dir="${basedir}/jpacontainer-addon/target/site" includes="apidocs/**"/>

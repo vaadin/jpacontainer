@@ -1,0 +1,291 @@
+Vaadin Ltd.
+ 
+Commercial Vaadin Add-On License version 1.0
+ 
+NOTICE TO USER: PLEASE READ THIS LICENSE AGREEMENT CAREFULLY.
+
+BY USING ALL OR ANY PART OF THE SOFTWARE YOU ACCEPT ALL THE TERMS AND 
+CONDITIONS OF THIS AGREEMENT, INCLUDING, IN PARTICULAR THE RESTRICTIONS 
+ON: USE AND TRANSFERABILITY CONTAINED IN CLAUSE 2; WARRANTY IN CLAUSE 6; 
+LIABILITY IN CLAUSE 7.  YOU ACCEPT THAT THIS AGREEMENT IS ENFORCEABLE 
+LIKE ANY WRITTEN NEGOTIATED AGREEMENT DULY SIGNED BY YOU. IF YOU DO NOT 
+AGREE ON ALL THE TERMS AND CONDITIONS OF THIS AGREEMENT, PLEASE STOP THE 
+USE OF THE SOFTWARE IMMEDIATELY.
+
+ 
+= 1. Definitions =
+ 
+In this Agreement, unless the context requires otherwise, the following
+words and phrases shall have the following meanings:
+
+- "Agreement" shall mean this Commercial Vaadin Add-On License agreement.
+
+- "CVALv1" shall mean Commercial Vaadin Add-On License version 1.0.
+
+- "License" shall mean right to use Software according to CVALv1 by one 
+  Developer and is identified by a unique License Number.
+
+- "License Number" shall mean a number that identifies one unique License
+  and is created by Vaadin Ltd. and sent to Licensee after the payment 
+  of the license fee.
+
+- "Developer" shall mean a software developer modifying or contributing 
+  source code to Project in which Software is used. Personnel of Licensee’s 
+  subcontractor(s), if any, are regarded as Developer(s) as well for the 
+  purposes of this Agreement if they contribute source code specifically 
+  developed for the Project.
+
+- "Intellectual Property Rights" shall mean any and all patent, copyright, 
+  trademark, design right, petty patent, service mark, domain name or any
+  other right or trade secret whether registered or not.
+
+- "Licensee" shall mean the entity that has purchased Software.
+
+- "Licensor" shall mean Vaadin Ltd. or a third party licensing Software 
+  under Commercial Vaadin Add-On License.
+
+- "Parties/Party" shall mean Licensee and Licensor, or either of them.
+
+- "Project" shall mean Licensee’s software development project in which 
+  Software is used and which aims to produce Project Result.
+
+- "Project Result" shall mean the outcome of the Project that uses
+  Software. This outcome may be a software product or a customized 
+  software system that utilizes Vaadin Framework and is used by end users.
+
+- "Software" shall mean a Vaadin Add-On software component or tool that 
+  adds functionality to Vaadin Framework or helps developers in developing
+  Vaadin Framework based applications. These Add-Ons include, but are not
+  limited to, user interface components, data integration components, 
+  graphical themes and development tools.  
+
+- "Vaadin Directory" shall mean a central on-line repository for Vaadin 
+  Add-On components at vaadin.com operated by Vaadin Ltd.
+
+- "Vaadin Framework" shall mean Vaadin user interface library and web 
+  framework that help software developers in building rich internet 
+  applications and that is available for download at vaadin.com.
+
+ 
+= 2. Grant of License =
+
+2.1 Licensor grants to Licensee, against a full payment of respected 
+    licensee fee, a worldwide, irrevocable, royalty-free, non-exclusive 
+    limited License to use Software in Project(s) by a Developer. 
+
+2.2 Licensee shall not, unless expressly provided in Agreement or in the
+    applicable legislation (including without limitation)  
+
+  2.2.1 rent, lease, loan or resell Software or any copy of it; 
+
+  2.2.2 remove, obliterate, deface or in any way alter the notice of 
+        Licensor or third parties’ proprietary rights related to Software; 
+
+  2.2.3 grant sub-licenses to Software or assign its rights or obligations
+        under this Agreement to a third party. 
+
+2.3 Licensee may license, for free or against a payment, Project Result
+    including Software whether regarded as derivative works or not. End
+    users using Project Result that does not involve changing source code
+    are not required to have a valid License. If Project Result is further
+    developed or modified by changing its source code, the persons
+    modifying or contributing source code need to have a valid License
+    to Software.  
+
+2.4 Licensee may transfer License to another person or an entity for free, 
+    but may not charge a fee for this transfer. License is transferred by 
+    giving the associated License Number to the recipient and marking the 
+    License Number to be invalid for the original Licensee. After this, 
+    only the Developers of the original Licensee for whom the Licensee
+    still has a valid License and License Number may continue modifying
+    and contributing source code to Project. 
+
+
+= 3. Intellectual Property Rights =
+
+3.1 All Intellectual Property Rights in and to Software are and shall at
+    all times remain the sole and exclusive property of Licensor and its 
+    third party licensors, if any. 
+
+3.2 Licensee will not at any time do or cause to be done any such act or
+    thing which in any way impairs, or intends to impair, any right, 
+    title, interest or any Intellectual Property Right of Licensor or its
+    third party licensors. Licensee shall not in any manner represent that
+    it has any ownership of any kind in any of the above mentioned 
+    Intellectual Property Rights. 
+ 
+
+= 4. License fee =
+
+4.1 In consideration for the license granted herein, Licensor shall 
+    charge Licensee a license fee according to then current price visible
+    at the Vaadin Directory. Licensee must have a valid License to all
+    Developers who contribute or modify Project source code. License may
+    be used in many Projects simultaneously without additional payments. 
+    Project Result may be copied an unlimited number of times and deployed
+    to an unlimited number of computers without additional payments. 
+
+4.2 Licensee’s License will be valid on the payment of respected license
+    fee and delivery of corresponding License Number by Vaadin Ltd. 
+
+4.3 Licensee is granted a free 30-day trial period during which Licensee 
+    may test Software's  functionality, quality, compliance and performance
+    to ensure that the Software is suitable for use in the Project. After
+    the 30-day trial period, Licensee is required to acquire a correct 
+    number of Licenses or at once cease the use of Software and any of its
+    rights under Clause 2, and destroy and delete all copies of Software.
+
+4.4 Value added tax shall be added to the license fee, if applicable. The
+    term of payment is thirty (30) days' net value from the date of the
+    invoice and late payment interest of 11 percent for due but unpaid
+    amounts. 
+ 
+ 
+= 5. Term and termination =
+
+5.1 This Agreement and the Licenses granted herein become effective as
+    of the payment of the applicable license fee. 
+
+5.2 In the event Licensee has failed to comply with the terms set in
+    this Agreement, the License granted herein shall not be valid and
+    Licensee must either comply with one of the open source licenses
+    available, if any, listed for Software at Vaadin Directory or at
+    once cease the use of Software and any of its rights under Clause 2,
+    and destroy and delete all copies of Software. 
+
+5.3 Licensor has the right, in addition and without prejudice to any
+    other rights or remedies, to terminate this Agreement immediately as
+    follows: 
+
+  5.3.1 for any material breach of Agreement, that is not cured within 
+        seven (7) days of receipt by Licensee in default of a written
+        notice specifying the breach and requiring its cure; 
+
+  5.3.2 upon receiving a written notice, if (a) all or a substantial
+        portion of the assets of Licensee are transferred to an assignee
+        for the benefit of creditors, or to a receiver or a trustee in
+        bankruptcy, (b) a proceeding is commenced by or against Licensee
+        for relief under bankruptcy or similar laws and such proceeding
+        is not dismissed within sixty (60) days, or (c) Licensee is
+        adjudged bankrupt. 
+ 
+5.4 If and when this Agreement is terminated due to any reason or cause
+    whatsoever, the Licensee shall cease the use of Software and any of
+    its rights under Clause 2, and destroy and delete all copies of
+    Software.
+
+5.5 Provisions of the Agreement which, by their nature, are intended to
+    survive its termination or expiration, shall survive its termination
+    or expiration.   
+ 
+ 
+= 6. Warranties =
+ 
+THE SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND EXPRESS OR
+IMPLIED, AND TO THE MAXIMUM EXTENT PERMITTED BY THE APPLICAPLE LAW. EXCEPT
+AS EXPRESSLY PROVIDED IN THIS CLAUSE, NO WARRANTY, CONDITION, UNDERTAKING,
+LIABILITY OR TERM, EXPRESS OR IMPLIED, STATUTORY OR OTHERWISE, AS TO
+CONDITION, QUALITY, PERFORMANCE, FUNCTIONALITY, INFRINGEMENT,
+MERCHANTABILITY, DURABILITY OR FITNESS FOR PURPOSE, IS GIVEN OR ASSUMED BY
+VAADIN LTD., LICENSOR OR ITS LICENSORS AND ALL SUCH WARRANTIES, CONDITIONS,
+UNDERTAKINGS AND TERMS ARE HEREBY EXCLUDED.
+ 
+
+= 7. Limitation of Liability =
+ 
+VAADIN LTD. AND/OR LICENSOR WILL NOT BE LIABLE FOR ANY INDIRECT, 
+INCIDENTAL, PUNITIVE OR CONSEQUENTIAL LOSS, DAMAGE, COST OR EXPENSE OF
+ANY KIND WHATSOEVER AND HOWSOEVER CAUSED (INCLUDING BUSINESS INTERRUPTION,
+OR ANY LOSS OF BUSINESS, ANTICIPATED SAVINGS, REVENUE, GOODWILL,
+MANAGEMENT TIME, LOSS OF PROFITS OR OF CONTRACTS, LOSS OF OPERATION TIME,
+LOSS OF REPUTATION OR OF DATA) INCLUDING NEGLIGENCE, WHETHER IN CONTRACT
+OR TORT, EVEN IF THEY HAVE BEEN ADVISED OF THE POSSIBILITY. DEVELOPER WILL
+USE REASONABLE EFFORTS TO MITIGATE THEIR LOSS SUFFERED. VAADIN LTD'S AND/OR
+LICENSOR’S AGGREGATE LIABILITY AND THAT OF ITS AFFILIATES AND SUPPLIERS
+UNDER OR IN CONNECTION WITH THIS LICENSE AGREEMENT WILL BE LIMITED TO THE
+AMOUNT PAID FOR THE SOFTWARE.
+ 
+
+= 8. No updates, new versions, maintenance or support =
+ 
+Licensor may, in its sole discretion, provide maintenance releases, 
+updates and upgrades as new versions of Software. All new versions of 
+Software are free and do not require a purchase of new Licenses. However,
+Licensor may release new editions as separate Software subject to a new
+License and license fee.
+ 
+No maintenance or support is provided for the Software.
+ 
+
+= 9. Miscellaneous =
+ 
+9.1 No Waiver 
+
+The failure of Licensor to exercise any of its rights under this Agreement
+or to require the performance of any term or provision of this Agreement,
+or the waiver by either Party of such breach of this Agreement, shall not
+prevent a subsequent exercise or enforcement of such right or be deemed
+a waiver of any subsequent breach of the same or any other term or
+provision of this Agreement. Any waiver of the performance of any of the
+terms or conditions of this Agreement shall be effective only if in
+writing and signed by the Party against which such waiver is to be enforced.  
+ 
+9.2 Headings 
+
+The headings in this Agreement are for the convenience of the Parties
+only and are not intended to define or limit the scope or interpretation
+of the Agreement or any provision hereof.
+ 
+9.3 Severability 
+
+If any term of this Agreement is invalid or unenforceable, such terms or
+provisions shall not invalidate the rest of the Agreement which shall
+remain in full force and effect as if such invalidated or unenforceable
+terms or conditions had not been made a part of this Agreement. In the
+event this section (Severability) becomes operative, Parties agree to
+attempt to negotiate settlement that carries out the economic intent of
+the terms or provisions found invalid or unenforceable.
+ 
+9.4 Export Control 
+
+The Software may be subject to import and export controls in other
+countries. Licensee agrees to strictly comply with all applicable import
+and export regulations and acknowledge that Licensee has the
+responsibility to obtain licenses to export, re-export, transfer or
+import Software.
+ 
+9.5 Entire Agreement and Assignment 
+
+Agreement sets forth the entire agreement between the Parties with respect
+to the subject matter hereof and supersedes any prior proposals and
+representations, whether written or oral. Neither Party shall have the
+right to assign this Agreement to a third party without the prior written
+consent of the other party. However, Licensor shall have the right to
+assign this Agreement and all of the rights and obligations contained
+therein to a company belonging to the same group of companies as Licensor,
+and to a third party to which the business of Licensor is transferred.
+As an exception, the Licensee shall have the right to transfer License
+as described in 2.4.
+ 
+9.6 Governing Law 
+
+This Agreement and its terms and conditions shall be governed by and 
+construed in accordance with the substantive laws in force in: (a) the 
+State of California, if Licensee's domicile is in the United States; 
+or (b) Finland, if Licensee's domicile is outside the United States. 
+This Agreement shall be construed and enforced without regard to the 
+United Nations Convention on the International Sale of Goods. The
+official text of the Agreement or any notices given or accounts or
+statements required hereby shall be in English.
+
+Any dispute or controversy or claim arising out of or relating to this
+Agreement involving the Parties, shall be resolved by final and binding
+arbitration in accordance with: (a) the International Chamber of
+Commerce Rules of Arbitration if Licensee's domicile is in the United
+States; or (b) the Arbitration Rules of the Finnish Central Chamber
+of Commerce if Licensee's domicile is outside the United States; by
+one (1) arbitrator appointed according to the aforementioned rules.
+The arbitration shall be conducted in the English language in:
+(a) San Francisco, California, United States if Licensee's domicile
+is in the United States; or (b) Turku, Finland if Licensee's domicile
+is outside the United States.

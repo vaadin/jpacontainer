@@ -1,0 +1,16 @@
+
+= LICENSING =
+
+This Add-on component ("Software") to Vaadin Framework is distributed 
+under the terms of two separate alternative license agreements:
+1) Commercial Vaadin Add-On License version 1.0 ("CVALv1") included
+   as license-cval-1.0.txt in this software package.
+2) GNU Affero General Public License version 3.0 ("AGPL") included
+   as license-agpl-3.0.txt in this software package.
+
+You must either choose and accept the terms of one of the above mentioned
+license agreements or delete the Software immediately. 
+
+Commercial licenses required for use under the terms of CVAL are available
+for purchase at http://vaadin.com/directory
+
