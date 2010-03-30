@@ -578,7 +578,7 @@ public class Node {
     <section xml:id="using">
         <title>Using JPAContainer in Applications</title>
         <para>
-            In this section we are going to look at how to use JPAContainer in your own applications. First of all, you have to add <filename>jpacontainer-addon-VERSION.jar</filename> to your application's classpath. Then, all you need is the following code:
+            In this section we are going to look at how to use JPAContainer in your own applications. First of all, you have to add <filename>vaadin-jpacontainer-VERSION.jar</filename> to your application's classpath. Then, all you need is the following code:
         </para>
 
         <programlisting language="java"><![CDATA[
@@ -773,6 +773,7 @@ public class MyEntityProviderBean
 
     protected LocalEntityProviderBean() {
         super(MyEntity.class);
+		setTransactionsHandledByProvider(false);
     }
 
     @Override
@@ -833,6 +834,7 @@ public class MyEntityProviderBean extends
 
     protected LocalEntityProviderBean() {
         super(MyEntity.class);
+		setTransactionsHandledByProvider(false);
     }
 
     @Override
