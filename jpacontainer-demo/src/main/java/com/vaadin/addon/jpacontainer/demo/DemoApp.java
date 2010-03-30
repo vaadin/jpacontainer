@@ -49,7 +49,7 @@ public class DemoApp extends Application {
         VerticalLayout layout = new VerticalLayout();
         layout.setMargin(true);
         layout.setSizeFull();
-        Label header = new Label("JPAContainer Demo Application");
+        Label header = new Label("JPAContainer Demo Application " + getVersion());
         header.setStyleName("h1");
         layout.addComponent(header);
 
@@ -73,4 +73,9 @@ public class DemoApp extends Application {
         setMainWindow(mainWindow);
         setTheme("JPAContainerDemo");
     }
+
+	@Override
+	public String getVersion() {
+		return "1.0.1"; // TODO Replace this with a version number from the build system
+	}
 }
