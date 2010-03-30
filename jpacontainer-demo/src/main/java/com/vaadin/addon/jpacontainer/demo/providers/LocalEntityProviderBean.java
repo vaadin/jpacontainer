@@ -43,6 +43,7 @@ public abstract class LocalEntityProviderBean<T> extends BatchableLocalEntityPro
 
     protected LocalEntityProviderBean(Class<T> entityClass) {
         super(entityClass);
+		setTransactionsHandledByProvider(false);
     }
 
     @Override
