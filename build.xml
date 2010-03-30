@@ -1,7 +1,7 @@
 <project default="directory-build">
 
     <property name="builds.dir" value="${basedir}/builds"/>
-    <property name="version" value="1.0.0"/>
+    <property name="version" value="1.0.1"/>
 
     <target name="directory-build">
         <tstamp/>
@@ -34,7 +34,7 @@
                <attribute name="Implementation-Title" value="Vaadin JPAContainer"/>
                <attribute name="Implementation-Version" value="${version}"/>
                <attribute name="Implementation-Vendor" value="Oy IT Mill Ltd"/>
-               <attribute name="Vaadin-Addon" value="jpacontainer-addon-${version}.jar"/>
+               <attribute name="Vaadin-Addon" value="vaadin-jpacontainer-${version}.jar"/>
             </manifest>
         </jar>
     </target>
