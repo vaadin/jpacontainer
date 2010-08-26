@@ -5,8 +5,22 @@
     <groupId>com.vaadin.addon</groupId>
     <artifactId>jpacontainer</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <name>Vaadin JPAContainer</name>
+    <organization>
+        <name>Vaadin Ltd</name>
+        <url>http://vaadin.com/</url>
+    </organization>
+    <url>http://vaadin.com/</url>
+    <scm>
+        <connection>scm:svn:http://dev.vaadin.com/svn/addons/JPAContainer/trunk</connection>
+        <developerConnection>scm:svn:http://dev.vaadin.com/svn/addons/JPAContainer/trunk</developerConnection>
+        <url>http://dev.vaadin.com/browser/addons/JPAContainer/trunk</url>
+    </scm>
+    <issueManagement>
+        <system>trac</system>
+        <url>http://dev.vaadin.com/</url>
+    </issueManagement>
 
     <modules>
         <module>jpacontainer-demo</module>
@@ -30,7 +44,7 @@
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin</artifactId>
-            <version>6.2.6</version>
+            <version>6.4.2</version>
         </dependency>
         <dependency>
             <groupId>javax.persistence</groupId>

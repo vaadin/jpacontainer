@@ -1,17 +1,52 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>com.vaadin.addon</groupId>
-        <artifactId>jpacontainer</artifactId>
-        <version>1.0.1</version>
-    </parent>
+
+    <groupId>com.vaadin.addon</groupId>
     <artifactId>jpacontainer-addon</artifactId>
+    <version>1.0.2</version>
     <packaging>jar</packaging>
 
     <name>Vaadin JPAContainer Addon</name>
 
+    <organization>
+        <name>Vaadin Ltd</name>
+        <url>http://vaadin.com/</url>
+    </organization>
+    <url>http://vaadin.com/</url>
+    <scm>
+        <connection>scm:svn:http://dev.vaadin.com/svn/addons/JPAContainer/trunk</connection>
+        <developerConnection>scm:svn:http://dev.vaadin.com/svn/addons/JPAContainer/trunk</developerConnection>
+        <url>http://dev.vaadin.com/browser/addons/JPAContainer/trunk</url>
+    </scm>
+    <issueManagement>
+        <system>trac</system>
+        <url>http://dev.vaadin.com/</url>
+    </issueManagement>
+
     <dependencies>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin</artifactId>
+            <version>6.4.2</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.persistence</groupId>
+            <artifactId>persistence-api</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.7</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymock</artifactId>
+            <version>2.5.2</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-entitymanager</artifactId>
@@ -64,6 +99,22 @@
     <build>
 		<finalName>vaadin-jpacontainer-${project.version}</finalName>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.5</source>
+                    <target>1.5</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
