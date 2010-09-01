@@ -1,5 +1,6 @@
 <project default="directory-build">
 
+    <property name="build.dir" value="${basedir}/build/result"/>
     <property name="builds.dir" value="${basedir}/builds"/>
     <property name="version" value="1.0.2"/>
 
@@ -11,9 +12,19 @@
             <arg value="install"/>
             <arg value="-Dmaven.test.skip=true"/>
         </exec>
-        <!-- Copy the demo to the builds directory -->
-        <copy todir="${builds.dir}">
+        <!-- Clean the build directory contents -->
+    	<mkdir dir="$build.dir"/>
+        <delete>
+            <fileset dir="${build.dir}" includes="**" />
+        </delete>
+
+        <!-- Copy the demo to the build directory -->
+        <copy todir="${build.dir}">
             <fileset dir="${basedir}/jpacontainer-demo/target" includes="jpacontainer-demo-*.war"/>
+        </copy>
+        <!-- Copy the add-on JAR to the build directory (not strictly necessary) -->
+        <copy todir="${build.dir}">
+            <fileset dir="${basedir}/jpacontainer-addon/target" includes="vaadin-jpacontainer-*.jar"/>
         </copy>
         <!-- Generate the manual. For some reason, Java runs out of heap space if the manual is generated
              as a part of the install operation. -->
@@ -22,9 +33,9 @@
             <arg value="docbkx:generate-pdf"/>
         </exec>
         <!-- Copy the manual to the builds directory -->
-        <copy tofile="${builds.dir}/manual-${DSTAMP}.pdf" file="${basedir}/jpacontainer-manual/target/docbkx/pdf/manual.pdf"/>
+        <copy tofile="${build.dir}/manual-${DSTAMP}.pdf" file="${basedir}/jpacontainer-manual/target/docbkx/pdf/manual.pdf"/>
         <!-- Create the zip file -->
-        <jar file="${builds.dir}/vaadin-jpacontainer-${version}.zip" compress="true">
+        <jar file="${build.dir}/vaadin-jpacontainer-${version}.zip" compress="true">
             <fileset dir="${basedir}" includes="licens*"/>
             <fileset dir="${basedir}/jpacontainer-addon/target" includes="*.jar"/>
             <fileset dir="${basedir}/jpacontainer-manual/target/docbkx/pdf" includes="*.pdf"/>
@@ -37,5 +48,9 @@
                <attribute name="Vaadin-Addon" value="vaadin-jpacontainer-${version}.jar"/>
             </manifest>
         </jar>
+        <!-- Copy the finished build to the archived builds directory -->
+        <copy todir="${builds.dir}">
+            <fileset dir="${build.dir}" includes="**" excludes="*.jar"/>
+        </copy>
     </target>
 </project>
