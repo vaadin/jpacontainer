@@ -504,7 +504,7 @@ class CachingSupport<T> implements Serializable {
 		public synchronized V put(K key, V value) {
 			if (size() == maxSize) {
 				// remove oldest item
-				remove(addOrder.pop());
+				remove(addOrder.removeFirst());
 			}
 			addOrder.add(key);
 			return super.put(key, value);
@@ -533,7 +533,7 @@ class CachingSupport<T> implements Serializable {
 		public synchronized boolean add(V e) {
 			if (size() == maxSize) {
 				// remove oldest item
-				remove(addOrder.pop());
+				remove(addOrder.removeFirst());
 			}
 			addOrder.add(e);
 			return super.add(e);
