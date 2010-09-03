@@ -13,10 +13,8 @@
             <arg value="-Dmaven.test.skip=true"/>
         </exec>
         <!-- Clean the build directory contents -->
-    	<mkdir dir="$build.dir"/>
-        <delete>
-            <fileset dir="${build.dir}" includes="**" />
-        </delete>
+        <delete dir="${build.dir}" includes="**" failonerror="false" />
+    	<mkdir dir="${build.dir}"/>
 
         <!-- Copy the demo to the build directory -->
         <copy todir="${build.dir}">
