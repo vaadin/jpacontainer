@@ -10,7 +10,7 @@
         <exec executable="mvn" >
             <arg value="clean"/>
             <arg value="install"/>
-            <arg value="-Dmaven.test.skip=true"/>
+            <!-- <arg value="-Dmaven.test.skip=true"/> -->
         </exec>
         <!-- Clean the build directory contents -->
         <delete dir="${build.dir}" includes="**" failonerror="false" />
