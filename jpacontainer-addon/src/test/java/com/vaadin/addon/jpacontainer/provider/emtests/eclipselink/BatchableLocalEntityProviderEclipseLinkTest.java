@@ -55,7 +55,7 @@ public class BatchableLocalEntityProviderEclipseLinkTest extends AbstractBatchab
 		properties.put(TARGET_SERVER, TargetServer.None);
 		properties.put(DDL_GENERATION, DROP_AND_CREATE);
 
-		properties.put(LOGGING_LEVEL, "FINE");
+//		properties.put(LOGGING_LEVEL, "FINE");
 
 		PersistenceProvider pp = new PersistenceProvider();
 		EntityManagerFactory emf = pp.createEntityManagerFactory("eclipselink-pu", properties);
