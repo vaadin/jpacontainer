@@ -225,9 +225,9 @@ public abstract class AbstractEntityProviderEMTest {
 		Comparator<EmbeddedIdPerson> nameComparatorEmbeddedId = new Comparator<EmbeddedIdPerson>() {
 
 			public int compare(EmbeddedIdPerson o1, EmbeddedIdPerson o2) {
-				int result = o1.getName().getLastName().compareTo(o2.getName().getLastName());
+				int result = o1.getName().getFirstName().compareTo(o2.getName().getFirstName());
 				if (result == 0) {
-					result = o1.getName().getFirstName().compareTo(o2.getName().getFirstName());
+					result = o1.getName().getLastName().compareTo(o2.getName().getLastName());
 				}
 				return result;
 			}

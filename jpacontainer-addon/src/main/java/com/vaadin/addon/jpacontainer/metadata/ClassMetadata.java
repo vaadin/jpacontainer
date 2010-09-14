@@ -22,9 +22,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
+
 import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 
@@ -41,8 +42,8 @@ public class ClassMetadata<T> implements Serializable {
 
 	private static final long serialVersionUID = 2569781449737488799L;
 	private final Class<T> mappedClass;
-	private final Map<String, PropertyMetadata> allProperties = new HashMap<String, PropertyMetadata>();
-	private final Map<String, PersistentPropertyMetadata> persistentProperties = new HashMap<String, PersistentPropertyMetadata>();
+	private final Map<String, PropertyMetadata> allProperties = new LinkedHashMap<String, PropertyMetadata>();
+	private final Map<String, PersistentPropertyMetadata> persistentProperties = new LinkedHashMap<String, PersistentPropertyMetadata>();
 
 	/**
 	 * Constructs a new <code>ClassMetadata</code> instance. Properties can be
