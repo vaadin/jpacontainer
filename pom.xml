@@ -5,7 +5,7 @@
     <groupId>com.vaadin.addon</groupId>
     <artifactId>jpacontainer</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <name>Vaadin JPAContainer</name>
     <organization>
         <name>Vaadin Ltd</name>
