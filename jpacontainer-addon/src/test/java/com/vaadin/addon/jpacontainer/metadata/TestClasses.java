@@ -19,6 +19,7 @@ package com.vaadin.addon.jpacontainer.metadata;
 
 import java.io.Serializable;
 import java.util.Collection;
+
 import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
 import javax.persistence.EmbeddedId;
@@ -175,7 +176,7 @@ abstract class TestClasses {
 		}
 
 		public void setTransientField2(String value) {
-			this.transientField2 = value;
+			transientField2 = value;
 		}
 
 		@OneToMany(mappedBy = "parent")
@@ -244,4 +245,39 @@ abstract class TestClasses {
 			this.address = address;
 		}
 	}
+
+	/**
+	 * Test for metadata parsing order - subclass should override superclass
+	 * (#4590).
+	 */
+	@MappedSuperclass
+	static abstract class BaseEntity_TransientId_M<ID extends Serializable>
+			implements Serializable {
+
+		protected ID id;
+
+		@Transient
+		public abstract ID getId();
+
+		public abstract void setId(ID id);
+	}
+
+	/**
+	 * Test for metadata parsing order - subclass should override superclass
+	 * (#4590).
+	 */
+	@Entity
+	static class Integer_ConcreteId_M extends BaseEntity_TransientId_M<Integer> {
+		@Override
+		@Id
+		public Integer getId() {
+			return id;
+		}
+
+		@Override
+		public void setId(Integer id) {
+			this.id = id;
+		}
+	}
+
 }

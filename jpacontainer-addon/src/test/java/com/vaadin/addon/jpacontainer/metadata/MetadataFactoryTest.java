@@ -17,13 +17,28 @@
  */
 package com.vaadin.addon.jpacontainer.metadata;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Collection;
+
 import javax.persistence.Id;
 import javax.persistence.Version;
+
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import static com.vaadin.addon.jpacontainer.metadata.TestClasses.*;
+
+import com.vaadin.addon.jpacontainer.metadata.TestClasses.Address_F;
+import com.vaadin.addon.jpacontainer.metadata.TestClasses.Address_M;
+import com.vaadin.addon.jpacontainer.metadata.TestClasses.EmbeddedIdEntity_F;
+import com.vaadin.addon.jpacontainer.metadata.TestClasses.EmbeddedIdEntity_M;
+import com.vaadin.addon.jpacontainer.metadata.TestClasses.Integer_ConcreteId_M;
+import com.vaadin.addon.jpacontainer.metadata.TestClasses.Person_F;
+import com.vaadin.addon.jpacontainer.metadata.TestClasses.Person_M;
 
 /**
  * Test case for {@link MetadataFactory}.
@@ -291,6 +306,31 @@ public class MetadataFactoryTest {
 			assertTrue(prop.isWritable());
 		}
 		assertEquals(10, metadata.getProperties().size());
+	}
+
+	@Test
+	public void testGetMetadataFromMethods_InheritanceOrder() {
+		EntityClassMetadata<Integer_ConcreteId_M> metadata = factory
+				.getEntityClassMetadata(Integer_ConcreteId_M.class);
+
+		// Basic information
+		assertEquals("Integer_ConcreteId_M", metadata.getEntityName());
+		assertEquals(Integer_ConcreteId_M.class, metadata.getMappedClass());
+		assertTrue(metadata.hasIdentifierProperty());
+		{
+			PersistentPropertyMetadata id = metadata.getIdentifierProperty();
+			assertEquals("id", id.getName());
+			assertEquals(Integer.class, id.getType());
+			assertEquals(PersistentPropertyMetadata.AccessType.METHOD,
+					id.getAccessType());
+			assertNotNull(id.getAnnotation(Id.class));
+			assertNull(id.getTypeMetadata());
+			assertTrue(id.isWritable());
+		}
+
+		// Properties
+		assertSame(metadata.getIdentifierProperty(), metadata.getProperty("id"));
+		assertEquals(1, metadata.getProperties().size());
 	}
 
 	@Test

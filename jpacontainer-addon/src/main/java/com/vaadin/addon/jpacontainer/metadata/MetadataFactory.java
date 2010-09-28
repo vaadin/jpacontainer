@@ -17,7 +17,6 @@
  */
 package com.vaadin.addon.jpacontainer.metadata;
 
-import com.vaadin.addon.jpacontainer.metadata.PersistentPropertyMetadata.AccessType;
 import java.beans.Introspector;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
@@ -25,6 +24,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
 import javax.persistence.EmbeddedId;
@@ -37,6 +37,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 import javax.persistence.Version;
+
+import com.vaadin.addon.jpacontainer.metadata.PersistentPropertyMetadata.AccessType;
 
 /**
  * Factory for creating and populating {@link ClassMetadata} and
@@ -176,12 +178,6 @@ public class MetadataFactory {
 	protected void loadProperties(Class<?> type, ClassMetadata<?> metadata,
 			PersistentPropertyMetadata.AccessType accessType) {
 
-		if (accessType == PersistentPropertyMetadata.AccessType.FIELD) {
-			extractPropertiesFromFields(type, metadata);
-		} else {
-			extractPropertiesFromMethods(type, metadata);
-		}
-
 		// Also check superclass for metadata
 		Class<?> superclass = type.getSuperclass();
 		if (superclass != null
@@ -189,6 +185,12 @@ public class MetadataFactory {
 						.getAnnotation(Entity.class) != null)
 				|| superclass.getAnnotation(Embeddable.class) != null) {
 			loadProperties(superclass, metadata, accessType);
+		}
+
+		if (accessType == PersistentPropertyMetadata.AccessType.FIELD) {
+			extractPropertiesFromFields(type, metadata);
+		} else {
+			extractPropertiesFromMethods(type, metadata);
 		}
 	}
 
