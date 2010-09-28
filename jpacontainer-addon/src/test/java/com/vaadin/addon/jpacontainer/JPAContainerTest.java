@@ -17,11 +17,21 @@
  */
 package com.vaadin.addon.jpacontainer;
 
-import com.vaadin.addon.jpacontainer.filter.Filters;
-import com.vaadin.addon.jpacontainer.testdata.Address;
-import com.vaadin.addon.jpacontainer.testdata.Person;
-import com.vaadin.data.Container.ItemSetChangeEvent;
-import com.vaadin.data.Container.ItemSetChangeListener;
+import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.capture;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
@@ -30,12 +40,17 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
+
 import org.easymock.Capture;
 import org.easymock.IAnswer;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import static org.easymock.EasyMock.*;
+
+import com.vaadin.addon.jpacontainer.filter.Filters;
+import com.vaadin.addon.jpacontainer.testdata.Address;
+import com.vaadin.addon.jpacontainer.testdata.Person;
+import com.vaadin.data.Container.ItemSetChangeEvent;
+import com.vaadin.data.Container.ItemSetChangeListener;
 
 /**
  * Test case for {@link JPAContainer}.
@@ -549,6 +564,11 @@ public class JPAContainerTest {
 		assertTrue(ids.contains("id4"));
 
 		verify(batchableEntityProviderMock);
+	}
+
+	@Test
+	public void testGetItem_Null() {
+		assertNull(container.getItem(null));
 	}
 
 	@Test

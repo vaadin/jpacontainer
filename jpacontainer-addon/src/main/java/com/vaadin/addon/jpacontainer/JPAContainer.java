@@ -603,6 +603,9 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	 * the same though, depending on the implementation of the entity provider.
 	 */
 	public EntityItem<T> getItem(Object itemId) {
+		if (itemId == null) {
+			return null;
+		}
 		if (isWriteThrough() || !bufferingDelegate.isModified()) {
 			T entity = doGetEntityProvider().getEntity(itemId);
 			return entity != null ? new JPAContainerItem<T>(this, entity)
