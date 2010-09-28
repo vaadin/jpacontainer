@@ -17,13 +17,15 @@
  */
 package com.vaadin.addon.jpacontainer.provider;
 
+import java.util.LinkedList;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
+
 import com.vaadin.addon.jpacontainer.EntityProviderChangeEvent;
 import com.vaadin.addon.jpacontainer.EntityProviderChangeListener;
 import com.vaadin.addon.jpacontainer.EntityProviderChangeNotifier;
 import com.vaadin.addon.jpacontainer.MutableEntityProvider;
-import java.util.LinkedList;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 
 /**
  * Extended version of {@link LocalEntityProvider} that provides editing
@@ -129,15 +131,16 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
 	@SuppressWarnings("unchecked")
 	public T addEntity(final T entity) {
 		assert entity != null;
+		final Object[] entityA = new Object[1];
 		runInTransaction(new Runnable() {
 
 			public void run() {
 				EntityManager em = getEntityManager();
-				em.persist(entity);
+				entityA[0] = em.merge(entity);
 				em.flush();
 			}
 		});
-		T dEntity = detachEntity(entity);
+		T dEntity = detachEntity((T) entityA[0]);
 		fireEntityProviderChangeEvent(new EntitiesAddedEvent<T>(this, dEntity));
 		return dEntity;
 	}
