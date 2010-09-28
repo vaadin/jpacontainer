@@ -277,8 +277,12 @@ public class MetadataFactory {
 		// Find the transient properties
 		for (Method m : type.getDeclaredMethods()) {
 			int mod = m.getModifiers();
+			// Synthetic methods are excluded (#4590).
+			// In theory, this could filter out too much in some special cases,
+			// in which case the subclass could re-declare the accessor methods
+			// with the correct annotations as a workaround.
 			if (m.getName().startsWith("get") && !Modifier.isStatic(mod)
-					&& m.getReturnType() != Void.TYPE) {
+					&& !m.isSynthetic() && m.getReturnType() != Void.TYPE) {
 				Method setter = null;
 				try {
 					// Check if we have a setter
@@ -302,8 +306,16 @@ public class MetadataFactory {
 			ClassMetadata<?> metadata) {
 		for (Method m : type.getDeclaredMethods()) {
 			int mod = m.getModifiers();
+			// Synthetic methods are excluded (#4590) - otherwise you could e.g.
+			// have a synthetic and a concrete id getter (with different
+			// declared return types) in TestClasses.Integer_ConcreteId_M, and
+			// the synthetic method could override the concrete one and its
+			// annotations.
+			// In theory, this could filter out too much in some special cases,
+			// in which case the subclass could re-declare the accessor methods
+			// with the correct annotations as a workaround.
 			if (m.getName().startsWith("get") && !Modifier.isStatic(mod)
-					&& m.getReturnType() != Void.TYPE) {
+					&& !m.isSynthetic() && m.getReturnType() != Void.TYPE) {
 				Method setter = null;
 				try {
 					// Check if we have a setter
