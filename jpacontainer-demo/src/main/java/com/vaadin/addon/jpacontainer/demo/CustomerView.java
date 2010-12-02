@@ -258,7 +258,7 @@ public class CustomerView extends CustomComponent {
                         true);
                 customerTable.setColumnCollapsed("notes",
                         true);
-            } catch (IllegalAccessException e) {
+            } catch (IllegalStateException e) {
                 // Ignore it
             }
             customerTable.setSortContainerPropertyId("custNo");

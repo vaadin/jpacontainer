@@ -205,7 +205,7 @@ public class OrderView extends CustomComponent {
                         true);
                 orderTable.setColumnCollapsed("billingAddress.country",
                         true);
-            } catch (IllegalAccessException e) {
+            } catch (IllegalStateException e) {
                 // Ignore it
             }
             orderTable.setSortContainerPropertyId("orderNo");
