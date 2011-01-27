@@ -44,7 +44,7 @@
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin</artifactId>
-            <version>6.5-20101201.022125-48</version>
+            <version>6.5.0</version>
         </dependency>
         <dependency>
             <groupId>javax.persistence</groupId>
