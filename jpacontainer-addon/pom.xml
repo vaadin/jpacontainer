@@ -1,5 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.vaadin.addon</groupId>
@@ -28,7 +28,7 @@
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin</artifactId>
-            <version>6.4.2</version>
+            <version>6.5.0</version>
         </dependency>
         <dependency>
             <groupId>javax.persistence</groupId>
@@ -89,15 +89,15 @@
             <version>2.4</version>
             <scope>test</scope>
         </dependency>
-		<dependency>
-			<groupId>org.eclipse.persistence</groupId>
-			<artifactId>eclipselink</artifactId>
-			<version>2.0.0</version>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>org.eclipse.persistence</groupId>
+            <artifactId>eclipselink</artifactId>
+            <version>2.0.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
-		<finalName>vaadin-jpacontainer-${project.version}</finalName>
+        <finalName>vaadin-jpacontainer-${project.version}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -115,20 +115,20 @@
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<configuration>
-					<archive>
-						<manifestEntries>
-							<Implementation-Version>${pom.version}</Implementation-Version>
-							<Implementation-Title>Vaadin JPAContainer</Implementation-Title>
-							<Implementation-Vendor>Oy IT Mill Ltd</Implementation-Vendor>
-							<Vaadin-Package-Version>1</Vaadin-Package-Version>
-						</manifestEntries>
-					</archive>
-				</configuration>
-			</plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Implementation-Version>${pom.version}</Implementation-Version>
+                            <Implementation-Title>Vaadin JPAContainer</Implementation-Title>
+                            <Implementation-Vendor>Oy IT Mill Ltd</Implementation-Vendor>
+                            <Vaadin-Package-Version>1</Vaadin-Package-Version>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -139,48 +139,48 @@
                     <skip>false</skip>
                 </configuration>
             </plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<configuration>
-					<links>
-						<link>http://vaadin.com/api/</link>
-						<link>http://java.sun.com/j2se/1.5.0/docs/api/</link>
-						<link>http://java.sun.com/javaee/5/docs/api/</link>
-					</links>
-	                <encoding>UTF-8</encoding>
-					<source>1.5</source>
-				</configuration>
-				<executions>
-					<execution>
-						<phase>install</phase>
-						<goals>
-							<goal>javadoc</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <version>2.1.2</version> 
-        <executions>
-          <execution>
-            <phase>install</phase>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <links>
+                        <link>http://vaadin.com/api/</link>
+                        <link>http://java.sun.com/j2se/1.5.0/docs/api/</link>
+                        <link>http://java.sun.com/javaee/5/docs/api/</link>
+                    </links>
+                    <encoding>UTF-8</encoding>
+                    <source>1.5</source>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>javadoc</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.1.2</version>
+                <executions>
+                    <execution>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
-	<repositories>
-		<repository>
-			<id>EclipseLink Repo</id>
-			<url>http://www.eclipse.org/downloads/download.php?r=1&amp;nf=1&amp;file=/rt/eclipselink/maven.repo</url>
-		</repository>
-	</repositories>
+    <repositories>
+        <repository>
+            <id>EclipseLink Repo</id>
+            <url>http://www.eclipse.org/downloads/download.php?r=1&amp;nf=1&amp;file=/rt/eclipselink/maven.repo</url>
+        </repository>
+    </repositories>
     <reporting>
         <plugins>
             <plugin>
@@ -189,7 +189,7 @@
                 <configuration>
                     <formats>
                         <format>html</format>
-                        <!--<format>xml</format>-->
+                        <!--<format>xml</format> -->
                     </formats>
                 </configuration>
             </plugin>

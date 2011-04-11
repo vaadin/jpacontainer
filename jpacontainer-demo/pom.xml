@@ -1,5 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.vaadin.addon</groupId>
@@ -9,7 +9,8 @@
     <artifactId>jpacontainer-demo</artifactId>
     <packaging>war</packaging>
 
-    <!-- Based on http://dev.vaadin.com/browser/incubator/SpringApplication/pom.xml by Petri Hakala -->
+    <!-- Based on http://dev.vaadin.com/browser/incubator/SpringApplication/pom.xml 
+        by Petri Hakala -->
 
     <name>Vaadin JPAContainer Demo</name>
 
@@ -148,8 +149,8 @@
                 </configuration>
             </plugin>
             <plugin>
-                <!-- This plugin will handle compile-time weaving of the Spring AspectJ aspects
-                     (required for e.g. AspectJ transaction handling) -->
+                <!-- This plugin will handle compile-time weaving of the 
+                    Spring AspectJ aspects (required for e.g. AspectJ transaction handling) -->
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
                 <version>1.3</version>
