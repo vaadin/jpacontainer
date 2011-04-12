@@ -24,7 +24,8 @@
 
     <properties>
         <Implementation-Version>${project.version}</Implementation-Version>
-        <Implementation-Title>${project.name}</Implementation-Title>
+        <!-- Must not change this because of the Directory -->
+        <Implementation-Title>Vaadin JPAContainer</Implementation-Title>
         <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
         <Vaadin-Package-Version>1</Vaadin-Package-Version>
         <Vaadin-Addon>vaadin-jpacontainer-${project.version}.jar</Vaadin-Addon>
