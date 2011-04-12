@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.vaadin.addon</groupId>
         <artifactId>jpacontainer</artifactId>
-        <version>1.0.4</version>
+        <version>1.0.5</version>
     </parent>
     <artifactId>jpacontainer-demo</artifactId>
     <packaging>war</packaging>
@@ -193,6 +193,14 @@
                     <source>1.6</source>
                     <target>1.6</target>
                     <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.2.1</version>
+                <configuration>
+                    <skipAssembly>true</skipAssembly>
                 </configuration>
             </plugin>
         </plugins>

@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.vaadin.addon</groupId>
         <artifactId>jpacontainer</artifactId>
-        <version>1.0.4</version>
+        <version>1.0.5</version>
     </parent>
     <artifactId>jpacontainer-manual</artifactId>
     <packaging>pom</packaging>
@@ -27,6 +27,14 @@
                     <highlightSource>1</highlightSource>
                     <foCustomization>${basedir}/src/docbkx/fopdf.xsl</foCustomization>
                 </configuration>
+                <executions>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>generate-pdf</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <dependencies>
                     <dependency>
                         <groupId>net.sf.docbook</groupId>
@@ -43,6 +51,14 @@
                         <classifier>ns-resources</classifier>
                     </dependency>
                 </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.2.1</version>
+                <configuration>
+                    <skipAssembly>true</skipAssembly>
+                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -5,7 +5,7 @@
     <groupId>com.vaadin.addon</groupId>
     <artifactId>jpacontainer</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
     <name>Vaadin JPAContainer</name>
     <organization>
         <name>Vaadin Ltd</name>
@@ -21,6 +21,14 @@
         <system>trac</system>
         <url>http://dev.vaadin.com/</url>
     </issueManagement>
+
+    <properties>
+        <Implementation-Version>${project.version}</Implementation-Version>
+        <Implementation-Title>${project.name}</Implementation-Title>
+        <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
+        <Vaadin-Package-Version>1</Vaadin-Package-Version>
+        <Vaadin-Addon>vaadin-jpacontainer-${project.version}.jar</Vaadin-Addon>
+    </properties>
 
     <modules>
         <module>jpacontainer-demo</module>
@@ -44,7 +52,7 @@
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin</artifactId>
-            <version>6.5.0</version>
+            <version>6.5.4</version>
         </dependency>
         <dependency>
             <groupId>javax.persistence</groupId>
@@ -74,5 +82,60 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.2.1</version>
+                <inherited>false</inherited>
+                <configuration>
+                    <finalName>vaadin-jpacontainer-${project.version}</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
+                    <descriptors>
+                        <descriptor>assembly.xml</descriptor>
+                    </descriptors>
+                    <archive>
+                        <manifestEntries>
+                            <Implementation-Version>${Implementation-Version}</Implementation-Version>
+                            <Implementation-Title>${Implementation-Title}</Implementation-Title>
+                            <Implementation-Vendor>${Implementation-Vendor}</Implementation-Vendor>
+                            <Vaadin-Package-Version>${Vaadin-Package-Version}</Vaadin-Package-Version>
+                            <Vaadin-Addon>${Vaadin-Addon}</Vaadin-Addon>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+                <!--
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <phase>install</phase>
+                        <inherited>false</inherited>
+                    </execution>
+                </executions>
+                -->
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.5</version>
+                <inherited>false</inherited>
+                <configuration>
+                    <target>
+                        <tstamp />
+                        <copy
+                            file="${basedir}/jpacontainer-demo/target/jpacontainer-demo-${project.version}.war"
+                            todir="${basedir}/builds" />
+                        <copy
+                            file="${basedir}/jpacontainer-manual/target/docbkx/pdf/manual.pdf"
+                            tofile="${basedir}/builds/manual-${DSTAMP}.pdf" />
+                        <copy
+                            file="${basedir}/target/vaadin-jpacontainer-${project.version}.zip"
+                            tofile="${basedir}/builds/vaadin-jpacontainer-${project.version}.zip" />
+                    </target>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 </project>

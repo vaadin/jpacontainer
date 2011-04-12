@@ -2,9 +2,15 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <artifactId>jpacontainer</artifactId>
+        <groupId>com.vaadin.addon</groupId>
+        <version>1.0.5</version>
+    </parent>
+
     <groupId>com.vaadin.addon</groupId>
     <artifactId>jpacontainer-addon</artifactId>
-    <version>1.0.4</version>
+    <version>${parent.version}</version>
     <packaging>jar</packaging>
 
     <name>Vaadin JPAContainer Addon</name>
@@ -28,7 +34,7 @@
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin</artifactId>
-            <version>6.5.0</version>
+            <version>6.5.4</version>
         </dependency>
         <dependency>
             <groupId>javax.persistence</groupId>
@@ -121,10 +127,11 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Implementation-Version>${pom.version}</Implementation-Version>
-                            <Implementation-Title>Vaadin JPAContainer</Implementation-Title>
-                            <Implementation-Vendor>Oy IT Mill Ltd</Implementation-Vendor>
-                            <Vaadin-Package-Version>1</Vaadin-Package-Version>
+                            <Implementation-Version>${Implementation-Version}</Implementation-Version>
+                            <Implementation-Title>${Implementation-Title}</Implementation-Title>
+                            <Implementation-Vendor>${Implementation-Vendor}</Implementation-Vendor>
+                            <Vaadin-Package-Version>${Vaadin-Package-Version}</Vaadin-Package-Version>
+                            <Vaadin-Addon>${Vaadin-Addon}</Vaadin-Addon>
                         </manifestEntries>
                     </archive>
                 </configuration>
@@ -153,9 +160,10 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <phase>install</phase>
+                        <phase>generate-resources</phase>
                         <goals>
                             <goal>javadoc</goal>
+                            <goal>jar</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -166,12 +174,20 @@
                 <version>2.1.2</version>
                 <executions>
                     <execution>
-                        <phase>install</phase>
+                        <phase>package</phase>
                         <goals>
                             <goal>jar</goal>
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.2.1</version>
+                <configuration>
+                    <skipAssembly>true</skipAssembly>
+                </configuration>
             </plugin>
         </plugins>
     </build>
