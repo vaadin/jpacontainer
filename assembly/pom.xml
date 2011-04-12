@@ -1,0 +1,77 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>jpacontainer</artifactId>
+        <groupId>com.vaadin.addon</groupId>
+        <version>1.0.5</version>
+    </parent>
+
+    <groupId>com.vaadin.addon</groupId>
+    <artifactId>jpacontainer-assembly</artifactId>
+    <version>${parent.version}</version>
+    <packaging>pom</packaging>
+    
+    <name>JPAContainer ZIP Package for Directory</name>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <configuration>
+                        <encoding>UTF-8</encoding>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.2.1</version>
+                <inherited>false</inherited>
+                <configuration>
+                    <finalName>vaadin-jpacontainer-${project.version}</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
+                    <skipAssembly>false</skipAssembly>
+                    <descriptors>
+                        <descriptor>assembly.xml</descriptor>
+                    </descriptors>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.5</version>
+                <inherited>false</inherited>
+                <configuration>
+                    <target>
+                        <tstamp />
+                        <!-- Copy manifest from JAR to ZIP, compose ZIP -->
+                        <zip destfile="${basedir}/../target/vaadin-jpacontainer-${project.version}.zip">
+                            <zipfileset src="../jpacontainer-addon/target/vaadin-jpacontainer-${project.version}.jar" includes="META-INF/**"/>
+                            <zipfileset src="${basedir}/target/vaadin-jpacontainer-${project.version}.zip"/>
+                        </zip>
+                        <!-- For easier management of build results in TeamCity -->
+                        <copy
+                            file="${basedir}/../jpacontainer-manual/target/docbkx/pdf/manual.pdf"
+                            tofile="${basedir}/../jpacontainer-manual/target/manual-${DSTAMP}.pdf" />
+                        <!-- Publish results to builds/ -->
+                        <copy
+                            file="${basedir}/../jpacontainer-demo/target/jpacontainer-demo-${project.version}.war"
+                            todir="${basedir}/../builds" />
+                        <copy
+                            file="${basedir}/../jpacontainer-manual/target/docbkx/pdf/manual.pdf"
+                            tofile="${basedir}/../builds/manual-${DSTAMP}.pdf" />
+                        <copy
+                            file="${basedir}/../target/vaadin-jpacontainer-${project.version}.zip"
+                            tofile="${basedir}/../builds/vaadin-jpacontainer-${project.version}.zip" />
+                    </target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

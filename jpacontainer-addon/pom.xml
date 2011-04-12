@@ -15,21 +15,6 @@
 
     <name>Vaadin JPAContainer Addon</name>
 
-    <organization>
-        <name>Vaadin Ltd</name>
-        <url>http://vaadin.com/</url>
-    </organization>
-    <url>http://vaadin.com/</url>
-    <scm>
-        <connection>scm:svn:http://dev.vaadin.com/svn/addons/JPAContainer/trunk</connection>
-        <developerConnection>scm:svn:http://dev.vaadin.com/svn/addons/JPAContainer/trunk</developerConnection>
-        <url>http://dev.vaadin.com/browser/addons/JPAContainer/trunk</url>
-    </scm>
-    <issueManagement>
-        <system>trac</system>
-        <url>http://dev.vaadin.com/</url>
-    </issueManagement>
-
     <dependencies>
         <dependency>
             <groupId>com.vaadin</groupId>
@@ -162,7 +147,7 @@
                     <execution>
                         <phase>generate-resources</phase>
                         <goals>
-                            <goal>javadoc</goal>
+                            <!-- <goal>javadoc</goal> -->
                             <goal>jar</goal>
                         </goals>
                     </execution>
@@ -180,14 +165,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.2.1</version>
-                <configuration>
-                    <skipAssembly>true</skipAssembly>
-                </configuration>
             </plugin>
         </plugins>
     </build>

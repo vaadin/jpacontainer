@@ -195,14 +195,6 @@
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.2.1</version>
-                <configuration>
-                    <skipAssembly>true</skipAssembly>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 
