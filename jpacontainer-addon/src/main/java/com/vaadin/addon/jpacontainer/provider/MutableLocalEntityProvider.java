@@ -29,14 +29,14 @@ import com.vaadin.addon.jpacontainer.MutableEntityProvider;
 
 /**
  * Extended version of {@link LocalEntityProvider} that provides editing
- * support. Transactions can either be handled internally by the provider,
- * or by an external container such as Spring or EJB (see the JPAContainer manual
- * for examples of how to do this). By default, transactions are handled internally
+ * support. Transactions can either be handled internally by the provider, or by
+ * an external container such as Spring or EJB (see the JPAContainer manual for
+ * examples of how to do this). By default, transactions are handled internally
  * by invoking the transaction methods of the EntityManager.
  * <p>
- * This entity provider fires {@link EntityProviderChangeEvent}s every time an entity
- * is added, updated or deleted.
- *
+ * This entity provider fires {@link EntityProviderChangeEvent}s every time an
+ * entity is added, updated or deleted.
+ * 
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
@@ -86,8 +86,8 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
 	}
 
 	/**
-	 * Returns whether the entity provider is handling transactions internally (the default)
-	 * or relies on external transaction handling.
+	 * Returns whether the entity provider is handling transactions internally
+	 * (the default) or relies on external transaction handling.
 	 * 
 	 * @return true if transactions are handled internally, false if not.
 	 */
@@ -96,9 +96,10 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
 	}
 
 	/**
-	 * If {@link #isTransactionsHandledByProvider() } is true, <code>operation</code> will
-	 * be executed inside a transaction that is commited after the operation is
-	 * completed. Otherwise, <code>operation</code> will just be executed.
+	 * If {@link #isTransactionsHandledByProvider() } is true,
+	 * <code>operation</code> will be executed inside a transaction that is
+	 * commited after the operation is completed. Otherwise,
+	 * <code>operation</code> will just be executed.
 	 * 
 	 * @param operation
 	 *            the operation to run (must not be null).
@@ -163,8 +164,8 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
 			}
 		});
 		if (entityA[0] != null) {
-			fireEntityProviderChangeEvent(new EntitiesRemovedEvent<T>(
-					this, (T) entityA[0]));
+			fireEntityProviderChangeEvent(new EntitiesRemovedEvent<T>(this,
+					(T) entityA[0]));
 		}
 	}
 
@@ -207,10 +208,11 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
 			}
 		});
 		if (entityA[0] != null) {
-			fireEntityProviderChangeEvent(new EntitiesUpdatedEvent<T>(
-					this, (T) entityA[0]));
+			fireEntityProviderChangeEvent(new EntitiesUpdatedEvent<T>(this,
+					(T) entityA[0]));
 		}
 	}
+
 	private LinkedList<EntityProviderChangeListener<T>> listeners = new LinkedList<EntityProviderChangeListener<T>>();
 
 	public synchronized void addListener(
@@ -224,6 +226,7 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
 		assert listener != null : "listener must not be null";
 		listeners.remove(listener);
 	}
+
 	private boolean fireEntityProviderChangeEvent = true;
 
 	/**
@@ -256,8 +259,8 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
 		if (listeners.isEmpty() && !isFireEntityProviderChangeEvent()) {
 			return;
 		}
-		LinkedList<EntityProviderChangeListener<T>> list = (LinkedList<EntityProviderChangeListener<T>>) listeners.
-				clone();
+		LinkedList<EntityProviderChangeListener<T>> list = (LinkedList<EntityProviderChangeListener<T>>) listeners
+				.clone();
 		for (EntityProviderChangeListener<T> l : list) {
 			l.entityProviderChange(event);
 		}
