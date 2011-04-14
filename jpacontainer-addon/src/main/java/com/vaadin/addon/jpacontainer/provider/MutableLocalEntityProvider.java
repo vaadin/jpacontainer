@@ -17,6 +17,8 @@
  */
 package com.vaadin.addon.jpacontainer.provider;
 
+import java.lang.ref.WeakReference;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import javax.persistence.EntityManager;
@@ -213,18 +215,30 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
 		}
 	}
 
-	private LinkedList<EntityProviderChangeListener<T>> listeners = new LinkedList<EntityProviderChangeListener<T>>();
+	private LinkedList<WeakReference<EntityProviderChangeListener<T>>> listeners = new LinkedList<WeakReference<EntityProviderChangeListener<T>>>();
 
-	public synchronized void addListener(
-			EntityProviderChangeListener<T> listener) {
-		assert listener != null : "listener must not be null";
-		listeners.add(listener);
+	public void addListener(EntityProviderChangeListener<T> listener) {
+		synchronized (listeners) {
+			assert listener != null : "listener must not be null";
+			listeners.add(new WeakReference<EntityProviderChangeListener<T>>(
+					listener));
+		}
 	}
 
-	public synchronized void removeListener(
-			EntityProviderChangeListener<T> listener) {
-		assert listener != null : "listener must not be null";
-		listeners.remove(listener);
+	public void removeListener(EntityProviderChangeListener<T> listener) {
+		synchronized (listeners) {
+			assert listener != null : "listener must not be null";
+
+			Iterator<WeakReference<EntityProviderChangeListener<T>>> it = listeners
+					.iterator();
+			while (it.hasNext()) {
+				EntityProviderChangeListener<T> l = it.next().get();
+				// also clean up old references
+				if (null == l || listener.equals(l)) {
+					it.remove();
+				}
+			}
+		}
 	}
 
 	private boolean fireEntityProviderChangeEvent = true;
@@ -255,14 +269,29 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
 	@SuppressWarnings("unchecked")
 	protected void fireEntityProviderChangeEvent(
 			final EntityProviderChangeEvent<T> event) {
-		assert event != null : "event must not be null";
-		if (listeners.isEmpty() && !isFireEntityProviderChangeEvent()) {
-			return;
+		LinkedList<WeakReference<EntityProviderChangeListener<T>>> list;
+		synchronized (listeners) {
+			assert event != null : "event must not be null";
+			if (listeners.isEmpty() && !isFireEntityProviderChangeEvent()) {
+				return;
+			}
+			// cleanup
+			Iterator<WeakReference<EntityProviderChangeListener<T>>> it = listeners
+					.iterator();
+			while (it.hasNext()) {
+				if (null == it.next().get()) {
+					it.remove();
+				}
+			}
+			// copy list to use outside the synchronized block
+			list = (LinkedList<WeakReference<EntityProviderChangeListener<T>>>) listeners
+					.clone();
 		}
-		LinkedList<EntityProviderChangeListener<T>> list = (LinkedList<EntityProviderChangeListener<T>>) listeners
-				.clone();
-		for (EntityProviderChangeListener<T> l : list) {
-			l.entityProviderChange(event);
+		for (WeakReference<EntityProviderChangeListener<T>> ref : list) {
+			EntityProviderChangeListener<T> listener = ref.get();
+			if (null != listener) {
+				listener.entityProviderChange(event);
+			}
 		}
 	}
 }
