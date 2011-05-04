@@ -202,8 +202,13 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
 				T entity = em.find(getEntityClassMetadata().getMappedClass(),
 						entityId);
 				if (entity != null) {
+					// make sure we are working with the latest versions
+					em.refresh(entity);
 					getEntityClassMetadata().setPropertyValue(entity,
 							propertyName, propertyValue);
+					// re-attach also referenced entities to the persistence
+					// context
+					entity = em.merge(entity);
 					em.flush();
 					entityA[0] = detachEntity(entity);
 				}
