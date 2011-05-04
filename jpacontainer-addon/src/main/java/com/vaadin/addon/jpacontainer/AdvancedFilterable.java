@@ -17,14 +17,14 @@
  */
 package com.vaadin.addon.jpacontainer;
 
-import com.vaadin.data.Container;
-import com.vaadin.data.Container.Filterable;
 import java.util.Collection;
 import java.util.List;
 
+import com.vaadin.data.Container;
+
 /**
- * Container that supports a bit more advanced filtering than {@link Filterable}.
- * It has been designed to be used explicitly with JPA (e.g. all filters
+ * Container that supports a bit more advanced filtering than {@link Filterable}
+ * . It has been designed to be used explicitly with JPA (e.g. all filters
  * generate JPA-QL).
  * 
  * @author Petter Holmström (IT Mill)
@@ -62,7 +62,8 @@ public interface AdvancedFilterable extends Container {
 	 *             if the filter could not be added (e.g. due to a nonfilterable
 	 *             property ID).
 	 */
-	public void addFilter(Filter filter) throws IllegalArgumentException;
+	public void addFilter(com.vaadin.addon.jpacontainer.Filter filter)
+			throws IllegalArgumentException;
 
 	/**
 	 * Removes <code>filter</code> from the list of filters to apply. If the
@@ -75,7 +76,7 @@ public interface AdvancedFilterable extends Container {
 	 * @param filter
 	 *            the filter to remove (must not be null).
 	 */
-	public void removeFilter(Filter filter);
+	public void removeFilter(com.vaadin.addon.jpacontainer.Filter filter);
 
 	/**
 	 * Removes all filters.
@@ -91,7 +92,7 @@ public interface AdvancedFilterable extends Container {
 	 * 
 	 * @return an unmodifiable list of filters (never null).
 	 */
-	public List<Filter> getFilters();
+	public List<com.vaadin.addon.jpacontainer.Filter> getFilters();
 
 	/**
 	 * Gets the list of filters that are currently applied. If
@@ -100,7 +101,7 @@ public interface AdvancedFilterable extends Container {
 	 * 
 	 * @return an unmodifiable list of filters (never null).
 	 */
-	public List<Filter> getAppliedFilters();
+	public List<com.vaadin.addon.jpacontainer.Filter> getAppliedFilters();
 
 	/**
 	 * Sets whether the filters should be applied immediately when a filter is
@@ -136,8 +137,8 @@ public interface AdvancedFilterable extends Container {
 	 * filters that have been removed using {@link #removeAllFilters() } or
 	 * {@link #removeFilter(com.vaadin.addon.jpacontainer.Filter) }.
 	 * <p>
-	 * If {@link #isApplyFiltersImmediately() } is true, this method always returns
-	 * false.
+	 * If {@link #isApplyFiltersImmediately() } is true, this method always
+	 * returns false.
 	 * 
 	 * @see #applyFilters()
 	 * @return true if there are unapplied filters, false otherwise.
@@ -147,9 +148,9 @@ public interface AdvancedFilterable extends Container {
 	/**
 	 * This event indicates that the filters of a {@link AdvancedFilterable}
 	 * have been applied. If an implementation of {@link AdvancedFilterable}
-	 * also implements {@link com.vaadin.data.Container$ItemSetChangeNotifier}, this event should be fired
-	 * every time {@link AdvancedFilterable#applyFilters() } has been executed
-	 * successfully.
+	 * also implements {@link com.vaadin.data.Container$ItemSetChangeNotifier},
+	 * this event should be fired every time
+	 * {@link AdvancedFilterable#applyFilters() } has been executed successfully.
 	 * 
 	 * @author Petter Holmström (IT Mill)
 	 * @since 1.0

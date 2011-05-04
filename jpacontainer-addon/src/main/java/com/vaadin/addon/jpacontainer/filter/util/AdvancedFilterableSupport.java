@@ -17,17 +17,25 @@
  */
 package com.vaadin.addon.jpacontainer.filter.util;
 
-import com.vaadin.addon.jpacontainer.AdvancedFilterable;
-import com.vaadin.addon.jpacontainer.filter.CompositeFilter;
-import com.vaadin.addon.jpacontainer.Filter;
-import com.vaadin.addon.jpacontainer.filter.JoinFilter;
-import com.vaadin.addon.jpacontainer.filter.PropertyFilter;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+
+import com.vaadin.addon.jpacontainer.AdvancedFilterable;
+import com.vaadin.addon.jpacontainer.Filter;
+import com.vaadin.addon.jpacontainer.filter.CompositeFilter;
+import com.vaadin.addon.jpacontainer.filter.Filters;
+import com.vaadin.addon.jpacontainer.filter.JoinFilter;
+import com.vaadin.addon.jpacontainer.filter.PropertyFilter;
+import com.vaadin.data.util.filter.And;
+import com.vaadin.data.util.filter.Compare;
+import com.vaadin.data.util.filter.IsNull;
+import com.vaadin.data.util.filter.Or;
+import com.vaadin.data.util.filter.SimpleStringFilter;
 
 /**
  * Helper class that implements the filtering methods defined in
@@ -41,8 +49,8 @@ public class AdvancedFilterableSupport implements Serializable {
 	private static final long serialVersionUID = 398382431841547719L;
 
 	/**
-	 * ApplyFiltersListener interface to be implemented by classes that want to be notified
-	 * when the filters are applied.
+	 * ApplyFiltersListener interface to be implemented by classes that want to
+	 * be notified when the filters are applied.
 	 * 
 	 * @author Petter Holmström (IT Mill)
 	 * @since 1.0
@@ -125,7 +133,7 @@ public class AdvancedFilterableSupport implements Serializable {
 	@SuppressWarnings("unchecked")
 	public void setFilterablePropertyIds(Collection<?> propertyIds) {
 		assert propertyIds != null : "propertyIds must not be null";
-		this.filterablePropertyIds = (Collection<Object>) propertyIds;
+		filterablePropertyIds = (Collection<Object>) propertyIds;
 	}
 
 	/**
@@ -156,9 +164,9 @@ public class AdvancedFilterableSupport implements Serializable {
 	 */
 	public boolean isValidFilter(Filter filter) {
 		assert filter != null : "filter must not be null";
-        if (filter instanceof JoinFilter) {
-            return isFilterable(((JoinFilter) filter).getJoinProperty());
-        } else if (filter instanceof PropertyFilter) {
+		if (filter instanceof JoinFilter) {
+			return isFilterable(((JoinFilter) filter).getJoinProperty());
+		} else if (filter instanceof PropertyFilter) {
 			return isFilterable(((PropertyFilter) filter).getPropertyId());
 		} else if (filter instanceof CompositeFilter) {
 			for (Filter f : ((CompositeFilter) filter).getFilters()) {
@@ -171,7 +179,7 @@ public class AdvancedFilterableSupport implements Serializable {
 	}
 
 	/**
-	 * @see AdvancedFilterable#addFilter(com.vaadin.addon.jpacontainer.Filter) 
+	 * @see AdvancedFilterable#addFilter(com.vaadin.addon.jpacontainer.Filter)
 	 */
 	public void addFilter(Filter filter) throws IllegalArgumentException {
 		if (!isValidFilter(filter)) {
@@ -255,5 +263,78 @@ public class AdvancedFilterableSupport implements Serializable {
 	 */
 	public boolean hasUnappliedFilters() {
 		return unappliedFilters;
+	}
+
+	/**
+	 * Converts a Vaadin 6.6 container filter into a JPAContainer filter.
+	 * 
+	 * @param filter
+	 *            Vaadin 6.6 {@link com.vaadin.data.Container.Filter}
+	 * @return {@link com.vaadin.addon.jpacontainer.Filter}
+	 */
+	public static com.vaadin.addon.jpacontainer.Filter convertFilter(
+			com.vaadin.data.Container.Filter filter) {
+		assert filter != null : "filter must not be null";
+
+		// Handle compound filters
+		if (filter instanceof And) {
+			return Filters.and(convertFilters(((And) filter).getFilters()));
+		}
+		if (filter instanceof Or) {
+			return Filters.or(convertFilters(((Or) filter).getFilters()));
+		}
+
+		if (filter instanceof Compare) {
+			Compare compare = (Compare) filter;
+			switch (compare.getOperation()) {
+			case EQUAL:
+				return Filters.eq(compare.getPropertyId(), compare.getValue());
+			case GREATER:
+				return Filters.gt(compare.getPropertyId(), compare.getValue());
+			case GREATER_OR_EQUAL:
+				return Filters
+						.gteq(compare.getPropertyId(), compare.getValue());
+			case LESS:
+				return Filters.lt(compare.getPropertyId(), compare.getValue());
+			case LESS_OR_EQUAL:
+				return Filters
+						.lteq(compare.getPropertyId(), compare.getValue());
+			}
+		}
+
+		if (filter instanceof IsNull) {
+			return Filters.isNull(((IsNull) filter).getPropertyId());
+		}
+
+		if (filter instanceof SimpleStringFilter) {
+			SimpleStringFilter stringFilter = (SimpleStringFilter) filter;
+			String filterString = stringFilter.getFilterString();
+			if (stringFilter.isOnlyMatchPrefix()) {
+				filterString = filterString + "%";
+			} else {
+				filterString = "%" + filterString + "%";
+			}
+			return Filters.like(stringFilter.getPropertyId(), filterString,
+					!stringFilter.isIgnoreCase());
+		}
+
+		return null;
+	}
+
+	/**
+	 * Converts a collection of {@link com.vaadin.data.Container.Filter} into a
+	 * list of {@link com.vaadin.addon.jpacontainer.Filter}.
+	 * 
+	 * @param filters
+	 *            Collection of {@link com.vaadin.data.Container.Filter}
+	 * @return List of {@link com.vaadin.addon.jpacontainer.Filter}
+	 */
+	public static List<Filter> convertFilters(
+			Collection<com.vaadin.data.Container.Filter> filters) {
+		List<Filter> result = new ArrayList<Filter>();
+		for (com.vaadin.data.Container.Filter filter : filters) {
+			result.add(convertFilter(filter));
+		}
+		return result;
 	}
 }

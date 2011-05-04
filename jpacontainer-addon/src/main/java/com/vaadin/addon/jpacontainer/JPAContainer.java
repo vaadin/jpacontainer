@@ -17,8 +17,10 @@
  */
 package com.vaadin.addon.jpacontainer;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -31,32 +33,36 @@ import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Validator.InvalidValueException;
-import java.util.Arrays;
-import java.util.HashSet;
+import com.vaadin.data.util.filter.UnsupportedFilterException;
 
 /**
- * This is the main container class of JPAContainer (and the default implementation
- * of {@link EntityContainer}). You can use it in your applications like so:
- * <code><pre>
+ * This is the main container class of JPAContainer (and the default
+ * implementation of {@link EntityContainer}). You can use it in your
+ * applications like so: <code><pre>
  * EntityContainer&lt;MyEntity&gt; container = new JPAContainer&lt;MyEntity&gt;(
  *   MyEntity.class);
  * container.setEntityProvider(myEntityProvider);
  * ...
  * myTable.setContainerDataSource(container);
- * </pre></code>
- * In the example code, <code>myEntityProvider</code> is an instance of an {@link EntityProvider}
- * that, like the name suggests, is responsible for providing the entities to the container.
- * If the container should be writable, the entity provider must implement the {@link MutableEntityProvider} interface
- * and if buffering is desired (i.e. write-through turned off) the {@link BatchableEntityProvider} interface as well.
- * There are ready-made implementations of all these interfaces that can be used out-of-the-box (check the See Also section
- * of this Javadoc).
+ * </pre></code> In the example code, <code>myEntityProvider</code> is an
+ * instance of an {@link EntityProvider} that, like the name suggests, is
+ * responsible for providing the entities to the container. If the container
+ * should be writable, the entity provider must implement the
+ * {@link MutableEntityProvider} interface and if buffering is desired (i.e.
+ * write-through turned off) the {@link BatchableEntityProvider} interface as
+ * well. There are ready-made implementations of all these interfaces that can
+ * be used out-of-the-box (check the See Also section of this Javadoc).
  * <p>
- * All sorting and filtering is handled by the entity provider, which in turn normally delegates it to the
- * database. Therefore, only persistent properties can be filtered and/or sorted by.
+ * All sorting and filtering is handled by the entity provider, which in turn
+ * normally delegates it to the database. Therefore, only persistent properties
+ * can be filtered and/or sorted by.
  * <p>
- * It is possible to use JPAContainer as a hierarchical container if the entities in the container can be
- * related to each other by means of a parent property. For example:
- * <pre><code>
+ * It is possible to use JPAContainer as a hierarchical container if the
+ * entities in the container can be related to each other by means of a parent
+ * property. For example:
+ * 
+ * <pre>
+ * <code>
  * &#064;Entity
  * public class Node {
  *   ...
@@ -64,14 +70,18 @@ import java.util.HashSet;
  *   private Node parent;
  *   ...
  * }
- * </code></pre>
- * Note, however, that the implementation of {@link HierarchicalEntityContainer} is still experimental and
- * has some limitations. For example, the data is always read directly from the entity provider regardless of whether buffering is used
- * or not. Therefore, this feature should be used with care in production systems.
+ * </code>
+ * </pre>
+ * 
+ * Note, however, that the implementation of {@link HierarchicalEntityContainer}
+ * is still experimental and has some limitations. For example, the data is
+ * always read directly from the entity provider regardless of whether buffering
+ * is used or not. Therefore, this feature should be used with care in
+ * production systems.
  * 
  * <h2>Buffering</h2>
- * Here follows some notes on how buffering has been implemented in this class. If you are not going
- * to use buffering, you can skip this section.
+ * Here follows some notes on how buffering has been implemented in this class.
+ * If you are not going to use buffering, you can skip this section.
  * <p>
  * When using buffered mode, the following rules apply:
  * <ul>
@@ -101,7 +111,7 @@ import java.util.HashSet;
  * returned from the entity provider are not explicitly detached (see
  * {@link EntityProvider#isEntitiesDetached() }), but this should be avoided
  * unless you know what you are doing.
- *
+ * 
  * @see com.vaadin.addon.jpacontainer.provider.LocalEntityProvider
  * @see com.vaadin.addon.jpacontainer.provider.CachingLocalEntityProvider
  * @see com.vaadin.addon.jpacontainer.provider.BatchableLocalEntityProvider
@@ -109,7 +119,8 @@ import java.util.HashSet;
  * @since 1.0
  */
 public class JPAContainer<T> implements EntityContainer<T>,
-		EntityProviderChangeListener<T>, HierarchicalEntityContainer<T>, Container.Indexed {
+		EntityProviderChangeListener<T>, HierarchicalEntityContainer<T>,
+		Container.Indexed {
 
 	private static final long serialVersionUID = -4031940552175752858L;
 	private EntityProvider<T> entityProvider;
@@ -159,15 +170,16 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	private Collection<String> additionalFilterablePropertyIds;
 
 	/**
-	 * Sometimes, it may be necessary to filter by properties that do not
-	 * show up in the container. This method can be used to add additional
-	 * property IDs to the {@link #getFilterablePropertyIds() } collection.
-	 * This method performs no propertyId validation, so it is up to the
-	 * client to make sure the propertyIds are valid.
+	 * Sometimes, it may be necessary to filter by properties that do not show
+	 * up in the container. This method can be used to add additional property
+	 * IDs to the {@link #getFilterablePropertyIds() } collection. This method
+	 * performs no propertyId validation, so it is up to the client to make sure
+	 * the propertyIds are valid.
 	 * 
-	 * @param propertyIds an array of additional propertyIds, may be null.
+	 * @param propertyIds
+	 *            an array of additional propertyIds, may be null.
 	 */
-	public void setAdditionalFilterablePropertyIds(String ... propertyIds) {
+	public void setAdditionalFilterablePropertyIds(String... propertyIds) {
 		if (propertyIds == null || propertyIds.length == 0) {
 			additionalFilterablePropertyIds = null;
 		} else {
@@ -177,15 +189,15 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	}
 
 	protected void updateFilterablePropertyIds() {
-		//this.filterSupport
-		//		.setFilterablePropertyIds((Collection<?>) propertyList
-		//				.getPersistentPropertyNames());
+		// this.filterSupport
+		// .setFilterablePropertyIds((Collection<?>) propertyList
+		// .getPersistentPropertyNames());
 		HashSet<String> properties = new HashSet<String>();
 		properties.addAll(propertyList.getPersistentPropertyNames());
 		if (additionalFilterablePropertyIds != null) {
 			properties.addAll(additionalFilterablePropertyIds);
 		}
-		this.filterSupport.setFilterablePropertyIds((Collection<?>) properties);
+		this.filterSupport.setFilterablePropertyIds(properties);
 	}
 
 	/**
@@ -238,20 +250,21 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	private boolean fireContainerItemSetChangeEvents = true;
 
 	/**
-	 * Specifies whether the container should fire an item set change event
-	 * when it detects a change in the entity provider (such as an entity
-	 * being added, updated or deleted).
+	 * Specifies whether the container should fire an item set change event when
+	 * it detects a change in the entity provider (such as an entity being
+	 * added, updated or deleted).
 	 */
 	public void setFireContainerItemSetChangeEvents(boolean value) {
 		this.fireContainerItemSetChangeEvents = value;
 	}
 
 	/**
-	 * Tests whether the container should fire an item set change event
-	 * when it detects a change in the entity provider (such as an entity being
-	 * added, updated or deleted).
-	 *
-	 * @return true if item set change events should be fired (default), false otherwise.
+	 * Tests whether the container should fire an item set change event when it
+	 * detects a change in the entity provider (such as an entity being added,
+	 * updated or deleted).
+	 * 
+	 * @return true if item set change events should be fired (default), false
+	 *         otherwise.
 	 */
 	public boolean isFireContainerItemSetChangeEvents() {
 		return fireContainerItemSetChangeEvents;
@@ -312,12 +325,14 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	private boolean fireItemSetChangeOnProviderChange = true;
 
 	/**
-	 * Specifies whether the container should fire an ItemSetChangeEvent when
-	 * an EntityProviderChangeEvent is received. This is used to prevent
-	 * clients from receiving duplicate ItemSetChangeEvents when the container
-	 * modifies data and wants to handle ItemSetChangeEvents itself.
+	 * Specifies whether the container should fire an ItemSetChangeEvent when an
+	 * EntityProviderChangeEvent is received. This is used to prevent clients
+	 * from receiving duplicate ItemSetChangeEvents when the container modifies
+	 * data and wants to handle ItemSetChangeEvents itself.
 	 * 
-	 * @param fireItemSetChangeOnProviderChange true fo fire an ItemSetChangeEvent when the provider changes, false not to.
+	 * @param fireItemSetChangeOnProviderChange
+	 *            true fo fire an ItemSetChangeEvent when the provider changes,
+	 *            false not to.
 	 */
 	protected void setFireItemSetChangeOnProviderChange(
 			boolean fireItemSetChangeOnProviderChange) {
@@ -326,7 +341,8 @@ public class JPAContainer<T> implements EntityContainer<T>,
 
 	/**
 	 * @see #setFireItemSetChangeOnProviderChange(boolean)
-	 * @return true if an ItemSetChangeEvent should be fired when the provider changes, false if it should not.
+	 * @return true if an ItemSetChangeEvent should be fired when the provider
+	 *         changes, false if it should not.
 	 */
 	protected boolean isFireItemSetChangeOnProviderChange() {
 		return fireItemSetChangeOnProviderChange;
@@ -363,7 +379,8 @@ public class JPAContainer<T> implements EntityContainer<T>,
 		assert propertyId.length == ascending.length : "propertyId and ascending must have the same length";
 		sortByList = new LinkedList<SortBy>();
 		for (int i = 0; i < propertyId.length; ++i) {
-			if (!getSortableContainerPropertyIds().contains(propertyId[i].toString())) {
+			if (!getSortableContainerPropertyIds().contains(
+					propertyId[i].toString())) {
 				throw new IllegalArgumentException(
 						"No such sortable property ID: " + propertyId[i]);
 			}
@@ -686,7 +703,8 @@ public class JPAContainer<T> implements EntityContainer<T>,
 		}
 	}
 
-	public void addFilter(Filter filter) throws IllegalArgumentException {
+	public void addFilter(com.vaadin.addon.jpacontainer.Filter filter)
+			throws IllegalArgumentException {
 		filterSupport.addFilter(filter);
 	}
 
@@ -694,7 +712,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 		filterSupport.applyFilters();
 	}
 
-	public List<Filter> getAppliedFilters() {
+	public List<com.vaadin.addon.jpacontainer.Filter> getAppliedFilters() {
 		return filterSupport.getAppliedFilters();
 	}
 
@@ -707,7 +725,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	 * @see Filters#and(com.vaadin.addon.jpacontainer.Filter[])
 	 * @return a conjunction filter or null.
 	 */
-	protected Filter getAppliedFiltersAsConjunction() {
+	protected com.vaadin.addon.jpacontainer.Filter getAppliedFiltersAsConjunction() {
 		if (getAppliedFilters().isEmpty()) {
 			return null;
 		} else if (getAppliedFilters().size() == 1) {
@@ -721,7 +739,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 		return filterSupport.getFilterablePropertyIds();
 	}
 
-	public List<Filter> getFilters() {
+	public List<com.vaadin.addon.jpacontainer.Filter> getFilters() {
 		return filterSupport.getFilters();
 	}
 
@@ -741,7 +759,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 		filterSupport.removeAllFilters();
 	}
 
-	public void removeFilter(Filter filter) {
+	public void removeFilter(com.vaadin.addon.jpacontainer.Filter filter) {
 		filterSupport.removeFilter(filter);
 	}
 
@@ -773,14 +791,32 @@ public class JPAContainer<T> implements EntityContainer<T>,
 
 	public void removeContainerFilters(Object propertyId) {
 		// TODO Test me!
-		List<Filter> filters = getFilters();
+		List<com.vaadin.addon.jpacontainer.Filter> filters = getFilters();
 		for (int i = filters.size() - 1; i >= 0; i--) {
-			Filter f = filters.get(i);
+			com.vaadin.addon.jpacontainer.Filter f = filters.get(i);
 			if (f instanceof PropertyFilter
 					&& ((PropertyFilter) f).getPropertyId().equals(propertyId)) {
 				removeFilter(f);
 			}
 		}
+		if (!isApplyFiltersImmediately()) {
+			applyFilters();
+		}
+	}
+
+	public void addContainerFilter(Filter filter)
+			throws UnsupportedFilterException {
+		// TODO Test me!
+		addFilter(AdvancedFilterableSupport.convertFilter(filter));
+		if (!isApplyFiltersImmediately()) {
+			applyFilters();
+		}
+	}
+
+	public void removeContainerFilter(Filter filter) {
+		// TODO Test me!
+		// reconstruct the container filter and find old one based on equals()
+		removeFilter(AdvancedFilterableSupport.convertFilter(filter));
 		if (!isApplyFiltersImmediately()) {
 			applyFilters();
 		}
@@ -1142,7 +1178,8 @@ public class JPAContainer<T> implements EntityContainer<T>,
 		} else {
 			StringBuilder sb = new StringBuilder(parentProperty);
 			sb.append('.');
-			sb.append(getEntityClassMetadata().getIdentifierProperty().getName());
+			sb.append(getEntityClassMetadata().getIdentifierProperty()
+					.getName());
 			parentIdProperty = sb.toString();
 		}
 	}
@@ -1152,14 +1189,15 @@ public class JPAContainer<T> implements EntityContainer<T>,
 		return parentProperty != null && containsId(itemId);
 	}
 
-	private Filter getChildrenFilter(Object parentId) {
-		Filter parentFilter;
+	private com.vaadin.addon.jpacontainer.Filter getChildrenFilter(
+			Object parentId) {
+		com.vaadin.addon.jpacontainer.Filter parentFilter;
 		if (parentId == null) {
 			parentFilter = Filters.isNull(parentProperty);
 		} else {
 			parentFilter = Filters.eq(parentIdProperty, parentId);
 		}
-		Filter appliedFilter = getAppliedFiltersAsConjunction();
+		com.vaadin.addon.jpacontainer.Filter appliedFilter = getAppliedFiltersAsConjunction();
 		if (appliedFilter == null) {
 			return parentFilter;
 		} else {
@@ -1175,7 +1213,8 @@ public class JPAContainer<T> implements EntityContainer<T>,
 				return Collections.emptyList();
 			}
 		} else {
-			return doGetEntityProvider().getAllEntityIdentifiers(getChildrenFilter(itemId), getSortByList());
+			return doGetEntityProvider().getAllEntityIdentifiers(
+					getChildrenFilter(itemId), getSortByList());
 		}
 	}
 
@@ -1184,12 +1223,15 @@ public class JPAContainer<T> implements EntityContainer<T>,
 			return null;
 		} else {
 			EntityItem<T> item = getItem(itemId);
-			T parent = item == null ? null : (T) item.getItemProperty(parentProperty).getValue();
+			T parent = item == null ? null : (T) item.getItemProperty(
+					parentProperty).getValue();
 			if (parent == null) {
 				return null;
 			} else {
-				return getEntityClassMetadata().getPropertyValue(parent,
-						getEntityClassMetadata().getIdentifierProperty().getName());
+				return getEntityClassMetadata().getPropertyValue(
+						parent,
+						getEntityClassMetadata().getIdentifierProperty()
+								.getName());
 			}
 		}
 	}
@@ -1212,7 +1254,8 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	 * <p>
 	 * {@inheritDoc }
 	 */
-	public boolean setChildrenAllowed(Object itemId, boolean areChildrenAllowed) throws UnsupportedOperationException {
+	public boolean setChildrenAllowed(Object itemId, boolean areChildrenAllowed)
+			throws UnsupportedOperationException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -1222,7 +1265,8 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	 * <p>
 	 * {@inheritDoc }
 	 */
-	public boolean setParent(Object itemId, Object newParentId) throws UnsupportedOperationException {
+	public boolean setParent(Object itemId, Object newParentId)
+			throws UnsupportedOperationException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -1427,4 +1471,5 @@ public class JPAContainer<T> implements EntityContainer<T>,
 			super(itemId);
 		}
 	}
+
 }
