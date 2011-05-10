@@ -54,13 +54,15 @@
             </plugin>
         </plugins>
         <pluginManagement>
-            <plugin>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <version>2.5</version>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>2.5</version>
+                    <configuration>
+                        <skip>true</skip>
+                    </configuration>
+                </plugin>
+            </plugins>
         </pluginManagement>
     </build>
 
