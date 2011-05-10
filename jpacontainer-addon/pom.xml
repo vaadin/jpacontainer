@@ -14,6 +14,7 @@
     <packaging>jar</packaging>
 
     <name>Vaadin JPAContainer Addon</name>
+    <description>Vaadin JPAContainer</description>
 
     <dependencies>
         <dependency>

@@ -7,6 +7,7 @@
     <packaging>pom</packaging>
     <version>1.1.1</version>
     <name>Vaadin JPAContainer</name>
+    <description>Vaadin JPAContainer</description>
     <organization>
         <name>Vaadin Ltd</name>
         <url>http://vaadin.com/</url>
@@ -21,6 +22,34 @@
         <system>trac</system>
         <url>http://dev.vaadin.com/</url>
     </issueManagement>
+    <developers>
+        <developer>
+            <name>Petter Holmström</name>
+            <id>petter</id>
+            <email>petter at vaadin.com</email>
+            <organization>Vaadin Ltd</organization>
+            <timezone>+2</timezone>
+        </developer>
+        <developer>
+            <name>Henri Sara</name>
+            <id>hesara</id>
+            <email>hesara at vaadin.com</email>
+            <organization>Vaadin Ltd</organization>
+            <timezone>+2</timezone>
+        </developer>
+    </developers>
+    <licenses>
+        <license>
+            <name>GNU Affero General Public License version 3.0</name>
+            <url>http://www.gnu.org/licenses/agpl-3.0.html</url>
+            <distribution>repo</distribution>
+        </license>
+        <license>
+            <name>Commercial Vaadin Add-On License version 1.0</name>
+            <url>http://vaadin.com/license/cval-1.0</url>
+            <distribution>manual</distribution>
+        </license>
+    </licenses>
 
     <repositories>
         <repository>
