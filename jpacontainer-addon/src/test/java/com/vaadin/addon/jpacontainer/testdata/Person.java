@@ -22,13 +22,13 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -36,20 +36,20 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 import javax.persistence.Version;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.time.DateUtils;
 
 /**
  * Entity Java bean for testing.
- *
+ * 
  * @author Petter Holmström (IT Mill)
  * @since 1.0
  */
 @SuppressWarnings("serial")
 @Entity
-@Table(uniqueConstraints =
-@UniqueConstraint(columnNames = {"lastName",
-	"firstName"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "lastName",
+		"firstName" }))
 public class Person implements Serializable, Cloneable {
 
 	@Id
@@ -66,8 +66,12 @@ public class Person implements Serializable, Cloneable {
 	private transient String tempData;
 	@ManyToOne
 	private Person manager;
-	@OneToMany(cascade=CascadeType.ALL, mappedBy="person")
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "person")
 	private Set<PersonSkill> skills = new HashSet<PersonSkill>();
+
+	private boolean male;
+
+	private double primitiveDouble;
 
 	public Address getAddress() {
 		return address;
@@ -162,12 +166,14 @@ public class Person implements Serializable, Cloneable {
 		if (obj instanceof Person) {
 			Person p = (Person) obj;
 			return ObjectUtils.equals(address, p.address)
-					&& (ObjectUtils.equals(dateOfBirth, p.dateOfBirth) || (dateOfBirth != null && p.dateOfBirth != null && DateUtils.
-					isSameDay(dateOfBirth, p.dateOfBirth)))
+					&& (ObjectUtils.equals(dateOfBirth, p.dateOfBirth) || (dateOfBirth != null
+							&& p.dateOfBirth != null && DateUtils.isSameDay(
+							dateOfBirth, p.dateOfBirth)))
 					&& ObjectUtils.equals(firstName, p.firstName)
 					&& ObjectUtils.equals(lastName, p.lastName)
 					&& ObjectUtils.equals(manager, p.manager)
-					&& ObjectUtils.equals(skills, p.skills);
+					&& ObjectUtils.equals(skills, p.skills) && male == p.male
+					&& primitiveDouble == p.primitiveDouble;
 		}
 
 		return super.equals(obj);
@@ -175,22 +181,23 @@ public class Person implements Serializable, Cloneable {
 
 	@Override
 	public int hashCode() {
-		return ObjectUtils.hashCode(address)
-				+ 7 * ObjectUtils.hashCode(dateOfBirth)
-				+ 7 * ObjectUtils.hashCode(firstName)
-				+ 7 * ObjectUtils.hashCode(lastName)
-				+ 7 * ObjectUtils.hashCode(manager)
-				+ 7 * ObjectUtils.hashCode(skills);
+		return ObjectUtils.hashCode(address) + 7
+				* ObjectUtils.hashCode(dateOfBirth) + 7
+				* ObjectUtils.hashCode(firstName) + 7
+				* ObjectUtils.hashCode(lastName) + 7
+				* ObjectUtils.hashCode(manager) + 7
+				* ObjectUtils.hashCode(skills);
 	}
 
 	@Override
 	public String toString() {
 		String dob = null;
 		if (dateOfBirth != null) {
-			dob = DateFormat.getDateInstance(
-					DateFormat.SHORT).format(dateOfBirth);
+			dob = DateFormat.getDateInstance(DateFormat.SHORT).format(
+					dateOfBirth);
 		}
-		return lastName + ", " + firstName + ", " + dob + ", " + address + " (ID: " + id + ")";
+		return lastName + ", " + firstName + ", " + dob + ", " + address
+				+ " (ID: " + id + ")";
 	}
 
 	@Override
@@ -204,6 +211,8 @@ public class Person implements Serializable, Cloneable {
 		p.tempData = tempData;
 		p.version = version;
 		p.manager = manager;
+		p.primitiveDouble = primitiveDouble;
+		p.male = male;
 		p.skills = new HashSet<PersonSkill>();
 		for (PersonSkill ps : skills) {
 			PersonSkill cps = ps.clone();
@@ -211,5 +220,21 @@ public class Person implements Serializable, Cloneable {
 			p.skills.add(cps);
 		}
 		return p;
+	}
+
+	public void setMale(boolean male) {
+		this.male = male;
+	}
+
+	public boolean isMale() {
+		return male;
+	}
+
+	public void setPrimitiveDouble(double primitiveDouble) {
+		this.primitiveDouble = primitiveDouble;
+	}
+
+	public double getPrimitiveDouble() {
+		return primitiveDouble;
 	}
 }

@@ -249,12 +249,9 @@ public class MetadataFactory {
 				if (isEmbedded(f)) {
 					ClassMetadata<?> cm = getClassMetadata(f.getType(),
 							AccessType.FIELD);
-					metadata
-							.addProperties(new PersistentPropertyMetadata(
-									f.getName(),
-									cm,
-									PersistentPropertyMetadata.PropertyKind.EMBEDDED,
-									f));
+					metadata.addProperties(new PersistentPropertyMetadata(f
+							.getName(), cm,
+							PersistentPropertyMetadata.PropertyKind.EMBEDDED, f));
 				} else if (isReference(f)) {
 					ClassMetadata<?> cm = getClassMetadata(f.getType(),
 							AccessType.FIELD);
@@ -269,7 +266,7 @@ public class MetadataFactory {
 							f));
 				} else {
 					metadata.addProperties(new PersistentPropertyMetadata(f
-							.getName(), f.getType(),
+							.getName(), convertPrimitiveType(f.getType()),
 							PersistentPropertyMetadata.PropertyKind.SIMPLE, f));
 				}
 			}
@@ -302,6 +299,31 @@ public class MetadataFactory {
 		}
 	}
 
+	private Class<?> convertPrimitiveType(Class<?> type) {
+		// Vaadin fields don't work with primitive values, use wrapper types for
+		// primitives
+		if (type.isPrimitive()) {
+			if (type.equals(Boolean.TYPE)) {
+				type = Boolean.class;
+			} else if (type.equals(Integer.TYPE)) {
+				type = Integer.class;
+			} else if (type.equals(Float.TYPE)) {
+				type = Float.class;
+			} else if (type.equals(Double.TYPE)) {
+				type = Double.class;
+			} else if (type.equals(Byte.TYPE)) {
+				type = Byte.class;
+			} else if (type.equals(Character.TYPE)) {
+				type = Character.class;
+			} else if (type.equals(Short.TYPE)) {
+				type = Short.class;
+			} else if (type.equals(Long.TYPE)) {
+				type = Long.class;
+			}
+		}
+		return type;
+	}
+
 	protected void extractPropertiesFromMethods(Class<?> type,
 			ClassMetadata<?> metadata) {
 		for (Method m : type.getDeclaredMethods()) {
@@ -330,30 +352,27 @@ public class MetadataFactory {
 				if (setter != null && m.getAnnotation(Transient.class) == null) {
 					// Persistent property
 					if (isEmbedded(m)) {
-						ClassMetadata<?> cm = getClassMetadata(m
-								.getReturnType(), AccessType.METHOD);
-						metadata
-								.addProperties(new PersistentPropertyMetadata(
-										name,
-										cm,
-										PersistentPropertyMetadata.PropertyKind.EMBEDDED,
-										m, setter));
+						ClassMetadata<?> cm = getClassMetadata(
+								m.getReturnType(), AccessType.METHOD);
+						metadata.addProperties(new PersistentPropertyMetadata(
+								name,
+								cm,
+								PersistentPropertyMetadata.PropertyKind.EMBEDDED,
+								m, setter));
 					} else if (isReference(m)) {
-						ClassMetadata<?> cm = getClassMetadata(m
-								.getReturnType(), AccessType.METHOD);
-						metadata
-								.addProperties(new PersistentPropertyMetadata(
-										name,
-										cm,
-										PersistentPropertyMetadata.PropertyKind.REFERENCE,
-										m, setter));
+						ClassMetadata<?> cm = getClassMetadata(
+								m.getReturnType(), AccessType.METHOD);
+						metadata.addProperties(new PersistentPropertyMetadata(
+								name,
+								cm,
+								PersistentPropertyMetadata.PropertyKind.REFERENCE,
+								m, setter));
 					} else if (isCollection(m)) {
-						metadata
-								.addProperties(new PersistentPropertyMetadata(
-										name,
-										m.getReturnType(),
-										PersistentPropertyMetadata.PropertyKind.COLLECTION,
-										m, setter));
+						metadata.addProperties(new PersistentPropertyMetadata(
+								name,
+								m.getReturnType(),
+								PersistentPropertyMetadata.PropertyKind.COLLECTION,
+								m, setter));
 					} else {
 						metadata.addProperties(new PersistentPropertyMetadata(
 								name, m.getReturnType(),

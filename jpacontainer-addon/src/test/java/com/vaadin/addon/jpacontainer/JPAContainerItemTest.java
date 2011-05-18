@@ -17,16 +17,27 @@
  */
 package com.vaadin.addon.jpacontainer;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.Collection;
+import java.util.Date;
+
+import org.junit.Before;
+import org.junit.Test;
+
 import com.vaadin.addon.jpacontainer.testdata.Address;
 import com.vaadin.addon.jpacontainer.testdata.Person;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ReadOnlyException;
 import com.vaadin.data.Property.ValueChangeEvent;
-import java.util.Collection;
-import java.util.Date;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.TextField;
 
 /**
  * Test case for {@link JPAContainerItem}.
@@ -85,9 +96,50 @@ public class JPAContainerItemTest {
 	}
 
 	@Test
+	public void testPrimitiveTypesWithFields() {
+
+		CheckBox checkBox = new CheckBox();
+		TextField textField = new TextField();
+
+		EntityItemProperty maleProperty = item.getItemProperty("male");
+		EntityItemProperty doubleProperty = item
+				.getItemProperty("primitiveDouble");
+
+		checkBox.setPropertyDataSource(maleProperty);
+		textField.setPropertyDataSource(doubleProperty);
+
+		Boolean originalMaleValue = (Boolean) checkBox.getValue();
+		Double originalDoubleValue = Double.parseDouble((String) textField
+				.getValue());
+
+		assertEquals(false, originalMaleValue);
+		assertEquals(0.0, originalDoubleValue.doubleValue(), 0.000001);
+
+		checkBox.setValue(true);
+
+		modifiedItem = null;
+		modifiedPropertyId = null;
+
+		textField.setValue("3.55");
+
+		modifiedItem = null;
+		modifiedPropertyId = null;
+
+		Boolean newMaleValue = (Boolean) checkBox.getValue();
+		Double newDoubleValue = Double.parseDouble((String) textField
+				.getValue());
+
+		assertEquals(true, newMaleValue);
+		assertEquals((Double) 3.55, newDoubleValue);
+
+		Person p = item.getEntity();
+		assertEquals(true, p.isMale());
+		assertEquals(3.55, p.getPrimitiveDouble(), 0.0000001);
+	}
+
+	@Test
 	public void testGetItemPropertyIds() {
-		Collection<String> propertyIds = (Collection<String>) item
-				.getItemPropertyIds();
+		Collection<String> propertyIds = item.getItemPropertyIds();
 		assertEquals(
 				container.getPropertyList().getAllAvailablePropertyNames(),
 				propertyIds);
@@ -142,6 +194,11 @@ public class JPAContainerItemTest {
 		assertEquals(String.class, item.getItemProperty("address.street")
 				.getType());
 		assertEquals(Address.class, item.getItemProperty("address").getType());
+
+		// should report wrapper types for beans primitive types
+		assertEquals(Boolean.class, item.getItemProperty("male").getType());
+		assertEquals(Double.class, item.getItemProperty("primitiveDouble")
+				.getType());
 	}
 
 	@Test

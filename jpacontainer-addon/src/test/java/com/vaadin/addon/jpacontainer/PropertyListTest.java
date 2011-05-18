@@ -17,14 +17,22 @@
  */
 package com.vaadin.addon.jpacontainer;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.Date;
+
+import org.junit.Before;
+import org.junit.Test;
+
 import com.vaadin.addon.jpacontainer.metadata.ClassMetadata;
 import com.vaadin.addon.jpacontainer.metadata.MetadataFactory;
 import com.vaadin.addon.jpacontainer.testdata.Address;
 import com.vaadin.addon.jpacontainer.testdata.Person;
-import java.util.Date;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  * Test case for {@link PropertyList}.
@@ -47,7 +55,7 @@ public class PropertyListTest {
 
 	@Test
 	public void testInitialPropertyList() {
-		assertEquals(8, propertyList.getPersistentPropertyNames().size());
+		assertEquals(10, propertyList.getPersistentPropertyNames().size());
 		assertTrue(propertyList.getPersistentPropertyNames().contains("id"));
 		assertTrue(propertyList.getPersistentPropertyNames()
 				.contains("version"));
@@ -62,24 +70,27 @@ public class PropertyListTest {
 		assertTrue(propertyList.getPersistentPropertyNames()
 				.contains("manager"));
 		assertTrue(propertyList.getPersistentPropertyNames().contains("skills"));
+		assertTrue(propertyList.getPersistentPropertyNames().contains("male"));
+		assertTrue(propertyList.getPersistentPropertyNames().contains(
+				"primitiveDouble"));
 
-		assertEquals(11, propertyList.getPropertyNames().size());
+		assertEquals(13, propertyList.getPropertyNames().size());
 		assertTrue(propertyList.getPropertyNames().containsAll(
 				propertyList.getPersistentPropertyNames()));
 		assertTrue(propertyList.getPropertyNames().contains("fullName"));
 		assertTrue(propertyList.getPropertyNames().contains("transientAddress"));
 		assertTrue(propertyList.getPropertyNames().contains("tempData"));
 		assertTrue(propertyList.getNestedPropertyNames().isEmpty());
-		assertEquals(propertyList.getPropertyNames(), propertyList
-				.getAllAvailablePropertyNames());
+		assertEquals(propertyList.getPropertyNames(),
+				propertyList.getAllAvailablePropertyNames());
 
 		// And test the child list
 		assertEquals(propertyList.getAllAvailablePropertyNames(),
 				childPropertyList.getAllAvailablePropertyNames());
-		assertEquals(propertyList.getNestedPropertyNames(), childPropertyList
-				.getNestedPropertyNames());
-		assertEquals(propertyList.getPropertyNames(), childPropertyList
-				.getPropertyNames());
+		assertEquals(propertyList.getNestedPropertyNames(),
+				childPropertyList.getNestedPropertyNames());
+		assertEquals(propertyList.getPropertyNames(),
+				childPropertyList.getPropertyNames());
 		assertEquals(propertyList.getPersistentPropertyNames(),
 				childPropertyList.getPersistentPropertyNames());
 		assertSame(propertyList, childPropertyList.getParentList());
@@ -108,10 +119,10 @@ public class PropertyListTest {
 		// And test the child list
 		assertEquals(propertyList.getAllAvailablePropertyNames(),
 				childPropertyList.getAllAvailablePropertyNames());
-		assertEquals(propertyList.getNestedPropertyNames(), childPropertyList
-				.getNestedPropertyNames());
-		assertEquals(propertyList.getPropertyNames(), childPropertyList
-				.getPropertyNames());
+		assertEquals(propertyList.getNestedPropertyNames(),
+				childPropertyList.getNestedPropertyNames());
+		assertEquals(propertyList.getPropertyNames(),
+				childPropertyList.getPropertyNames());
 		assertEquals(propertyList.getPersistentPropertyNames(),
 				childPropertyList.getPersistentPropertyNames());
 
@@ -417,8 +428,8 @@ public class PropertyListTest {
 		p.setFirstName("Joe");
 		p.setLastName("Cool");
 		assertEquals("Joe Cool", propertyList.getPropertyValue(p, "fullName"));
-		assertEquals("Joe Cool", childPropertyList.getPropertyValue(p,
-				"fullName"));
+		assertEquals("Joe Cool",
+				childPropertyList.getPropertyValue(p, "fullName"));
 	}
 
 	@Test
@@ -446,14 +457,14 @@ public class PropertyListTest {
 		p.getAddress().setPostalCode("Code");
 		p.getAddress().setPostOffice("Office");
 
-		assertEquals("Street", propertyList.getPropertyValue(p,
-				"transientAddress.street"));
-		assertEquals("Street Code Office", propertyList.getPropertyValue(p,
-				"address.fullAddress"));
+		assertEquals("Street",
+				propertyList.getPropertyValue(p, "transientAddress.street"));
+		assertEquals("Street Code Office",
+				propertyList.getPropertyValue(p, "address.fullAddress"));
 		assertEquals("Street", childPropertyList.getPropertyValue(p,
 				"transientAddress.street"));
-		assertEquals("Street Code Office", childPropertyList.getPropertyValue(
-				p, "address.fullAddress"));
+		assertEquals("Street Code Office",
+				childPropertyList.getPropertyValue(p, "address.fullAddress"));
 	}
 
 	@Test
@@ -465,10 +476,10 @@ public class PropertyListTest {
 
 		p.setAddress(new Address());
 		p.getAddress().setStreet("Hello World");
-		assertEquals("Hello World", propertyList.getPropertyValue(p,
-				"address.street"));
-		assertEquals("Hello World", childPropertyList.getPropertyValue(p,
-				"address.street"));
+		assertEquals("Hello World",
+				propertyList.getPropertyValue(p, "address.street"));
+		assertEquals("Hello World",
+				childPropertyList.getPropertyValue(p, "address.street"));
 	}
 
 	@Test
@@ -574,8 +585,8 @@ public class PropertyListTest {
 	public void testGetPropertyType_NestedProperty() {
 		propertyList.addNestedProperty("address.street");
 		assertSame(String.class, propertyList.getPropertyType("address.street"));
-		assertSame(String.class, childPropertyList
-				.getPropertyType("address.street"));
+		assertSame(String.class,
+				childPropertyList.getPropertyType("address.street"));
 	}
 
 	@Test
