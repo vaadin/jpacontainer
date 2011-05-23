@@ -76,6 +76,6 @@ public class DemoApp extends Application {
 
 	@Override
 	public String getVersion() {
-		return "1.1.2-SNAPSHOT"; // TODO Replace this with a version number from the build system
+		return "1.1.2"; // TODO Replace this with a version number from the build system
 	}
 }
