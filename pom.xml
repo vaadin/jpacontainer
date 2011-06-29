@@ -5,7 +5,7 @@
     <groupId>com.vaadin.addon</groupId>
     <artifactId>jpacontainer</artifactId>
     <packaging>pom</packaging>
-    <version>1.1.3-SNAPSHOT</version>
+    <version>${jpacontainer.version}</version>
     <name>Vaadin JPAContainer</name>
     <description>Vaadin JPAContainer</description>
     <organization>
@@ -51,10 +51,22 @@
         </license>
     </licenses>
 
+    <properties>
+        <Implementation-Version>${project.version}</Implementation-Version>
+        <!-- Must not change this because of the Directory -->
+        <Implementation-Title>Vaadin JPAContainer</Implementation-Title>
+        <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
+        <Vaadin-Package-Version>1</Vaadin-Package-Version>
+        <Vaadin-Addon>vaadin-jpacontainer-${project.version}.jar</Vaadin-Addon>
+        
+        <vaadin.version.maven>6.6.2</vaadin.version.maven>
+        <snapshot.repository.url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</snapshot.repository.url>
+    </properties>
+
     <repositories>
         <repository>
             <id>vaadin-snapshots</id>
-            <url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
+            <url>${snapshot.repository.url}</url>
             <releases>
                 <enabled>false</enabled>
             </releases>
@@ -73,18 +85,9 @@
         <snapshotRepository>
             <id>vaadin-snapshots</id>
             <name>Vaadin snapshot repository</name>
-            <url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
+            <url>${snapshot.repository.url}</url>
         </snapshotRepository>
     </distributionManagement>
-
-    <properties>
-        <Implementation-Version>${project.version}</Implementation-Version>
-        <!-- Must not change this because of the Directory -->
-        <Implementation-Title>Vaadin JPAContainer</Implementation-Title>
-        <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
-        <Vaadin-Package-Version>1</Vaadin-Package-Version>
-        <Vaadin-Addon>vaadin-jpacontainer-${project.version}.jar</Vaadin-Addon>
-    </properties>
 
     <modules>
         <module>jpacontainer-demo</module>
@@ -109,7 +112,7 @@
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin</artifactId>
-            <version>6.6.0</version>
+            <version>${vaadin.version.maven}</version>
         </dependency>
         <dependency>
             <groupId>javax.persistence</groupId>
