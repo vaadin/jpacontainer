@@ -56,7 +56,6 @@
         <!-- Must not change this because of the Directory -->
         <Implementation-Title>Vaadin JPAContainer</Implementation-Title>
         <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
-        <Vaadin-Package-Version>1</Vaadin-Package-Version>
         <Vaadin-Addon>vaadin-jpacontainer-${project.version}.jar</Vaadin-Addon>
         
         <vaadin.version.maven>6.6.2</vaadin.version.maven>

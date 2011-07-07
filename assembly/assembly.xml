@@ -35,15 +35,13 @@
       </includes>
     </fileSet>
     -->
-    <fileSet>
-      <directory>target/dependency</directory>
-      <outputDirectory></outputDirectory>
-      <includes>
-        <include>META-INF/**</include>
-      </includes>
-    </fileSet>
   </fileSets>
   <files>
+    <file>
+      <source>../packaging/MANIFEST.MF</source>
+      <outputDirectory>META-INF</outputDirectory>
+      <filtered>true</filtered>
+    </file>
     <file>
       <source>../jpacontainer-manual/target/docbkx/pdf/manual.pdf</source>
       <outputDirectory></outputDirectory>
