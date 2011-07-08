@@ -4,7 +4,7 @@
          xmlns:html="http://www.w3.org/1999/xhtml"
          xmlns:xl="http://www.w3.org/1999/xlink">
     <info>
-        <title>Vaadin JPAContainer 1.0 Manual</title>
+        <title>Vaadin JPAContainer <?eval ${project.version}?> Manual</title>
         <author>
             <personname>
                 <firstname>Petter</firstname>
@@ -13,7 +13,7 @@
             <email>petter.holmstrom@itmill.com</email>
         </author>
         <copyright>
-            <year>2009, 2010</year>
+            <year>2009-2011</year>
             <holder>Oy IT Mill Ltd.</holder>
         </copyright>
     </info>
