@@ -90,7 +90,39 @@
     </dependencies>
     <build>
         <finalName>vaadin-jpacontainer-${project.version}</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <filtering>true</filtering>
+                <targetPath>${project.build.directory}/filtered-sources/main/java</targetPath>
+            </resource>
+            <resource>
+                <directory>src/test/java</directory>
+                <filtering>true</filtering>
+                <targetPath>${project.build.directory}/filtered-sources/test/java</targetPath>
+            </resource>
+        </resources>
+        <sourceDirectory>target/filtered-sources/main/java</sourceDirectory>
+        <testSourceDirectory>target/filtered-sources/test/java</testSourceDirectory>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+                <version>1.0-alpha-2</version>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>read-project-properties</goal>
+                        </goals>
+                        <configuration>
+                            <files>
+                                <file>${license.header.file}</file>
+                            </files>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -157,6 +189,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
                 <version>2.1.2</version>
+                <configuration>
+                    <excludeResources>true</excludeResources>
+                </configuration>
                 <executions>
                     <execution>
                         <phase>package</phase>

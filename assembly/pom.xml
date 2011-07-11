@@ -41,7 +41,7 @@
                 <version>2.2.1</version>
                 <inherited>false</inherited>
                 <configuration>
-                    <finalName>vaadin-jpacontainer-${project.version}</finalName>
+                    <finalName>vaadin-jpacontainer-${project.version}-${license.short.name}</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
                     <skipAssembly>false</skipAssembly>
                     <outputDirectory>../target</outputDirectory>

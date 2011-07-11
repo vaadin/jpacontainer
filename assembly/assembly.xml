@@ -8,8 +8,7 @@
     <fileSet>
       <directory>..</directory>
       <includes>
-        <include>licensing.txt</include>
-        <include>license-*.txt</include>
+        <include>license-${license.short.name}*.txt</include>
       </includes>
     </fileSet>
     <fileSet>
@@ -37,6 +36,11 @@
     -->
   </fileSets>
   <files>
+    <file>
+      <source>../licensing-${license.short.name}.txt</source>
+      <outputDirectory></outputDirectory>
+      <destName>licensing.txt</destName>
+    </file>
     <file>
       <source>../packaging/MANIFEST.MF</source>
       <outputDirectory>META-INF</outputDirectory>

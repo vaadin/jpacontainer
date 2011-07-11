@@ -54,9 +54,5 @@ CHECKING THE CODE COVERAGE OF THE UNIT TESTS
   2. Open the file jpacontainer-addon/target/site/cobertura/index.html
      in your favorite web browser.
 
-UPDATING LICENSE HEADERS
-
-  $ mvn -Djpacontainer.version=1.2.0-SNAPSHOT com.mycila.maven-license-plugin:maven-license-plugin:format
-
 
 More instructions will be added later.
