@@ -111,6 +111,7 @@
                 <version>1.0-alpha-2</version>
                 <executions>
                     <execution>
+                        <id>read-license-header</id>
                         <phase>initialize</phase>
                         <goals>
                             <goal>read-project-properties</goal>
