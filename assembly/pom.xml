@@ -68,7 +68,7 @@
                             tofile="${basedir}/../builds/manual-${DSTAMP}.pdf" />
                         <copy
                             file="${basedir}/../target/vaadin-jpacontainer-${project.version}-${license.short.name}.zip"
-                            tofile="${basedir}/../builds/vaadin-jpacontainer-${project.version}-${license.short.name}.zip" />
+                            todir="${basedir}/../builds" />
                     </target>
                 </configuration>
             </plugin>
