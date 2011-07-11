@@ -67,8 +67,8 @@
                             file="${basedir}/../jpacontainer-manual/target/docbkx/pdf/manual.pdf"
                             tofile="${basedir}/../builds/manual-${DSTAMP}.pdf" />
                         <copy
-                            file="${basedir}/../target/vaadin-jpacontainer-${project.version}.zip"
-                            tofile="${basedir}/../builds/vaadin-jpacontainer-${project.version}.zip" />
+                            file="${basedir}/../target/vaadin-jpacontainer-${project.version}-${license.short.name}.zip"
+                            tofile="${basedir}/../builds/vaadin-jpacontainer-${project.version}-${license.short.name}.zip" />
                     </target>
                 </configuration>
             </plugin>

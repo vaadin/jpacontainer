@@ -144,6 +144,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
+                    <finalName>vaadin-jpacontainer-${project.version}-${license.short.name}</finalName>
                     <archive>
                         <manifestEntries>
                             <Implementation-Version>${Implementation-Version}</Implementation-Version>
