@@ -63,7 +63,7 @@
         
         <license.short.name>agpl-3.0</license.short.name>
         <!-- Note the relative path for subprojects -->
-        <license.header.file>../java-license-header-${license.short.name}.txt</license.header.file>
+        <license.header.file>../java-license-header-${license.short.name}.properties</license.header.file>
     </properties>
 
     <repositories>
