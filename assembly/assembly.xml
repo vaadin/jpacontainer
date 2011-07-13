@@ -8,14 +8,14 @@
     <fileSet>
       <directory>..</directory>
       <includes>
-        <include>license-${license.short.name}*.txt</include>
+        <include>license-${license.short.name}.txt</include>
       </includes>
     </fileSet>
     <fileSet>
       <directory>../jpacontainer-addon/target</directory>
       <outputDirectory></outputDirectory>
       <includes>
-        <include>*-${license.short.name}.jar</include>
+        <include>*-${license.short.name}-*.jar</include>
         <include>*-javadoc.jar</include>
         <include>*-sources.jar</include>
       </includes>

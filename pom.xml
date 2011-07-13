@@ -61,7 +61,7 @@
         <vaadin.version.maven>6.6.2</vaadin.version.maven>
         <snapshot.repository.url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</snapshot.repository.url>
         
-        <license.short.name>agpl</license.short.name>
+        <license.short.name>agpl-3.0</license.short.name>
         <!-- Note the relative path for subprojects -->
         <license.header.file>../java-license-header-${license.short.name}.txt</license.header.file>
     </properties>

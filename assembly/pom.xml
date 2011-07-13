@@ -41,7 +41,7 @@
                 <version>2.2.1</version>
                 <inherited>false</inherited>
                 <configuration>
-                    <finalName>vaadin-jpacontainer-${project.version}-${license.short.name}</finalName>
+                    <finalName>vaadin-jpacontainer-${license.short.name}-${project.version}</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
                     <skipAssembly>false</skipAssembly>
                     <outputDirectory>../target</outputDirectory>
@@ -67,7 +67,7 @@
                             file="${basedir}/../jpacontainer-manual/target/docbkx/pdf/manual.pdf"
                             tofile="${basedir}/../builds/manual-${DSTAMP}.pdf" />
                         <copy
-                            file="${basedir}/../target/vaadin-jpacontainer-${project.version}-${license.short.name}.zip"
+                            file="${basedir}/../target/vaadin-jpacontainer-${license.short.name}-${project.version}.zip"
                             todir="${basedir}/../builds" />
                     </target>
                 </configuration>
