@@ -2,19 +2,97 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <artifactId>jpacontainer</artifactId>
-        <groupId>com.vaadin.addon</groupId>
-        <version>${jpacontainer.version}</version>
-    </parent>
-
     <groupId>com.vaadin.addon</groupId>
     <artifactId>jpacontainer-addon</artifactId>
-    <version>${parent.version}</version>
+    <version>${jpacontainer.version}</version>
     <packaging>jar</packaging>
 
     <name>Vaadin JPAContainer Addon</name>
     <description>Vaadin JPAContainer</description>
+    <organization>
+        <name>Vaadin Ltd</name>
+        <url>http://vaadin.com/</url>
+    </organization>
+    <url>http://vaadin.com/</url>
+    <scm>
+        <connection>scm:svn:http://dev.vaadin.com/svn/addons/JPAContainer/trunk</connection>
+        <developerConnection>scm:svn:http://dev.vaadin.com/svn/addons/JPAContainer/trunk</developerConnection>
+        <url>http://dev.vaadin.com/browser/addons/JPAContainer/trunk</url>
+    </scm>
+    <issueManagement>
+        <system>trac</system>
+        <url>http://dev.vaadin.com/</url>
+    </issueManagement>
+    <developers>
+        <developer>
+            <name>Petter Holmström</name>
+            <id>petter</id>
+            <email>petter at vaadin.com</email>
+            <organization>Vaadin Ltd</organization>
+            <timezone>+2</timezone>
+        </developer>
+        <developer>
+            <name>Henri Sara</name>
+            <id>hesara</id>
+            <email>hesara at vaadin.com</email>
+            <organization>Vaadin Ltd</organization>
+            <timezone>+2</timezone>
+        </developer>
+    </developers>
+    <licenses>
+        <license>
+            <name>${license.name}</name>
+            <url>${license.url}</url>
+            <distribution>${license.distribution}</distribution>
+        </license>
+    </licenses>
+
+    <properties>
+        <license.name>GNU Affero General Public License version 3.0</license.name>
+        <license.url>http://www.gnu.org/licenses/agpl-3.0.html</license.url>
+        <license.distribution>repo</license.distribution>
+        
+        <license.short.name>agpl-3.0</license.short.name>
+        <license.header.file>../java-license-header-${license.short.name}.properties</license.header.file>
+
+        <Implementation-Version>${project.version}</Implementation-Version>
+        <!-- Must not change this because of the Directory -->
+        <Implementation-Title>Vaadin JPAContainer</Implementation-Title>
+        <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
+        
+        <vaadin.version.maven>6.6.2</vaadin.version.maven>
+        <snapshot.repository.url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</snapshot.repository.url>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>EclipseLink Repo</id>
+            <url>http://www.eclipse.org/downloads/download.php?r=1&amp;nf=1&amp;file=/rt/eclipselink/maven.repo</url>
+        </repository>
+        <repository>
+            <id>vaadin-snapshots</id>
+            <url>${snapshot.repository.url}</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <distributionManagement>
+        <repository>
+            <id>vaadin-staging</id>
+            <name>Vaadin release staging repository</name>
+            <url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+        <snapshotRepository>
+            <id>vaadin-snapshots</id>
+            <name>Vaadin snapshot repository</name>
+            <url>${snapshot.repository.url}</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <dependencies>
         <dependency>
@@ -104,6 +182,18 @@
         </resources>
         <sourceDirectory>target/filtered-sources/main/java</sourceDirectory>
         <testSourceDirectory>target/filtered-sources/test/java</testSourceDirectory>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>2.2.1</version>
+                    <configuration>
+                        <skipAssembly>true</skipAssembly>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -119,6 +209,18 @@
                         <configuration>
                             <files>
                                 <file>${license.header.file}</file>
+                            </files>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>read-gpg-passphrase</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>read-project-properties</goal>
+                        </goals>
+                        <configuration>
+                            <files>
+                                <file>${gpg.passphrase.file}</file>
                             </files>
                         </configuration>
                     </execution>
@@ -203,14 +305,21 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
-    <repositories>
-        <repository>
-            <id>EclipseLink Repo</id>
-            <url>http://www.eclipse.org/downloads/download.php?r=1&amp;nf=1&amp;file=/rt/eclipselink/maven.repo</url>
-        </repository>
-    </repositories>
     <reporting>
         <plugins>
             <plugin>

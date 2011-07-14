@@ -40,9 +40,9 @@
     </developers>
     <licenses>
         <license>
-            <name>GNU Affero General Public License version 3.0</name>
-            <url>http://www.gnu.org/licenses/agpl-3.0.html</url>
-            <distribution>repo</distribution>
+            <name>${license.name}</name>
+            <url>${license.url}</url>
+            <distribution>${license.distribution}</distribution>
         </license>
         <license>
             <name>Commercial Vaadin Add-On License version 2.0</name>
@@ -52,18 +52,22 @@
     </licenses>
 
     <properties>
-        <Implementation-Version>${project.version}</Implementation-Version>
-        <!-- Must not change this because of the Directory -->
-        <Implementation-Title>Vaadin JPAContainer</Implementation-Title>
-        <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
-        <Vaadin-Addon>vaadin-jpacontainer-${project.version}.jar</Vaadin-Addon>
-        
-        <vaadin.version.maven>6.6.2</vaadin.version.maven>
-        <snapshot.repository.url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</snapshot.repository.url>
+        <license.name>GNU Affero General Public License version 3.0</license.name>
+        <license.url>http://www.gnu.org/licenses/agpl-3.0.html</license.url>
+        <license.distribution>repo</license.distribution>
         
         <license.short.name>agpl-3.0</license.short.name>
         <!-- Note the relative path for subprojects -->
         <license.header.file>../java-license-header-${license.short.name}.properties</license.header.file>
+
+        <Implementation-Version>${project.version}</Implementation-Version>
+        <!-- Must not change this because of the Directory -->
+        <Implementation-Title>Vaadin JPAContainer</Implementation-Title>
+        <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
+        <Vaadin-Addon>vaadin-jpacontainer-${license.short.name}-${project.version}.jar</Vaadin-Addon>
+        
+        <vaadin.version.maven>6.6.2</vaadin.version.maven>
+        <snapshot.repository.url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</snapshot.repository.url>
     </properties>
 
     <repositories>
@@ -98,31 +102,6 @@
         <module>jpacontainer-manual</module>
         <module>assembly</module>
     </modules>
-
-    <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.7</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.easymock</groupId>
-            <artifactId>easymock</artifactId>
-            <version>2.5.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.vaadin</groupId>
-            <artifactId>vaadin</artifactId>
-            <version>${vaadin.version.maven}</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.persistence</groupId>
-            <artifactId>persistence-api</artifactId>
-            <version>1.0</version>
-        </dependency>
-    </dependencies>
 
     <build>
         <pluginManagement>
