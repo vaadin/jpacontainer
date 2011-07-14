@@ -15,7 +15,7 @@ import static org.junit.Assert.*;
  * a concrete entity manager implementation to test. If the test passes, the
  * entity manager implementation should work with JPAContainer.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public abstract class AbstractMutableEntityProviderEMTest extends

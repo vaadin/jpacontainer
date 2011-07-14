@@ -13,7 +13,7 @@ import java.lang.reflect.Method;
  * An extended version of {@link PropertyMetadata} that provides additional
  * information about persistent properties.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public class PersistentPropertyMetadata extends PropertyMetadata {
@@ -23,7 +23,7 @@ public class PersistentPropertyMetadata extends PropertyMetadata {
 	/**
 	 * Enumeration defining the property kind.
 	 * 
-	 * @author Petter Holmström (IT Mill)
+	 * @author Petter Holmström (Vaadin Ltd)
 	 */
 	public enum PropertyKind {
 
@@ -57,7 +57,7 @@ public class PersistentPropertyMetadata extends PropertyMetadata {
 	/**
 	 * Enumeration defining the property access types.
 	 * 
-	 * @author Petter Holmström (IT Mill)
+	 * @author Petter Holmström (Vaadin Ltd)
 	 */
 	public enum AccessType {
 

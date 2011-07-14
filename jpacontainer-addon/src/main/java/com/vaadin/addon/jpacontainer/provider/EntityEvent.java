@@ -14,7 +14,7 @@ import java.util.Collections;
 /**
  * Base class for {@link EntityProviderChangeEvent}s.
  *
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 abstract class EntityEvent<T> implements EntityProviderChangeEvent<T>,

@@ -14,7 +14,7 @@ import javax.persistence.Version;
 /**
  * Entity Java bean for testing.
  *
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 @Entity

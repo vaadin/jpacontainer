@@ -23,7 +23,7 @@ import javax.persistence.Query;
  * Delegate class that implements caching for {@link LocalEntityProvider}s and
  * their subclasses. This class is internal and should never be used outside of JPAContainer.
  *
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 class CachingSupport<T> implements Serializable {
@@ -81,7 +81,7 @@ class CachingSupport<T> implements Serializable {
 	 * Data structure used by {@link FilterCacheEntry} to store entityId lists
 	 * sorted in different ways.
 	 *
-	 * @author Petter Holmström (IT Mill)
+	 * @author Petter Holmström (Vaadin Ltd)
 	 * @since 1.0
 	 */
 	static class IdListEntry implements Serializable {
@@ -96,7 +96,7 @@ class CachingSupport<T> implements Serializable {
 	 * This class represents a cache for a specific {@link Filter}. The class
 	 * contains counterparts of most of the methods defined in {@link EntityProvider}.
 	 *
-	 * @author Petter Holmström (IT Mill)
+	 * @author Petter Holmström (Vaadin Ltd)
 	 * @since 1.0
 	 */
 	class FilterCacheEntry implements Serializable {
@@ -472,7 +472,7 @@ class CachingSupport<T> implements Serializable {
 	 * A hash map that will remove the oldest items once
 	 * its size reaches a specified max size.
 	 *
-	 * @author Petter Holmström (IT Mill)
+	 * @author Petter Holmström (Vaadin Ltd)
 	 * @since 1.0
 	 */
 	protected static class CacheMap<K, V> extends HashMap<K, V> {
@@ -501,7 +501,7 @@ class CachingSupport<T> implements Serializable {
 	 * A hash set that will remove the oldest items once its size reaches
 	 * a specified max size.
 	 *
-	 * @author Petter Holmström (IT Mill)
+	 * @author Petter Holmström (Vaadin Ltd)
 	 * @since 1.0
 	 */
 	protected static class CacheSet<V> extends HashSet<V> {

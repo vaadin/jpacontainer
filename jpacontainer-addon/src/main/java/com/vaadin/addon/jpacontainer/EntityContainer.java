@@ -13,7 +13,7 @@ import com.vaadin.data.Validator.InvalidValueException;
  * {@link EntityProvider}. Supports sorting, advanced filtering, nested
  * properties and buffering.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public interface EntityContainer<T> extends Container.Sortable,

@@ -30,7 +30,7 @@ import org.springframework.stereotype.Component;
 /**
  * View for browsing invoices.
  *
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 @Component(value = "invoiceView")

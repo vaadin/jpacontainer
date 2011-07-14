@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
 /**
  * Test case for {@link PersistentPropertyMetadata}.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public class PersistentPropertyMetadataTest {

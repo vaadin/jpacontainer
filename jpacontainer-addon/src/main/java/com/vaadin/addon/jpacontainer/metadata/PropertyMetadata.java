@@ -17,7 +17,7 @@ import java.lang.reflect.Method;
  * interface.
  * 
  * @see ClassMetadata
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public class PropertyMetadata implements Serializable {

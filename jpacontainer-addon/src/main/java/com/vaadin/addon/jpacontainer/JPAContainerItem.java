@@ -18,7 +18,7 @@ import java.util.Map;
  * {@link EntityItem}-implementation that is used by {@link JPAContainer}.
  * Should not be used directly by clients.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 final class JPAContainerItem<T> implements EntityItem<T> {
@@ -37,7 +37,7 @@ final class JPAContainerItem<T> implements EntityItem<T> {
 	 * {@link Property}-implementation that is used by {@link EntityItem}.
 	 * Should not be used directly by clients.
 	 * 
-	 * @author Petter Holmström (IT Mill)
+	 * @author Petter Holmström (Vaadin Ltd)
 	 * @since 1.0
 	 */
 	final class ItemProperty implements EntityItemProperty {

@@ -7,7 +7,7 @@ package com.vaadin.addon.jpacontainer.filter;
  * Filter that matches the items to a value using a binary comparison operator
  * <code>(=, >=, <=, <, >)</code>.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public class ComparisonFilter extends AbstractValueFilter {

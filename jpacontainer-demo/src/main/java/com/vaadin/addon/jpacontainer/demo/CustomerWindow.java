@@ -24,7 +24,7 @@ import com.vaadin.ui.Window;
 /**
  * Modal window for editing customers.
  *
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public class CustomerWindow extends Window {

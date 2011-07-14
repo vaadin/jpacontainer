@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Filter that negates another filter.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public class Negation implements CompositeFilter {

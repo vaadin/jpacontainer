@@ -10,7 +10,7 @@ import java.util.Collection;
  * Event indicating that the contents of a {@link EntityProvider} has been changed (e.g.
  * entities have been added or removed).
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public interface EntityProviderChangeEvent<T> extends Serializable {
@@ -37,7 +37,7 @@ public interface EntityProviderChangeEvent<T> extends Serializable {
 	/**
 	 * Event indicating that one or more entities have been added to the entity provider.
 	 *
-	 * @author Petter Holmström (IT Mill)
+	 * @author Petter Holmström (Vaadin Ltd)
 	 * @since 1.0
 	 */
 	public interface EntitiesAddedEvent<T> extends EntityProviderChangeEvent<T> {
@@ -47,7 +47,7 @@ public interface EntityProviderChangeEvent<T> extends Serializable {
 	/**
 	 * Event indicating that one or more entities have been updated in the entity provider.
 	 *
-	 * @author Petter Holmström (IT Mill)
+	 * @author Petter Holmström (Vaadin Ltd)
 	 * @since 1.0
 	 */
 	public interface EntitiesUpdatedEvent<T> extends EntityProviderChangeEvent<T> {
@@ -57,7 +57,7 @@ public interface EntityProviderChangeEvent<T> extends Serializable {
 	/**
 	 * Event indicating that one or more entities have been removed from the entity provider.
 	 *
-	 * @author Petter Holmström (IT Mill)
+	 * @author Petter Holmström (Vaadin Ltd)
 	 * @since 1.0
 	 */
 	public interface EntitiesRemovedEvent<T> extends EntityProviderChangeEvent<T> {

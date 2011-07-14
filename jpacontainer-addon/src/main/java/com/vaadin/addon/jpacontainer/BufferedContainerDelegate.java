@@ -28,7 +28,7 @@ import java.util.UUID;
  * tracking exactly which changes have been made to an entity and in which order
  * (e.g. if the same entity is modified twice before the changes are committed).
  *
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 final class BufferedContainerDelegate<T> implements Serializable {

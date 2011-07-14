@@ -27,7 +27,7 @@ import com.vaadin.data.util.filter.SimpleStringFilter;
  * Helper class that implements the filtering methods defined in
  * {@link AdvancedFilterable} and can be either extended or used as a delegate.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public class AdvancedFilterableSupport implements Serializable {
@@ -38,7 +38,7 @@ public class AdvancedFilterableSupport implements Serializable {
 	 * ApplyFiltersListener interface to be implemented by classes that want to
 	 * be notified when the filters are applied.
 	 * 
-	 * @author Petter Holmström (IT Mill)
+	 * @author Petter Holmström (Vaadin Ltd)
 	 * @since 1.0
 	 */
 	public static interface ApplyFiltersListener extends Serializable {

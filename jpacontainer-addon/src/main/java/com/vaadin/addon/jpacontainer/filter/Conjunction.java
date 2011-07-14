@@ -11,7 +11,7 @@ import java.util.List;
  * A filter that groups other filters together in a single conjunction (A and B
  * and C...).
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public class Conjunction extends AbstractJunction {

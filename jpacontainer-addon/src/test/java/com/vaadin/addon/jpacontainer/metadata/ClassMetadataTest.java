@@ -10,7 +10,7 @@ import static org.junit.Assert.*;
 /**
  * Test case for {@link ClassMetadata}.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public class ClassMetadataTest {

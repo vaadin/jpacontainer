@@ -11,7 +11,7 @@ import com.vaadin.addon.jpacontainer.testdata.Person;
 /**
  * Base class for the {@link CachingMutableLocalEntityProvider} Entity Manager tests.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public abstract class AbstractCachingMutableLocalEntityProviderEMTest extends

@@ -11,7 +11,7 @@ import com.vaadin.addon.jpacontainer.Filter;
  * For example, if the property to be joined is named <code>skills</code>, then the join should
  * look like this: <code>select Person as obj join obj.skills as skills where ...</code>.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public class SimpleJoinFilter extends Conjunction implements JoinFilter {

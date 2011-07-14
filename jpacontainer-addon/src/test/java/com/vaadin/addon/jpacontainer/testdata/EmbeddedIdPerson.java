@@ -17,7 +17,7 @@ import org.apache.commons.lang.time.DateUtils;
 /**
  * Entity Java bean with Embedded ID for testing.
  *
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 @Entity

@@ -10,11 +10,11 @@
                 <firstname>Petter</firstname>
                 <surname>Holmström</surname>
             </personname>
-            <email>petter.holmstrom@itmill.com</email>
+            <email>petter.holmstrom@vaadin.com</email>
         </author>
         <copyright>
             <year>2009-2011</year>
-            <holder>Oy IT Mill Ltd.</holder>
+            <holder>Vaadin Ltd.</holder>
         </copyright>
     </info>
 

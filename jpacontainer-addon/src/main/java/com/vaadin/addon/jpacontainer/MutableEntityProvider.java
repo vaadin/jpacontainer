@@ -15,7 +15,7 @@ package com.vaadin.addon.jpacontainer;
  * If an error occurs while accessing the persistence storage, the transaction
  * should be rolled back and a runtime exception should be thrown.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public interface MutableEntityProvider<T> extends EntityProvider<T> {

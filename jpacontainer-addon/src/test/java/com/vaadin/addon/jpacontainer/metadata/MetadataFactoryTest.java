@@ -29,7 +29,7 @@ import com.vaadin.addon.jpacontainer.metadata.TestClasses.Person_M;
 /**
  * Test case for {@link MetadataFactory}.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public class MetadataFactoryTest {

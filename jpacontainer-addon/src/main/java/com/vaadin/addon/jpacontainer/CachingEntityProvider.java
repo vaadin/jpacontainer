@@ -7,7 +7,7 @@ package com.vaadin.addon.jpacontainer;
  * Interface to be implemented by all <code>EntityProvider</code>s that perform
  * some kind of internal caching.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public interface CachingEntityProvider<T> extends EntityProvider<T> {

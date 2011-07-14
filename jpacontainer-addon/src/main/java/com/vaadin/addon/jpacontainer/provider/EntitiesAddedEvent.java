@@ -9,7 +9,7 @@ import com.vaadin.addon.jpacontainer.MutableEntityProvider;
 /**
  * Event indicating that one or more entities have been added.
  *
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 class EntitiesAddedEvent<T> extends EntityEvent<T> implements EntityProviderChangeEvent.EntitiesAddedEvent<T> {

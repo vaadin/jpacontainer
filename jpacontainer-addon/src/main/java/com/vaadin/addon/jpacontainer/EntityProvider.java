@@ -27,7 +27,7 @@ import java.util.List;
  * @see CachingEntityProvider
  * @see BatchableEntityProvider
  * @see EntityProviderChangeNotifier
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public interface EntityProvider<T> extends Serializable {

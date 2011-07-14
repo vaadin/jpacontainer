@@ -15,7 +15,7 @@ import org.aspectj.lang.annotation.Pointcut;
  * Aspect that logs all method calls to {@link LocalEntityProvider} using Apache Commons Logging.
  * Useful for debugging, but should not be included in production environments.
  *
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 @Aspect

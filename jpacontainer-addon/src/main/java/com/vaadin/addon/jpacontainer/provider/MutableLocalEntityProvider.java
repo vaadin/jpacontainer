@@ -25,7 +25,7 @@ import com.vaadin.addon.jpacontainer.MutableEntityProvider;
  * This entity provider fires {@link EntityProviderChangeEvent}s every time an
  * entity is added, updated or deleted.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>

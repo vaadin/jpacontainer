@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Abstract base class for {@link Junction}-implementations.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public abstract class AbstractJunction implements Junction {

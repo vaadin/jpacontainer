@@ -12,7 +12,7 @@ import java.util.Collections;
 /**
  * Event indicating that a batch update has been performed.
  *
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public class BatchUpdatePerformedEvent<T> implements

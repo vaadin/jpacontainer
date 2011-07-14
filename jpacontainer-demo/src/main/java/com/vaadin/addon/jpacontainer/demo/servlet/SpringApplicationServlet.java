@@ -23,7 +23,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  * by Petri Hakala.
  *
  * @see WebApplicationContext
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public class SpringApplicationServlet extends AbstractApplicationServlet {

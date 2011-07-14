@@ -20,7 +20,7 @@ import org.junit.Assert;
  * Entity Manager test for {@link LocalEntityProvider} that uses EclipseLink as
  * the entity manager implementation.
  *
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public class LocalEntityProviderEclipseLinkTest extends AbstractLocalEntityProviderEMTest {

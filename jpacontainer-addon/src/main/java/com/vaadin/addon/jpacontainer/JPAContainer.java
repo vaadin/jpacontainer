@@ -101,7 +101,7 @@ import com.vaadin.data.util.filter.UnsupportedFilterException;
  * @see com.vaadin.addon.jpacontainer.provider.LocalEntityProvider
  * @see com.vaadin.addon.jpacontainer.provider.CachingLocalEntityProvider
  * @see com.vaadin.addon.jpacontainer.provider.BatchableLocalEntityProvider
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public class JPAContainer<T> implements EntityContainer<T>,
@@ -1259,7 +1259,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	/**
 	 * Event indicating that the container has been resorted.
 	 * 
-	 * @author Petter Holmström (IT Mill)
+	 * @author Petter Holmström (Vaadin Ltd)
 	 * @since 1.0
 	 */
 	public final class ContainerSortedEvent implements ItemSetChangeEvent {
@@ -1279,7 +1279,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	 * when the container has write-through/auto-commit turned off and
 	 * {@link JPAContainer#commit()} is called.
 	 * 
-	 * @author Petter Holmström (IT Mill)
+	 * @author Petter Holmström (Vaadin Ltd)
 	 * @since 1.0
 	 */
 	public final class ChangesCommittedEvent implements ItemSetChangeEvent {
@@ -1299,7 +1299,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	 * fired when the container has write-through/auto-commit turned off and
 	 * {@link JPAContainer#discard() } is called.
 	 * 
-	 * @author Petter Holmström (IT Mill)
+	 * @author Petter Holmström (Vaadin Ltd)
 	 * @since 1.0
 	 */
 	public final class ChangesDiscardedEvent implements ItemSetChangeEvent {
@@ -1318,7 +1318,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	 * Event indicating that all the items have been removed from the container.
 	 * This event is fired by {@link JPAContainer#removeAllItems() }.
 	 * 
-	 * @author Petter Holmström (IT Mill)
+	 * @author Petter Holmström (Vaadin Ltd)
 	 * @since 1.0
 	 */
 	public final class AllItemsRemovedEvent implements ItemSetChangeEvent {
@@ -1338,7 +1338,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	 * result is false and {@link #isContainsIdFiresItemSetChangeIfNotFound() }
 	 * is true.
 	 * 
-	 * @author Petter Holmström (IT Mill)
+	 * @author Petter Holmström (Vaadin Ltd)
 	 * @since 1.0
 	 */
 	public final class ItemNotFoundEvent implements ItemSetChangeEvent {
@@ -1357,7 +1357,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	 * Event fired when a {@link EntityProviderChangeEvent} is received by the
 	 * container.
 	 * 
-	 * @author Petter Holmström (IT Mill)
+	 * @author Petter Holmström (Vaadin Ltd)
 	 * @since 1.0
 	 */
 	public final class ProviderChangedEvent implements ItemSetChangeEvent {
@@ -1385,7 +1385,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	/**
 	 * Abstract base class for events concerning single {@link EntityItem}s.
 	 * 
-	 * @author Petter Holmström (IT Mill)
+	 * @author Petter Holmström (Vaadin Ltd)
 	 * @since 1.0
 	 */
 	public abstract class ItemEvent implements ItemSetChangeEvent {
@@ -1415,7 +1415,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	 * Event indicating that an item has been added to the container. This event
 	 * is fired by {@link JPAContainer#addEntity(java.lang.Object) }.
 	 * 
-	 * @author Petter Holmström (IT Mill)
+	 * @author Petter Holmström (Vaadin Ltd)
 	 * @since 1.0
 	 */
 	public final class ItemAddedEvent extends ItemEvent {
@@ -1430,7 +1430,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	/**
 	 * Event indicating that an item has been updated inside the container.
 	 * 
-	 * @author Petter Holmström (IT Mill)
+	 * @author Petter Holmström (Vaadin Ltd)
 	 * @since 1.0
 	 */
 	public final class ItemUpdatedEvent extends ItemEvent {
@@ -1446,7 +1446,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	 * Event indicating that an item has been removed from the container. This
 	 * event is fired by {@link JPAContainer#removeItem(java.lang.Object) }.
 	 * 
-	 * @author Petter Holmström (IT Mill)
+	 * @author Petter Holmström (Vaadin Ltd)
 	 * @since 1.0
 	 */
 	public final class ItemRemovedEvent extends ItemEvent {

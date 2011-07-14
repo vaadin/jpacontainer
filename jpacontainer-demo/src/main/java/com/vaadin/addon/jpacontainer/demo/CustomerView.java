@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
 /**
  * View for browsing and editing customers.
  *
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 @Component(value = "customerView")

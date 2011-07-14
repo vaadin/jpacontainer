@@ -13,7 +13,7 @@ import com.vaadin.data.Container;
  * . It has been designed to be used explicitly with JPA (e.g. all filters
  * generate JPA-QL).
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public interface AdvancedFilterable extends Container {
@@ -138,7 +138,7 @@ public interface AdvancedFilterable extends Container {
 	 * this event should be fired every time
 	 * {@link AdvancedFilterable#applyFilters() } has been executed successfully.
 	 * 
-	 * @author Petter Holmström (IT Mill)
+	 * @author Petter Holmström (Vaadin Ltd)
 	 * @since 1.0
 	 */
 	public static class FiltersAppliedEvent implements ItemSetChangeEvent {

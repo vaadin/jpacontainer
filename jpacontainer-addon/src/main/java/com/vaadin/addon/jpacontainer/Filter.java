@@ -9,7 +9,7 @@ import java.io.Serializable;
  * Interface defining a filter that can be used to filter the entities of an
  * {@link AdvancedFilterable} container.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public interface Filter extends Serializable {
@@ -36,7 +36,7 @@ public interface Filter extends Serializable {
 	 * Interface to be implemented by all property ID preprocessors. These are
 	 * used to support using e.g. aliases in QL-queries.
 	 * 
-	 * @author Petter Holmström (IT Mill)
+	 * @author Petter Holmström (Vaadin Ltd)
 	 * @since 1.0
 	 */
 	public interface PropertyIdPreprocessor {

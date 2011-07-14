@@ -14,7 +14,7 @@ import javax.persistence.EntityManager;
  * Please see the {@link BatchableEntityProvider} interface JavaDocs and the
  * JPAContainer manual for more information.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public class BatchableLocalEntityProvider<T> extends

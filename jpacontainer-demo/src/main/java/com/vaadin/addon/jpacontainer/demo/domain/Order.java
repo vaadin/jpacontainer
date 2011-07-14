@@ -29,7 +29,7 @@ import org.apache.commons.lang.ObjectUtils;
 /**
  * Example domain object for the JPAContainer demo application.
  *
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 @Entity(name = "CustomerOrder")

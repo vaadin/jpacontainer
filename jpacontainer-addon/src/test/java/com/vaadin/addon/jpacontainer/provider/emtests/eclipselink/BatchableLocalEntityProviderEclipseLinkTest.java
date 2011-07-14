@@ -20,7 +20,7 @@ import static org.eclipse.persistence.config.PersistenceUnitProperties.*;
  * Entity Manager test for {@link BatchableLocalEntityProvider} that uses
  * EclipseLink as the entity manager implementation.
  *
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public class BatchableLocalEntityProviderEclipseLinkTest extends AbstractBatchableLocalEntityProviderEMTest {

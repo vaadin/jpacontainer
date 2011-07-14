@@ -7,7 +7,7 @@ package com.vaadin.addon.jpacontainer.filter;
  * Filter that includes all items for which the filtered property is inside a
  * specified interval.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public class BetweenFilter extends AbstractIntervalFilter {

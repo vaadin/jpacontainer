@@ -19,7 +19,7 @@ import org.hibernate.ejb.Ejb3Configuration;
  * Entity Manager test for {@link CachingLocalEntityProvider} that uses
  * Hibernate as the entity manager implementation.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public class CachingLocalEntityProviderHibernateTest extends

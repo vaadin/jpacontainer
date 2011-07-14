@@ -10,7 +10,7 @@ import org.apache.commons.lang.ObjectUtils;
 /**
  * Embeddable JavaBean for testing.
  *
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 @Embeddable

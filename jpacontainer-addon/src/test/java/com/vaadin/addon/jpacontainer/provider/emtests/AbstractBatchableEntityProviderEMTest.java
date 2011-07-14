@@ -19,7 +19,7 @@ import static org.junit.Assert.*;
  * Note, that the test data used will not contain circular references that might
  * cause problems when committing buffered changes.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public abstract class AbstractBatchableEntityProviderEMTest extends

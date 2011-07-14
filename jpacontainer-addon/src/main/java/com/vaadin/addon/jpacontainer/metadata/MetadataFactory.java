@@ -30,7 +30,7 @@ import com.vaadin.addon.jpacontainer.metadata.PersistentPropertyMetadata.AccessT
  * Factory for creating and populating {@link ClassMetadata} and
  * {@link EntityClassMetadata} instances.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public class MetadataFactory {

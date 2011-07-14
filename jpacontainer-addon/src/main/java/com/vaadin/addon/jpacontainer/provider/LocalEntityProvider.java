@@ -54,7 +54,7 @@ import javax.persistence.Query;
  * {@link CachingLocalEntityProvider} should be used instead. However, this entity provider
  * consumes less memory than the caching provider.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {

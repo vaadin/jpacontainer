@@ -10,7 +10,7 @@ import java.util.List;
  * Interface to be implemented by all filters that are composed of at least one
  * other filter.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public interface CompositeFilter extends Filter {

@@ -10,7 +10,7 @@ import java.io.Serializable;
  * the contents of a {@link EntityProvider} is changed (e.g. entities are added or removed).
  * 
  * @see EntityProviderChangeNotifier
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public interface EntityProviderChangeListener<T> extends Serializable {

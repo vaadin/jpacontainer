@@ -41,7 +41,7 @@ import com.vaadin.data.Container.ItemSetChangeListener;
 /**
  * Test case for {@link JPAContainer}.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 @SuppressWarnings("serial")

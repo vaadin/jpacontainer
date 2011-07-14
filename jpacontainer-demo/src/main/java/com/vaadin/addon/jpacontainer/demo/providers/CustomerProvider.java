@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
  * which means that the Spring container will automatically detect it and
  * add it to the container.
  *
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 @Repository(value = "customerProvider")

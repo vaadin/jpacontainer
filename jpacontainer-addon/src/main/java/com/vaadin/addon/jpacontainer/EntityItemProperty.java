@@ -8,7 +8,7 @@ import com.vaadin.data.Property;
 /**
  * Interface defining the Properties that are contained in a {@link EntityItem}.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public interface EntityItemProperty extends Property,

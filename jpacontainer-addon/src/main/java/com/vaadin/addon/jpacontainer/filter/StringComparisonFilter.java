@@ -8,7 +8,7 @@ package com.vaadin.addon.jpacontainer.filter;
  * a binary comparison operator. When using the <code>like</code> operator, the
  * precent-sign (%) may be used as wildcard.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public class StringComparisonFilter extends AbstractStringFilter {

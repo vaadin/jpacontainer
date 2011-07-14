@@ -18,7 +18,7 @@ import javax.persistence.EntityManager;
  * If you are going to edit the entities returned by the container, you should check the {@link #setCloneCachedEntities(boolean) } before
  * continuing.
  *
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T>

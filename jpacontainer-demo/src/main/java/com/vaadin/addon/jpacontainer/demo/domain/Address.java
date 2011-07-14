@@ -10,7 +10,7 @@ import org.apache.commons.lang.ObjectUtils;
 /**
  * Example embeddable object for the JPAContainer demo application.
  *
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 @Embeddable

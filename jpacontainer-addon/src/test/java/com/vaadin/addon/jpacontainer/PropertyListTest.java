@@ -23,7 +23,7 @@ import com.vaadin.addon.jpacontainer.testdata.Person;
 /**
  * Test case for {@link PropertyList}.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public class PropertyListTest {

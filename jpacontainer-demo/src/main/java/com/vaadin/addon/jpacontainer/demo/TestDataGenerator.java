@@ -40,7 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
  * delete this class or comment out the <code>@Repository</code>
  * annotation.
  *
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 @Repository(value = "testDataGenerator")

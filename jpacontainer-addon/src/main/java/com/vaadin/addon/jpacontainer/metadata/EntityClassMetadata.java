@@ -9,7 +9,7 @@ import javax.persistence.Entity;
  * An extended version of {@link ClassMetadata} that provides additional
  * information about classes annotated with the {@link Entity} annotation.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public class EntityClassMetadata<T> extends ClassMetadata<T> {

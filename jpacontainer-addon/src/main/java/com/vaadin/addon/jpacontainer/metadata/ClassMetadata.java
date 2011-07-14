@@ -21,7 +21,7 @@ import javax.persistence.Entity;
  * to construct queries or decide whether a property is sortable or not.
  * 
  * @see EntityClassMetadata
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public class ClassMetadata<T> implements Serializable {

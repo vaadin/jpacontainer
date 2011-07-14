@@ -18,7 +18,7 @@ import com.vaadin.data.Container;
  * </pre>
  * </code>
  *
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public interface HierarchicalEntityContainer<T> extends EntityContainer<T>, Container.Hierarchical  {

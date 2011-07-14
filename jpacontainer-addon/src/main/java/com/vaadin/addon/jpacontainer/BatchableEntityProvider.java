@@ -41,7 +41,7 @@ import java.io.Serializable;
  * 
  * @see JPAContainer#setWriteThrough(boolean)
  * @see JPAContainer#isWriteThrough()
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public interface BatchableEntityProvider<T> extends MutableEntityProvider<T> {
@@ -51,7 +51,7 @@ public interface BatchableEntityProvider<T> extends MutableEntityProvider<T> {
 	 * {@link BatchableEntityProvider#batchUpdate(com.vaadin.addon.jpacontainer.BatchableEntityProvider.BatchUpdateCallback) }
 	 * method.
 	 * 
-	 * @author Petter Holmström (IT Mill)
+	 * @author Petter Holmström (Vaadin Ltd)
 	 * @since 1.0
 	 */
 	public static interface BatchUpdateCallback<T> extends Serializable {

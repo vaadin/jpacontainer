@@ -20,7 +20,7 @@ import javax.persistence.Version;
 /**
  * Test classes used by different unit tests in this package.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 @SuppressWarnings("serial")

@@ -7,7 +7,7 @@ package com.vaadin.addon.jpacontainer.filter;
  * Interface for property filters that need an interval to perform the filtering
  * (e.g. between).
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public interface IntervalFilter extends PropertyFilter {

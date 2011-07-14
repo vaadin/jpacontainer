@@ -16,7 +16,7 @@ import javax.persistence.EntityManager;
  * @see CachingMutableLocalEntityProvider
  * @see BatchableLocalEntityProvider
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public class CachingBatchableLocalEntityProvider<T> extends

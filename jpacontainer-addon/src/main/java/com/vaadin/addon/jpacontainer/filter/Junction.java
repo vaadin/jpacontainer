@@ -9,7 +9,7 @@ import com.vaadin.addon.jpacontainer.Filter;
  * A filter that groups other filters together using some associative logical
  * operator.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public interface Junction extends CompositeFilter {

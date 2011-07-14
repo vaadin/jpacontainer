@@ -23,7 +23,7 @@ import java.util.Collection;
  * {@link #commit() } is called. Please note, that this has nothing to do with
  * the buffering of the {@link EntityContainer}.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public interface EntityItem<T> extends Item, Buffered,

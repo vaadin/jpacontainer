@@ -9,7 +9,7 @@ import org.apache.commons.lang.time.DateFormatUtils;
 /**
  * Utility class for working with dates.
  *
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public class DateUtils {

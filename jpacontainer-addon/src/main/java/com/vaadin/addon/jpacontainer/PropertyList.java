@@ -25,7 +25,7 @@ import java.util.Set;
  * the properties of its parent in addition to its own. A child list cannot be
  * used to add or remove properties to/from its parent.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 final class PropertyList<T> implements Serializable {

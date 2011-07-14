@@ -8,7 +8,7 @@ import com.vaadin.addon.jpacontainer.Filter;
 /**
  * Interface to be implemented by filters that are applied to a single property.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public interface PropertyFilter extends Filter {

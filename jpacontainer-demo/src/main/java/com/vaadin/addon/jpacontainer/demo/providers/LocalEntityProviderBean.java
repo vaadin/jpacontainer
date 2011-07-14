@@ -18,7 +18,7 @@ import org.springframework.util.Assert;
  * declarative transactions and logging to the entity provider. It receives the
  * entity manager instance through dependency injection.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public abstract class LocalEntityProviderBean<T> extends BatchableLocalEntityProvider<T> {

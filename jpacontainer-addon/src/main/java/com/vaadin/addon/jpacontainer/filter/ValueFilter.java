@@ -13,7 +13,7 @@ package com.vaadin.addon.jpacontainer.filter;
  * @see IsNullFilter
  * @see IsNotNullFilter
  *
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public interface ValueFilter extends PropertyFilter {

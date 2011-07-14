@@ -10,7 +10,7 @@ import java.io.Serializable;
  * sort (ascending or descending). Once created, the instances of this class are
  * immutable.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public final class SortBy implements Serializable {

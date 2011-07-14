@@ -28,7 +28,7 @@ import com.vaadin.ui.TextField;
 /**
  * Test case for {@link JPAContainerItem}.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 @SuppressWarnings("serial")

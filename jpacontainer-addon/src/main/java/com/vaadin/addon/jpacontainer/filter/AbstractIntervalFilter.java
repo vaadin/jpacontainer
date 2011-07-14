@@ -8,7 +8,7 @@ import java.util.Random;
 /**
  * Abstract implementation of {@link IntervalFilter}.
  * 
- * @author Petter Holmström (IT Mill)
+ * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 public abstract class AbstractIntervalFilter extends AbstractPropertyFilter
