@@ -40,19 +40,21 @@
         </developer>
     </developers>
     <licenses>
+        <!-- The applicable license is indicated by the artifactId -->
         <license>
-            <name>${license.name}</name>
-            <url>${license.url}</url>
-            <distribution>${license.distribution}</distribution>
+            <name>GNU Affero General Public License version 3.0</name>
+            <url>http://www.gnu.org/licenses/agpl-3.0.html</url>
+            <distribution>repo</distribution>
+        </license>
+        <license>
+            <name>Commercial Vaadin Add-On License version 2.0</name>
+            <url>http://vaadin.com/license/cval-2.0</url>
+            <distribution>manual</distribution>
         </license>
     </licenses>
 
     <properties>
-        <!-- Default license unless otherwise stated in the licenses section of the POM -->
-        <license.name>GNU Affero General Public License version 3.0</license.name>
-        <license.url>http://www.gnu.org/licenses/agpl-3.0.html</license.url>
-        <license.distribution>repo</license.distribution>
-        
+        <!-- May be overridden by the build system when creating CVAL licensed packages -->
         <license.short.name>agpl-3.0</license.short.name>
         <license.header.file>../java-license-header-${license.short.name}.properties</license.header.file>
 
