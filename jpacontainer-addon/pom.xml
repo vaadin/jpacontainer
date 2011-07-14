@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.vaadin.addon</groupId>
-    <artifactId>jpacontainer-addon</artifactId>
+    <artifactId>jpacontainer-addon-${license.short.name}</artifactId>
     <version>${jpacontainer.version}</version>
     <packaging>jar</packaging>
 
@@ -48,6 +48,7 @@
     </licenses>
 
     <properties>
+        <!-- Default license unless otherwise stated in the licenses section of the POM -->
         <license.name>GNU Affero General Public License version 3.0</license.name>
         <license.url>http://www.gnu.org/licenses/agpl-3.0.html</license.url>
         <license.distribution>repo</license.distribution>
@@ -167,7 +168,7 @@
         </dependency>
     </dependencies>
     <build>
-        <finalName>vaadin-jpacontainer-${project.version}</finalName>
+        <finalName>vaadin-jpacontainer-${license.short.name}-${project.version}</finalName>
         <resources>
             <resource>
                 <directory>src/main/java</directory>
@@ -246,7 +247,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
-                    <finalName>vaadin-jpacontainer-${license.short.name}-${project.version}</finalName>
                     <archive>
                         <manifestEntries>
                             <Implementation-Version>${Implementation-Version}</Implementation-Version>
@@ -281,6 +281,7 @@
                 </configuration>
                 <executions>
                     <execution>
+                        <id>javadoc-jar</id>
                         <phase>generate-resources</phase>
                         <goals>
                             <!-- <goal>javadoc</goal> -->

@@ -17,7 +17,7 @@
     <dependencies>
         <dependency>
             <groupId>com.vaadin.addon</groupId>
-            <artifactId>jpacontainer-addon</artifactId>
+            <artifactId>jpacontainer-addon-${license.short.name}</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -207,7 +207,7 @@
                     <weaveDependencies>
                         <weaveDependency>
                             <groupId>com.vaadin.addon</groupId>
-                            <artifactId>jpacontainer-addon</artifactId>
+                            <artifactId>jpacontainer-addon-${license.short.name}</artifactId>
                         </weaveDependency>
                     </weaveDependencies>
                     <!-- ### -->

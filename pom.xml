@@ -52,6 +52,7 @@
     </licenses>
 
     <properties>
+        <!-- Default license unless otherwise stated in the licenses section of the POM -->
         <license.name>GNU Affero General Public License version 3.0</license.name>
         <license.url>http://www.gnu.org/licenses/agpl-3.0.html</license.url>
         <license.distribution>repo</license.distribution>

@@ -16,8 +16,6 @@
       <outputDirectory></outputDirectory>
       <includes>
         <include>*-${license.short.name}-*.jar</include>
-        <include>*-javadoc.jar</include>
-        <include>*-sources.jar</include>
       </includes>
     </fileSet>
     <!--
