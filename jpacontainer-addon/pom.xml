@@ -180,6 +180,22 @@
                 <filtering>true</filtering>
                 <targetPath>${project.build.directory}/filtered-sources/test/java</targetPath>
             </resource>
+            <resource>
+                <directory></directory>
+                <includes>
+                    <include>pom.xml</include>
+                </includes>
+                <filtering>true</filtering>
+                <targetPath>${project.build.directory}/classes/META-INF/maven/${project.groupId}/${project.artifactId}</targetPath>
+            </resource>
+            <resource>
+                <directory>packaging</directory>
+                <includes>
+                    <include>pom.properties</include>
+                </includes>
+                <filtering>true</filtering>
+                <targetPath>${project.build.directory}/classes/META-INF/maven/${project.groupId}/${project.artifactId}</targetPath>
+            </resource>
         </resources>
         <sourceDirectory>target/filtered-sources/main/java</sourceDirectory>
         <testSourceDirectory>target/filtered-sources/test/java</testSourceDirectory>
@@ -254,6 +270,8 @@
                             <Implementation-Vendor>${Implementation-Vendor}</Implementation-Vendor>
                             <Vaadin-Package-Version>1</Vaadin-Package-Version>
                         </manifestEntries>
+                        <!-- A custom Maven descriptor is created above by resource filtering -->
+                        <addMavenDescriptor>false</addMavenDescriptor>
                     </archive>
                 </configuration>
             </plugin>
