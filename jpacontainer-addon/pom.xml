@@ -183,7 +183,7 @@
                 <targetPath>${project.build.directory}/filtered-sources/test/java</targetPath>
             </resource>
             <resource>
-                <directory></directory>
+                <directory>.</directory>
                 <includes>
                     <include>pom.xml</include>
                 </includes>
