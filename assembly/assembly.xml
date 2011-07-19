@@ -6,7 +6,7 @@
   <includeBaseDirectory>false</includeBaseDirectory>
   <fileSets>
     <fileSet>
-      <directory>..</directory>
+      <directory>.</directory>
       <includes>
         <include>license-${license.short.name}.txt</include>
       </includes>
@@ -37,12 +37,12 @@
   </fileSets>
   <files>
     <file>
-      <source>../licensing-${license.short.name}.txt</source>
+      <source>licensing-${license.short.name}.txt</source>
       <outputDirectory></outputDirectory>
       <destName>licensing.txt</destName>
     </file>
     <file>
-      <source>../packaging/MANIFEST.MF</source>
+      <source>MANIFEST.MF</source>
       <outputDirectory>META-INF</outputDirectory>
       <filtered>true</filtered>
     </file>

@@ -43,28 +43,6 @@
                     </descriptors>
                 </configuration>
             </plugin>
-            <!-- Not used on our TeamCity build agents -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.5</version>
-                <inherited>false</inherited>
-                <configuration>
-                    <target>
-                        <tstamp />
-                        <!-- Publish results to builds/ -->
-                        <copy
-                            file="${basedir}/../jpacontainer-demo/target/jpacontainer-demo-${project.version}.war"
-                            todir="${basedir}/../builds" />
-                        <copy
-                            file="${basedir}/../jpacontainer-manual/target/docbkx/pdf/manual.pdf"
-                            tofile="${basedir}/../builds/manual-${DSTAMP}.pdf" />
-                        <copy
-                            file="${basedir}/../target/vaadin-jpacontainer-${license.short.name}-${project.version}.zip"
-                            todir="${basedir}/../builds" />
-                    </target>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 </project>
