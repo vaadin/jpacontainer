@@ -3,9 +3,6 @@ ${license.header.text}
  */
 package com.vaadin.addon.jpacontainer;
 
-import com.vaadin.addon.jpacontainer.metadata.ClassMetadata;
-import com.vaadin.addon.jpacontainer.metadata.PersistentPropertyMetadata;
-import com.vaadin.addon.jpacontainer.metadata.PropertyMetadata;
 import java.beans.Introspector;
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -15,6 +12,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import com.vaadin.addon.jpacontainer.metadata.ClassMetadata;
+import com.vaadin.addon.jpacontainer.metadata.PersistentPropertyMetadata;
+import com.vaadin.addon.jpacontainer.metadata.PersistentPropertyMetadata.PropertyKind;
+import com.vaadin.addon.jpacontainer.metadata.PropertyMetadata;
 
 /**
  * Helper class to make it easier to work with nested properties. Intended to be
@@ -34,6 +36,7 @@ final class PropertyList<T> implements Serializable {
 	private ClassMetadata<T> metadata;
 	private Set<String> propertyNames = new HashSet<String>();
 	private Set<String> persistentPropertyNames = new HashSet<String>();
+	private Set<String> sortablePropertyNames = new HashSet<String>();
 	private Set<String> nestedPropertyNames = new HashSet<String>();
 	private Set<String> allPropertyNames = new HashSet<String>();
 
@@ -53,6 +56,11 @@ final class PropertyList<T> implements Serializable {
 			allPropertyNames.add(pm.getName());
 			if (pm instanceof PersistentPropertyMetadata) {
 				persistentPropertyNames.add(pm.getName());
+				if (PropertyKind.SIMPLE
+						.equals(((PersistentPropertyMetadata) pm)
+								.getPropertyKind())) {
+					sortablePropertyNames.add(pm.getName());
+				}
 			}
 		}
 	}
@@ -132,14 +140,19 @@ final class PropertyList<T> implements Serializable {
 			String parentPropertyName = propertyName.substring(0, propertyName
 					.length() - 2);
 			NestedProperty parentProperty = getNestedProperty(parentPropertyName);
-			if (parentProperty.getMetadata() != null) {
-				// The parent property is persistent and contains metadataq
-				for (PropertyMetadata pm : parentProperty.getMetadata()
+			if (parentProperty.getTypeMetadata() != null) {
+				// The parent property is persistent and contains metadata
+				for (PropertyMetadata pm : parentProperty.getTypeMetadata()
 						.getProperties()) {
 					String newName = parentPropertyName + "." + pm.getName();
 					if (!getAllAvailablePropertyNames().contains(newName)) {
 						if (pm instanceof PersistentPropertyMetadata) {
 							persistentPropertyNames.add(newName);
+							if (PropertyKind.SIMPLE
+									.equals(((PersistentPropertyMetadata) pm)
+											.getPropertyKind())) {
+								sortablePropertyNames.add(newName);
+							}
 						}
 						propertyNames.add(newName);
 						allPropertyNames.add(newName);
@@ -171,6 +184,14 @@ final class PropertyList<T> implements Serializable {
 			NestedProperty np = getNestedProperty(propertyName);
 			if (np.getKind() == NestedPropertyKind.PERSISTENT) {
 				persistentPropertyNames.add(propertyName);
+
+				PropertyMetadata propertyMetadata = np.getPropertyMetadata();
+				if (propertyMetadata instanceof PersistentPropertyMetadata
+						&& PropertyKind.SIMPLE
+								.equals(((PersistentPropertyMetadata) propertyMetadata)
+										.getPropertyKind())) {
+					sortablePropertyNames.add(propertyName);
+				}
 			}
 			// Transient property
 			propertyNames.add(propertyName);
@@ -246,12 +267,17 @@ final class PropertyList<T> implements Serializable {
 			}
 		}
 
-		ClassMetadata<?> getMetadata() {
+		PropertyMetadata getPropertyMetadata() {
 			if (parentClassMetadata != null) {
-				PropertyMetadata pm = parentClassMetadata.getProperty(name);
-				if (pm instanceof PersistentPropertyMetadata) {
-					return ((PersistentPropertyMetadata) pm).getTypeMetadata();
-				}
+				return parentClassMetadata.getProperty(name);
+			}
+			return null;
+		}
+
+		ClassMetadata<?> getTypeMetadata() {
+			PropertyMetadata pm = getPropertyMetadata();
+			if (pm instanceof PersistentPropertyMetadata) {
+				return ((PersistentPropertyMetadata) pm).getTypeMetadata();
 			}
 			return null;
 		}
@@ -300,15 +326,15 @@ final class PropertyList<T> implements Serializable {
 					String name = propertyName.substring(offset + 1);
 					NestedProperty parentProperty = getNestedProperty(parentName);
 					NestedProperty property;
-					if (parentProperty.getMetadata() != null) {
-						PropertyMetadata pm = parentProperty.getMetadata()
+					if (parentProperty.getTypeMetadata() != null) {
+						PropertyMetadata pm = parentProperty.getTypeMetadata()
 								.getProperty(name);
 						if (pm == null) {
 							throw new IllegalArgumentException(
 									"Invalid property name");
 						} else {
 							property = new NestedProperty(pm.getName(),
-									parentProperty.getMetadata(),
+									parentProperty.getTypeMetadata(),
 									parentProperty);
 						}
 					} else {
@@ -375,6 +401,7 @@ final class PropertyList<T> implements Serializable {
 		assert propertyName != null : "propertyName must not be null";
 		boolean result = propertyNames.remove(propertyName);
 		persistentPropertyNames.remove(propertyName);
+		sortablePropertyNames.remove(propertyName);
 		if (nestedPropertyNames.remove(propertyName)) {
 			allPropertyNames.remove(propertyName);
 		}
@@ -451,6 +478,26 @@ final class PropertyList<T> implements Serializable {
 		} else {
 			return union(persistentPropertyNames, parentList
 					.doGetPersistentPropertyNames());
+		}
+	}
+
+	/**
+	 * Gets the set of all sortable property names. These names also show up in
+	 * {@link #getPropertyNames() } and {@link #getPersistentPropertyNames() }.
+	 * 
+	 * @return an unmodifiable set of property names (never null).
+	 */
+	public Set<String> getSortablePropertyNames() {
+		return Collections.unmodifiableSet(doGetSortablePropertyNames());
+	}
+
+	@SuppressWarnings("unchecked")
+	protected Set<String> doGetSortablePropertyNames() {
+		if (parentList == null) {
+			return sortablePropertyNames;
+		} else {
+			return union(sortablePropertyNames,
+					parentList.doGetSortablePropertyNames());
 		}
 	}
 

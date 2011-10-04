@@ -80,6 +80,14 @@ public class PropertyListTest {
 		assertEquals(propertyList.getPersistentPropertyNames(),
 				childPropertyList.getPersistentPropertyNames());
 		assertSame(propertyList, childPropertyList.getParentList());
+
+		// All the persistent properties should be sortable
+		assertFalse(propertyList.getSortablePropertyNames().contains("address"));
+		assertFalse(propertyList.getSortablePropertyNames().contains("manager"));
+		assertFalse(propertyList.getSortablePropertyNames().contains("skills"));
+		assertEquals(7, propertyList.getSortablePropertyNames().size());
+		assertTrue(propertyList.getPersistentPropertyNames().containsAll(
+				propertyList.getSortablePropertyNames()));
 	}
 
 	@Test
@@ -93,9 +101,13 @@ public class PropertyListTest {
 		assertTrue(propertyList.getPropertyNames().contains("firstName"));
 		assertTrue(propertyList.getPersistentPropertyNames().contains(
 				"firstName"));
+		assertTrue(propertyList.getSortablePropertyNames()
+				.contains("firstName"));
 		assertTrue(propertyList.removeProperty("firstName"));
 		assertFalse(propertyList.getPropertyNames().contains("firstName"));
 		assertFalse(propertyList.getPersistentPropertyNames().contains(
+				"firstName"));
+		assertFalse(propertyList.getSortablePropertyNames().contains(
 				"firstName"));
 		assertTrue(propertyList.getAllAvailablePropertyNames().contains(
 				"firstName"));
@@ -111,6 +123,8 @@ public class PropertyListTest {
 				childPropertyList.getPropertyNames());
 		assertEquals(propertyList.getPersistentPropertyNames(),
 				childPropertyList.getPersistentPropertyNames());
+		assertEquals(propertyList.getSortablePropertyNames(),
+				childPropertyList.getSortablePropertyNames());
 
 		assertTrue(childPropertyList.getPropertyNames().contains("lastName"));
 		assertFalse(childPropertyList.removeProperty("lastName"));
@@ -123,6 +137,8 @@ public class PropertyListTest {
 		assertTrue(propertyList.getPropertyNames().contains("address.street"));
 		assertTrue(propertyList.getPersistentPropertyNames().contains(
 				"address.street"));
+		assertTrue(propertyList.getSortablePropertyNames().contains(
+				"address.street"));
 		assertTrue(propertyList.getNestedPropertyNames().contains(
 				"address.street"));
 		assertTrue(propertyList.getAllAvailablePropertyNames().contains(
@@ -132,6 +148,8 @@ public class PropertyListTest {
 		assertTrue(childPropertyList.getPropertyNames().contains(
 				"address.street"));
 		assertTrue(childPropertyList.getPersistentPropertyNames().contains(
+				"address.street"));
+		assertTrue(childPropertyList.getSortablePropertyNames().contains(
 				"address.street"));
 		assertTrue(childPropertyList.getNestedPropertyNames().contains(
 				"address.street"));
@@ -149,6 +167,8 @@ public class PropertyListTest {
 				"address.street"));
 		assertTrue(childPropertyList.getPersistentPropertyNames().contains(
 				"address.street"));
+		assertTrue(childPropertyList.getSortablePropertyNames().contains(
+				"address.street"));
 		assertTrue(childPropertyList.getNestedPropertyNames().contains(
 				"address.street"));
 		assertTrue(childPropertyList.getAllAvailablePropertyNames().contains(
@@ -163,6 +183,8 @@ public class PropertyListTest {
 				"transientAddress.street"));
 		assertFalse(propertyList.getPersistentPropertyNames().contains(
 				"transientAddress.street"));
+		assertFalse(propertyList.getSortablePropertyNames().contains(
+				"transientAddress.street"));
 		assertTrue(propertyList.getNestedPropertyNames().contains(
 				"transientAddress.street"));
 		assertTrue(propertyList.getAllAvailablePropertyNames().contains(
@@ -175,6 +197,8 @@ public class PropertyListTest {
 		assertTrue(propertyList.getNestedPropertyNames().contains(
 				"address.fullAddress"));
 		assertFalse(propertyList.getPersistentPropertyNames().contains(
+				"address.fullAddress"));
+		assertFalse(propertyList.getSortablePropertyNames().contains(
 				"address.fullAddress"));
 		assertTrue(propertyList.getAllAvailablePropertyNames().contains(
 				"address.fullAddress"));
@@ -190,6 +214,8 @@ public class PropertyListTest {
 				"transientAddress.street"));
 		assertFalse(childPropertyList.getPersistentPropertyNames().contains(
 				"transientAddress.street"));
+		assertFalse(childPropertyList.getSortablePropertyNames().contains(
+				"transientAddress.street"));
 		assertTrue(childPropertyList.getNestedPropertyNames().contains(
 				"transientAddress.street"));
 		assertTrue(childPropertyList.getAllAvailablePropertyNames().contains(
@@ -204,6 +230,8 @@ public class PropertyListTest {
 		assertTrue(childPropertyList.getNestedPropertyNames().contains(
 				"address.fullAddress"));
 		assertFalse(childPropertyList.getPersistentPropertyNames().contains(
+				"address.fullAddress"));
+		assertFalse(childPropertyList.getSortablePropertyNames().contains(
 				"address.fullAddress"));
 		assertTrue(childPropertyList.getAllAvailablePropertyNames().contains(
 				"address.fullAddress"));
@@ -227,6 +255,8 @@ public class PropertyListTest {
 					"address.nonexistent"));
 			assertFalse(propertyList.getPersistentPropertyNames().contains(
 					"address.nonexistent"));
+			assertFalse(propertyList.getSortablePropertyNames().contains(
+					"address.nonexistent"));
 			assertFalse(propertyList.getAllAvailablePropertyNames().contains(
 					"address.nonexistent"));
 		}
@@ -240,6 +270,8 @@ public class PropertyListTest {
 					"nonexistent.street"));
 			assertFalse(propertyList.getPersistentPropertyNames().contains(
 					"nonexistent.street"));
+			assertFalse(propertyList.getSortablePropertyNames().contains(
+					"nonexistent.street"));
 			assertFalse(propertyList.getAllAvailablePropertyNames().contains(
 					"nonexistent.street"));
 		}
@@ -252,6 +284,8 @@ public class PropertyListTest {
 			assertFalse(propertyList.getNestedPropertyNames().contains(
 					"firstName.nonexistent"));
 			assertFalse(propertyList.getPersistentPropertyNames().contains(
+					"firstName.nonexistent"));
+			assertFalse(propertyList.getSortablePropertyNames().contains(
 					"firstName.nonexistent"));
 			assertFalse(propertyList.getAllAvailablePropertyNames().contains(
 					"firstName.nonexistent"));
@@ -268,6 +302,8 @@ public class PropertyListTest {
 				"address.street"));
 		assertTrue(propertyList.getPersistentPropertyNames().contains(
 				"address.street"));
+		assertTrue(propertyList.getSortablePropertyNames().contains(
+				"address.street"));
 		assertTrue(propertyList.getAllAvailablePropertyNames().contains(
 				"address.street"));
 
@@ -277,6 +313,8 @@ public class PropertyListTest {
 				"address.postOffice"));
 		assertTrue(propertyList.getPersistentPropertyNames().contains(
 				"address.postOffice"));
+		assertTrue(propertyList.getSortablePropertyNames().contains(
+				"address.postOffice"));
 		assertTrue(propertyList.getAllAvailablePropertyNames().contains(
 				"address.postOffice"));
 
@@ -285,6 +323,8 @@ public class PropertyListTest {
 		assertTrue(propertyList.getNestedPropertyNames().contains(
 				"address.postalCode"));
 		assertTrue(propertyList.getPersistentPropertyNames().contains(
+				"address.postalCode"));
+		assertTrue(propertyList.getSortablePropertyNames().contains(
 				"address.postalCode"));
 		assertTrue(propertyList.getAllAvailablePropertyNames().contains(
 				"address.postalCode"));
@@ -295,6 +335,8 @@ public class PropertyListTest {
 		assertTrue(propertyList.getNestedPropertyNames().contains(
 				"address.fullAddress"));
 		assertFalse(propertyList.getPersistentPropertyNames().contains(
+				"address.fullAddress"));
+		assertFalse(propertyList.getSortablePropertyNames().contains(
 				"address.fullAddress"));
 		assertTrue(propertyList.getAllAvailablePropertyNames().contains(
 				"address.fullAddress"));
@@ -310,6 +352,8 @@ public class PropertyListTest {
 				"transientAddress.street"));
 		assertFalse(propertyList.getPersistentPropertyNames().contains(
 				"transientAddress.street"));
+		assertFalse(propertyList.getSortablePropertyNames().contains(
+				"transientAddress.street"));
 		assertTrue(propertyList.getAllAvailablePropertyNames().contains(
 				"transientAddress.street"));
 
@@ -319,6 +363,8 @@ public class PropertyListTest {
 				"transientAddress.postOffice"));
 		assertFalse(propertyList.getPersistentPropertyNames().contains(
 				"transientAddress.postOffice"));
+		assertFalse(propertyList.getSortablePropertyNames().contains(
+				"transientAddress.postOffice"));
 		assertTrue(propertyList.getAllAvailablePropertyNames().contains(
 				"transientAddress.postOffice"));
 
@@ -328,6 +374,8 @@ public class PropertyListTest {
 				"transientAddress.postalCode"));
 		assertFalse(propertyList.getPersistentPropertyNames().contains(
 				"transientAddress.postalCode"));
+		assertFalse(propertyList.getSortablePropertyNames().contains(
+				"transientAddress.postalCode"));
 		assertTrue(propertyList.getAllAvailablePropertyNames().contains(
 				"transientAddress.postalCode"));
 
@@ -336,6 +384,8 @@ public class PropertyListTest {
 		assertTrue(propertyList.getNestedPropertyNames().contains(
 				"transientAddress.fullAddress"));
 		assertFalse(propertyList.getPersistentPropertyNames().contains(
+				"transientAddress.fullAddress"));
+		assertFalse(propertyList.getSortablePropertyNames().contains(
 				"transientAddress.fullAddress"));
 		assertTrue(propertyList.getAllAvailablePropertyNames().contains(
 				"transientAddress.fullAddress"));
@@ -375,6 +425,8 @@ public class PropertyListTest {
 				"address.street"));
 		assertTrue(propertyList.getPersistentPropertyNames().contains(
 				"address.street"));
+		assertTrue(propertyList.getSortablePropertyNames().contains(
+				"address.street"));
 		assertTrue(propertyList.getAllAvailablePropertyNames().contains(
 				"address.street"));
 
@@ -384,6 +436,8 @@ public class PropertyListTest {
 		assertFalse(propertyList.getNestedPropertyNames().contains(
 				"address.street"));
 		assertFalse(propertyList.getPersistentPropertyNames().contains(
+				"address.street"));
+		assertFalse(propertyList.getSortablePropertyNames().contains(
 				"address.street"));
 		assertFalse(propertyList.getAllAvailablePropertyNames().contains(
 				"address.street"));
@@ -406,6 +460,21 @@ public class PropertyListTest {
 		assertTrue(childPropertyList.removeProperty("address.postalCode"));
 		assertFalse(childPropertyList.getAllAvailablePropertyNames().contains(
 				"address.postalCode"));
+	}
+
+	@Test
+	public void testNonSortablePersistentNestedProperty() {
+		propertyList.addNestedProperty("manager.address");
+
+		assertTrue(propertyList.getPropertyNames().contains("manager.address"));
+		assertTrue(propertyList.getNestedPropertyNames().contains(
+				"manager.address"));
+		assertTrue(propertyList.getPersistentPropertyNames().contains(
+				"manager.address"));
+		assertFalse(propertyList.getSortablePropertyNames().contains(
+				"manager.address"));
+		assertTrue(propertyList.getAllAvailablePropertyNames().contains(
+				"manager.address"));
 	}
 
 	@Test

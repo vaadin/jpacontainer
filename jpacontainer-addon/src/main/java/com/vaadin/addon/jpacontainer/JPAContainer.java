@@ -356,7 +356,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	}
 
 	public Collection<String> getSortableContainerPropertyIds() {
-		return propertyList.getPersistentPropertyNames();
+		return propertyList.getSortablePropertyNames();
 	}
 
 	public void sort(Object[] propertyId, boolean[] ascending) {
