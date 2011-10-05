@@ -36,7 +36,9 @@ final class PropertyList<T> implements Serializable {
 	private ClassMetadata<T> metadata;
 	private Set<String> propertyNames = new HashSet<String>();
 	private Set<String> persistentPropertyNames = new HashSet<String>();
-	private Set<String> sortablePropertyNames = new HashSet<String>();
+	// map from property name to the name of the property to be used to sort by
+	// that property (in a format usable in JPQL - e.g. address.street)
+	private Map<String, String> sortablePropertyMap = new HashMap<String, String>();
 	private Set<String> nestedPropertyNames = new HashSet<String>();
 	private Set<String> allPropertyNames = new HashSet<String>();
 
@@ -59,7 +61,7 @@ final class PropertyList<T> implements Serializable {
 				if (PropertyKind.SIMPLE
 						.equals(((PersistentPropertyMetadata) pm)
 								.getPropertyKind())) {
-					sortablePropertyNames.add(pm.getName());
+					sortablePropertyMap.put(pm.getName(), pm.getName());
 				}
 			}
 		}
@@ -100,6 +102,47 @@ final class PropertyList<T> implements Serializable {
 	}
 
 	/**
+	 * Configures a property to be sortable based on another property, typically
+	 * a sub-property.
+	 * <p>
+	 * For example, let's say there is a property named <code>address</code> and
+	 * that this property's type in turn has the property <code>street</code>.
+	 * Addresses are not directly sortable as they are not simple properties.
+	 * <p>
+	 * If we want to be able to sort addresses based on the street property, we
+	 * can set the sort property for <code>address</code> to be
+	 * <code>address.street</code> using this method. Sort properties must be
+	 * persistent and usable in JPQL, but need not be registered as separate
+	 * properties in the PropertyList.
+	 * <p>
+	 * Note that the sort property is not checked when this method is called. If
+	 * it is not a valid sort property, an exception will be thrown when trying
+	 * to sort a container.
+	 * 
+	 * @param propertyName
+	 *            the property for which sorting is to be customized (must not
+	 *            be null).
+	 * @param sortPropertyName
+	 *            the property based on which sorting should be performed - this
+	 *            need not be a separate property in the container but needs to
+	 *            be usable in JPQL
+	 * @throws IllegalArgumentException
+	 *             if <code>propertyName</code> does not refer to a persistent
+	 *             property.
+	 * @since 1.2.1
+	 */
+	public void setSortProperty(String propertyName, String sortPropertyName)
+			throws IllegalArgumentException {
+		if (persistentPropertyNames.contains(propertyName)) {
+			sortablePropertyMap.put(propertyName, sortPropertyName);
+		} else {
+			throw new IllegalArgumentException("Property " + propertyName
+					+ " cannot be sorted based on " + sortPropertyName
+					+ ": not a persistent property");
+		}
+	}
+
+	/**
 	 * Adds the nested property <code>propertyName</code> to the set of
 	 * properties. An asterisk can be used as a wildcard to indicate all
 	 * leaf-properties.
@@ -137,8 +180,8 @@ final class PropertyList<T> implements Serializable {
 
 		if (propertyName.endsWith("*")) {
 			// We add a whole bunch of properties
-			String parentPropertyName = propertyName.substring(0, propertyName
-					.length() - 2);
+			String parentPropertyName = propertyName.substring(0,
+					propertyName.length() - 2);
 			NestedProperty parentProperty = getNestedProperty(parentPropertyName);
 			if (parentProperty.getTypeMetadata() != null) {
 				// The parent property is persistent and contains metadata
@@ -151,7 +194,7 @@ final class PropertyList<T> implements Serializable {
 							if (PropertyKind.SIMPLE
 									.equals(((PersistentPropertyMetadata) pm)
 											.getPropertyKind())) {
-								sortablePropertyNames.add(newName);
+								sortablePropertyMap.put(newName, newName);
 							}
 						}
 						propertyNames.add(newName);
@@ -190,7 +233,7 @@ final class PropertyList<T> implements Serializable {
 						&& PropertyKind.SIMPLE
 								.equals(((PersistentPropertyMetadata) propertyMetadata)
 										.getPropertyKind())) {
-					sortablePropertyNames.add(propertyName);
+					sortablePropertyMap.put(propertyName, propertyName);
 				}
 			}
 			// Transient property
@@ -338,8 +381,8 @@ final class PropertyList<T> implements Serializable {
 									parentProperty);
 						}
 					} else {
-						Method getter = getGetterMethod(name, parentProperty
-								.getType());
+						Method getter = getGetterMethod(name,
+								parentProperty.getType());
 						if (getter == null) {
 							throw new IllegalArgumentException(
 									"Invalid property name");
@@ -357,8 +400,8 @@ final class PropertyList<T> implements Serializable {
 						throw new IllegalArgumentException(
 								"Invalid property name");
 					} else {
-						NestedProperty property = new NestedProperty(pm
-								.getName(), metadata);
+						NestedProperty property = new NestedProperty(
+								pm.getName(), metadata);
 						nestedPropertyMap.put(propertyName, property);
 						return property;
 					}
@@ -401,7 +444,7 @@ final class PropertyList<T> implements Serializable {
 		assert propertyName != null : "propertyName must not be null";
 		boolean result = propertyNames.remove(propertyName);
 		persistentPropertyNames.remove(propertyName);
-		sortablePropertyNames.remove(propertyName);
+		sortablePropertyMap.remove(propertyName);
 		if (nestedPropertyNames.remove(propertyName)) {
 			allPropertyNames.remove(propertyName);
 		}
@@ -430,13 +473,21 @@ final class PropertyList<T> implements Serializable {
 		return newSet;
 	}
 
+	private <K, V> Map<K, V> union(Map<K, V>... maps) {
+		HashMap<K, V> newMap = new HashMap<K, V>();
+		for (Map<K, V> s : maps) {
+			newMap.putAll(s);
+		}
+		return newMap;
+	}
+
 	@SuppressWarnings("unchecked")
 	protected Set<String> doGetAllAvailablePropertyNames() {
 		if (parentList == null) {
 			return allPropertyNames;
 		} else {
-			return union(allPropertyNames, parentList
-					.doGetAllAvailablePropertyNames());
+			return union(allPropertyNames,
+					parentList.doGetAllAvailablePropertyNames());
 		}
 	}
 
@@ -476,28 +527,30 @@ final class PropertyList<T> implements Serializable {
 		if (parentList == null) {
 			return persistentPropertyNames;
 		} else {
-			return union(persistentPropertyNames, parentList
-					.doGetPersistentPropertyNames());
+			return union(persistentPropertyNames,
+					parentList.doGetPersistentPropertyNames());
 		}
 	}
 
 	/**
-	 * Gets the set of all sortable property names. These names also show up in
+	 * Gets the map of all sortable property names and their corresponding sort
+	 * properties. The keys of this map also show up in
 	 * {@link #getPropertyNames() } and {@link #getPersistentPropertyNames() }.
 	 * 
-	 * @return an unmodifiable set of property names (never null).
+	 * @return an unmodifiable map from property names (never null) to sort
+	 *         properties (not necessarily in the list).
 	 */
-	public Set<String> getSortablePropertyNames() {
-		return Collections.unmodifiableSet(doGetSortablePropertyNames());
+	public Map<String, String> getSortablePropertyMap() {
+		return Collections.unmodifiableMap(doGetSortablePropertyMap());
 	}
 
 	@SuppressWarnings("unchecked")
-	protected Set<String> doGetSortablePropertyNames() {
+	protected Map<String, String> doGetSortablePropertyMap() {
 		if (parentList == null) {
-			return sortablePropertyNames;
+			return sortablePropertyMap;
 		} else {
-			return union(sortablePropertyNames,
-					parentList.doGetSortablePropertyNames());
+			return union(sortablePropertyMap,
+					parentList.doGetSortablePropertyMap());
 		}
 	}
 
@@ -516,8 +569,8 @@ final class PropertyList<T> implements Serializable {
 		if (parentList == null) {
 			return nestedPropertyNames;
 		} else {
-			return union(nestedPropertyNames, parentList
-					.doGetNestedPropertyNames());
+			return union(nestedPropertyNames,
+					parentList.doGetNestedPropertyNames());
 		}
 	}
 

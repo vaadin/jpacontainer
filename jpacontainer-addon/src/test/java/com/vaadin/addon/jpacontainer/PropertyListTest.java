@@ -82,12 +82,16 @@ public class PropertyListTest {
 		assertSame(propertyList, childPropertyList.getParentList());
 
 		// All the persistent properties should be sortable
-		assertFalse(propertyList.getSortablePropertyNames().contains("address"));
-		assertFalse(propertyList.getSortablePropertyNames().contains("manager"));
-		assertFalse(propertyList.getSortablePropertyNames().contains("skills"));
-		assertEquals(7, propertyList.getSortablePropertyNames().size());
+		assertFalse(propertyList.getSortablePropertyMap()
+				.containsKey("address"));
+		assertFalse(propertyList.getSortablePropertyMap()
+				.containsKey("manager"));
+		assertFalse(propertyList.getSortablePropertyMap().containsKey("skills"));
+		assertEquals(7, propertyList.getSortablePropertyMap().size());
 		assertTrue(propertyList.getPersistentPropertyNames().containsAll(
-				propertyList.getSortablePropertyNames()));
+				propertyList.getSortablePropertyMap().keySet()));
+		assertTrue(propertyList.getPersistentPropertyNames().containsAll(
+				propertyList.getSortablePropertyMap().values()));
 	}
 
 	@Test
@@ -101,13 +105,13 @@ public class PropertyListTest {
 		assertTrue(propertyList.getPropertyNames().contains("firstName"));
 		assertTrue(propertyList.getPersistentPropertyNames().contains(
 				"firstName"));
-		assertTrue(propertyList.getSortablePropertyNames()
-				.contains("firstName"));
+		assertEquals("firstName",
+				propertyList.getSortablePropertyMap().get("firstName"));
 		assertTrue(propertyList.removeProperty("firstName"));
 		assertFalse(propertyList.getPropertyNames().contains("firstName"));
 		assertFalse(propertyList.getPersistentPropertyNames().contains(
 				"firstName"));
-		assertFalse(propertyList.getSortablePropertyNames().contains(
+		assertFalse(propertyList.getSortablePropertyMap().containsKey(
 				"firstName"));
 		assertTrue(propertyList.getAllAvailablePropertyNames().contains(
 				"firstName"));
@@ -123,8 +127,8 @@ public class PropertyListTest {
 				childPropertyList.getPropertyNames());
 		assertEquals(propertyList.getPersistentPropertyNames(),
 				childPropertyList.getPersistentPropertyNames());
-		assertEquals(propertyList.getSortablePropertyNames(),
-				childPropertyList.getSortablePropertyNames());
+		assertEquals(propertyList.getSortablePropertyMap(),
+				childPropertyList.getSortablePropertyMap());
 
 		assertTrue(childPropertyList.getPropertyNames().contains("lastName"));
 		assertFalse(childPropertyList.removeProperty("lastName"));
@@ -137,8 +141,8 @@ public class PropertyListTest {
 		assertTrue(propertyList.getPropertyNames().contains("address.street"));
 		assertTrue(propertyList.getPersistentPropertyNames().contains(
 				"address.street"));
-		assertTrue(propertyList.getSortablePropertyNames().contains(
-				"address.street"));
+		assertEquals("address.street", propertyList.getSortablePropertyMap()
+				.get("address.street"));
 		assertTrue(propertyList.getNestedPropertyNames().contains(
 				"address.street"));
 		assertTrue(propertyList.getAllAvailablePropertyNames().contains(
@@ -149,8 +153,8 @@ public class PropertyListTest {
 				"address.street"));
 		assertTrue(childPropertyList.getPersistentPropertyNames().contains(
 				"address.street"));
-		assertTrue(childPropertyList.getSortablePropertyNames().contains(
-				"address.street"));
+		assertEquals("address.street", childPropertyList
+				.getSortablePropertyMap().get("address.street"));
 		assertTrue(childPropertyList.getNestedPropertyNames().contains(
 				"address.street"));
 		assertTrue(childPropertyList.getAllAvailablePropertyNames().contains(
@@ -167,8 +171,8 @@ public class PropertyListTest {
 				"address.street"));
 		assertTrue(childPropertyList.getPersistentPropertyNames().contains(
 				"address.street"));
-		assertTrue(childPropertyList.getSortablePropertyNames().contains(
-				"address.street"));
+		assertEquals("address.street", childPropertyList
+				.getSortablePropertyMap().get("address.street"));
 		assertTrue(childPropertyList.getNestedPropertyNames().contains(
 				"address.street"));
 		assertTrue(childPropertyList.getAllAvailablePropertyNames().contains(
@@ -183,7 +187,7 @@ public class PropertyListTest {
 				"transientAddress.street"));
 		assertFalse(propertyList.getPersistentPropertyNames().contains(
 				"transientAddress.street"));
-		assertFalse(propertyList.getSortablePropertyNames().contains(
+		assertFalse(propertyList.getSortablePropertyMap().containsKey(
 				"transientAddress.street"));
 		assertTrue(propertyList.getNestedPropertyNames().contains(
 				"transientAddress.street"));
@@ -198,7 +202,7 @@ public class PropertyListTest {
 				"address.fullAddress"));
 		assertFalse(propertyList.getPersistentPropertyNames().contains(
 				"address.fullAddress"));
-		assertFalse(propertyList.getSortablePropertyNames().contains(
+		assertFalse(propertyList.getSortablePropertyMap().containsKey(
 				"address.fullAddress"));
 		assertTrue(propertyList.getAllAvailablePropertyNames().contains(
 				"address.fullAddress"));
@@ -214,7 +218,7 @@ public class PropertyListTest {
 				"transientAddress.street"));
 		assertFalse(childPropertyList.getPersistentPropertyNames().contains(
 				"transientAddress.street"));
-		assertFalse(childPropertyList.getSortablePropertyNames().contains(
+		assertFalse(childPropertyList.getSortablePropertyMap().containsKey(
 				"transientAddress.street"));
 		assertTrue(childPropertyList.getNestedPropertyNames().contains(
 				"transientAddress.street"));
@@ -231,7 +235,7 @@ public class PropertyListTest {
 				"address.fullAddress"));
 		assertFalse(childPropertyList.getPersistentPropertyNames().contains(
 				"address.fullAddress"));
-		assertFalse(childPropertyList.getSortablePropertyNames().contains(
+		assertFalse(childPropertyList.getSortablePropertyMap().containsKey(
 				"address.fullAddress"));
 		assertTrue(childPropertyList.getAllAvailablePropertyNames().contains(
 				"address.fullAddress"));
@@ -255,7 +259,7 @@ public class PropertyListTest {
 					"address.nonexistent"));
 			assertFalse(propertyList.getPersistentPropertyNames().contains(
 					"address.nonexistent"));
-			assertFalse(propertyList.getSortablePropertyNames().contains(
+			assertFalse(propertyList.getSortablePropertyMap().containsKey(
 					"address.nonexistent"));
 			assertFalse(propertyList.getAllAvailablePropertyNames().contains(
 					"address.nonexistent"));
@@ -270,7 +274,7 @@ public class PropertyListTest {
 					"nonexistent.street"));
 			assertFalse(propertyList.getPersistentPropertyNames().contains(
 					"nonexistent.street"));
-			assertFalse(propertyList.getSortablePropertyNames().contains(
+			assertFalse(propertyList.getSortablePropertyMap().containsKey(
 					"nonexistent.street"));
 			assertFalse(propertyList.getAllAvailablePropertyNames().contains(
 					"nonexistent.street"));
@@ -285,7 +289,7 @@ public class PropertyListTest {
 					"firstName.nonexistent"));
 			assertFalse(propertyList.getPersistentPropertyNames().contains(
 					"firstName.nonexistent"));
-			assertFalse(propertyList.getSortablePropertyNames().contains(
+			assertFalse(propertyList.getSortablePropertyMap().containsKey(
 					"firstName.nonexistent"));
 			assertFalse(propertyList.getAllAvailablePropertyNames().contains(
 					"firstName.nonexistent"));
@@ -302,8 +306,8 @@ public class PropertyListTest {
 				"address.street"));
 		assertTrue(propertyList.getPersistentPropertyNames().contains(
 				"address.street"));
-		assertTrue(propertyList.getSortablePropertyNames().contains(
-				"address.street"));
+		assertEquals("address.street", propertyList.getSortablePropertyMap()
+				.get("address.street"));
 		assertTrue(propertyList.getAllAvailablePropertyNames().contains(
 				"address.street"));
 
@@ -313,8 +317,8 @@ public class PropertyListTest {
 				"address.postOffice"));
 		assertTrue(propertyList.getPersistentPropertyNames().contains(
 				"address.postOffice"));
-		assertTrue(propertyList.getSortablePropertyNames().contains(
-				"address.postOffice"));
+		assertEquals("address.postOffice", propertyList
+				.getSortablePropertyMap().get("address.postOffice"));
 		assertTrue(propertyList.getAllAvailablePropertyNames().contains(
 				"address.postOffice"));
 
@@ -324,8 +328,8 @@ public class PropertyListTest {
 				"address.postalCode"));
 		assertTrue(propertyList.getPersistentPropertyNames().contains(
 				"address.postalCode"));
-		assertTrue(propertyList.getSortablePropertyNames().contains(
-				"address.postalCode"));
+		assertEquals("address.postalCode", propertyList
+				.getSortablePropertyMap().get("address.postalCode"));
 		assertTrue(propertyList.getAllAvailablePropertyNames().contains(
 				"address.postalCode"));
 
@@ -336,7 +340,7 @@ public class PropertyListTest {
 				"address.fullAddress"));
 		assertFalse(propertyList.getPersistentPropertyNames().contains(
 				"address.fullAddress"));
-		assertFalse(propertyList.getSortablePropertyNames().contains(
+		assertFalse(propertyList.getSortablePropertyMap().containsKey(
 				"address.fullAddress"));
 		assertTrue(propertyList.getAllAvailablePropertyNames().contains(
 				"address.fullAddress"));
@@ -352,7 +356,7 @@ public class PropertyListTest {
 				"transientAddress.street"));
 		assertFalse(propertyList.getPersistentPropertyNames().contains(
 				"transientAddress.street"));
-		assertFalse(propertyList.getSortablePropertyNames().contains(
+		assertFalse(propertyList.getSortablePropertyMap().containsKey(
 				"transientAddress.street"));
 		assertTrue(propertyList.getAllAvailablePropertyNames().contains(
 				"transientAddress.street"));
@@ -363,7 +367,7 @@ public class PropertyListTest {
 				"transientAddress.postOffice"));
 		assertFalse(propertyList.getPersistentPropertyNames().contains(
 				"transientAddress.postOffice"));
-		assertFalse(propertyList.getSortablePropertyNames().contains(
+		assertFalse(propertyList.getSortablePropertyMap().containsKey(
 				"transientAddress.postOffice"));
 		assertTrue(propertyList.getAllAvailablePropertyNames().contains(
 				"transientAddress.postOffice"));
@@ -374,7 +378,7 @@ public class PropertyListTest {
 				"transientAddress.postalCode"));
 		assertFalse(propertyList.getPersistentPropertyNames().contains(
 				"transientAddress.postalCode"));
-		assertFalse(propertyList.getSortablePropertyNames().contains(
+		assertFalse(propertyList.getSortablePropertyMap().containsKey(
 				"transientAddress.postalCode"));
 		assertTrue(propertyList.getAllAvailablePropertyNames().contains(
 				"transientAddress.postalCode"));
@@ -385,7 +389,7 @@ public class PropertyListTest {
 				"transientAddress.fullAddress"));
 		assertFalse(propertyList.getPersistentPropertyNames().contains(
 				"transientAddress.fullAddress"));
-		assertFalse(propertyList.getSortablePropertyNames().contains(
+		assertFalse(propertyList.getSortablePropertyMap().containsKey(
 				"transientAddress.fullAddress"));
 		assertTrue(propertyList.getAllAvailablePropertyNames().contains(
 				"transientAddress.fullAddress"));
@@ -425,8 +429,8 @@ public class PropertyListTest {
 				"address.street"));
 		assertTrue(propertyList.getPersistentPropertyNames().contains(
 				"address.street"));
-		assertTrue(propertyList.getSortablePropertyNames().contains(
-				"address.street"));
+		assertEquals("address.street", propertyList.getSortablePropertyMap()
+				.get("address.street"));
 		assertTrue(propertyList.getAllAvailablePropertyNames().contains(
 				"address.street"));
 
@@ -437,7 +441,7 @@ public class PropertyListTest {
 				"address.street"));
 		assertFalse(propertyList.getPersistentPropertyNames().contains(
 				"address.street"));
-		assertFalse(propertyList.getSortablePropertyNames().contains(
+		assertFalse(propertyList.getSortablePropertyMap().containsKey(
 				"address.street"));
 		assertFalse(propertyList.getAllAvailablePropertyNames().contains(
 				"address.street"));
@@ -471,10 +475,71 @@ public class PropertyListTest {
 				"manager.address"));
 		assertTrue(propertyList.getPersistentPropertyNames().contains(
 				"manager.address"));
-		assertFalse(propertyList.getSortablePropertyNames().contains(
+		assertFalse(propertyList.getSortablePropertyMap().containsKey(
 				"manager.address"));
 		assertTrue(propertyList.getAllAvailablePropertyNames().contains(
 				"manager.address"));
+	}
+
+	@Test
+	public void testRemoveCustomSortableProperty() {
+		propertyList.setSortProperty("address", "address.street");
+
+		assertTrue(propertyList.getPropertyNames().contains("address"));
+		assertTrue(propertyList.getPersistentPropertyNames()
+				.contains("address"));
+		assertTrue(propertyList.getAllAvailablePropertyNames().contains(
+				"address"));
+
+		assertFalse(propertyList.getPropertyNames().contains("address.street"));
+		assertFalse(propertyList.getNestedPropertyNames().contains(
+				"address.street"));
+		assertFalse(propertyList.getPersistentPropertyNames().contains(
+				"address.street"));
+		assertFalse(propertyList.getAllAvailablePropertyNames().contains(
+				"address.street"));
+
+		assertEquals("address.street", propertyList.getSortablePropertyMap()
+				.get("address"));
+
+		assertTrue(propertyList.removeProperty("address"));
+
+		assertFalse(propertyList.getPropertyNames().contains("address"));
+		assertFalse(propertyList.getNestedPropertyNames().contains("address"));
+		assertFalse(propertyList.getPersistentPropertyNames().contains(
+				"address"));
+		assertTrue(propertyList.getAllAvailablePropertyNames().contains(
+				"address"));
+
+		assertFalse(propertyList.getSortablePropertyMap()
+				.containsKey("address"));
+	}
+
+	@Test
+	public void testRemoveCustomSortableProperty_ChildList() {
+		propertyList.setSortProperty("address", "address.street");
+
+		assertEquals("address.street", propertyList.getSortablePropertyMap()
+				.get("address"));
+		assertEquals("address.street", childPropertyList
+				.getSortablePropertyMap().get("address"));
+
+		// parent property not removable from the child
+		assertFalse(childPropertyList.removeProperty("address"));
+		assertTrue(childPropertyList.getPersistentPropertyNames().contains(
+				"address"));
+		assertEquals("address.street", propertyList.getSortablePropertyMap()
+				.get("address"));
+		assertEquals("address.street", childPropertyList
+				.getSortablePropertyMap().get("address"));
+
+		assertTrue(propertyList.removeProperty("address"));
+		assertFalse(propertyList.getPersistentPropertyNames().contains(
+				"address"));
+		assertFalse(propertyList.getSortablePropertyMap()
+				.containsKey("address"));
+		assertFalse(childPropertyList.getSortablePropertyMap().containsKey(
+				"address"));
 	}
 
 	@Test

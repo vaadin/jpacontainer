@@ -355,8 +355,46 @@ public class JPAContainer<T> implements EntityContainer<T>,
 		}
 	}
 
+	/**
+	 * Configures a property to be sortable based on another property, normally
+	 * a sub-property of the main property to sort.
+	 * <p>
+	 * For example, let's say there is a property named <code>address</code> and
+	 * that this property's type in turn has the property <code>street</code>.
+	 * Addresses are not directly sortable as they are not simple properties.
+	 * <p>
+	 * If we want to be able to sort addresses based on the street property, we
+	 * can set the sort property for <code>address</code> to be
+	 * <code>address.street</code> using this method.
+	 * <p>
+	 * Normally the sort property should be of the form
+	 * <code>propertyId + "." + subPropertyId</code>. Sort properties must be
+	 * persistent and usable in JPQL, but need not be registered as separate
+	 * properties in the container.
+	 * <p>
+	 * Note that the sort property is not checked when this method is called. If
+	 * it is not a valid sort property, an exception will be thrown when trying
+	 * to sort a container.
+	 * 
+	 * @param propertyId
+	 *            property for which sorting should be configured
+	 * @param sortPropertyId
+	 *            property that should be used when sorting by propertyId is
+	 *            requested, typically a sub-property propertyId
+	 * @throws IllegalArgumentException
+	 *             if the property <code>propertyId</code> is not in the
+	 *             container
+	 * @since 1.2.1
+	 */
+	public void setSortProperty(String propertyId, String sortPropertyId)
+			throws IllegalArgumentException {
+		propertyList.setSortProperty(propertyId, sortPropertyId);
+	}
+
 	public Collection<String> getSortableContainerPropertyIds() {
-		return propertyList.getSortablePropertyNames();
+		// This includes properties for which a separate sort property has been
+		// defined.
+		return propertyList.getSortablePropertyMap().keySet();
 	}
 
 	public void sort(Object[] propertyId, boolean[] ascending) {
@@ -370,7 +408,10 @@ public class JPAContainer<T> implements EntityContainer<T>,
 				throw new IllegalArgumentException(
 						"No such sortable property ID: " + propertyId[i]);
 			}
-			sortByList.add(new SortBy(propertyId[i], ascending[i]));
+			// #7711 map property ID to a sortable sub-property if configured
+			Object sortProperty = propertyList.getSortablePropertyMap().get(
+					propertyId[i]);
+			sortByList.add(new SortBy(sortProperty, ascending[i]));
 		}
 		sortByList = Collections.unmodifiableList(sortByList);
 		fireContainerItemSetChange(new ContainerSortedEvent());
