@@ -378,15 +378,16 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	 * 
 	 * @param propertyId
 	 *            property for which sorting should be configured
-	 * @param sortPropertyId
-	 *            property that should be used when sorting by propertyId is
-	 *            requested, typically a sub-property propertyId
+	 * @param sortProperty
+	 *            property or other JPQL string that should be used when sorting
+	 *            by propertyId is requested, typically a sub-property
+	 *            propertyId
 	 * @throws IllegalArgumentException
 	 *             if the property <code>propertyId</code> is not in the
 	 *             container
 	 * @since 1.2.1
 	 */
-	public void setSortProperty(String propertyId, String sortPropertyId)
+	public void setSortProperty(String propertyId, String sortProperty)
 			throws IllegalArgumentException {
 		propertyList.setSortProperty(propertyId, sortPropertyId);
 	}
