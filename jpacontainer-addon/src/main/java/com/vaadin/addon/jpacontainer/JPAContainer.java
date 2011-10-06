@@ -389,7 +389,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	 */
 	public void setSortProperty(String propertyId, String sortProperty)
 			throws IllegalArgumentException {
-		propertyList.setSortProperty(propertyId, sortPropertyId);
+		propertyList.setSortProperty(propertyId, sortProperty);
 	}
 
 	public Collection<String> getSortableContainerPropertyIds() {
