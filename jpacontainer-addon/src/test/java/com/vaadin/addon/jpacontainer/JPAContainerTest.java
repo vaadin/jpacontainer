@@ -106,13 +106,13 @@ public class JPAContainerTest {
 
 	@Test
 	public void testGetSortableContainerPropertyIds() {
-		assertTrue(container.getSortableContainerPropertyIds()
-				.containsAll(
-						container.getEntityClassMetadata()
-								.getPersistentPropertyNames()));
+		assertTrue(container.getEntityClassMetadata()
+				.getPersistentPropertyNames()
+				.containsAll(container.getSortableContainerPropertyIds()));
+		// address, manager and skills not sortable
 		assertEquals(container.getSortableContainerPropertyIds().size(),
 				container.getEntityClassMetadata().getPersistentPropertyNames()
-						.size());
+						.size() - 3);
 	}
 
 	@Test
@@ -140,15 +140,11 @@ public class JPAContainerTest {
 	public void testRemoveContainerProperty() {
 		assertTrue(container.getContainerPropertyIds().contains("address"));
 		assertTrue(container.getFilterablePropertyIds().contains("address"));
-		assertTrue(container.getSortableContainerPropertyIds().contains(
-				"address"));
 
 		assertTrue(container.removeContainerProperty("address"));
 
 		assertFalse(container.getContainerPropertyIds().contains("address"));
 		assertFalse(container.getFilterablePropertyIds().contains("address"));
-		assertFalse(container.getSortableContainerPropertyIds().contains(
-				"address"));
 	}
 
 	@Test
@@ -194,7 +190,7 @@ public class JPAContainerTest {
 				.containsAll(
 						container.getEntityClassMetadata()
 								.getPersistentPropertyNames()));
-		
+
 		container.setAdditionalFilterablePropertyIds("hello", "world");
 		assertTrue(container.getFilterablePropertyIds()
 				.containsAll(
@@ -303,9 +299,10 @@ public class JPAContainerTest {
 	@Test
 	public void testSize_WriteThrough() {
 		expect(
-				entityProviderMock.getEntityCount(Filters.and(Filters.eq(
-						"firstName", "Hello", false), Filters.eq("lastName",
-						"World", false)))).andReturn(123);
+				entityProviderMock.getEntityCount(Filters.and(
+						Filters.eq("firstName", "Hello", false),
+						Filters.eq("lastName", "World", false))))
+				.andReturn(123);
 		replay(entityProviderMock);
 
 		assertTrue(container.isApplyFiltersImmediately());
@@ -403,8 +400,8 @@ public class JPAContainerTest {
 				entityProviderMock.getEntityIdentifierAt(null,
 						new LinkedList<SortBy>(), 2)).andReturn(null);
 		expect(
-				entityProviderMock.getEntityIdentifierAt(Filters
-						.eq("firstName", "Hello", false), orderby, 3))
+				entityProviderMock.getEntityIdentifierAt(
+						Filters.eq("firstName", "Hello", false), orderby, 3))
 				.andReturn("id3");
 		replay(entityProviderMock);
 
@@ -434,9 +431,9 @@ public class JPAContainerTest {
 				batchableEntityProviderMock.getEntityIdentifierAt(null,
 						new LinkedList<SortBy>(), 1)).andStubReturn(null);
 		expect(
-				batchableEntityProviderMock.getEntityIdentifierAt(Filters
-						.eq("firstName", "Hello", false), orderby,
-						2)).andStubReturn("id3");
+				batchableEntityProviderMock.getEntityIdentifierAt(
+						Filters.eq("firstName", "Hello", false), orderby, 2))
+				.andStubReturn("id3");
 		expect(batchableEntityProviderMock.containsEntity("id3", null))
 				.andStubReturn(true);
 		replay(batchableEntityProviderMock);
@@ -689,8 +686,9 @@ public class JPAContainerTest {
 	public void testContainsId_WriteThrough() {
 		expect(entityProviderMock.containsEntity("id", null)).andReturn(true);
 		expect(
-				entityProviderMock.containsEntity("id2", Filters
-						.eq("firstName", "Hello", false))).andReturn(false);
+				entityProviderMock.containsEntity("id2",
+						Filters.eq("firstName", "Hello", false))).andReturn(
+				false);
 		replay(entityProviderMock);
 
 		container.setEntityProvider(entityProviderMock);
@@ -711,10 +709,12 @@ public class JPAContainerTest {
 		expect(batchableEntityProviderMock.containsEntity("id2", null))
 				.andStubReturn(true);
 		expect(
-				batchableEntityProviderMock.containsEntity("id", Filters.eq("firstName", "Hello", false)))
+				batchableEntityProviderMock.containsEntity("id",
+						Filters.eq("firstName", "Hello", false)))
 				.andStubReturn(true);
 		expect(
-				batchableEntityProviderMock.containsEntity("id2", Filters.eq("firstName", "Hello", false)))
+				batchableEntityProviderMock.containsEntity("id2",
+						Filters.eq("firstName", "Hello", false)))
 				.andStubReturn(false);
 		replay(batchableEntityProviderMock);
 
@@ -758,9 +758,9 @@ public class JPAContainerTest {
 				entityProviderMock.getFirstEntityIdentifier(null,
 						new LinkedList<SortBy>())).andReturn(null).times(2);
 		expect(
-				entityProviderMock.getFirstEntityIdentifier(Filters
-						.eq("firstName", "Hello", false), orderby)).andReturn(
-				"id2").times(3);
+				entityProviderMock.getFirstEntityIdentifier(
+						Filters.eq("firstName", "Hello", false), orderby))
+				.andReturn("id2").times(3);
 		replay(entityProviderMock);
 
 		container.setEntityProvider(entityProviderMock);
@@ -792,7 +792,8 @@ public class JPAContainerTest {
 						new LinkedList<SortBy>())).andReturn("id1").times(2)
 				.andReturn(null).times(2);
 		expect(
-				batchableEntityProviderMock.getFirstEntityIdentifier(Filters.eq("firstName", "Hello", false), orderby))
+				batchableEntityProviderMock.getFirstEntityIdentifier(
+						Filters.eq("firstName", "Hello", false), orderby))
 				.andReturn("id2").times(3);
 		replay(batchableEntityProviderMock);
 
@@ -852,9 +853,9 @@ public class JPAContainerTest {
 				entityProviderMock.getLastEntityIdentifier(null,
 						new LinkedList<SortBy>())).andReturn(null).times(2);
 		expect(
-				entityProviderMock.getLastEntityIdentifier(Filters
-						.eq("firstName", "Hello", false), orderby)).andReturn(
-				"id2").times(3);
+				entityProviderMock.getLastEntityIdentifier(
+						Filters.eq("firstName", "Hello", false), orderby))
+				.andReturn("id2").times(3);
 		replay(entityProviderMock);
 
 		container.setEntityProvider(entityProviderMock);
@@ -886,7 +887,8 @@ public class JPAContainerTest {
 						new LinkedList<SortBy>())).andReturn("id1").times(2)
 				.andReturn(null).times(2);
 		expect(
-				batchableEntityProviderMock.getLastEntityIdentifier(Filters.eq("firstName", "Hello", false), orderby))
+				batchableEntityProviderMock.getLastEntityIdentifier(
+						Filters.eq("firstName", "Hello", false), orderby))
 				.andReturn("id2").times(6).andReturn(null).times(3);
 		replay(batchableEntityProviderMock);
 
@@ -942,12 +944,12 @@ public class JPAContainerTest {
 				entityProviderMock.getNextEntityIdentifier("id2", null,
 						new LinkedList<SortBy>())).andReturn(null);
 		expect(
-				entityProviderMock.getNextEntityIdentifier("id3", Filters
-				.eq("firstName", "Hello", false), orderby))
+				entityProviderMock.getNextEntityIdentifier("id3",
+						Filters.eq("firstName", "Hello", false), orderby))
 				.andReturn("id4");
 		expect(
-				entityProviderMock.getNextEntityIdentifier("id4", Filters
-				.eq("firstName", "Hello", false), orderby))
+				entityProviderMock.getNextEntityIdentifier("id4",
+						Filters.eq("firstName", "Hello", false), orderby))
 				.andReturn(null);
 		replay(entityProviderMock);
 
@@ -982,12 +984,12 @@ public class JPAContainerTest {
 				entityProviderMock.getPreviousEntityIdentifier("id2", null,
 						new LinkedList<SortBy>())).andReturn(null);
 		expect(
-				entityProviderMock.getPreviousEntityIdentifier("id3", Filters
-				.eq("firstName", "Hello", false), orderby))
+				entityProviderMock.getPreviousEntityIdentifier("id3",
+						Filters.eq("firstName", "Hello", false), orderby))
 				.andReturn("id4");
 		expect(
-				entityProviderMock.getPreviousEntityIdentifier("id4", Filters
-				.eq("firstName", "Hello", false), orderby))
+				entityProviderMock.getPreviousEntityIdentifier("id4",
+						Filters.eq("firstName", "Hello", false), orderby))
 				.andReturn(null);
 		replay(entityProviderMock);
 
@@ -1032,8 +1034,10 @@ public class JPAContainerTest {
 				true, false });
 		assertTrue(listenerCalled[0]);
 		assertEquals(2, container.getSortByList().size());
-		assertEquals("firstName", container.getSortByList().get(0).getPropertyId());
-		assertEquals("lastName", container.getSortByList().get(1).getPropertyId());
+		assertEquals("firstName", container.getSortByList().get(0)
+				.getPropertyId());
+		assertEquals("lastName", container.getSortByList().get(1)
+				.getPropertyId());
 		assertTrue(container.getSortByList().get(0).isAscending());
 		assertFalse(container.getSortByList().get(1).isAscending());
 
@@ -1145,8 +1149,8 @@ public class JPAContainerTest {
 			@SuppressWarnings("unchecked")
 			public void containerItemSetChange(ItemSetChangeEvent event) {
 				assertTrue(event instanceof JPAContainer.ItemAddedEvent);
-				assertEquals(123l, ((JPAContainer.ItemAddedEvent) event)
-						.getItemId());
+				assertEquals(123l,
+						((JPAContainer.ItemAddedEvent) event).getItemId());
 				listenerCalled[0] = true;
 			}
 		});
@@ -1174,8 +1178,8 @@ public class JPAContainerTest {
 			@SuppressWarnings("unchecked")
 			public void containerItemSetChange(ItemSetChangeEvent event) {
 				assertTrue(event instanceof JPAContainer.ItemRemovedEvent);
-				assertEquals(123l, ((JPAContainer.ItemRemovedEvent) event)
-						.getItemId());
+				assertEquals(123l,
+						((JPAContainer.ItemRemovedEvent) event).getItemId());
 				listenerCalled[0] = true;
 			}
 		});
@@ -1379,10 +1383,10 @@ public class JPAContainerTest {
 		JPAContainer<Person> otherContainer = (JPAContainer<Person>) ois
 				.readObject();
 		assertNotNull(otherContainer);
-		assertEquals(container.getEntityClassMetadata(), otherContainer
-				.getEntityClassMetadata());
-		assertEquals(container.getEntityClass(), otherContainer
-				.getEntityClass());
+		assertEquals(container.getEntityClassMetadata(),
+				otherContainer.getEntityClassMetadata());
+		assertEquals(container.getEntityClass(),
+				otherContainer.getEntityClass());
 	}
 
 	@Test
@@ -1393,7 +1397,10 @@ public class JPAContainerTest {
 		LinkedList<Object> result = new LinkedList<Object>();
 
 		// Instruct mocks
-		expect(entityProviderMock.getAllEntityIdentifiers(Filters.eq("manager.id", 123l), orderby)).andReturn(result);
+		expect(
+				entityProviderMock.getAllEntityIdentifiers(
+						Filters.eq("manager.id", 123l), orderby)).andReturn(
+				result);
 		replay(entityProviderMock);
 
 		// Set up container
@@ -1416,7 +1423,11 @@ public class JPAContainerTest {
 		LinkedList<Object> result = new LinkedList<Object>();
 
 		// Instruct mocks
-		expect(entityProviderMock.getAllEntityIdentifiers(Filters.and(Filters.eq("manager.id", 123l), Filters.eq("firstName", "blah")), orderby)).andReturn(result);
+		expect(
+				entityProviderMock.getAllEntityIdentifiers(
+						Filters.and(Filters.eq("manager.id", 123l),
+								Filters.eq("firstName", "blah")), orderby))
+				.andReturn(result);
 		replay(entityProviderMock);
 
 		// Set up container
@@ -1440,7 +1451,9 @@ public class JPAContainerTest {
 		LinkedList<Object> result = new LinkedList<Object>();
 
 		// Instruct mocks
-		expect(entityProviderMock.getAllEntityIdentifiers(Filters.isNull("manager"), orderby)).andReturn(result);
+		expect(
+				entityProviderMock.getAllEntityIdentifiers(
+						Filters.isNull("manager"), orderby)).andReturn(result);
 		replay(entityProviderMock);
 
 		// Set up container
@@ -1464,8 +1477,14 @@ public class JPAContainerTest {
 		result.add(12l);
 
 		// Instruct mocks
-		expect(entityProviderMock.getAllEntityIdentifiers(Filters.eq("manager.id", 123l), orderby)).andReturn(Collections.emptyList());
-		expect(entityProviderMock.getAllEntityIdentifiers(Filters.eq("manager.id", 123l), orderby)).andReturn(result);
+		expect(
+				entityProviderMock.getAllEntityIdentifiers(
+						Filters.eq("manager.id", 123l), orderby)).andReturn(
+				Collections.emptyList());
+		expect(
+				entityProviderMock.getAllEntityIdentifiers(
+						Filters.eq("manager.id", 123l), orderby)).andReturn(
+				result);
 		replay(entityProviderMock);
 
 		// Set up container
