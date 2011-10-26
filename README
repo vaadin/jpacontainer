@@ -18,6 +18,16 @@ EDITING THE CODE IN AN IDE
 
   JPAContainer currently contains configuration data for NetBeans 6.8, but any
   other IDE that supports Maven should work just fine.
+  
+  The actual developmen happens in a project realized from directory:
+  jpacontainer-addon-dev. Do no use that project to build releases. It is a 
+  an independent hack free maven project that is only used for development 
+  and dev builds. It builds the agpl version of the addon.
+  
+  Release builds are done with jpacontainer-addon project, which draws 
+  sources from the dev project. Using that directly in IDE is something you
+  do not want to try.
+  
 
 TRYING OUT THE DEMO
 
