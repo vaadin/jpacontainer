@@ -173,12 +173,12 @@
         <finalName>vaadin-jpacontainer-${license.short.name}-${project.version}</finalName>
         <resources>
             <resource>
-                <directory>src/main/java</directory>
+                <directory>../jpacontainer-addon-dev/src/main/java</directory>
                 <filtering>true</filtering>
                 <targetPath>${project.build.directory}/filtered-sources/main/java</targetPath>
             </resource>
             <resource>
-                <directory>src/test/java</directory>
+                <directory>../jpacontainer-addon-dev/src/test/java</directory>
                 <filtering>true</filtering>
                 <targetPath>${project.build.directory}/filtered-sources/test/java</targetPath>
             </resource>
@@ -201,6 +201,11 @@
         </resources>
         <sourceDirectory>target/filtered-sources/main/java</sourceDirectory>
         <testSourceDirectory>target/filtered-sources/test/java</testSourceDirectory>
+        <testResources>
+        	<testResource>
+        		<directory>../jpacontainer-addon-dev/src/test/resources</directory>
+        	</testResource>
+        </testResources>
         <pluginManagement>
             <plugins>
                 <plugin>
