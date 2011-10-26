@@ -154,8 +154,9 @@ public class MetadataFactory {
 			metadataMap.put(mappedClass, metadata);
 			loadProperties(mappedClass, metadata, accessType);
 		} else {
-			throw new IllegalArgumentException(
-					"The class is nether an entity nor embeddable");
+			throw new IllegalArgumentException("The class "
+					+ mappedClass.getName()
+					+ " is nether an entity nor embeddable");
 		}
 
 		return metadata;
