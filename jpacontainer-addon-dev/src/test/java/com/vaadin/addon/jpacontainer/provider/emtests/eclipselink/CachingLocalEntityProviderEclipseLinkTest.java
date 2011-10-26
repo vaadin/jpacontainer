@@ -26,7 +26,7 @@ import static org.eclipse.persistence.config.PersistenceUnitProperties.*;
 public class CachingLocalEntityProviderEclipseLinkTest extends AbstractCachingLocalEntityProviderEMTest {
 
     protected EntityManager createEntityManager() throws Exception {
-		Map properties = new HashMap();
+		HashMap<String, String> properties = new HashMap<String, String>();
 
 		properties.put(TRANSACTION_TYPE,
 				PersistenceUnitTransactionType.RESOURCE_LOCAL.name());
@@ -39,7 +39,7 @@ public class CachingLocalEntityProviderEclipseLinkTest extends AbstractCachingLo
 		properties.put(JDBC_WRITE_CONNECTIONS_MIN, "1");
 		properties.put(TARGET_DATABASE, TargetDatabase.HSQL);
 		properties.put(TARGET_SERVER, TargetServer.None);
-		properties.put(DDL_GENERATION, DROP_AND_CREATE);
+		properties.put(DDL_GENERATION, CREATE_ONLY);
 
 //		properties.put(LOGGING_LEVEL, "FINE");
 
