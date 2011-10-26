@@ -35,6 +35,7 @@ import org.junit.Test;
 import com.vaadin.addon.jpacontainer.filter.Filters;
 import com.vaadin.addon.jpacontainer.testdata.Address;
 import com.vaadin.addon.jpacontainer.testdata.Person;
+import com.vaadin.data.Container;
 import com.vaadin.data.Container.ItemSetChangeEvent;
 import com.vaadin.data.Container.ItemSetChangeListener;
 
@@ -1200,6 +1201,8 @@ public class JPAContainerTest {
 	}
 
 	public void testContainerItemPropertyModified_WriteThrough() {
+		
+		
 		// TODO Write test
 	}
 
@@ -1543,5 +1546,58 @@ public class JPAContainerTest {
 
 		// Verify
 		verify(entityProviderMock);
+	}
+	
+	@Test
+	public void testNoItemSetChangeEventOnPropertyValueChange() {
+		Person p = new Person();
+		p.setId(123l);
+		p.setFirstName("Joe");
+		p.setLastName("Cool");
+		expect(mutableEntityProviderMock.getEntity(123l)).andReturn(p);
+		mutableEntityProviderMock.updateEntityProperty(p.getId(), "firstName","John");
+		replay(mutableEntityProviderMock);
+
+		container.setEntityProvider(mutableEntityProviderMock);
+		container.setWriteThrough(true);
+		TestItemSetChangeListener listener = new TestItemSetChangeListener();
+		container.addListener(listener);
+
+		EntityItem<Person> item = container.getItem(123l);
+		assertEquals("Joe", item.getItemProperty("firstName").getValue());
+		assertEquals("Cool", item.getItemProperty("lastName").getValue());
+		
+		item.getItemProperty("firstName").setValue("John");
+		
+		/*
+		 * "item set" has not changed, only a property of an item in that set.
+		 */
+		assertEquals(0, listener.getCalled());
+		
+		assertEquals("John", p.getFirstName());
+
+		verify(mutableEntityProviderMock);
+		
+	}
+	
+	
+	public static class TestItemSetChangeListener implements Container.ItemSetChangeListener {
+		
+		private int called;
+		private ItemSetChangeEvent lastEvent;
+
+		public void containerItemSetChange(ItemSetChangeEvent event) {
+			called++;
+			lastEvent = event;
+		}
+		
+		public int getCalled() {
+			return called;
+		}
+		
+		public ItemSetChangeEvent getLastEvent() {
+			return lastEvent;
+		}
+		
 	}
 }
