@@ -1050,12 +1050,6 @@ public class JPAContainer<T> implements EntityContainer<T>,
 			} else {
 				bufferingDelegate.updateEntity(itemId, item.getEntity());
 			}
-			setFireItemSetChangeOnProviderChange(false);
-			try {
-				fireContainerItemSetChange(new ItemUpdatedEvent(itemId));
-			} finally {
-				setFireItemSetChangeOnProviderChange(true);
-			}
 		}
 	}
 
@@ -1093,12 +1087,6 @@ public class JPAContainer<T> implements EntityContainer<T>,
 				item.setDirty(false);
 			} else {
 				bufferingDelegate.updateEntity(itemId, item.getEntity());
-			}
-			setFireItemSetChangeOnProviderChange(false);
-			try {
-				fireContainerItemSetChange(new ItemUpdatedEvent(itemId));
-			} finally {
-				setFireItemSetChangeOnProviderChange(true);
 			}
 		}
 	}
