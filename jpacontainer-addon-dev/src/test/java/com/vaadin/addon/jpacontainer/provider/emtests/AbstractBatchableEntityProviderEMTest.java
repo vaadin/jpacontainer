@@ -48,6 +48,8 @@ public abstract class AbstractBatchableEntityProviderEMTest extends
 
 		final Person removedPerson = testDataSortedByName.get(2).clone();
 		final Object[] addedPersonId = new Object[1];
+		
+		entityProvider.setEntitiesDetached(false);
 
 		BatchableEntityProvider.BatchUpdateCallback<Person> callback = new BatchableEntityProvider.BatchUpdateCallback<Person>() {
 

@@ -6,6 +6,8 @@ package com.vaadin.addon.jpacontainer.provider.emtests;
 import com.vaadin.addon.jpacontainer.MutableEntityProvider;
 import com.vaadin.addon.jpacontainer.testdata.Address;
 import com.vaadin.addon.jpacontainer.testdata.Person;
+
+import org.eclipse.persistence.internal.libraries.asm.tree.IntInsnNode;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -32,26 +34,52 @@ public abstract class AbstractMutableEntityProviderEMTest extends
 		p.getAddress().setPostalCode("Postal Code");
 		p.getAddress().setPostOffice("Post Office");
 
+		int entityCount = entityProvider.getEntityCount(null);
+
 		Person returned = ((MutableEntityProvider<Person>) entityProvider)
 				.addEntity(p);
-		assertEquals(returned, p);
+		assertEquals(p.getFirstName(), returned.getFirstName());
+		assertEquals(p.getLastName(), returned.getLastName());
+		assertEquals(p.getDateOfBirth(), returned.getDateOfBirth());
+		assertEquals(p.getAddress().getStreet(), returned.getAddress().getStreet());
+		assertEquals(p.getAddress().getPostalCode(), returned.getAddress().getPostalCode());
+		assertEquals(p.getAddress().getPostOffice(), returned.getAddress().getPostOffice());
+		// Note, we don't test skills as it may be lazy loaded and entities a detached
+		
 		assertTrue(entityProvider.containsEntity(returned.getId(), null));
-		assertEquals(returned, entityProvider.getEntity(returned.getId()));
+		
+		returned = entityProvider.getEntity(returned.getId());
+		assertEquals(p.getFirstName(), returned.getFirstName());
+		assertEquals(p.getLastName(), returned.getLastName());
+		assertEquals(p.getDateOfBirth(), returned.getDateOfBirth());
+		assertEquals(p.getAddress().getStreet(), returned.getAddress().getStreet());
+		assertEquals(p.getAddress().getPostalCode(), returned.getAddress().getPostalCode());
+		assertEquals(p.getAddress().getPostOffice(), returned.getAddress().getPostOffice());
+		assertTrue(entityProvider.containsEntity(returned.getId(), null));
+		
+		assertEquals(entityCount + 1, entityProvider.getEntityCount(null));
 
 		// Make some changes to the local instance
 		returned.setFirstName("Another firstname");
 
+		Person fromProvider = entityProvider.getEntity(returned.getId());
+		
 		// Now, the instances should not be equal any longer
-		assertFalse(returned.equals(entityProvider.getEntity(returned.getId())));
+		assertFalse(returned.getFirstName().equals(fromProvider.getFirstName()));
 	}
 
 	@Test
 	public void testRemoveEntity() {
 		Person p = testDataSortedByName.get(0);
 
+		int entityCount = entityProvider.getEntityCount(null);
+
 		assertTrue(entityProvider.containsEntity(p.getId(), null));
 		((MutableEntityProvider<Person>) entityProvider)
 				.removeEntity(p.getId());
+
+		assertEquals(entityCount - 1, entityProvider.getEntityCount(null));
+
 		assertFalse(entityProvider.containsEntity(p.getId(), null));
 	}
 
@@ -61,21 +89,21 @@ public abstract class AbstractMutableEntityProviderEMTest extends
 
 		p = entityProvider.getEntity(p.getId());
 		p.setFirstName("A changed first name");
-		assertFalse(p.equals(entityProvider.getEntity(p.getId())));
+		assertFalse(p.getFirstName().equals(entityProvider.getEntity(p.getId()).getFirstName()));
 
 		Person returned = ((MutableEntityProvider<Person>) entityProvider)
 				.updateEntity(p);
 
-		assertEquals(returned, p);
-		assertEquals(p, entityProvider.getEntity(p.getId()));
+		assertEquals(returned.getFirstName(), p.getFirstName());
+		assertEquals(p.getFirstName(), entityProvider.getEntity(p.getId()).getFirstName());
 	}
 
 	@Test
 	public void testUpdateEntityProperty() {
 		Person p = testDataSortedByName.get(0);
 
-		((MutableEntityProvider<Person>) entityProvider).updateEntityProperty(p
-				.getId(), "firstName", "A changed first name again");
+		((MutableEntityProvider<Person>) entityProvider).updateEntityProperty(
+				p.getId(), "firstName", "A changed first name again");
 
 		Person returned = entityProvider.getEntity(p.getId());
 		assertEquals("A changed first name again", returned.getFirstName());
