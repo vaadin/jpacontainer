@@ -21,8 +21,9 @@ import javax.persistence.Query;
 
 /**
  * Delegate class that implements caching for {@link LocalEntityProvider}s and
- * their subclasses. This class is internal and should never be used outside of JPAContainer.
- *
+ * their subclasses. This class is internal and should never be used outside of
+ * JPAContainer.
+ * 
  * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
@@ -53,22 +54,26 @@ class CachingSupport<T> implements Serializable {
 		}
 	};
 	/**
-	 * The max size of the filter cache (i.e. how many different filters to cache).
+	 * The max size of the filter cache (i.e. how many different filters to
+	 * cache).
+	 * 
 	 * @see #getFilterCache()
 	 */
 	public static final int MAX_FILTER_CACHE_SIZE = 10;
 	/**
 	 * The max size of the sort by cache for each filter. Thus, the maximum
-	 * number of cached filter-sortBy combinations is <code>MAX_FILTER_CACHE_SIZE * MAX_SORTBY_CACHE_SIZE</code>.
+	 * number of cached filter-sortBy combinations is
+	 * <code>MAX_FILTER_CACHE_SIZE * MAX_SORTBY_CACHE_SIZE</code>.
 	 */
 	public static final int MAX_SORTBY_CACHE_SIZE = 10;
 
-	// TODO Make chunk size, filter cache size and sortBy cache size user configurable.
+	// TODO Make chunk size, filter cache size and sortBy cache size user
+	// configurable.
 
 	/**
-	 * Creates a new <code>CachingSupport</code> for the specified
-	 * entity provider.
-	 *
+	 * Creates a new <code>CachingSupport</code> for the specified entity
+	 * provider.
+	 * 
 	 * @param entityProvider
 	 *            the entity provider (never null).
 	 */
@@ -80,7 +85,7 @@ class CachingSupport<T> implements Serializable {
 	/**
 	 * Data structure used by {@link FilterCacheEntry} to store entityId lists
 	 * sorted in different ways.
-	 *
+	 * 
 	 * @author Petter Holmström (Vaadin Ltd)
 	 * @since 1.0
 	 */
@@ -94,8 +99,9 @@ class CachingSupport<T> implements Serializable {
 
 	/**
 	 * This class represents a cache for a specific {@link Filter}. The class
-	 * contains counterparts of most of the methods defined in {@link EntityProvider}.
-	 *
+	 * contains counterparts of most of the methods defined in
+	 * {@link EntityProvider}.
+	 * 
 	 * @author Petter Holmström (Vaadin Ltd)
 	 * @since 1.0
 	 */
@@ -111,8 +117,9 @@ class CachingSupport<T> implements Serializable {
 
 		/**
 		 * Creates a new <code>FilterCacheEntry</code>.
-		 *
-		 * @param filter the filter for which this cache should be created.
+		 * 
+		 * @param filter
+		 *            the filter for which this cache should be created.
 		 */
 		public FilterCacheEntry(Filter filter) {
 			this.filter = filter;
@@ -120,23 +127,23 @@ class CachingSupport<T> implements Serializable {
 
 		/**
 		 * Gets the number of entities that match this particular filter.
+		 * 
 		 * @return the number of entities.
 		 */
 		public synchronized int getEntityCount() {
 			if (entityCount == null) {
-				entityCount = entityProvider.doGetEntityCount(
-						getFilter());
+				entityCount = entityProvider.doGetEntityCount(getFilter());
 			}
 			return entityCount;
 		}
 
 		/**
-		 * @see EntityProvider#containsEntity(java.lang.Object, com.vaadin.addons.jpacontainer.Filter)
+		 * @see EntityProvider#containsEntity(java.lang.Object,
+		 *      com.vaadin.addons.jpacontainer.Filter)
 		 */
 		public synchronized boolean containsId(Object entityId) {
 			if (!idSet.contains(entityId)) {
-				if (entityProvider.doContainsEntity(entityId,
-						getFilter())) {
+				if (entityProvider.doContainsEntity(entityId, getFilter())) {
 					idSet.add(entityId);
 					return true;
 				} else {
@@ -148,14 +155,16 @@ class CachingSupport<T> implements Serializable {
 		}
 
 		/**
-		 * @see EntityProvider#getFirstEntityIdentifier(com.vaadin.addons.jpacontainer.Filter, java.util.List)
+		 * @see EntityProvider#getFirstEntityIdentifier(com.vaadin.addons.jpacontainer.Filter,
+		 *      java.util.List)
 		 */
 		public Object getFirstId(List<SortBy> sortBy) {
 			return getIdAt(sortBy, 0);
 		}
 
 		/**
-		 * @see EntityProvider#getNextEntityIdentifier(java.lang.Object, com.vaadin.addons.jpacontainer.Filter, java.util.List)
+		 * @see EntityProvider#getNextEntityIdentifier(java.lang.Object,
+		 *      com.vaadin.addons.jpacontainer.Filter, java.util.List)
 		 */
 		public synchronized Object getNextId(Object entityId,
 				List<SortBy> sortBy) {
@@ -177,7 +186,8 @@ class CachingSupport<T> implements Serializable {
 				}
 			} else {
 				if (index == entry.idList.size() - 1) {
-					if (getMaxCacheSize() > -1 && entry.idList.size() + CHUNK_SIZE > getMaxCacheSize()) {
+					if (getMaxCacheSize() > -1
+							&& entry.idList.size() + CHUNK_SIZE > getMaxCacheSize()) {
 						// Clean up the cache
 						if (entry.idList.size() <= CHUNK_SIZE) {
 							entry.idList.clear();
@@ -187,8 +197,8 @@ class CachingSupport<T> implements Serializable {
 							index -= CHUNK_SIZE;
 						}
 					}
-					entry.idList.addAll(getNextIds(getFilter(), sortBy, entityId,
-							CHUNK_SIZE));
+					entry.idList.addAll(getNextIds(getFilter(), sortBy,
+							entityId, CHUNK_SIZE));
 				}
 				if (index + 1 == entry.idList.size()) {
 					return null;
@@ -199,7 +209,8 @@ class CachingSupport<T> implements Serializable {
 		}
 
 		/**
-		 * @see EntityProvider#getPreviousEntityIdentifier(java.lang.Object, com.vaadin.addons.jpacontainer.Filter, java.util.List)
+		 * @see EntityProvider#getPreviousEntityIdentifier(java.lang.Object,
+		 *      com.vaadin.addons.jpacontainer.Filter, java.util.List)
 		 */
 		public synchronized Object getPreviousId(Object entityId,
 				List<SortBy> sortBy) {
@@ -213,8 +224,7 @@ class CachingSupport<T> implements Serializable {
 			int index = entry.idList.indexOf(entityId);
 			if (index == -1) {
 				List<Object> objects = getPreviousIds(getFilter(), sortBy,
-						entityId,
-						CHUNK_SIZE);
+						entityId, CHUNK_SIZE);
 				// We have to reverse the list
 				entry.idList = new ArrayList<Object>(objects.size());
 				for (int i = objects.size() - 1; i >= 0; i--) {
@@ -239,7 +249,8 @@ class CachingSupport<T> implements Serializable {
 					for (int i = objects.size() - 1; i >= 0; i--) {
 						l.add(objects.get(i));
 					}
-					if (getMaxCacheSize() > -1 && entry.idList.size() + CHUNK_SIZE > getMaxCacheSize()) {
+					if (getMaxCacheSize() > -1
+							&& entry.idList.size() + CHUNK_SIZE > getMaxCacheSize()) {
 						// Clean up the cache
 						if (entry.idList.size() > CHUNK_SIZE) {
 							l.addAll(entry.idList.subList(0,
@@ -257,22 +268,26 @@ class CachingSupport<T> implements Serializable {
 		}
 
 		/**
-		 * @see EntityProvider#getLastEntityIdentifier(com.vaadin.addons.jpacontainer.Filter, java.util.List)
+		 * @see EntityProvider#getLastEntityIdentifier(com.vaadin.addons.jpacontainer.Filter,
+		 *      java.util.List)
 		 */
 		public Object getLastId(List<SortBy> sortBy) {
 			return getIdAt(sortBy, getEntityCount() - 1);
 		}
 
 		/**
-		 * Informs the cache that <code>entityId</code> has been invalidated (changed or removed).
-		 * If the entityId is currently in cache, the cache is flushed, forcing the data
-		 * to be fetched from the database when requested the next time.
-		 *
-		 * @param entityId the entityId to invalidate.
+		 * Informs the cache that <code>entityId</code> has been invalidated
+		 * (changed or removed). If the entityId is currently in cache, the
+		 * cache is flushed, forcing the data to be fetched from the database
+		 * when requested the next time.
+		 * 
+		 * @param entityId
+		 *            the entityId to invalidate.
 		 */
 		public synchronized void invalidate(Object entityId) {
 			if (containsId(entityId)) {
-				// Clear the caches to force the data to be re-fetched from the database
+				// Clear the caches to force the data to be re-fetched from the
+				// database
 				// in case the ordering has changed
 				idListMap.clear();
 				// Removing the entity Id from the Id cache should be enough
@@ -281,7 +296,8 @@ class CachingSupport<T> implements Serializable {
 		}
 
 		/**
-		 * @see EntityProvider#getEntityIdentifierAt(com.vaadin.addons.jpacontainer.Filter, java.util.List, int)
+		 * @see EntityProvider#getEntityIdentifierAt(com.vaadin.addons.jpacontainer.Filter,
+		 *      java.util.List, int)
 		 */
 		public synchronized Object getIdAt(List<SortBy> sortBy, int index) {
 			IdListEntry entry = idListMap.get(sortBy);
@@ -295,32 +311,39 @@ class CachingSupport<T> implements Serializable {
 			// to getNextId() or getPreviousId()
 			if (!entry.containsAll
 					&& (entry.idList.isEmpty() || index < entry.listOffset || index >= entry.listOffset
-					+ entry.idList.size())) {
+							+ entry.idList.size())) {
 
 				// Check if we can concatenate the index lists
 				if (entry.listOffset > -1 && index == entry.listOffset - 1) {
-					if (getMaxCacheSize() > -1 && entry.idList.size() + CHUNK_SIZE > getMaxCacheSize()) {
+					if (getMaxCacheSize() > -1
+							&& entry.idList.size() + CHUNK_SIZE > getMaxCacheSize()) {
 						// Clean up the cache
 						if (entry.idList.size() <= CHUNK_SIZE) {
 							entry.idList.clear();
 						} else {
 							entry.idList.subList(
-									entry.idList.size() - CHUNK_SIZE, entry.idList.size()).clear();
+									entry.idList.size() - CHUNK_SIZE,
+									entry.idList.size()).clear();
 						}
 					}
-					ArrayList<Object> l = new ArrayList<Object>(CHUNK_SIZE + entry.idList.size());
+					ArrayList<Object> l = new ArrayList<Object>(CHUNK_SIZE
+							+ entry.idList.size());
 					int startFrom = index - CHUNK_SIZE;
 					if (startFrom < 0) {
 						startFrom = 0;
 					}
-					l.addAll(getIds(getFilter(), sortBy, startFrom,
-							index - startFrom + 1));
+					l.addAll(getIds(getFilter(), sortBy, startFrom, index
+							- startFrom + 1));
 					l.addAll(entry.idList);
 					entry.idList = l;
 					entry.listOffset = startFrom;
-				} else if (entry.listOffset > -1 && index == entry.listOffset + entry.idList.size()) {
-					// It is possible that maxCacheSize < CHUNK_SIZE => we have to make sure that the list is at least as big as CHUNK_SIZE
-					if (getMaxCacheSize() > -1 && entry.idList.size() + CHUNK_SIZE > getMaxCacheSize()) {
+				} else if (entry.listOffset > -1
+						&& index == entry.listOffset + entry.idList.size()) {
+					// It is possible that maxCacheSize < CHUNK_SIZE => we have
+					// to make sure that the list is at least as big as
+					// CHUNK_SIZE
+					if (getMaxCacheSize() > -1
+							&& entry.idList.size() + CHUNK_SIZE > getMaxCacheSize()) {
 						// Clean up the cache
 						if (entry.idList.size() <= CHUNK_SIZE) {
 							entry.listOffset += entry.idList.size();
@@ -347,7 +370,8 @@ class CachingSupport<T> implements Serializable {
 		}
 
 		/**
-		 * @see EntityProvider#getAllEntityIdentifiers(com.vaadin.addons.jpacontainer.Filter, java.util.List)
+		 * @see EntityProvider#getAllEntityIdentifiers(com.vaadin.addons.jpacontainer.Filter,
+		 *      java.util.List)
 		 */
 		public synchronized List<Object> getAllIds(List<SortBy> sortBy) {
 			IdListEntry entry = idListMap.get(sortBy);
@@ -365,7 +389,7 @@ class CachingSupport<T> implements Serializable {
 
 		/**
 		 * Gets the filter for which this cache has been created.
-		 *
+		 * 
 		 * @return the filter (may be null).
 		 */
 		public Filter getFilter() {
@@ -375,7 +399,7 @@ class CachingSupport<T> implements Serializable {
 
 	/**
 	 * TODO Document me!
-	 *
+	 * 
 	 * @param entityId
 	 * @param updated
 	 */
@@ -393,30 +417,42 @@ class CachingSupport<T> implements Serializable {
 
 	/**
 	 * TODO Document me!
+	 * 
 	 * @param entity
 	 */
 	public synchronized void entityAdded(T entity) {
 		// TODO Do something smarter than flushing the entire cache!
 		flush();
+		// This is currently obsolete, but when above todo is implemented,
+		// uncomment this or somehow increment relevat filter caches.
+		// invalidateSize();
+
 	}
 
 	/**
-	 * Gets all the identifiers that match <code>filter</code>, sorted by <code>sortBy</code>,
-	 * starting with the identifier at position <code>startFrom</code> and retrieving a maximum
-	 * number of <code>fetchMax</code> items.
-	 *
-	 * @param filter the filter to apply, if any (may be null).
-	 * @param sortBy the ordering information (may not be null).
-	 * @param startFrom the index of the first identifier to retrieve.
-	 * @param fetchMax the maximum number of identifiers to retrieve, or 0 to retrieve all.
+	 * Gets all the identifiers that match <code>filter</code>, sorted by
+	 * <code>sortBy</code>, starting with the identifier at position
+	 * <code>startFrom</code> and retrieving a maximum number of
+	 * <code>fetchMax</code> items.
+	 * 
+	 * @param filter
+	 *            the filter to apply, if any (may be null).
+	 * @param sortBy
+	 *            the ordering information (may not be null).
+	 * @param startFrom
+	 *            the index of the first identifier to retrieve.
+	 * @param fetchMax
+	 *            the maximum number of identifiers to retrieve, or 0 to
+	 *            retrieve all.
 	 * @return a list of identifiers.
 	 */
 	@SuppressWarnings("unchecked")
 	protected List<Object> getIds(Filter filter, List<SortBy> sortBy,
 			int startFrom, int fetchMax) {
 		Query query = entityProvider.createFilteredQuery("obj."
-				+ entityProvider.getEntityClassMetadata().getIdentifierProperty().getName(),
-				"obj", filter, entityProvider.addPrimaryKeyToSortList(sortBy), false, null);
+				+ entityProvider.getEntityClassMetadata()
+						.getIdentifierProperty().getName(), "obj", filter,
+				entityProvider.addPrimaryKeyToSortList(sortBy), false, null);
 		query.setFirstResult(startFrom);
 		if (fetchMax > 0) {
 			query.setMaxResults(fetchMax);
@@ -425,20 +461,28 @@ class CachingSupport<T> implements Serializable {
 	}
 
 	/**
-	 * Gets all the identifiers that match <code>filter</code>, sorted by <code>sortBy</code>,
-	 * starting with the identifier next to <code>startFrom</code> and retrieving a maximum
-	 * number of <code>fetchMax</code> items. If <code>startFrom</code> is at position n, then item
-	 * n+1 will be the first item in the returnde list, n+2 the second, etc.
-	 *
-	 * @param filter the filter to apply, if any (may be null).
-	 * @param sortBy the ordering information (may not be null).
-	 * @param startFrom the entityId prioir to the first identifier to retrieve.
-	 * @param fetchMax the maximum number of identifiers to retrieve, or 0 to retrieve all.
+	 * Gets all the identifiers that match <code>filter</code>, sorted by
+	 * <code>sortBy</code>, starting with the identifier next to
+	 * <code>startFrom</code> and retrieving a maximum number of
+	 * <code>fetchMax</code> items. If <code>startFrom</code> is at position n,
+	 * then item n+1 will be the first item in the returnde list, n+2 the
+	 * second, etc.
+	 * 
+	 * @param filter
+	 *            the filter to apply, if any (may be null).
+	 * @param sortBy
+	 *            the ordering information (may not be null).
+	 * @param startFrom
+	 *            the entityId prioir to the first identifier to retrieve.
+	 * @param fetchMax
+	 *            the maximum number of identifiers to retrieve, or 0 to
+	 *            retrieve all.
 	 * @return a list of identifiers.
 	 */
 	protected List<Object> getNextIds(Filter filter, List<SortBy> sortBy,
 			Object startFrom, int fetchMax) {
-		Query query = entityProvider.createSiblingQuery(startFrom, filter, sortBy, false);
+		Query query = entityProvider.createSiblingQuery(startFrom, filter,
+				sortBy, false);
 		if (fetchMax > 0) {
 			query.setMaxResults(fetchMax);
 		}
@@ -446,32 +490,41 @@ class CachingSupport<T> implements Serializable {
 	}
 
 	/**
-	 * Gets all the identifiers that match <code>filter</code>, sorted backwards by <code>sortBy</code>,
-	 * starting with the identifier prior to <code>startFrom</code> and retrieving a maximum number
-	 * of <code>fetchMax</code> items. If <code>startFrom</code> is at position n, then item n-1 will
-	 * be the first item in the returned list, n-2 the second, etc.
-	 *
-	 * @param filter the filter to apply, if any (may be null).
-	 * @param sortBy the ordering information (may not be null).
-	 * @param startFrom the entityId next to the first identifier to retrieve.
-	 * @param fetchMax the maximum number of identifiers to retrieve, or 0 to retrieve all.
+	 * Gets all the identifiers that match <code>filter</code>, sorted backwards
+	 * by <code>sortBy</code>, starting with the identifier prior to
+	 * <code>startFrom</code> and retrieving a maximum number of
+	 * <code>fetchMax</code> items. If <code>startFrom</code> is at position n,
+	 * then item n-1 will be the first item in the returned list, n-2 the
+	 * second, etc.
+	 * 
+	 * @param filter
+	 *            the filter to apply, if any (may be null).
+	 * @param sortBy
+	 *            the ordering information (may not be null).
+	 * @param startFrom
+	 *            the entityId next to the first identifier to retrieve.
+	 * @param fetchMax
+	 *            the maximum number of identifiers to retrieve, or 0 to
+	 *            retrieve all.
 	 * @return a list of identifiers.
 	 */
 	protected List<Object> getPreviousIds(Filter filter, List<SortBy> sortBy,
 			Object startFrom, int fetchMax) {
-		Query query = entityProvider.createSiblingQuery(startFrom, filter, sortBy, true);
+		Query query = entityProvider.createSiblingQuery(startFrom, filter,
+				sortBy, true);
 		if (fetchMax > 0) {
 			query.setMaxResults(fetchMax);
 		}
 		return query.getResultList();
 	}
+
 	private Map<Object, T> entityCache;
 	private Map<Filter, FilterCacheEntry> filterCache;
 
 	/**
-	 * A hash map that will remove the oldest items once
-	 * its size reaches a specified max size.
-	 *
+	 * A hash map that will remove the oldest items once its size reaches a
+	 * specified max size.
+	 * 
 	 * @author Petter Holmström (Vaadin Ltd)
 	 * @since 1.0
 	 */
@@ -498,9 +551,9 @@ class CachingSupport<T> implements Serializable {
 	}
 
 	/**
-	 * A hash set that will remove the oldest items once its size reaches
-	 * a specified max size.
-	 *
+	 * A hash set that will remove the oldest items once its size reaches a
+	 * specified max size.
+	 * 
 	 * @author Petter Holmström (Vaadin Ltd)
 	 * @since 1.0
 	 */
@@ -527,8 +580,9 @@ class CachingSupport<T> implements Serializable {
 	}
 
 	/**
-	 * Gets the cache for entity instances. If no cache exists,
-	 * it will be created.
+	 * Gets the cache for entity instances. If no cache exists, it will be
+	 * created.
+	 * 
 	 * @return the entity cache (never null).
 	 */
 	synchronized Map<Object, T> getEntityCache() {
@@ -539,9 +593,9 @@ class CachingSupport<T> implements Serializable {
 	}
 
 	/**
-	 * Gets the cache for filter results. If no cache exists,
-	 * it will be created.
-	 *
+	 * Gets the cache for filter results. If no cache exists, it will be
+	 * created.
+	 * 
 	 * @return the filter cache (never null).
 	 */
 	synchronized Map<Filter, FilterCacheEntry> getFilterCache() {
@@ -555,8 +609,9 @@ class CachingSupport<T> implements Serializable {
 	/**
 	 * Gets the cache entry for the specified filter. If no cache entry exists,
 	 * it will be created.
-	 *
-	 * @param filter the filter whose cache entry to fetch (may be null).
+	 * 
+	 * @param filter
+	 *            the filter whose cache entry to fetch (may be null).
 	 * @return the filter cache entry (never null).
 	 */
 	synchronized FilterCacheEntry getFilterCacheEntry(Filter filter) {
@@ -590,7 +645,9 @@ class CachingSupport<T> implements Serializable {
 
 	/**
 	 * Turns the cache on or off.
-	 * @param cacheInUse true to turn on the cache, false to turn it off.
+	 * 
+	 * @param cacheInUse
+	 *            true to turn on the cache, false to turn it off.
 	 */
 	public void setCacheInUse(boolean cacheInUse) {
 		this.cacheInUse = cacheInUse;
@@ -600,10 +657,11 @@ class CachingSupport<T> implements Serializable {
 	}
 
 	/**
-	 * Sets the maximum number of items to keep in each cache. This method
-	 * will cause any existing caches to be flushed and re-created.
-	 *
-	 * @param maxSize the maximum cache size to set.
+	 * Sets the maximum number of items to keep in each cache. This method will
+	 * cause any existing caches to be flushed and re-created.
+	 * 
+	 * @param maxSize
+	 *            the maximum cache size to set.
 	 */
 	public void setMaxCacheSize(int maxSize) {
 		this.maxCacheSize = maxSize;
@@ -649,8 +707,12 @@ class CachingSupport<T> implements Serializable {
 	}
 
 	/**
-	 * Returns a clone of <code>entity</code> if {@link #isCloneCachedEntities() } is true.
-	 * @param entity the entity to clone (must not be null and must be an instance of {@link Cloneable}).
+	 * Returns a clone of <code>entity</code> if
+	 * {@link #isCloneCachedEntities() } is true.
+	 * 
+	 * @param entity
+	 *            the entity to clone (must not be null and must be an instance
+	 *            of {@link Cloneable}).
 	 * @return the cloned entity.
 	 */
 	@SuppressWarnings("unchecked")
@@ -683,8 +745,8 @@ class CachingSupport<T> implements Serializable {
 		if (!clone) {
 			this.cloneCachedEntities = false;
 		} else {
-			if (Cloneable.class.isAssignableFrom(entityProvider.getEntityClassMetadata().
-					getMappedClass())) {
+			if (Cloneable.class.isAssignableFrom(entityProvider
+					.getEntityClassMetadata().getMappedClass())) {
 				this.cloneCachedEntities = true;
 			} else {
 				throw new UnsupportedOperationException(
@@ -707,7 +769,8 @@ class CachingSupport<T> implements Serializable {
 			sortBy = Collections.emptyList();
 		}
 		if (!isCacheInUse()) {
-			return entityProvider.doGetEntityIdentifierAt(filter, sortBy, index);
+			return entityProvider
+					.doGetEntityIdentifierAt(filter, sortBy, index);
 		} else {
 			return getFilterCacheEntry(filter).getIdAt(sortBy, index);
 		}
@@ -741,7 +804,8 @@ class CachingSupport<T> implements Serializable {
 			sortBy = Collections.emptyList();
 		}
 		if (!isCacheInUse()) {
-			return entityProvider.doGetNextEntityIdentifier(entityId, filter, sortBy);
+			return entityProvider.doGetNextEntityIdentifier(entityId, filter,
+					sortBy);
 		} else {
 			return getFilterCacheEntry(filter).getNextId(entityId, sortBy);
 		}
@@ -753,9 +817,29 @@ class CachingSupport<T> implements Serializable {
 			sortBy = Collections.emptyList();
 		}
 		if (!isCacheInUse()) {
-			return entityProvider.doGetPreviousEntityIdentifier(entityId, filter, sortBy);
+			return entityProvider.doGetPreviousEntityIdentifier(entityId,
+					filter, sortBy);
 		} else {
 			return getFilterCacheEntry(filter).getPreviousId(entityId, sortBy);
 		}
+	}
+
+	public void invalidateSize() {
+		// TODO review synchronization of this whole class
+		Object[] array = filterCache.keySet().toArray();
+		for (Object filter : array) {
+			FilterCacheEntry filterCacheEntry = filterCache.get(filter);
+			if (filterCacheEntry.entityCount != null) {
+				synchronized (filterCacheEntry.entityCount) {
+					filterCacheEntry.entityCount = null;
+				}
+			}
+		}
+
+	}
+
+	public void entityRemoved(Object entityId) {
+		invalidate(entityId, false);
+		invalidateSize();
 	}
 }

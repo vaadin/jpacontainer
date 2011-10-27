@@ -142,7 +142,7 @@ public class CachingMutableLocalEntityProvider<T> extends MutableLocalEntityProv
 	@Override
 	public void removeEntity(Object entityId) {
 		super.removeEntity(entityId);
-		cachingSupport.invalidate(entityId, false);
+		cachingSupport.entityRemoved(entityId);
 	}
 
 	@Override
