@@ -3,6 +3,19 @@ ${license.header.text}
  */
 package com.vaadin.addon.jpacontainer.provider;
 
+import java.io.ObjectStreamException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityNotFoundException;
+import javax.persistence.Query;
+
 import com.vaadin.addon.jpacontainer.EntityProvider;
 import com.vaadin.addon.jpacontainer.Filter;
 import com.vaadin.addon.jpacontainer.Filter.PropertyIdPreprocessor;
@@ -15,21 +28,6 @@ import com.vaadin.addon.jpacontainer.filter.Junction;
 import com.vaadin.addon.jpacontainer.filter.ValueFilter;
 import com.vaadin.addon.jpacontainer.metadata.EntityClassMetadata;
 import com.vaadin.addon.jpacontainer.metadata.MetadataFactory;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.ObjectStreamException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityNotFoundException;
-import javax.persistence.Query;
 
 /**
  * A read-only entity provider that works with a local {@link EntityManager}.
@@ -616,32 +614,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 		if (!isEntitiesDetached()) {
 			return entity;
 		}
-		// TODO Replace with more efficient code, or a call to JPA 2.0
-		if (entity instanceof Serializable) {
-			/*
-			 * What we do here is basically a clone, but we are using the Java
-			 * serialization API. Thus, the entity parameter will be managed,
-			 * but the returned entity will be a detached exact (well, more or
-			 * less) copy of the entity.
-			 * 
-			 * As of JPA 2.0, we can remove this code and just ask JPA to detach
-			 * the object for us.
-			 */
-			try {
-				ByteArrayOutputStream os = new ByteArrayOutputStream();
-				ObjectOutputStream oos = new ObjectOutputStream(os);
-				oos.writeObject(entity);
-				ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
-				ObjectInputStream ois = new ObjectInputStream(is);
-				return getEntityClassMetadata().getMappedClass().cast(
-						ois.readObject());
-			} catch (Exception e) {
-				// Do nothing, entity manager will be cleared
-			}
-		}
-		System.out.println(
-				"WARNING: Clearing EntityManager in order to detach the entities in it");
-		doGetEntityManager().clear();
+		getEntityManager().detach(entity);
 		return entity;
 	}
 
