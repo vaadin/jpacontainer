@@ -58,6 +58,7 @@
         
         <vaadin.version.maven>6.7.1</vaadin.version.maven>
         <snapshot.repository.url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</snapshot.repository.url>
+		<hibernate-version>3.5.1-Final</hibernate-version>
     </properties>
 
     <repositories>
@@ -117,13 +118,13 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-entitymanager</artifactId>
-            <version>3.4.0.GA</version>
+            <version>${hibernate-version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
-            <artifactId>hibernate</artifactId>
-            <version>3.2.7.ga</version>
+            <artifactId>hibernate-core</artifactId>
+            <version>${hibernate-version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
