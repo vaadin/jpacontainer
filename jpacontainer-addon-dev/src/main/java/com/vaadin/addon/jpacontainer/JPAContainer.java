@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.vaadin.addon.jpacontainer.EntityProviderChangeEvent.EntitiesUpdatedEvent;
 import com.vaadin.addon.jpacontainer.filter.Filters;
 import com.vaadin.addon.jpacontainer.filter.PropertyFilter;
 import com.vaadin.addon.jpacontainer.filter.util.AdvancedFilterableSupport;
@@ -335,9 +336,16 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	}
 
 	public void entityProviderChange(EntityProviderChangeEvent<T> event) {
-		if (isFireItemSetChangeOnProviderChange()) {
+		if (isItemSetChangeEvent(event) && isFireItemSetChangeOnProviderChange()) {
 			fireContainerItemSetChange(new ProviderChangedEvent(event));
 		}
+	}
+
+	private boolean isItemSetChangeEvent(EntityProviderChangeEvent<T> event) {
+		if(event instanceof EntitiesUpdatedEvent) {
+			return false;
+		}
+		return true;
 	}
 
 	@SuppressWarnings("unchecked")
