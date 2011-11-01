@@ -80,8 +80,8 @@ public class DemoDataGenerator {
 					gPersons.add(p);
 					em.persist(p);
 				}
-				group.setPersons(gPersons);
 				group.setParent(geoGroup);
+				group.setPersons(gPersons);
 				em.persist(group);
 			}
 			em.persist(geoGroup);

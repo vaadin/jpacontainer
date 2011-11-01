@@ -2,6 +2,7 @@ package com.vaadin.demo.jpaaddressbook.domain;
 
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -21,7 +22,6 @@ public class Person {
 	private String city;
 	private String zipCode;
 	private String phoneNumber;
-	@ManyToOne
 	private Department department;
 
 	public Long getId() {

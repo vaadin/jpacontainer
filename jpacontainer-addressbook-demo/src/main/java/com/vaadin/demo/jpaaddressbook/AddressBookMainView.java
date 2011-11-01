@@ -4,11 +4,11 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import com.vaadin.addon.jpacontainer.EntityItem;
 import com.vaadin.addon.jpacontainer.EntityProvider;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.filter.Filters;
 import com.vaadin.addon.jpacontainer.filter.Junction;
-import com.vaadin.addon.jpacontainer.filter.ValueFilter;
 import com.vaadin.addon.jpacontainer.provider.CachingMutableLocalEntityProvider;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -18,7 +18,7 @@ import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
@@ -26,7 +26,6 @@ import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
 
 public class AddressBookMainView extends HorizontalSplitPanel implements
 		ComponentContainer {
@@ -39,6 +38,7 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
 
 	private Button newButton;
 	private Button deleteButton;
+	private Button editButton;
 
 	private JPAContainer<Department> groups;
 	private JPAContainer<Person> persons;
@@ -70,12 +70,17 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
 		persons.setEntityProvider(new CachingMutableLocalEntityProvider<Person>(
 				Person.class, em));
 		personTable = new Table(null, persons);
-		
+		personTable.setSelectable(true);
+		personTable.setImmediate(true);
 		personTable.addListener(new Property.ValueChangeListener() {
-			
 			@Override
 			public void valueChange(ValueChangeEvent event) {
-				
+				setModificationsEnabled(event.getProperty().getValue() != null);
+			}
+
+			private void setModificationsEnabled(boolean b) {
+				deleteButton.setEnabled(b);
+				editButton.setEnabled(b);
 			}
 		});
 
@@ -85,15 +90,35 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
 				"phoneNumber", "street", "city", "zipCode" });
 
 		HorizontalLayout toolbar = new HorizontalLayout();
-		newButton = new Button("+");
+		newButton = new Button("Add");
 		newButton.addListener(new Button.ClickListener() {
 			
 			@Override
 			public void buttonClick(ClickEvent event) {
-				// TODO Auto-generated method stub
-				
+				// TODO Launch editor with non persisted pojo
 			}
 		});
+		
+		deleteButton = new Button("Delete");
+		deleteButton.addListener(new Button.ClickListener() {
+			
+			@Override
+			public void buttonClick(ClickEvent event) {
+				persons.removeItem(personTable.getValue());
+			}
+		});
+		deleteButton.setEnabled(false);
+
+		editButton = new Button("Edit");
+		editButton.addListener(new Button.ClickListener() {
+			
+			@Override
+			public void buttonClick(ClickEvent event) {
+				// TODO editor with existing persited pojo
+			}
+		});
+		editButton.setEnabled(false);
+
 		
 		searchField = new TextField();
 		searchField.setInputPrompt("Search by name");
@@ -115,9 +140,13 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
 			}
 		});
 		
+		
 		toolbar.addComponent(newButton);
+		toolbar.addComponent(deleteButton);
+		toolbar.addComponent(editButton);
 		toolbar.addComponent(searchField);
 		toolbar.setWidth("100%");
+		toolbar.setExpandRatio(searchField, 1);
 		toolbar.setComponentAlignment(searchField, Alignment.TOP_RIGHT);
 		
 		verticalLayout.addComponent(toolbar );
@@ -131,7 +160,7 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
 		groups = new JPAContainer<Department>(Department.class) {
 			@Override
 			public boolean areChildrenAllowed(Object itemId) {
-				return super.areChildrenAllowed(itemId) && getItem(itemId).getEntity().getPersons().isEmpty();
+				return super.areChildrenAllowed(itemId) && getItem(itemId).getEntity().isSuperDepartment();
 			}
 		};
 		EntityProvider<Department> entityProvider = new CachingMutableLocalEntityProvider<Department>(
@@ -147,8 +176,9 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
 
 			@Override
 			public void valueChange(ValueChangeEvent event) {
-				Department entity = groups.getItem(event.getProperty().getValue()).getEntity();
-				if(entity != null) {
+				Object id = event.getProperty().getValue();
+				if(id != null) {
+					Department entity = groups.getItem(id ).getEntity();
 					groupFilter = entity;
 				} else if (groupFilter != null) {
 					groupFilter = null;
