@@ -73,7 +73,7 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
 
 		personTable.setSizeFull();
 
-		personTable.setVisibleColumns(new Object[] { "firstName", "lastName",
+		personTable.setVisibleColumns(new Object[] { "firstName", "lastName", "department",
 				"phoneNumber", "street", "city", "zipCode" });
 		verticalLayout.addComponent(personTable);
 		verticalLayout.setSizeFull();
@@ -81,7 +81,12 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
 	}
 
 	private void buildTree(EntityManager em) {
-		groups = new JPAContainer<Department>(Department.class);
+		groups = new JPAContainer<Department>(Department.class) {
+			@Override
+			public boolean areChildrenAllowed(Object itemId) {
+				return super.areChildrenAllowed(itemId) && getItem(itemId).getEntity().getPersons().isEmpty();
+			}
+		};
 		EntityProvider<Department> entityProvider = new CachingMutableLocalEntityProvider<Department>(
 				Department.class, em);
 		groups.setEntityProvider(entityProvider);
