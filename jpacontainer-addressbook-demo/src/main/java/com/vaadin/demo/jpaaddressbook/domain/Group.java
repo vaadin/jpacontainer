@@ -9,7 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
-@Entity
+@Entity(name="grouptable")
 public class Group {
 
 	@Id
@@ -55,6 +55,5 @@ public class Group {
 	public void setParent(Group parent) {
 		this.parent = parent;
 	}
-	
 	
 }

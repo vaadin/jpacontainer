@@ -19,6 +19,7 @@ public class Person {
 	private String street;
 	private String city;
 	private String zipCode;
+	private String phoneNumber;
 	private Set<Group> groups;
 
 	public Long getId() {
@@ -62,5 +63,11 @@ public class Person {
 	}
 	public void setGroups(Set<Group> groups) {
 		this.groups = groups;
+	}
+	public String getPhoneNumber() {
+		return phoneNumber;
+	}
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
 	}
 }
