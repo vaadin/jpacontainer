@@ -6,6 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 @Entity
 public class Person {
@@ -20,7 +21,8 @@ public class Person {
 	private String city;
 	private String zipCode;
 	private String phoneNumber;
-	private Set<Group> groups;
+	@ManyToOne
+	private Department department;
 
 	public Long getId() {
 		return id;
@@ -58,16 +60,16 @@ public class Person {
 	public void setZipCode(String zipCode) {
 		this.zipCode = zipCode;
 	}
-	public Set<Group> getGroups() {
-		return groups;
-	}
-	public void setGroups(Set<Group> groups) {
-		this.groups = groups;
-	}
 	public String getPhoneNumber() {
 		return phoneNumber;
 	}
 	public void setPhoneNumber(String phoneNumber) {
 		this.phoneNumber = phoneNumber;
+	}
+	public Department getDepartment() {
+		return department;
+	}
+	public void setDepartment(Department group) {
+		this.department = group;
 	}
 }

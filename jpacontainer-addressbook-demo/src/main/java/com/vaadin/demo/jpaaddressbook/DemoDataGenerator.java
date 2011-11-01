@@ -7,7 +7,7 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.Persistence;
 
-import com.vaadin.demo.jpaaddressbook.domain.Group;
+import com.vaadin.demo.jpaaddressbook.domain.Department;
 import com.vaadin.demo.jpaaddressbook.domain.Person;
 
 public class DemoDataGenerator {
@@ -55,10 +55,10 @@ public class DemoDataGenerator {
 		em.getTransaction().begin();
 		Random r = new Random(0);
 		for (String o : officeNames) {
-			Group geoGroup = new Group();
+			Department geoGroup = new Department();
 			geoGroup.setName(o);
 			for (String g : groupsNames) {
-				Group group = new Group();
+				Department group = new Department();
 				group.setName(g);
 				Set<Person> gPersons = new HashSet<Person>();
 				
@@ -76,6 +76,7 @@ public class DemoDataGenerator {
 					}
 					p.setZipCode("" + n);
 					p.setStreet(streets[r.nextInt(streets.length)]);
+					p.setDepartment(group);
 					gPersons.add(p);
 					em.persist(p);
 				}

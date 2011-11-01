@@ -8,9 +8,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
-@Entity(name="grouptable")
-public class Group {
+@Entity
+public class Department {
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
@@ -18,11 +19,11 @@ public class Group {
 	
 	private String name;
 	
-	@ManyToMany
+	@OneToMany
 	private Set<Person> persons;
 	
 	@ManyToOne
-	private Group parent;
+	private Department parent;
 
 	public Long getId() {
 		return id;
@@ -48,12 +49,19 @@ public class Group {
 		this.persons = persons;
 	}
 
-	public Group getParent() {
+	public Department getParent() {
 		return parent;
 	}
 
-	public void setParent(Group parent) {
+	public void setParent(Department parent) {
 		this.parent = parent;
 	}
 	
+	@Override
+	public String toString() {
+		if(parent != null) {
+			return parent.toString() + ":" +name;
+		}
+		return name;
+	}
 }
