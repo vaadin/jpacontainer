@@ -399,7 +399,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	}
 
 	private boolean isItemSetChangeEvent(EntityProviderChangeEvent<T> event) {
-		if (event instanceof EntitiesUpdatedEvent) {
+		if (event instanceof EntityPropertyUpdatedEvent) {
 			return false;
 		}
 		return true;
