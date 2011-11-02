@@ -44,10 +44,10 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
     private Button deleteButton;
     private Button editButton;
 
-    private JPAContainer<Department> groups;
+    private JPAContainer<Department> departments;
     private JPAContainer<Person> persons;
 
-    private Department groupFilter;
+    private Department departmentFilter;
     private String textFilter;
 
     static EntityManagerFactory emf = Persistence
@@ -178,7 +178,7 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
     }
 
     private void buildTree(EntityManager em) {
-        groups = new JPAContainer<Department>(Department.class) {
+        departments = new JPAContainer<Department>(Department.class) {
             @Override
             public boolean areChildrenAllowed(Object itemId) {
                 return super.areChildrenAllowed(itemId)
@@ -187,9 +187,9 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
         };
         EntityProvider<Department> entityProvider = new CachingMutableLocalEntityProvider<Department>(
                 Department.class, em);
-        groups.setEntityProvider(entityProvider);
-        groups.setParentProperty("parent");
-        groupTree = new Tree(null, groups);
+        departments.setEntityProvider(entityProvider);
+        departments.setParentProperty("parent");
+        groupTree = new Tree(null, departments);
         groupTree.setItemCaptionPropertyId("name");
 
         groupTree.setImmediate(true);
@@ -200,10 +200,10 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
             public void valueChange(ValueChangeEvent event) {
                 Object id = event.getProperty().getValue();
                 if (id != null) {
-                    Department entity = groups.getItem(id).getEntity();
-                    groupFilter = entity;
-                } else if (groupFilter != null) {
-                    groupFilter = null;
+                    Department entity = departments.getItem(id).getEntity();
+                    departmentFilter = entity;
+                } else if (departmentFilter != null) {
+                    departmentFilter = null;
                 }
                 updateFilters();
             }
@@ -215,13 +215,13 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
     private void updateFilters() {
         persons.setApplyFiltersImmediately(false);
         persons.removeAllFilters();
-        if (groupFilter != null) {
+        if (departmentFilter != null) {
             // two level hierarchy at max in our demo
-            if (groupFilter.getParent() == null) {
+            if (departmentFilter.getParent() == null) {
                 persons.addFilter(Filters.joinFilter("department",
-                        Filters.eq("parent", groupFilter)));
+                        Filters.eq("parent", departmentFilter)));
             } else {
-                persons.addFilter(Filters.eq("department", groupFilter));
+                persons.addFilter(Filters.eq("department", departmentFilter));
             }
         }
         if (textFilter != null && !textFilter.equals("")) {
