@@ -3,19 +3,24 @@ ${license.header.text}
  */
 package com.vaadin.addon.jpacontainer;
 
+import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import com.vaadin.addon.jpacontainer.EntityProviderChangeEvent.EntitiesUpdatedEvent;
+import com.vaadin.addon.jpacontainer.EntityProviderChangeEvent.EntityPropertyUpdatedEvent;
 import com.vaadin.addon.jpacontainer.filter.Filters;
 import com.vaadin.addon.jpacontainer.filter.PropertyFilter;
 import com.vaadin.addon.jpacontainer.filter.util.AdvancedFilterableSupport;
 import com.vaadin.addon.jpacontainer.metadata.EntityClassMetadata;
 import com.vaadin.addon.jpacontainer.metadata.MetadataFactory;
+import com.vaadin.addon.jpacontainer.metadata.PersistentPropertyMetadata;
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
@@ -110,6 +115,11 @@ public class JPAContainer<T> implements EntityContainer<T>,
 		Container.Indexed {
 
 	private static final long serialVersionUID = -4031940552175752858L;
+	/**
+	 * Rate on which cache cleanup (of empty weak references to instantiated
+	 * entities) is performed.
+	 */
+	private static final int CLEANUPRATE = 200;
 	private EntityProvider<T> entityProvider;
 	private AdvancedFilterableSupport filterSupport;
 	private LinkedList<ItemSetChangeListener> listeners;
@@ -119,6 +129,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	private BufferedContainerDelegate<T> bufferingDelegate;
 	private boolean readOnly = false;
 	private boolean writeThrough = false;
+	private HashMap<Object, LinkedList<WeakReference<JPAContainerItem<T>>>> itemRegistry = new HashMap<Object, LinkedList<WeakReference<JPAContainerItem<T>>>>();
 
 	/**
 	 * Creates a new <code>JPAContainer</code> instance for entities of class
@@ -336,13 +347,59 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	}
 
 	public void entityProviderChange(EntityProviderChangeEvent<T> event) {
-		if (isItemSetChangeEvent(event) && isFireItemSetChangeOnProviderChange()) {
+		if (isItemSetChangeEvent(event)
+				&& isFireItemSetChangeOnProviderChange()) {
 			fireContainerItemSetChange(new ProviderChangedEvent(event));
+		} else {
+			if (event instanceof EntityPropertyUpdatedEvent) {
+				// TODO fire itemSetChange event in case property of a sort column has changed
+				EntityPropertyUpdatedEvent<T> evt = (EntityPropertyUpdatedEvent<T>) event;
+				Collection<T> affectedEntities = evt.getAffectedEntities();
+				if (affectedEntities.isEmpty()) {
+					return;
+				}
+				for (T t : affectedEntities) {
+					if (entityClassMetadata.hasIdentifierProperty()) {
+						PersistentPropertyMetadata identifierProperty = entityClassMetadata
+								.getIdentifierProperty();
+						Object itemId = entityClassMetadata.getPropertyValue(t,
+								identifierProperty.getName());
+						firePropertyValueChangeEvent(itemId,
+								((EntityPropertyUpdatedEvent<T>) event)
+										.getPropertyId());
+					}
+				}
+			}
 		}
+
+	}
+
+	private void firePropertyValueChangeEvent(Object itemId, String propertyId) {
+		synchronized (itemRegistry) {
+
+			LinkedList<WeakReference<JPAContainerItem<T>>> linkedList = itemRegistry
+					.get(itemId);
+			for (Iterator<WeakReference<JPAContainerItem<T>>> iterator = linkedList
+					.iterator(); iterator.hasNext();) {
+				WeakReference<JPAContainerItem<T>> weakReference = (WeakReference<JPAContainerItem<T>>) iterator
+						.next();
+				JPAContainerItem<T> jpaContainerItem = weakReference.get();
+				if (jpaContainerItem == null) {
+					iterator.remove();
+				} else {
+					EntityItemProperty itemProperty = jpaContainerItem
+							.getItemProperty(propertyId);
+					itemProperty.fireValueChangeEvent();
+				}
+
+			}
+		}
+		// TODO Auto-generated method stub
+
 	}
 
 	private boolean isItemSetChangeEvent(EntityProviderChangeEvent<T> event) {
-		if(event instanceof EntitiesUpdatedEvent) {
+		if (event instanceof EntitiesUpdatedEvent) {
 			return false;
 		}
 		return true;
@@ -580,6 +637,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	}
 
 	private boolean containsIdFiresItemSetChangeIfNotFound = false;
+	private int cleanupCount;
 
 	/**
 	 * Returns whether the {@link #containsId(java.lang.Object) } method will
@@ -687,6 +745,50 @@ public class JPAContainer<T> implements EntityContainer<T>,
 				T entity = doGetEntityProvider().getEntity(itemId);
 				return entity != null ? new JPAContainerItem<T>(this, entity)
 						: null;
+			}
+		}
+	}
+
+	/**
+	 * Called by JPAContainerItem when item is created. Container can then keep
+	 * (weak) references to all instantiated items. Those are needed e.g. for
+	 * property value changes to happen correctly.
+	 * 
+	 * @param item
+	 */
+	void registerItem(JPAContainerItem<T> item) {
+		// TODO write tests to ensure the registry gets cleaned up properly
+		synchronized (itemRegistry) {
+			doItemRegistryCleanup();
+			LinkedList<WeakReference<JPAContainerItem<T>>> listOfItemsForEntity = itemRegistry
+					.get(item.getItemId());
+			if (listOfItemsForEntity == null) {
+				listOfItemsForEntity = new LinkedList<WeakReference<JPAContainerItem<T>>>();
+				itemRegistry.put(item.getItemId(), listOfItemsForEntity);
+			}
+			listOfItemsForEntity.add(new WeakReference<JPAContainerItem<T>>(
+					item));
+		}
+	}
+
+	private void doItemRegistryCleanup() {
+		final boolean cleanup = (cleanupCount++) % CLEANUPRATE == 0;
+		if (cleanup) {
+			for (Iterator<Object> idIterator = itemRegistry.keySet().iterator(); idIterator
+					.hasNext();) {
+				Object id = idIterator.next();
+				LinkedList<WeakReference<JPAContainerItem<T>>> linkedList = itemRegistry
+						.get(id);
+				for (Iterator<WeakReference<JPAContainerItem<T>>> iterator = linkedList
+						.iterator(); iterator.hasNext();) {
+					WeakReference<JPAContainerItem<T>> ref = iterator.next();
+					if (ref.get() == null) {
+						iterator.remove();
+					}
+				}
+				if (linkedList.isEmpty()) {
+					idIterator.remove();
+				}
 			}
 		}
 	}

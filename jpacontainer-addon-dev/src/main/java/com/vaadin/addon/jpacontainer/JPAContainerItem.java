@@ -69,7 +69,7 @@ final class JPAContainerItem<T> implements EntityItem<T> {
 		void notifyListenersIfCacheAndRealValueDiffer() {
 			Object realValue = getRealValue();
 			if (!nullSafeEquals(realValue, cachedValue)) {
-				notifyListeners();
+				fireValueChangeEvent();
 			}
 		}
 
@@ -114,7 +114,7 @@ final class JPAContainerItem<T> implements EntityItem<T> {
 				 * notification is required.
 				 */
 				if (isReadThrough()) {
-					notifyListeners();
+					fireValueChangeEvent();
 				}
 			}
 		}
@@ -135,7 +135,7 @@ final class JPAContainerItem<T> implements EntityItem<T> {
 				 * backend entity.
 				 */
 				if (!isReadThrough()) {
-					notifyListeners();
+					fireValueChangeEvent();
 				}
 			} else {
 				cacheRealValue();
@@ -250,7 +250,7 @@ final class JPAContainerItem<T> implements EntityItem<T> {
 				 * We don't want to notify the listeners if we have only updated
 				 * the cached value and they are watching the real value.
 				 */
-				notifyListeners();
+				fireValueChangeEvent();
 			}
 		}
 
@@ -274,7 +274,7 @@ final class JPAContainerItem<T> implements EntityItem<T> {
 		 * Notifies all the listeners that the value of the property has
 		 * changed.
 		 */
-		private void notifyListeners() {
+		public void fireValueChangeEvent() {
 			if (listeners != null) {
 				final Object[] l = listeners.toArray();
 				final Property.ValueChangeEvent event = new ValueChangeEvent(
@@ -364,6 +364,7 @@ final class JPAContainerItem<T> implements EntityItem<T> {
 			this.persistent = persistent;
 		}
 		this.propertyMap = new HashMap<Object, ItemProperty>();
+		container.registerItem(this);
 	}
 
 	public Object getItemId() {

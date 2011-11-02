@@ -201,8 +201,7 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
 			}
 		});
 		if (entityA[0] != null) {
-			fireEntityProviderChangeEvent(new EntitiesUpdatedEvent<T>(this,
-					(T) entityA[0]));
+			fireEntityProviderChangeEvent(new EntityPropertyUpdatedEvent(this, propertyName, entityA));
 		}
 	}
 

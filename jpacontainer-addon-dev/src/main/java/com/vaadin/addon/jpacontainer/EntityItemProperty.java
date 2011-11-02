@@ -20,4 +20,9 @@ public interface EntityItemProperty extends Property,
 	 * @return the item (never null).
 	 */
 	public EntityItem<?> getItem();
+	
+	/**
+	 * Fires value change event for this property
+	 */
+	void fireValueChangeEvent();
 }
