@@ -1,14 +1,8 @@
 package com.vaadin.demo.jpaaddressbook;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-
-import com.vaadin.addon.jpacontainer.EntityProvider;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.filter.Filters;
 import com.vaadin.addon.jpacontainer.filter.Junction;
-import com.vaadin.addon.jpacontainer.provider.CachingMutableLocalEntityProvider;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.BeanItem;
@@ -44,34 +38,25 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
     private Button deleteButton;
     private Button editButton;
 
-    private JPAContainer<Department> departments;
-    private JPAContainer<Person> persons;
+    private JPAContainer<Department> departments = ContainerFactory
+            .getDepartmentReadOnlyContainer();
+    private JPAContainer<Person> persons = ContainerFactory
+            .getPersonContainer();
 
     private Department departmentFilter;
     private String textFilter;
 
-    static EntityManagerFactory emf = Persistence
-            .createEntityManagerFactory("addressbook");
-
     public AddressBookMainView() {
-
-        EntityManager em = emf.createEntityManager();
-
-        buildTree(em);
-
-        buildMainArea(em);
+        buildTree();
+        buildMainArea();
 
         setSplitPosition(30);
-
     }
 
-    private void buildMainArea(EntityManager em) {
+    private void buildMainArea() {
         VerticalLayout verticalLayout = new VerticalLayout();
         setSecondComponent(verticalLayout);
 
-        persons = new JPAContainer<Person>(Person.class);
-        persons.setEntityProvider(new CachingMutableLocalEntityProvider<Person>(
-                Person.class, em));
         personTable = new Table(null, persons);
         personTable.setSelectable(true);
         personTable.setImmediate(true);
@@ -177,18 +162,7 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
 
     }
 
-    private void buildTree(EntityManager em) {
-        departments = new JPAContainer<Department>(Department.class) {
-            @Override
-            public boolean areChildrenAllowed(Object itemId) {
-                return super.areChildrenAllowed(itemId)
-                        && getItem(itemId).getEntity().isSuperDepartment();
-            }
-        };
-        EntityProvider<Department> entityProvider = new CachingMutableLocalEntityProvider<Department>(
-                Department.class, em);
-        departments.setEntityProvider(entityProvider);
-        departments.setParentProperty("parent");
+    private void buildTree() {
         groupTree = new Tree(null, departments);
         groupTree.setItemCaptionPropertyId("name");
 

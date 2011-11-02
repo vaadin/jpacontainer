@@ -4,16 +4,10 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-
 import org.vaadin.addon.propertytranslator.PropertyTranslator;
 
 import com.vaadin.addon.jpacontainer.EntityItem;
-import com.vaadin.addon.jpacontainer.EntityProvider;
 import com.vaadin.addon.jpacontainer.JPAContainer;
-import com.vaadin.addon.jpacontainer.provider.CachingMutableLocalEntityProvider;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.demo.jpaaddressbook.domain.Department;
@@ -34,12 +28,8 @@ public class PersonEditor extends Window implements Button.ClickListener,
     private Form editorForm;
     private Button saveButton;
     private Button cancelButton;
-    private EntityManager em;
-    static EntityManagerFactory emf = Persistence
-            .createEntityManagerFactory("addressbook");
 
     public PersonEditor(Item personItem) {
-        em = emf.createEntityManager();
         this.personItem = personItem;
         editorForm = new Form();
         editorForm.setFormFieldFactory(this);
@@ -91,7 +81,8 @@ public class PersonEditor extends Window implements Button.ClickListener,
     @Override
     public Field createField(Item item, Object propertyId, Component uiContext) {
         if ("department".equals(propertyId)) {
-            final JPAContainer<Department> departments = getDepartmentContainer();
+            final JPAContainer<Department> departments = ContainerFactory
+                    .getDepartmentReadOnlyContainer();
 
             ComboBox dep = new ComboBox("Department", departments) {
                 @Override
@@ -119,16 +110,6 @@ public class PersonEditor extends Window implements Button.ClickListener,
 
         return DefaultFieldFactory.get().createField(item, propertyId,
                 uiContext);
-    }
-
-    private JPAContainer<Department> getDepartmentContainer() {
-        final JPAContainer<Department> departments = new JPAContainer<Department>(
-                Department.class);
-        EntityProvider<Department> entityProvider = new CachingMutableLocalEntityProvider<Department>(
-                Department.class, em);
-        departments.setEntityProvider(entityProvider);
-        departments.setParentProperty("parent");
-        return departments;
     }
 
     public void addListener(EditorSavedListener listener) {
