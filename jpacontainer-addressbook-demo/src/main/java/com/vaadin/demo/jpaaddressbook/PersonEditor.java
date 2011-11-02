@@ -1,5 +1,7 @@
 package com.vaadin.demo.jpaaddressbook;
 
+import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 
 import javax.persistence.EntityManager;
@@ -73,6 +75,7 @@ public class PersonEditor extends Window implements Button.ClickListener,
     public void buttonClick(ClickEvent event) {
         if (event.getButton() == saveButton) {
             editorForm.commit();
+            fireEvent(new EditorSavedEvent(this, personItem));
         } else if (event.getButton() == cancelButton) {
             editorForm.discard();
         }
@@ -88,12 +91,8 @@ public class PersonEditor extends Window implements Button.ClickListener,
     @Override
     public Field createField(Item item, Object propertyId, Component uiContext) {
         if ("department".equals(propertyId)) {
-            final JPAContainer<Department> departments = new JPAContainer<Department>(
-                    Department.class);
-            EntityProvider<Department> entityProvider = new CachingMutableLocalEntityProvider<Department>(
-                    Department.class, em);
-            departments.setEntityProvider(entityProvider);
-            departments.setParentProperty("parent");
+            final JPAContainer<Department> departments = getDepartmentContainer();
+
             ComboBox dep = new ComboBox("Department", departments) {
                 @Override
                 public void setPropertyDataSource(Property ds) {
@@ -121,4 +120,48 @@ public class PersonEditor extends Window implements Button.ClickListener,
         return DefaultFieldFactory.get().createField(item, propertyId,
                 uiContext);
     }
+
+    private JPAContainer<Department> getDepartmentContainer() {
+        final JPAContainer<Department> departments = new JPAContainer<Department>(
+                Department.class);
+        EntityProvider<Department> entityProvider = new CachingMutableLocalEntityProvider<Department>(
+                Department.class, em);
+        departments.setEntityProvider(entityProvider);
+        departments.setParentProperty("parent");
+        return departments;
+    }
+
+    public void addListener(EditorSavedListener listener) {
+        try {
+            Method method = EditorSavedListener.class.getDeclaredMethod(
+                    "editorSaved", new Class[] { EditorSavedEvent.class });
+            addListener(EditorSavedEvent.class, listener, method);
+        } catch (final java.lang.NoSuchMethodException e) {
+            // This should never happen
+            throw new java.lang.RuntimeException(
+                    "Internal error, editor saved method not found");
+        }
+    }
+
+    public void removeListener(EditorSavedListener listener) {
+        removeListener(EditorSavedEvent.class, listener);
+    }
+
+    public static class EditorSavedEvent extends Component.Event {
+        private Item savedItem;
+
+        public EditorSavedEvent(Component source, Item savedItem) {
+            super(source);
+            this.savedItem = savedItem;
+        }
+
+        public Item getSavedItem() {
+            return savedItem;
+        }
+    }
+
+    public interface EditorSavedListener extends Serializable {
+        public void editorSaved(EditorSavedEvent event);
+    }
+
 }

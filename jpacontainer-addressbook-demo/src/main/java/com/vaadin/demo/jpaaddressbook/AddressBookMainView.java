@@ -11,6 +11,9 @@ import com.vaadin.addon.jpacontainer.filter.Junction;
 import com.vaadin.addon.jpacontainer.provider.CachingMutableLocalEntityProvider;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.util.BeanItem;
+import com.vaadin.demo.jpaaddressbook.PersonEditor.EditorSavedEvent;
+import com.vaadin.demo.jpaaddressbook.PersonEditor.EditorSavedListener;
 import com.vaadin.demo.jpaaddressbook.domain.Department;
 import com.vaadin.demo.jpaaddressbook.domain.Person;
 import com.vaadin.event.FieldEvents.TextChangeEvent;
@@ -104,7 +107,17 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
 
             @Override
             public void buttonClick(ClickEvent event) {
-                // TODO Launch editor with non persisted pojo
+                final BeanItem<Person> newPersonItem = new BeanItem<Person>(
+                        new Person());
+                PersonEditor personEditor = new PersonEditor(newPersonItem);
+                personEditor.addListener(new EditorSavedListener() {
+                    @Override
+                    public void editorSaved(EditorSavedEvent event) {
+                        persons.addEntity(newPersonItem.getBean());
+                        persons.commit();
+                    }
+                });
+                getApplication().getMainWindow().addWindow(personEditor);
             }
         });
 
