@@ -375,27 +375,27 @@ public class JPAContainer<T> implements EntityContainer<T>,
 	}
 
 	private void firePropertyValueChangeEvent(Object itemId, String propertyId) {
+		LinkedList<WeakReference<JPAContainerItem<T>>> linkedList;
 		synchronized (itemRegistry) {
-
-			LinkedList<WeakReference<JPAContainerItem<T>>> linkedList = itemRegistry
+			 LinkedList<WeakReference<JPAContainerItem<T>>> origList = itemRegistry
 					.get(itemId);
-			for (Iterator<WeakReference<JPAContainerItem<T>>> iterator = linkedList
-					.iterator(); iterator.hasNext();) {
-				WeakReference<JPAContainerItem<T>> weakReference = (WeakReference<JPAContainerItem<T>>) iterator
-						.next();
-				JPAContainerItem<T> jpaContainerItem = weakReference.get();
-				if (jpaContainerItem == null) {
-					iterator.remove();
-				} else {
-					EntityItemProperty itemProperty = jpaContainerItem
-							.getItemProperty(propertyId);
-					itemProperty.fireValueChangeEvent();
-				}
-
+			 if(origList != null) {
+				 linkedList = (LinkedList<WeakReference<JPAContainerItem<T>>>) origList.clone();
+			 } else {
+				 return;
+			 }
+		}
+		for (Iterator<WeakReference<JPAContainerItem<T>>> iterator = linkedList
+				.iterator(); iterator.hasNext();) {
+			WeakReference<JPAContainerItem<T>> weakReference = (WeakReference<JPAContainerItem<T>>) iterator
+					.next();
+			JPAContainerItem<T> jpaContainerItem = weakReference.get();
+			if (jpaContainerItem != null) {
+				EntityItemProperty itemProperty = jpaContainerItem
+						.getItemProperty(propertyId);
+				itemProperty.fireValueChangeEvent();
 			}
 		}
-		// TODO Auto-generated method stub
-
 	}
 
 	private boolean isItemSetChangeEvent(EntityProviderChangeEvent<T> event) {
