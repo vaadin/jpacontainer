@@ -4,16 +4,9 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-import org.vaadin.addon.propertytranslator.PropertyTranslator;
-
-import com.vaadin.addon.jpacontainer.EntityItem;
-import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.data.Item;
-import com.vaadin.data.Property;
-import com.vaadin.demo.jpaaddressbook.domain.Department;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.DefaultFieldFactory;
 import com.vaadin.ui.Field;
@@ -81,31 +74,7 @@ public class PersonEditor extends Window implements Button.ClickListener,
     @Override
     public Field createField(Item item, Object propertyId, Component uiContext) {
         if ("department".equals(propertyId)) {
-            final JPAContainer<Department> departments = ContainerFactory
-                    .createDepartmentReadOnlyContainer();
-
-            ComboBox dep = new ComboBox("Department", departments) {
-                @Override
-                public void setPropertyDataSource(Property ds) {
-                    super.setPropertyDataSource(new PropertyTranslator(ds) {
-                        @Override
-                        public Object translateFromDatasource(Object value) {
-                            Department dep = (Department) value;
-                            return dep == null ? null : dep.getId();
-                        }
-
-                        @Override
-                        public Object translateToDatasource(
-                                Object formattedValue) throws Exception {
-                            EntityItem<Department> item = departments
-                                    .getItem(formattedValue);
-                            return item.getEntity();
-                        }
-                    });
-                }
-            };
-            dep.setItemCaptionPropertyId("hierarchicalName");
-            return dep;
+            return new DepartmentSelector();
         }
 
         return DefaultFieldFactory.get().createField(item, propertyId,
