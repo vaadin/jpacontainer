@@ -39,9 +39,9 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
     private Button editButton;
 
     private JPAContainer<Department> departments = ContainerFactory
-            .getDepartmentReadOnlyContainer();
+            .createDepartmentReadOnlyContainer();
     private JPAContainer<Person> persons = ContainerFactory
-            .getPersonContainer();
+            .createPersonContainer();
 
     private Department departmentFilter;
     private String textFilter;

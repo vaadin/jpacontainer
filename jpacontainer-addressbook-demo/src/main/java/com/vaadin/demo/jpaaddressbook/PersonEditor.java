@@ -82,7 +82,7 @@ public class PersonEditor extends Window implements Button.ClickListener,
     public Field createField(Item item, Object propertyId, Component uiContext) {
         if ("department".equals(propertyId)) {
             final JPAContainer<Department> departments = ContainerFactory
-                    .getDepartmentReadOnlyContainer();
+                    .createDepartmentReadOnlyContainer();
 
             ComboBox dep = new ComboBox("Department", departments) {
                 @Override

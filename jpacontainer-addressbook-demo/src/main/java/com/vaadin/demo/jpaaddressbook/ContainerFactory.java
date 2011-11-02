@@ -17,8 +17,6 @@ public class ContainerFactory {
     private static EntityManagerFactory emf = Persistence
             .createEntityManagerFactory("addressbook");
 
-    private JPAContainer<Person> personContainer;
-    private JPAContainer<Department> departmentContainer;
     private EntityManager em;
 
     private ContainerFactory() {
@@ -35,36 +33,33 @@ public class ContainerFactory {
     /**
      * @return a cached container for Person entities.
      */
-    public static JPAContainer<Person> getPersonContainer() {
+    public static JPAContainer<Person> createPersonContainer() {
         ContainerFactory cf = get();
-        if (cf.personContainer == null) {
-            cf.personContainer = new JPAContainer<Person>(Person.class);
-            cf.personContainer
-                    .setEntityProvider(new CachingMutableLocalEntityProvider<Person>(
-                            Person.class, cf.em));
-        }
-        return cf.personContainer;
+        JPAContainer<Person> personContainer = new JPAContainer<Person>(
+                Person.class);
+        personContainer
+                .setEntityProvider(new CachingMutableLocalEntityProvider<Person>(
+                        Person.class, cf.em));
+        return personContainer;
     }
 
     /**
      * @return a cached read-only container for Department entities.
      */
-    public static JPAContainer<Department> getDepartmentReadOnlyContainer() {
+    public static JPAContainer<Department> createDepartmentReadOnlyContainer() {
         ContainerFactory cf = get();
-        if (cf.departmentContainer == null) {
-            cf.departmentContainer = new JPAContainer<Department>(
-                    Department.class) {
-                @Override
-                public boolean areChildrenAllowed(Object itemId) {
-                    return super.areChildrenAllowed(itemId)
-                            && getItem(itemId).getEntity().isSuperDepartment();
-                }
-            };
-            cf.departmentContainer
-                    .setEntityProvider(new CachingLocalEntityProvider<Department>(
-                            Department.class, cf.em));
-            cf.departmentContainer.setParentProperty("parent");
-        }
-        return cf.departmentContainer;
+        JPAContainer<Department> departmentContainer = new JPAContainer<Department>(
+                Department.class) {
+            @Override
+            public boolean areChildrenAllowed(Object itemId) {
+                return super.areChildrenAllowed(itemId)
+                        && getItem(itemId).getEntity().isSuperDepartment();
+            }
+        };
+        departmentContainer
+                .setEntityProvider(new CachingLocalEntityProvider<Department>(
+                        Department.class, cf.em));
+        departmentContainer.setParentProperty("parent");
+        return departmentContainer;
     }
 }
