@@ -81,18 +81,18 @@
         </repository>
     </repositories>
 
-    <distributionManagement>
-        <repository>
-            <id>vaadin-staging</id>
-            <name>Vaadin release staging repository</name>
-            <url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-        <snapshotRepository>
-            <id>vaadin-snapshots</id>
-            <name>Vaadin snapshot repository</name>
-            <url>${snapshot.repository.url}</url>
-        </snapshotRepository>
-    </distributionManagement>
+<!--     <distributionManagement> -->
+<!--         <repository> -->
+<!--             <id>vaadin-staging</id> -->
+<!--             <name>Vaadin release staging repository</name> -->
+<!--             <url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url> -->
+<!--         </repository> -->
+<!--         <snapshotRepository> -->
+<!--             <id>vaadin-snapshots</id> -->
+<!--             <name>Vaadin snapshot repository</name> -->
+<!--             <url>${snapshot.repository.url}</url> -->
+<!--         </snapshotRepository> -->
+<!--     </distributionManagement> -->
 
     <modules>
         <module>jpacontainer-demo</module>
