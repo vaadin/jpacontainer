@@ -38,15 +38,17 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
     private Button deleteButton;
     private Button editButton;
 
-    private JPAContainer<Department> departments = ContainerFactory
-            .createDepartmentReadOnlyContainer();
-    private JPAContainer<Person> persons = ContainerFactory
-            .createPersonContainer();
+    private JPAContainer<Department> departments;
+    private JPAContainer<Person> persons;
 
     private Department departmentFilter;
     private String textFilter;
 
     public AddressBookMainView() {
+        ContainerFactory cf = JpaAddressbookApplication.getInstance()
+                .getContainerFactory();
+        departments = cf.getDepartmentReadOnlyContainer();
+        persons = cf.getPersonContainer();
         buildTree();
         buildMainArea();
 

@@ -17,24 +17,27 @@ public class DepartmentSelector extends CustomField {
     private ComboBox geographicalDepartment = new ComboBox();
     private ComboBox department = new ComboBox();
 
-    private JPAContainer<Department> container = ContainerFactory
-            .createDepartmentReadOnlyContainer();
-    private JPAContainer<Department> geoContainer = ContainerFactory
-            .createDepartmentReadOnlyContainer();
-    
+    private JPAContainer<Department> container;
+    private JPAContainer<Department> geoContainer;
+
     public DepartmentSelector() {
+        ContainerFactory cf = JpaAddressbookApplication.getInstance()
+                .getContainerFactory();
+        container = cf.getDepartmentReadOnlyContainer();
+        geoContainer = cf.getDepartmentReadOnlyContainer();
         setCaption("Department");
-        // Only list "roots" which are in our example geographical super departments
+        // Only list "roots" which are in our example geographical super
+        // departments
         geoContainer.addFilter(Filters.isNull("parent"));
         geographicalDepartment.setContainerDataSource(geoContainer);
         geographicalDepartment.setItemCaptionPropertyId("name");
         geographicalDepartment.setImmediate(true);
-        
+
         container.setApplyFiltersImmediately(false);
         filterDepartments(null);
         department.setContainerDataSource(container);
         department.setItemCaptionPropertyId("name");
-        
+
         geographicalDepartment.addListener(new Property.ValueChangeListener() {
             @Override
             public void valueChange(
@@ -42,7 +45,8 @@ public class DepartmentSelector extends CustomField {
                 /*
                  * Modify filtering of the department combobox
                  */
-                EntityItem<Department> item = geoContainer.getItem(geographicalDepartment.getValue());
+                EntityItem<Department> item = geoContainer
+                        .getItem(geographicalDepartment.getValue());
                 Department entity = item.getEntity();
                 filterDepartments(entity);
             }
@@ -54,15 +58,16 @@ public class DepartmentSelector extends CustomField {
                 /*
                  * Modify the actual value of the custom field.
                  */
-                if(department.getValue() == null) {
+                if (department.getValue() == null) {
                     setValue(null, false);
                 } else {
-                    Department entity = container.getItem(department.getValue()).getEntity();
+                    Department entity = container
+                            .getItem(department.getValue()).getEntity();
                     setValue(entity, false);
                 }
             }
         });
-        
+
         CssLayout cssLayout = new CssLayout();
         cssLayout.addComponent(geographicalDepartment);
         cssLayout.addComponent(department);
@@ -75,7 +80,7 @@ public class DepartmentSelector extends CustomField {
      * @param currentGeoDepartment
      */
     private void filterDepartments(Department currentGeoDepartment) {
-        if(currentGeoDepartment == null) {
+        if (currentGeoDepartment == null) {
             department.setValue(null);
             department.setEnabled(false);
         } else {
@@ -86,13 +91,13 @@ public class DepartmentSelector extends CustomField {
             department.setEnabled(true);
         }
     }
-    
+
     @Override
     public void setPropertyDataSource(Property newDataSource) {
         super.setPropertyDataSource(newDataSource);
         setDepartment(newDataSource.getValue());
     }
-    
+
     @Override
     public void setValue(Object newValue) throws ReadOnlyException,
             ConversionException {
@@ -101,7 +106,8 @@ public class DepartmentSelector extends CustomField {
 
     private void setDepartment(Object newValue) {
         Department value = (Department) newValue;
-        geographicalDepartment.setValue(value != null ? value.getParent().getId() : null);
+        geographicalDepartment.setValue(value != null ? value.getParent()
+                .getId() : null);
         department.setValue(value != null ? value.getId() : null);
     }
 
