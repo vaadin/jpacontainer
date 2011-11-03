@@ -20,6 +20,11 @@
 			<id>vaadin-addons</id>
 			<url>http://maven.vaadin.com/vaadin-addons</url>
 		</repository>
+		<repository>
+			<id>vaadin-snapshots</id>
+			<name>Vaadin snapshot repository</name>
+			<url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
+		</repository>
 	</repositories>
 	<dependencies>
 		<dependency>
@@ -53,11 +58,11 @@
 			<artifactId>h2</artifactId>
 			<version>1.3.160</version>
 		</dependency>
-        <dependency>
-        	<groupId>org.vaadin.addons</groupId>
-        	<artifactId>customfield</artifactId>
-        	<version>0.9.3</version>
-        </dependency>
+		<dependency>
+			<groupId>org.vaadin.addons</groupId>
+			<artifactId>customfield</artifactId>
+			<version>0.9.3</version>
+		</dependency>
 	</dependencies>
 
 	<build>
