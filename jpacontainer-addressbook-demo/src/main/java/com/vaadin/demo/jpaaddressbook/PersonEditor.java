@@ -12,6 +12,7 @@ import com.vaadin.ui.DefaultFieldFactory;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.Form;
 import com.vaadin.ui.FormFieldFactory;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.Window;
 
 public class PersonEditor extends Window implements Button.ClickListener,
@@ -77,8 +78,12 @@ public class PersonEditor extends Window implements Button.ClickListener,
             return new DepartmentSelector();
         }
 
-        return DefaultFieldFactory.get().createField(item, propertyId,
+        Field field = DefaultFieldFactory.get().createField(item, propertyId,
                 uiContext);
+        if (field instanceof TextField) {
+            ((TextField) field).setNullRepresentation("");
+        }
+        return field;
     }
 
     public void addListener(EditorSavedListener listener) {
