@@ -23,7 +23,8 @@
   * javax.persistence-2.0.0.jar
   * h2-1.3.160.jar
   * CustomField add-on
-
+  * BeanValidation add-on
+  * hibernate-validator-4.2.0.Final.jar (jsr 303 implementation for BeanValidation add-on)
 
 ## Implementation
 
@@ -37,6 +38,9 @@
   * zipCode
   * phoneNumber
   * department
+
+Note @NotNull and @Size annotations aka Bean Validation (JSR 303) annotations
+  
 * Department
   * id
   * name
@@ -75,7 +79,7 @@
 4. Create the PersonEditor class
   1. Extends window
   2. Accepts Item in constructor
-  3. Uses the Item as an ItemDataSource for a Form
+  3. Uses the Item as an ItemDataSource for a Form. As Form implementation we are using BeanValidationForm which provides validators automatically based on annotations in the Person bean
 5. Test that editing is possible
 6. Add a DepartmentSelector to allow selecting departments
   * CustomField with 2 ComboBoxes (geograpical location, department)

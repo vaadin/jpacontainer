@@ -12,6 +12,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.DefaultFieldFactory;
 import com.vaadin.ui.Field;
+import com.vaadin.ui.Form;
 import com.vaadin.ui.FormFieldFactory;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Window;
@@ -21,7 +22,7 @@ public class PersonEditor extends Window implements Button.ClickListener,
         FormFieldFactory {
 
     private final Item personItem;
-    private BeanValidationForm<Person> editorForm;
+    private Form editorForm;
     private Button saveButton;
     private Button cancelButton;
 
