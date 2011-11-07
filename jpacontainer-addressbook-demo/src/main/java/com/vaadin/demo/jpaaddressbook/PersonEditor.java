@@ -4,29 +4,33 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
+import com.vaadin.addon.beanvalidation.BeanValidationForm;
 import com.vaadin.data.Item;
+import com.vaadin.demo.jpaaddressbook.domain.Person;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.DefaultFieldFactory;
 import com.vaadin.ui.Field;
-import com.vaadin.ui.Form;
 import com.vaadin.ui.FormFieldFactory;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Window;
 
+@SuppressWarnings("serial")
 public class PersonEditor extends Window implements Button.ClickListener,
         FormFieldFactory {
 
     private final Item personItem;
-    private Form editorForm;
+    private BeanValidationForm<Person> editorForm;
     private Button saveButton;
     private Button cancelButton;
 
     public PersonEditor(Item personItem) {
         this.personItem = personItem;
-        editorForm = new Form();
+        editorForm = new BeanValidationForm<Person>(Person.class);
         editorForm.setFormFieldFactory(this);
+        editorForm.setWriteThrough(false);
+        editorForm.setImmediate(true);
         editorForm.setItemDataSource(personItem, Arrays.asList("firstName",
                 "lastName", "phoneNumber", "street", "city", "zipCode",
                 "department"));

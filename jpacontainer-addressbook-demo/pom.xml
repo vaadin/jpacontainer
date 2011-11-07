@@ -63,6 +63,16 @@
 			<artifactId>customfield</artifactId>
 			<version>0.9.3</version>
 		</dependency>
+		<dependency>
+			<groupId>com.vaadin.addon</groupId>
+			<artifactId>beanvalidation-addon</artifactId>
+			<version>0.6.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>4.2.0.Final</version>
+		</dependency>
 	</dependencies>
 
 	<build>
