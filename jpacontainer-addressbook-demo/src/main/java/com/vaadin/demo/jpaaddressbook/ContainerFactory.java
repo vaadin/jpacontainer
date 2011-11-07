@@ -16,7 +16,6 @@ public class ContainerFactory {
             .createEntityManagerFactory("addressbook");
 
     private JPAContainer<Person> personContainer;
-    private JPAContainer<Department> departmentContainer;
     private EntityManager em;
 
     public ContainerFactory() {
@@ -34,24 +33,24 @@ public class ContainerFactory {
                             Person.class, em));
         }
         return personContainer;
-}
+    }
+
     /**
      * @return a cached read-only container for Department entities.
      */
     public JPAContainer<Department> getDepartmentReadOnlyContainer() {
-        if (departmentContainer == null) {
-            departmentContainer = new JPAContainer<Department>(Department.class) {
-                @Override
-                public boolean areChildrenAllowed(Object itemId) {
-                    return super.areChildrenAllowed(itemId)
-                            && getItem(itemId).getEntity().isSuperDepartment();
-                }
-            };
-            departmentContainer
-                    .setEntityProvider(new CachingLocalEntityProvider<Department>(
-                            Department.class, em));
-            departmentContainer.setParentProperty("parent");
-        }
+        JPAContainer<Department> departmentContainer = new JPAContainer<Department>(
+                Department.class) {
+            @Override
+            public boolean areChildrenAllowed(Object itemId) {
+                return super.areChildrenAllowed(itemId)
+                        && getItem(itemId).getEntity().isSuperDepartment();
+            }
+        };
+        departmentContainer
+                .setEntityProvider(new CachingLocalEntityProvider<Department>(
+                        Department.class, em));
+        departmentContainer.setParentProperty("parent");
         return departmentContainer;
     }
 }
