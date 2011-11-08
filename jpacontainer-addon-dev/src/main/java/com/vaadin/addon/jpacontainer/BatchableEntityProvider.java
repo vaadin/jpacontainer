@@ -46,57 +46,57 @@ import java.io.Serializable;
  */
 public interface BatchableEntityProvider<T> extends MutableEntityProvider<T> {
 
-	/**
-	 * Callback interface used by the
-	 * {@link BatchableEntityProvider#batchUpdate(com.vaadin.addon.jpacontainer.BatchableEntityProvider.BatchUpdateCallback) }
-	 * method.
-	 * 
-	 * @author Petter Holmström (Vaadin Ltd)
-	 * @since 1.0
-	 */
-	public static interface BatchUpdateCallback<T> extends Serializable {
+    /**
+     * Callback interface used by the
+     * {@link BatchableEntityProvider#batchUpdate(com.vaadin.addon.jpacontainer.BatchableEntityProvider.BatchUpdateCallback) }
+     * method.
+     * 
+     * @author Petter Holmström (Vaadin Ltd)
+     * @since 1.0
+     */
+    public static interface BatchUpdateCallback<T> extends Serializable {
 
-		/**
-		 * Runs the updates using a special batch enabled mutable entity
-		 * provider.
-		 * 
-		 * @param batchEnabledEntityProvider
-		 *            a {@link MutableEntityProvider} that knows how to handle
-		 *            multiple updates and executes them within a single
-		 *            transaction.
-		 */
-		public void batchUpdate(
-				MutableEntityProvider<T> batchEnabledEntityProvider);
-	}
+        /**
+         * Runs the updates using a special batch enabled mutable entity
+         * provider.
+         * 
+         * @param batchEnabledEntityProvider
+         *            a {@link MutableEntityProvider} that knows how to handle
+         *            multiple updates and executes them within a single
+         *            transaction.
+         */
+        public void batchUpdate(
+                MutableEntityProvider<T> batchEnabledEntityProvider);
+    }
 
-	/**
-	 * Executes a batch update using the specified callback parameter. The batch
-	 * update should be run inside a single transaction. The implementation may
-	 * either handle the transaction itself, or rely on external transaction handling
-	 * provided by a container such as Spring or EJB. If the batch update
-	 * fails, the entire transaction should be rolled back and an exception
-	 * thrown. Otherwise, it should be committed.
-	 * <p>
-	 * Clients should instantiate {@link BatchUpdateCallback}, implement the
-	 * {@link BatchUpdateCallback#batchUpdate(MutableEntityProvider) } method and
-	 * execute the updates as if they were using an ordinary
-	 * {@link MutableEntityProvider}. The following example saves a list of
-	 * transient entities: <code>
-	 * <pre>
-	 *  provider.batchUpdate(new BatchUpdateCallback<MyEntity>() {
-	 *      public void batchUpdate(MutableEntityProvider<MyEntity> batchEnabledEntityProvider) {
-	 *          for (Entity e : myListOfEntitiesToAdd) {
-	 *              batchEnabledEntityProvider.addEntity(e);
-	 *          }
-	 *      }
-	 *  });
-	 * </pre></code>
-	 * 
-	 * @param callback
-	 *            the callback that will be used to run the batch update.
-	 * @throws UnsupportedOperationException
-	 *             if this entity provider does not support batch updates.
-	 */
-	public void batchUpdate(BatchUpdateCallback<T> callback)
-			throws UnsupportedOperationException;
+    /**
+     * Executes a batch update using the specified callback parameter. The batch
+     * update should be run inside a single transaction. The implementation may
+     * either handle the transaction itself, or rely on external transaction
+     * handling provided by a container such as Spring or EJB. If the batch
+     * update fails, the entire transaction should be rolled back and an
+     * exception thrown. Otherwise, it should be committed.
+     * <p>
+     * Clients should instantiate {@link BatchUpdateCallback}, implement the
+     * {@link BatchUpdateCallback#batchUpdate(MutableEntityProvider) } method and
+     * execute the updates as if they were using an ordinary
+     * {@link MutableEntityProvider}. The following example saves a list of
+     * transient entities: <code>
+     * <pre>
+     *  provider.batchUpdate(new BatchUpdateCallback<MyEntity>() {
+     *      public void batchUpdate(MutableEntityProvider<MyEntity> batchEnabledEntityProvider) {
+     *          for (Entity e : myListOfEntitiesToAdd) {
+     *              batchEnabledEntityProvider.addEntity(e);
+     *          }
+     *      }
+     *  });
+     * </pre></code>
+     * 
+     * @param callback
+     *            the callback that will be used to run the batch update.
+     * @throws UnsupportedOperationException
+     *             if this entity provider does not support batch updates.
+     */
+    public void batchUpdate(BatchUpdateCallback<T> callback)
+            throws UnsupportedOperationException;
 }

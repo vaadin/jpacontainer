@@ -12,17 +12,17 @@ import com.vaadin.data.Property;
  * @since 1.0
  */
 public interface EntityItemProperty extends Property,
-		Property.ValueChangeNotifier {
+        Property.ValueChangeNotifier {
 
-	/**
-	 * Gets the EntityItem that owns this property.
-	 * 
-	 * @return the item (never null).
-	 */
-	public EntityItem<?> getItem();
-	
-	/**
-	 * Fires value change event for this property
-	 */
-	void fireValueChangeEvent();
+    /**
+     * Gets the EntityItem that owns this property.
+     * 
+     * @return the item (never null).
+     */
+    public EntityItem<?> getItem();
+
+    /**
+     * Fires value change event for this property
+     */
+    void fireValueChangeEvent();
 }

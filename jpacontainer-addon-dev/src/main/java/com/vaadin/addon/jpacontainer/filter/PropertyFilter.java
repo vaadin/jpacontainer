@@ -13,10 +13,10 @@ import com.vaadin.addon.jpacontainer.Filter;
  */
 public interface PropertyFilter extends Filter {
 
-	/**
-	 * Gets the ID of the property that this filter is applied to.
-	 * 
-	 * @return the property ID (never null).
-	 */
-	public Object getPropertyId();
+    /**
+     * Gets the ID of the property that this filter is applied to.
+     * 
+     * @return the property ID (never null).
+     */
+    public Object getPropertyId();
 }

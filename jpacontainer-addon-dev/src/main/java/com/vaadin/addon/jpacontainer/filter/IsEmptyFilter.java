@@ -11,14 +11,14 @@ package com.vaadin.addon.jpacontainer.filter;
  */
 public class IsEmptyFilter extends AbstractPropertyFilter {
 
-	private static final long serialVersionUID = -421332437947826260L;
+    private static final long serialVersionUID = -421332437947826260L;
 
-	protected IsEmptyFilter(Object propertyId) {
-		super(propertyId);
-	}
+    protected IsEmptyFilter(Object propertyId) {
+        super(propertyId);
+    }
 
-	public String toQLString(PropertyIdPreprocessor propertyIdPreprocessor) {
-		return String.format("(%s is empty)", propertyIdPreprocessor
-				.process(getPropertyId()));
-	}
+    public String toQLString(PropertyIdPreprocessor propertyIdPreprocessor) {
+        return String.format("(%s is empty)",
+                propertyIdPreprocessor.process(getPropertyId()));
+    }
 }

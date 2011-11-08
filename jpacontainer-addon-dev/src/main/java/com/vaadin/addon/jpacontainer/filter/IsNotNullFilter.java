@@ -11,14 +11,14 @@ package com.vaadin.addon.jpacontainer.filter;
  */
 public class IsNotNullFilter extends AbstractPropertyFilter {
 
-	private static final long serialVersionUID = 5876273494734509375L;
+    private static final long serialVersionUID = 5876273494734509375L;
 
-	protected IsNotNullFilter(Object propertyId) {
-		super(propertyId);
-	}
+    protected IsNotNullFilter(Object propertyId) {
+        super(propertyId);
+    }
 
-	public String toQLString(PropertyIdPreprocessor propertyIdPreprocessor) {
-		return String.format("(%s is not null)", propertyIdPreprocessor
-				.process(getPropertyId()));
-	}
+    public String toQLString(PropertyIdPreprocessor propertyIdPreprocessor) {
+        return String.format("(%s is not null)",
+                propertyIdPreprocessor.process(getPropertyId()));
+    }
 }

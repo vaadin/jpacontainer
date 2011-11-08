@@ -12,42 +12,42 @@ import java.util.Random;
  * @since 1.0
  */
 public abstract class AbstractValueFilter extends AbstractPropertyFilter
-		implements ValueFilter {
+        implements ValueFilter {
 
-	private static final long serialVersionUID = -1583391990217077287L;
+    private static final long serialVersionUID = -1583391990217077287L;
 
-	private Object value;
+    private Object value;
 
-	private String qlParameterName;
+    private String qlParameterName;
 
-	protected AbstractValueFilter(Object propertyId, Object value) {
-		super(propertyId);
-		assert value != null : "value must not be null";
-		this.value = value;
-		this.qlParameterName = propertyId.toString().replace('.', '_')
-				+ Math.abs(new Random().nextInt());
-	}
+    protected AbstractValueFilter(Object propertyId, Object value) {
+        super(propertyId);
+        assert value != null : "value must not be null";
+        this.value = value;
+        qlParameterName = propertyId.toString().replace('.', '_')
+                + Math.abs(new Random().nextInt());
+    }
 
-	public Object getValue() {
-		return value;
-	}
+    public Object getValue() {
+        return value;
+    }
 
-	public String getQLParameterName() {
-		return qlParameterName;
-	}
+    public String getQLParameterName() {
+        return qlParameterName;
+    }
 
-	// qlParameterName is not included in equality check, as it is randomly
-	// generated.
+    // qlParameterName is not included in equality check, as it is randomly
+    // generated.
 
-	@Override
-	public boolean equals(Object obj) {
-		return super.equals(obj)
-				&& ((AbstractValueFilter) obj).value.equals(value);
-	}
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj)
+                && ((AbstractValueFilter) obj).value.equals(value);
+    }
 
-	@Override
-	public int hashCode() {
-		return super.hashCode() + 7 * value.hashCode();
-	}
+    @Override
+    public int hashCode() {
+        return super.hashCode() + 7 * value.hashCode();
+    }
 
 }
