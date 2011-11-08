@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<persistence version="1.0" xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd">
+<persistence version="1.0"
+	xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd">
 	<persistence-unit name="eclipselink-pu">
 		<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
 		<class>com.vaadin.addon.jpacontainer.testdata.Address</class>
@@ -10,4 +12,27 @@
 		<class>com.vaadin.addon.jpacontainer.testdata.Skill</class>
 		<exclude-unlisted-classes>true</exclude-unlisted-classes>
 	</persistence-unit>
+
+	<persistence-unit name="eclipselink-in-memory">
+		<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+		<class>com.vaadin.addon.jpacontainer.testdata.Address</class>
+		<class>com.vaadin.addon.jpacontainer.testdata.EmbeddedIdPerson</class>
+		<class>com.vaadin.addon.jpacontainer.testdata.Name</class>
+		<class>com.vaadin.addon.jpacontainer.testdata.Person</class>
+		<class>com.vaadin.addon.jpacontainer.testdata.PersonSkill</class>
+		<class>com.vaadin.addon.jpacontainer.testdata.Skill</class>
+		<exclude-unlisted-classes>true</exclude-unlisted-classes>
+		<properties>
+			<property name="eclipselink.jdbc.driver" value="org.hsqldb.jdbcDriver" />
+			<property name="eclipselink.jdbc.url" value="jdbc:hsqldb:mem" />
+			<property name="eclipselink.jdbc.user" value="sa" />
+			<property name="eclipselink.jdbc.password" value="" />
+			<property name="eclipselink.logging.level" value="FINE" />
+			<property name="eclipselink.ddl-generation" value="drop-and-create-tables" />
+			<property name="eclipselink.ddl-generation.output-mode"
+				value="database" />
+		</properties>
+
+	</persistence-unit>
 </persistence>
+
