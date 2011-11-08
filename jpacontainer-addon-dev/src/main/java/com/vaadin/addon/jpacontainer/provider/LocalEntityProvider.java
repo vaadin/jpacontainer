@@ -613,8 +613,8 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
     }
 
     /**
-     * Detaches <code>entity</code> from the entity manager (until JPA 2.0
-     * arrives). If <code>entity</code> is null, then null is returned. If
+     * Detaches <code>entity</code> from the entity manager. If
+     * <code>entity</code> is null, then null is returned. If
      * {@link #isEntitiesDetached() } is false, <code>entity</code> is returned
      * directly.
      * 
@@ -626,10 +626,9 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         if (entity == null) {
             return null;
         }
-        if (!isEntitiesDetached()) {
-            return entity;
+        if (isEntitiesDetached()) {
+            getEntityManager().detach(entity);
         }
-        getEntityManager().detach(entity);
         return entity;
     }
 
