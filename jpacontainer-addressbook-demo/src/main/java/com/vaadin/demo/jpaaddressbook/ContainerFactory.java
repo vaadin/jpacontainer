@@ -5,8 +5,8 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
+import com.vaadin.addon.jpacontainer.JPAContainerFactory;
 import com.vaadin.addon.jpacontainer.provider.CachingLocalEntityProvider;
-import com.vaadin.addon.jpacontainer.provider.CachingMutableLocalEntityProvider;
 import com.vaadin.demo.jpaaddressbook.domain.Department;
 import com.vaadin.demo.jpaaddressbook.domain.Person;
 
@@ -27,10 +27,7 @@ public class ContainerFactory {
      */
     public JPAContainer<Person> getPersonContainer() {
         if (personContainer == null) {
-            personContainer = new JPAContainer<Person>(Person.class);
-            personContainer
-                    .setEntityProvider(new CachingMutableLocalEntityProvider<Person>(
-                            Person.class, em));
+            personContainer = JPAContainerFactory.make(Person.class, em);
         }
         return personContainer;
     }
