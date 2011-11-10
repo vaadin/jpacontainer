@@ -6,6 +6,7 @@ package com.vaadin.addon.jpacontainer.provider.emtests;
 import com.vaadin.addon.jpacontainer.MutableEntityProvider;
 import com.vaadin.addon.jpacontainer.testdata.Address;
 import com.vaadin.addon.jpacontainer.testdata.Person;
+import com.vaadin.addon.jpacontainer.testdata.TestDataGenerator;
 
 import org.eclipse.persistence.internal.libraries.asm.tree.IntInsnNode;
 import org.junit.Test;
@@ -70,7 +71,7 @@ public abstract class AbstractMutableEntityProviderEMTest extends
 
 	@Test
 	public void testRemoveEntity() {
-		Person p = testDataSortedByName.get(0);
+		Person p = TestDataGenerator.getTestDataSortedByName().get(0);
 
 		int entityCount = entityProvider.getEntityCount(null);
 
@@ -85,7 +86,7 @@ public abstract class AbstractMutableEntityProviderEMTest extends
 
 	@Test
 	public void testUpdateEntity() {
-		Person p = testDataSortedByName.get(0);
+		Person p = TestDataGenerator.getTestDataSortedByName().get(0);
 
 		p = entityProvider.getEntity(p.getId());
 		p.setFirstName("A changed first name");
@@ -100,7 +101,7 @@ public abstract class AbstractMutableEntityProviderEMTest extends
 
 	@Test
 	public void testUpdateEntityProperty() {
-		Person p = testDataSortedByName.get(0);
+		Person p = TestDataGenerator.getTestDataSortedByName().get(0);
 
 		((MutableEntityProvider<Person>) entityProvider).updateEntityProperty(
 				p.getId(), "firstName", "A changed first name again");
