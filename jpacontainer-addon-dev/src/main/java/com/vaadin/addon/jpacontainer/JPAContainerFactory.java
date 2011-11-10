@@ -1,6 +1,8 @@
 package com.vaadin.addon.jpacontainer;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -24,7 +26,7 @@ public class JPAContainerFactory {
      * Cache of entity manager factories. These are cached, since the creation
      * of an EntityManagerFactory can be quite resource intensive.
      */
-    private static HashMap<String, EntityManagerFactory> puToEmfMap = new HashMap<String, EntityManagerFactory>();
+    private static Map<String, EntityManagerFactory> puToEmfMap = Collections.synchronizedMap(new HashMap<String, EntityManagerFactory>());
 
     /**
      * Creates a new instance of JPAContainer backed by a
