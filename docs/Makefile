@@ -4,7 +4,11 @@ all: images
 ################################################################################
 
 # List of images to be converted from SVG to PNG
-IMAGES =	architecture domain-model
+IMAGES =	three-layer-architecture architecture \
+			download-annotated \
+			application-class \
+			addressbookmainview-annotated addressbookmainview-class \
+			domain-model
 
 ################################################################################
 # Image conversions
