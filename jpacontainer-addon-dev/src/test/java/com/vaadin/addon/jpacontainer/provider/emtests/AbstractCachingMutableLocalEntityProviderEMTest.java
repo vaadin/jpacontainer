@@ -21,7 +21,7 @@ public abstract class AbstractCachingMutableLocalEntityProviderEMTest extends
 	protected EntityProvider<Person> createEntityProvider() throws Exception {
 		CachingMutableLocalEntityProvider<Person> provider = new CachingMutableLocalEntityProvider<Person>(
 				Person.class, getEntityManager());
-		provider.setCacheInUse(true);
+		provider.setCacheEnabled(true);
 		provider.setCloneCachedEntities(true);
 		provider.setEntityCacheMaxSize(400);
 		provider.setTransactionsHandledByProvider(true);
@@ -32,7 +32,7 @@ public abstract class AbstractCachingMutableLocalEntityProviderEMTest extends
 	protected EntityProvider<EmbeddedIdPerson> createEntityProvider_EmbeddedId() throws Exception {
 		CachingMutableLocalEntityProvider<EmbeddedIdPerson> provider = new CachingMutableLocalEntityProvider<EmbeddedIdPerson>(
 				EmbeddedIdPerson.class, getEntityManager());
-		provider.setCacheInUse(true);
+		provider.setCacheEnabled(true);
 		provider.setCloneCachedEntities(true);
 		provider.setTransactionsHandledByProvider(true);
 		return provider;

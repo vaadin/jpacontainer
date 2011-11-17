@@ -19,7 +19,7 @@ import com.vaadin.data.Container.Filter;
  * {@link MutableLocalEntityProvider}, with a few exceptions. By default, the
  * cache is turned off which means that this provider effectively works as a
  * {@link MutableLocalEntityProvider}. The cache can be turned on using
- * {@link #setCacheInUse(boolean) }.
+ * {@link #setCacheEnabled(boolean) }.
  * <p>
  * If you are going to edit the entities returned by the container, you should
  * check the {@link #setCloneCachedEntities(boolean) } before continuing.
@@ -65,12 +65,16 @@ public class CachingMutableLocalEntityProvider<T> extends
         return cachingSupport.getMaxCacheSize();
     }
 
-    public boolean isCacheInUse() {
-        return cachingSupport.isCacheInUse();
+    public boolean isCacheEnabled() {
+        return cachingSupport.isCacheEnabled();
     }
 
-    public void setCacheInUse(boolean cacheInUse) {
-        cachingSupport.setCacheInUse(cacheInUse);
+    public void setCacheEnabled(boolean cacheInUse) {
+        cachingSupport.setCacheEnabled(cacheInUse);
+    }
+
+    public boolean usesCache() {
+        return cachingSupport.usesCache();
     }
 
     public void setEntityCacheMaxSize(int maxSize) {
@@ -95,7 +99,7 @@ public class CachingMutableLocalEntityProvider<T> extends
 
     @Override
     public boolean isEntitiesDetached() {
-        return isCacheInUse() || super.isEntitiesDetached();
+        return isCacheEnabled() || super.isEntitiesDetached();
     }
 
     public boolean isCloneCachedEntities() {

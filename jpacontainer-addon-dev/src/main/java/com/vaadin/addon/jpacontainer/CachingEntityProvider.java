@@ -42,25 +42,46 @@ public interface CachingEntityProvider<T> extends EntityProvider<T> {
     public void flush();
 
     /**
-     * Returns whether the entity provider is currently using the internal
-     * cache, or if data is fetched/stored directly from/to the persistence
-     * storage. By default, caching should be in use.
+     * Returns whether the entity provider currently has the internal cache
+     * enabled. By default, caching should be enabled.<br/>
+     * <br/>
+     * 
+     * <b>NOTE!</b> If a {@link QueryModifierDelegate} is in use and it modifies
+     * the filters through the
+     * {@link QueryModifierDelegate#filtersWillBeAdded(javax.persistence.criteria.CriteriaBuilder, javax.persistence.criteria.CriteriaQuery, java.util.List)}
+     * method, caching will <em>NOT</em> be enabled.
      * 
      * @return true if the cache is in use, false otherwise.
      */
-    public boolean isCacheInUse();
+    public boolean isCacheEnabled();
 
     /**
      * Turns the cache on or off. When the cache is turned off, it is
-     * automatically flushed.
+     * automatically flushed. <br/>
+     * <br/>
      * 
-     * @param cacheInUse
+     * <b>NOTE!</b> If a {@link QueryModifierDelegate} is in use and it modifies
+     * the filters through the
+     * {@link QueryModifierDelegate#filtersWillBeAdded(javax.persistence.criteria.CriteriaBuilder, javax.persistence.criteria.CriteriaQuery, java.util.List)}
+     * method, caching will <em>NOT</em> be enabled.
+     * 
+     * @param cacheEnabled
      *            true to turn the cache on, false to turn it off.
      * @throws UnsupportedOperationException
      *             if the cache cannot be turned on or off programmatically.
      */
-    public void setCacheInUse(boolean cacheInUse)
+    public void setCacheEnabled(boolean cacheEnabled)
             throws UnsupportedOperationException;
+
+    /**
+     * Returns whether the entity provider is currently using the internal
+     * cache, which will be the case if both the caching is enabled (
+     * {@link #setCacheEnabled(boolean)} and there is no filter modifiying
+     * {@link QueryModifierDelegate} in use.
+     * 
+     * @return true if the cache is actually in use, false otherwise.
+     */
+    public boolean usesCache();
 
     /**
      * If the cache is in use, all entities are automatically detached
@@ -68,7 +89,7 @@ public interface CachingEntityProvider<T> extends EntityProvider<T> {
      * <p>
      * {@inheritDoc }
      * 
-     * @see #isCacheInUse()
+     * @see #isCacheEnabled()
      */
     public boolean isEntitiesDetached();
 
@@ -78,7 +99,7 @@ public interface CachingEntityProvider<T> extends EntityProvider<T> {
      * <p>
      * {@inheritDoc }
      * 
-     * @see #isCacheInUse()
+     * @see #isCacheEnabled()
      */
     public void setEntitiesDetached(boolean detached)
             throws UnsupportedOperationException;

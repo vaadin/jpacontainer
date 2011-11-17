@@ -18,6 +18,7 @@ import java.util.Set;
 import javax.persistence.TypedQuery;
 
 import com.vaadin.addon.jpacontainer.EntityProvider;
+import com.vaadin.addon.jpacontainer.EntityProvider.QueryModifierDelegate;
 import com.vaadin.addon.jpacontainer.SortBy;
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.Item;
@@ -34,7 +35,7 @@ class CachingSupport<T> implements Serializable {
 
     private final LocalEntityProvider<T> entityProvider;
     private int maxCacheSize = 1000;
-    private boolean cacheInUse = true;
+    private boolean cacheEnabled = true;
     private boolean cloneCachedEntities = false;
     /**
      * The number of entity IDs to fetch every time a query is made.
@@ -643,19 +644,53 @@ class CachingSupport<T> implements Serializable {
         return maxCacheSize;
     }
 
-    public boolean isCacheInUse() {
-        return cacheInUse;
+    /**
+     * Check whether caching is possible or not. Caching is not possible if
+     * there is a {@link QueryModifierDelegate}, that modifies the filters
+     * applied to queries, attached to the entity provider.
+     * 
+     * @return true if caching is possible
+     */
+    public boolean isCachingPossible() {
+        QueryModifierDelegate d = entityProvider.getQueryModifierDelegate();
+        if (d != null) {
+            // Try to tell the delegate that filters will be added and pass in
+            // all nulls. If the delegate throws an NPE it most probably
+            // modifies the filters, which means that we cannot reliably cache
+            // anything at this level.
+            try {
+                d.filtersWillBeAdded(null, null, null);
+            } catch (NullPointerException npe) {
+                // The delegate modifies filters
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Only returns true if both {@link #isCacheEnabled()} and
+     * {@link #isCachingPossible()} are true.
+     * 
+     * @return true if the caching mechanism is actually used.
+     */
+    public boolean usesCache() {
+        return isCacheEnabled() && isCachingPossible();
+    }
+
+    public boolean isCacheEnabled() {
+        return cacheEnabled;
     }
 
     /**
      * Turns the cache on or off.
      * 
-     * @param cacheInUse
+     * @param cacheEnabled
      *            true to turn on the cache, false to turn it off.
      */
-    public void setCacheInUse(boolean cacheInUse) {
-        this.cacheInUse = cacheInUse;
-        if (!cacheInUse) {
+    public void setCacheEnabled(boolean cacheEnabled) {
+        this.cacheEnabled = cacheEnabled;
+        if (!cacheEnabled) {
             flush();
         }
     }
@@ -674,10 +709,10 @@ class CachingSupport<T> implements Serializable {
     }
 
     public boolean containsEntity(Object entityId, Filter filter) {
-        if (!isCacheInUse()) {
-            return entityProvider.doContainsEntity(entityId, filter);
-        } else {
+        if (usesCache()) {
             return getFilterCacheEntry(filter).containsId(entityId);
+        } else {
+            return entityProvider.doContainsEntity(entityId, filter);
         }
     }
 
@@ -686,17 +721,15 @@ class CachingSupport<T> implements Serializable {
         if (sortBy == null) {
             sortBy = Collections.emptyList();
         }
-        if (!isCacheInUse()) {
-            return entityProvider.doGetAllEntityIdentifiers(filter, sortBy);
-        } else {
+        if (usesCache()) {
             return getFilterCacheEntry(filter).getAllIds(sortBy);
+        } else {
+            return entityProvider.doGetAllEntityIdentifiers(filter, sortBy);
         }
     }
 
     public synchronized T getEntity(Object entityId) {
-        if (!isCacheInUse()) {
-            return entityProvider.doGetEntity(entityId);
-        } else {
+        if (usesCache()) {
             T entity = getEntityCache().get(entityId);
             if (entity == null) {
                 // TODO Should we fetch several entities at once?
@@ -707,6 +740,8 @@ class CachingSupport<T> implements Serializable {
                 getEntityCache().put(entityId, entity);
             }
             return cloneEntityIfNeeded(entity);
+        } else {
+            return entityProvider.doGetEntity(entityId);
         }
     }
 
@@ -737,7 +772,7 @@ class CachingSupport<T> implements Serializable {
     }
 
     public boolean isEntitiesDetached() {
-        return isCacheInUse() || entityProvider.isEntitiesDetached();
+        return usesCache() || entityProvider.isEntitiesDetached();
     }
 
     public boolean isCloneCachedEntities() {
@@ -760,10 +795,10 @@ class CachingSupport<T> implements Serializable {
     }
 
     public int getEntityCount(Filter filter) {
-        if (!isCacheInUse()) {
-            return entityProvider.doGetEntityCount(filter);
-        } else {
+        if (usesCache()) {
             return getFilterCacheEntry(filter).getEntityCount();
+        } else {
+            return entityProvider.doGetEntityCount(filter);
         }
     }
 
@@ -772,11 +807,11 @@ class CachingSupport<T> implements Serializable {
         if (sortBy == null) {
             sortBy = Collections.emptyList();
         }
-        if (!isCacheInUse()) {
+        if (usesCache()) {
+            return getFilterCacheEntry(filter).getIdAt(sortBy, index);
+        } else {
             return entityProvider
                     .doGetEntityIdentifierAt(filter, sortBy, index);
-        } else {
-            return getFilterCacheEntry(filter).getIdAt(sortBy, index);
         }
     }
 
@@ -784,10 +819,10 @@ class CachingSupport<T> implements Serializable {
         if (sortBy == null) {
             sortBy = Collections.emptyList();
         }
-        if (!isCacheInUse()) {
-            return entityProvider.doGetFirstEntityIdentifier(filter, sortBy);
-        } else {
+        if (usesCache()) {
             return getFilterCacheEntry(filter).getFirstId(sortBy);
+        } else {
+            return entityProvider.doGetFirstEntityIdentifier(filter, sortBy);
         }
     }
 
@@ -795,10 +830,10 @@ class CachingSupport<T> implements Serializable {
         if (sortBy == null) {
             sortBy = Collections.emptyList();
         }
-        if (!isCacheInUse()) {
-            return entityProvider.doGetLastEntityIdentifier(filter, sortBy);
-        } else {
+        if (usesCache()) {
             return getFilterCacheEntry(filter).getLastId(sortBy);
+        } else {
+            return entityProvider.doGetLastEntityIdentifier(filter, sortBy);
         }
     }
 
@@ -807,11 +842,11 @@ class CachingSupport<T> implements Serializable {
         if (sortBy == null) {
             sortBy = Collections.emptyList();
         }
-        if (!isCacheInUse()) {
+        if (usesCache()) {
+            return getFilterCacheEntry(filter).getNextId(entityId, sortBy);
+        } else {
             return entityProvider.doGetNextEntityIdentifier(entityId, filter,
                     sortBy);
-        } else {
-            return getFilterCacheEntry(filter).getNextId(entityId, sortBy);
         }
     }
 
@@ -820,11 +855,11 @@ class CachingSupport<T> implements Serializable {
         if (sortBy == null) {
             sortBy = Collections.emptyList();
         }
-        if (!isCacheInUse()) {
+        if (usesCache()) {
+            return getFilterCacheEntry(filter).getPreviousId(entityId, sortBy);
+        } else {
             return entityProvider.doGetPreviousEntityIdentifier(entityId,
                     filter, sortBy);
-        } else {
-            return getFilterCacheEntry(filter).getPreviousId(entityId, sortBy);
         }
     }
 

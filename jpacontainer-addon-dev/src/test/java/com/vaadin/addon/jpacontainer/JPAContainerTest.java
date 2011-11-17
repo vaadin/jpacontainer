@@ -1096,8 +1096,8 @@ public class JPAContainerTest {
 
     @Test
     public void testReadThrough_CachingProvider() {
-        expect(cachingEntityProviderMock.isCacheInUse()).andReturn(true);
-        expect(cachingEntityProviderMock.isCacheInUse()).andReturn(false);
+        expect(cachingEntityProviderMock.isCacheEnabled()).andReturn(true);
+        expect(cachingEntityProviderMock.isCacheEnabled()).andReturn(false);
         replay(cachingEntityProviderMock);
 
         // Caching container -> read through depends on the cache

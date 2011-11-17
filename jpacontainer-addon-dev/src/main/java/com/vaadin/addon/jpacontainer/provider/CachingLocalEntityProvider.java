@@ -17,7 +17,7 @@ import com.vaadin.data.Container.Filter;
  * <p>
  * This provider can be used in applications in the same manner as
  * {@link LocalEntityProvider}, with a few exceptions. By default the cache is
- * on. The cache can be turned off using {@link #setCacheInUse(boolean) }, in
+ * on. The cache can be turned off using {@link #setCacheEnabled(boolean) }, in
  * which case the provider effectively works as a {@link LocalEntityProvider}.
  * <p>
  * If you are going to edit the entities returned by the container, you should
@@ -69,12 +69,16 @@ public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T>
         return cachingSupport.getMaxCacheSize();
     }
 
-    public boolean isCacheInUse() {
-        return cachingSupport.isCacheInUse();
+    public boolean isCacheEnabled() {
+        return cachingSupport.isCacheEnabled();
     }
 
-    public void setCacheInUse(boolean cacheInUse) {
-        cachingSupport.setCacheInUse(cacheInUse);
+    public void setCacheEnabled(boolean cacheInUse) {
+        cachingSupport.setCacheEnabled(cacheInUse);
+    }
+
+    public boolean usesCache() {
+        return cachingSupport.usesCache();
     }
 
     public void setEntityCacheMaxSize(int maxSize) {
@@ -99,7 +103,7 @@ public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T>
 
     @Override
     public boolean isEntitiesDetached() {
-        return isCacheInUse() || super.isEntitiesDetached();
+        return isCacheEnabled() || super.isEntitiesDetached();
     }
 
     public boolean isCloneCachedEntities() {

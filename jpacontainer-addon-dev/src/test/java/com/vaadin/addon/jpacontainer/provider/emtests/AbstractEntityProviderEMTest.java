@@ -32,6 +32,7 @@ import org.junit.Test;
 
 import com.vaadin.addon.jpacontainer.EntityProvider;
 import com.vaadin.addon.jpacontainer.SortBy;
+import com.vaadin.addon.jpacontainer.provider.DefaultQueryModifierDelegate;
 import com.vaadin.addon.jpacontainer.testdata.EmbeddedIdPerson;
 import com.vaadin.addon.jpacontainer.testdata.Person;
 import com.vaadin.addon.jpacontainer.testdata.Skill;
@@ -663,7 +664,7 @@ public abstract class AbstractEntityProviderEMTest {
         getEntityManager().getTransaction().commit();
 
         // Now try out the filter
-        for (Skill s : TestDataGenerator.getSkills()) {
+        for (final Skill s : TestDataGenerator.getSkills()) {
             entityProvider
                     .setQueryModifierDelegate(new DefaultQueryModifierDelegate() {
                         private Join<Object, Object> skillsJoin;

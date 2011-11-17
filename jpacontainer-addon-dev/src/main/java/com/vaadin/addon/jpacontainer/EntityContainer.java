@@ -3,8 +3,6 @@ ${license.header.text}
  */
 package com.vaadin.addon.jpacontainer;
 
-import javax.persistence.criteria.Predicate;
-
 import com.vaadin.data.Buffered;
 import com.vaadin.data.Container;
 import com.vaadin.data.Validator.InvalidValueException;
@@ -159,32 +157,18 @@ public interface EntityContainer<T> extends Container, Container.Sortable,
      * <p>
      * This method creates a new {@link StringComparisonFilter} for the
      * specified parameters and applies the filter immediately, regardless of
-     * the state of {@link #isApplyPredicatesImmediately() }.
+     * the state of {@link #isApplyFiltersImmediately() }.
      * 
-     * @see #addPredicate(Predicate)
-     * @see #applyPredicates()
+     * @see #applyFilters()
      */
     public void addContainerFilter(Object propertyId, String filterString,
             boolean ignoreCase, boolean onlyMatchPrefix);
 
     /**
-     * {@inheritDoc}
-     * <p>
-     * This method does the same as {@link #removeAllPredicates() }, but the
-     * container is updated immediately regardless of the state of
-     * {@link #isApplyPredicatesImmediately() }.
-     * 
-     * @see #removeAllPredicates()
-     */
-    public void removeAllContainerFilters();
-
-    /**
      * {@inheritDoc }
      * <p>
      * The container is updated immediately regardless of the state of
-     * {@link #isApplyPredicatesImmediately() }.
-     * 
-     * @see #removePredicate(Predicate)
+     * {@link #isApplyFiltersImmediately() }.
      */
     public void removeContainerFilters(Object propertyId);
 }

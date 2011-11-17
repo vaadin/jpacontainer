@@ -4,28 +4,22 @@ ${license.header.text}
 package com.vaadin.addon.jpacontainer.filter.util;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import com.vaadin.addon.jpacontainer.AdvancedFilterable;
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.util.filter.AbstractJunctionFilter;
-import com.vaadin.data.util.filter.And;
 import com.vaadin.data.util.filter.Between;
 import com.vaadin.data.util.filter.Compare;
 import com.vaadin.data.util.filter.IsNull;
 import com.vaadin.data.util.filter.Like;
-import com.vaadin.data.util.filter.Or;
 import com.vaadin.data.util.filter.SimpleStringFilter;
 
 /**
@@ -222,103 +216,9 @@ public class AdvancedFilterableSupport implements AdvancedFilterable,
         return unappliedFilters;
     }
 
-    /**
-     * Converts a Vaadin 6.6 container filter into a JPA criteria predicate.
-     * 
-     * @param filter
-     *            Vaadin 6.6 {@link Filter}
-     * @return {@link Predicate}
-     */
-    public static Predicate convertFilter(
-            com.vaadin.data.Container.Filter filter,
-            CriteriaBuilder criteriaBuilder, Root<?> root) {
-        assert filter != null : "filter must not be null";
-
-        // Handle compound filters
-        if (filter instanceof And) {
-            return criteriaBuilder.and(convertFiltersToArray(
-                    ((And) filter).getFilters(), criteriaBuilder, root));
-        }
-        if (filter instanceof Or) {
-            return criteriaBuilder.or(convertFiltersToArray(
-                    ((Or) filter).getFilters(), criteriaBuilder, root));
-        }
-
-        if (filter instanceof Compare) {
-            // TODO: make sure the types are correct
-            Compare compare = (Compare) filter;
-            Expression<String> propertyExpr = getPropertyPath(root,
-                    compare.getPropertyId());
-            Expression<? extends Comparable> valueExpr = criteriaBuilder
-                    .literal((Comparable<?>) compare.getValue());
-            switch (compare.getOperation()) {
-            case EQUAL:
-                return criteriaBuilder.equal(propertyExpr, valueExpr);
-            case GREATER:
-                return criteriaBuilder.greaterThan(propertyExpr, valueExpr);
-            case GREATER_OR_EQUAL:
-                return criteriaBuilder.greaterThanOrEqualTo(propertyExpr,
-                        valueExpr);
-            case LESS:
-                return criteriaBuilder.lessThan(propertyExpr, valueExpr);
-            case LESS_OR_EQUAL:
-                return criteriaBuilder.lessThanOrEqualTo(propertyExpr,
-                        valueExpr);
-            }
-        }
-
-        if (filter instanceof IsNull) {
-            return criteriaBuilder.isNull(getPropertyPath(root,
-                    ((IsNull) filter).getPropertyId().toString()));
-        }
-
-        if (filter instanceof SimpleStringFilter) {
-            SimpleStringFilter stringFilter = (SimpleStringFilter) filter;
-            String filterString = stringFilter.getFilterString();
-            if (stringFilter.isOnlyMatchPrefix()) {
-                filterString = filterString + "%";
-            } else {
-                filterString = "%" + filterString + "%";
-            }
-            if (stringFilter.isIgnoreCase()) {
-                return criteriaBuilder.like(criteriaBuilder
-                        .upper(getPropertyPath(root, stringFilter
-                                .getPropertyId().toString())), criteriaBuilder
-                        .upper(criteriaBuilder.literal(filterString)));
-            } else {
-                return criteriaBuilder.like(
-                        getPropertyPath(root, stringFilter.getPropertyId()
-                                .toString()), criteriaBuilder
-                                .literal(filterString));
-            }
-        }
-
-        if (filter instanceof Like) {
-            Like like = (Like) filter;
-            if (like.isCaseSensitive()) {
-                return criteriaBuilder.like(
-                        getPropertyPath(root, like.getPropertyId().toString()),
-                        criteriaBuilder.literal(like.getValue()));
-            } else {
-                return criteriaBuilder.like(criteriaBuilder
-                        .upper(getPropertyPath(root, like.getPropertyId()
-                                .toString())), criteriaBuilder
-                        .upper(criteriaBuilder.literal(like.getValue())));
-            }
-        }
-
-        return null;
-    }
-
-    @Deprecated
+    @SuppressWarnings("unchecked")
     public static Path<String> getPropertyPath(Root<?> root, Object propertyId) {
-        String pid = propertyId.toString();
-        String[] idStrings = pid.split("\\.");
-        Path<String> path = root.get(idStrings[0]);
-        for (int i = 1; i < idStrings.length; i++) {
-            path = path.get(idStrings[i]);
-        }
-        return path;
+        return (Path<String>) getPropertyPathTyped(root, propertyId);
     }
 
     public static <T> Path<T> getPropertyPathTyped(Root<T> root,
@@ -330,30 +230,6 @@ public class AdvancedFilterableSupport implements AdvancedFilterable,
             path = path.get(idStrings[i]);
         }
         return path;
-    }
-
-    /**
-     * Converts a collection of {@link Filter} into a list of {@link Predicate}.
-     * 
-     * @param filters
-     *            Collection of {@link Filter}
-     * @return List of {@link Predicate}
-     */
-    public static List<Predicate> convertFilters(Collection<Filter> filters,
-            CriteriaBuilder criteriaBuilder, Root<?> root) {
-        List<Predicate> result = new ArrayList<Predicate>();
-        for (com.vaadin.data.Container.Filter filter : filters) {
-            result.add(convertFilter(filter, criteriaBuilder, root));
-        }
-        return result;
-    }
-
-    private static Predicate[] convertFiltersToArray(
-            Collection<Filter> filters, CriteriaBuilder criteriaBuilder,
-            Root<?> root) {
-        List<Predicate> predicates = convertFilters(filters, criteriaBuilder,
-                root);
-        return predicates.toArray(new Predicate[predicates.size()]);
     }
 
     /**

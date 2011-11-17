@@ -25,8 +25,10 @@ import javax.persistence.criteria.Root;
 import com.vaadin.addon.jpacontainer.EntityProvider;
 import com.vaadin.addon.jpacontainer.SortBy;
 import com.vaadin.addon.jpacontainer.filter.util.AdvancedFilterableSupport;
+import com.vaadin.addon.jpacontainer.filter.util.FilterConverter;
 import com.vaadin.addon.jpacontainer.metadata.EntityClassMetadata;
 import com.vaadin.addon.jpacontainer.metadata.MetadataFactory;
+import com.vaadin.addon.jpacontainer.util.CollectionUtil;
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.util.filter.And;
 import com.vaadin.data.util.filter.Compare.Equal;
@@ -95,6 +97,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
     }
 
     private Serializable serializableEntityManager;
+    private QueryModifierDelegate queryModifierDelegate;
 
     // TODO Test serialization of entity manager
     protected Object writeReplace() throws ObjectStreamException {
@@ -260,19 +263,29 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         CriteriaQuery<Object> query = cb.createQuery();
         Root<T> root = query.from(entityClassMetadata.getMappedClass());
 
-        if (filter != null) {
-            query.where(AdvancedFilterableSupport.convertFilter(filter, cb,
-                    root));
-        }
+        tellDelegateQueryWillBeBuilt(cb, query);
 
+        List<Predicate> predicates = new ArrayList<Predicate>();
+        if (filter != null) {
+            predicates.add(FilterConverter.convertFilter(filter, cb, root));
+        }
+        tellDelegateFiltersWillBeAdded(cb, query, predicates);
+        if (!predicates.isEmpty()) {
+            query.where(CollectionUtil.toArray(Predicate.class, predicates));
+        }
+        tellDelegateFiltersWereAdded(cb, query);
+
+        List<Order> orderBy = new ArrayList<Order>();
         if (sortBy != null && sortBy.size() > 0) {
-            List<Order> orderBy = new ArrayList<Order>();
             for (SortBy sortedProperty : sortBy) {
                 orderBy.add(translateSortBy(sortedProperty, swapSortOrder, cb,
                         root));
             }
-            query.orderBy(orderBy);
         }
+        tellDelegateOrderByWillBeAdded(cb, query, orderBy);
+        query.orderBy(orderBy);
+        tellDelegateOrderByWereAdded(cb, query);
+
         if (fieldsToSelect.size() > 1
                 || getEntityClassMetadata().hasEmbeddedIdentifier()) {
             List<Path<?>> paths = new ArrayList<Path<?>>();
@@ -285,6 +298,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
             query.select(AdvancedFilterableSupport.getPropertyPathTyped(root,
                     fieldsToSelect.get(0)));
         }
+        tellDelegateQueryHasBeenBuilt(cb, query);
         return doGetEntityManager().createQuery(query);
     }
 
@@ -297,16 +311,20 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<T> root = query.from(getEntityClassMetadata().getMappedClass());
 
-        Predicate entityIdPredicate = cb.equal(root.get(entityIdPropertyName),
-                cb.literal(entityId));
-        if (filter != null) {
-            query.where(entityIdPredicate,
-                    AdvancedFilterableSupport.convertFilter(filter, cb, root));
-        } else {
-            query.where(entityIdPredicate);
-        }
+        tellDelegateQueryWillBeBuilt(cb, query);
 
-        TypedQuery<Long> tq = null;
+        List<Predicate> predicates = new ArrayList<Predicate>();
+        predicates.add(cb.equal(root.get(entityIdPropertyName),
+                cb.literal(entityId)));
+        if (filter != null) {
+            predicates.add(FilterConverter.convertFilter(filter, cb, root));
+        }
+        tellDelegateFiltersWillBeAdded(cb, query, predicates);
+        if (!predicates.isEmpty()) {
+            query.where(CollectionUtil.toArray(Predicate.class, predicates));
+        }
+        tellDelegateFiltersWereAdded(cb, query);
+
         if (getEntityClassMetadata().hasEmbeddedIdentifier()) {
             /*
              * Hibernate will generate SQL for "count(obj)" that does not run on
@@ -314,18 +332,17 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
              * With this hack, this method should work with both Hibernate and
              * EclipseLink.
              */
-            tq = doGetEntityManager().createQuery(
-                    query.select(cb.count(root.get(entityIdPropertyName).get(
-                            getEntityClassMetadata().getIdentifierProperty()
-                                    .getTypeMetadata()
-                                    .getPersistentPropertyNames().iterator()
-                                    .next()))));
+            query.select(cb.count(root.get(entityIdPropertyName).get(
+                    getEntityClassMetadata().getIdentifierProperty()
+                            .getTypeMetadata().getPersistentPropertyNames()
+                            .iterator().next())));
         } else {
-            tq = doGetEntityManager().createQuery(
-                    query.select(cb.count(root.get(entityIdPropertyName))));
+
+            query.select(cb.count(root.get(entityIdPropertyName)));
         }
-        Long result = tq.getSingleResult();
-        return result == 1;
+        tellDelegateQueryHasBeenBuilt(cb, query);
+        TypedQuery<Long> tq = doGetEntityManager().createQuery(query);
+        return tq.getSingleResult() == 1;
     }
 
     public boolean containsEntity(Object entityId, Filter filter) {
@@ -375,12 +392,18 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<T> root = query.from(getEntityClassMetadata().getMappedClass());
 
-        if (filter != null) {
-            query.where(AdvancedFilterableSupport.convertFilter(filter, cb,
-                    root));
-        }
+        tellDelegateQueryWillBeBuilt(cb, query);
 
-        TypedQuery<Long> tq = null;
+        List<Predicate> predicates = new ArrayList<Predicate>();
+        if (filter != null) {
+            predicates.add(FilterConverter.convertFilter(filter, cb, root));
+        }
+        tellDelegateFiltersWillBeAdded(cb, query, predicates);
+        if (!predicates.isEmpty()) {
+            query.where(CollectionUtil.toArray(Predicate.class, predicates));
+        }
+        tellDelegateFiltersWereAdded(cb, query);
+
         if (getEntityClassMetadata().hasEmbeddedIdentifier()) {
             /*
              * Hibernate will generate SQL for "count(obj)" that does not run on
@@ -388,18 +411,17 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
              * With this hack, this method should work with both Hibernate and
              * EclipseLink.
              */
-            tq = doGetEntityManager().createQuery(
-                    query.select(cb.count(root.get(entityIdPropertyName).get(
-                            getEntityClassMetadata().getIdentifierProperty()
-                                    .getTypeMetadata()
-                                    .getPersistentPropertyNames().iterator()
-                                    .next()))));
+
+            query.select(cb.count(root.get(entityIdPropertyName).get(
+                    getEntityClassMetadata().getIdentifierProperty()
+                            .getTypeMetadata().getPersistentPropertyNames()
+                            .iterator().next())));
         } else {
-            tq = doGetEntityManager().createQuery(
-                    query.select(cb.count(root.get(entityIdPropertyName))));
+            query.select(cb.count(root.get(entityIdPropertyName)));
         }
-        Long result = tq.getSingleResult();
-        return result.intValue();
+        tellDelegateQueryHasBeenBuilt(cb, query);
+        TypedQuery<Long> tq = doGetEntityManager().createQuery(query);
+        return tq.getSingleResult().intValue();
     }
 
     public int getEntityCount(Filter filter) {
@@ -567,12 +589,11 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
                     caseFilters.add(new Less(sb.getPropertyId(), filterValues
                             .get(sb.getPropertyId())));
                 }
-                And caseFilter = new And(
-                        caseFilters.toArray(new Filter[caseFilters.size()]));
-                orFilters.add(caseFilter);
+                orFilters.add(new And(CollectionUtil.toArray(Filter.class,
+                        caseFilters)));
             }
-            limitingFilter = new Or(orFilters.toArray(new Filter[orFilters
-                    .size()]));
+            limitingFilter = new Or(CollectionUtil.toArray(Filter.class,
+                    orFilters));
         }
         // Now, we can create the query
         Filter queryFilter;
@@ -658,4 +679,70 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
             List<SortBy> sortBy) {
         return doGetAllEntityIdentifiers(filter, sortBy);
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.vaadin.addon.jpacontainer.EntityProvider#setQueryModifierDelegate
+     * (com.vaadin.addon.jpacontainer.EntityProvider.QueryModifierDelegate)
+     */
+    public void setQueryModifierDelegate(QueryModifierDelegate delegate) {
+        this.queryModifierDelegate = delegate;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.vaadin.addon.jpacontainer.EntityProvider#getQueryModifierDelegate()
+     */
+    public QueryModifierDelegate getQueryModifierDelegate() {
+        return queryModifierDelegate;
+    }
+
+    // QueryModifierDelegate helper methods
+
+    private void tellDelegateQueryWillBeBuilt(CriteriaBuilder cb,
+            CriteriaQuery<?> query) {
+        if (queryModifierDelegate != null) {
+            queryModifierDelegate.queryWillBeBuilt(cb, query);
+        }
+    }
+
+    private void tellDelegateQueryHasBeenBuilt(CriteriaBuilder cb,
+            CriteriaQuery<?> query) {
+        if (queryModifierDelegate != null) {
+            queryModifierDelegate.queryHasBeenBuilt(cb, query);
+        }
+    }
+
+    private void tellDelegateFiltersWillBeAdded(CriteriaBuilder cb,
+            CriteriaQuery<?> query, List<Predicate> predicates) {
+        if (queryModifierDelegate != null) {
+            queryModifierDelegate.filtersWillBeAdded(cb, query, predicates);
+        }
+    }
+
+    private void tellDelegateFiltersWereAdded(CriteriaBuilder cb,
+            CriteriaQuery<?> query) {
+        if (queryModifierDelegate != null) {
+            queryModifierDelegate.filtersWereAdded(cb, query);
+        }
+    }
+
+    private void tellDelegateOrderByWillBeAdded(CriteriaBuilder cb,
+            CriteriaQuery<?> query, List<Order> orderBy) {
+        if (queryModifierDelegate != null) {
+            queryModifierDelegate.orderByWillBeAdded(cb, query, orderBy);
+        }
+    }
+
+    private void tellDelegateOrderByWereAdded(CriteriaBuilder cb,
+            CriteriaQuery<?> query) {
+        if (queryModifierDelegate != null) {
+            queryModifierDelegate.orderByWereAdded(cb, query);
+        }
+    }
+
 }

@@ -18,6 +18,7 @@ import com.vaadin.addon.jpacontainer.filter.util.AdvancedFilterableSupport;
 import com.vaadin.addon.jpacontainer.metadata.EntityClassMetadata;
 import com.vaadin.addon.jpacontainer.metadata.MetadataFactory;
 import com.vaadin.addon.jpacontainer.metadata.PersistentPropertyMetadata;
+import com.vaadin.addon.jpacontainer.util.CollectionUtil;
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
@@ -856,10 +857,8 @@ public class JPAContainer<T> implements EntityContainer<T>,
         } else if (getAppliedFilters().size() == 1) {
             return getAppliedFilters().iterator().next();
         } else {
-            List<Filter> filters = getAppliedFilters();
-            Filter[] appliedFilters = filters
-                    .toArray(new Filter[filters.size()]);
-            return new And(appliedFilters);
+            return new And(CollectionUtil.toArray(Filter.class,
+                    getAppliedFilters()));
         }
     }
 
@@ -909,6 +908,8 @@ public class JPAContainer<T> implements EntityContainer<T>,
     }
 
     public void removeContainerFilters(Object propertyId) {
+        removeAllContainerFilters();
+        applyFilters();
     }
 
     public void addContainerFilter(Filter filter)
@@ -1195,7 +1196,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
     public boolean isReadThrough() {
         EntityProvider<T> ep = doGetEntityProvider();
         if (ep instanceof CachingEntityProvider) {
-            return !((CachingEntityProvider<T>) ep).isCacheInUse();
+            return !((CachingEntityProvider<T>) ep).isCacheEnabled();
         }
         return true; // There is no cache at all
     }
