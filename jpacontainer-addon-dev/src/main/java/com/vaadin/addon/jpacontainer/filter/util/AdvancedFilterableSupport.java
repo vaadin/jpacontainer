@@ -11,15 +11,18 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
 import com.vaadin.addon.jpacontainer.AdvancedFilterable;
-import com.vaadin.addon.jpacontainer.Filter;
-import com.vaadin.addon.jpacontainer.filter.CompositeFilter;
-import com.vaadin.addon.jpacontainer.filter.Filters;
-import com.vaadin.addon.jpacontainer.filter.JoinFilter;
-import com.vaadin.addon.jpacontainer.filter.PropertyFilter;
+import com.vaadin.data.Container.Filter;
 import com.vaadin.data.util.filter.And;
 import com.vaadin.data.util.filter.Compare;
 import com.vaadin.data.util.filter.IsNull;
+import com.vaadin.data.util.filter.Like;
 import com.vaadin.data.util.filter.Or;
 import com.vaadin.data.util.filter.SimpleStringFilter;
 
@@ -30,7 +33,8 @@ import com.vaadin.data.util.filter.SimpleStringFilter;
  * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
-public class AdvancedFilterableSupport implements Serializable {
+public class AdvancedFilterableSupport implements AdvancedFilterable,
+        Serializable {
 
     private static final long serialVersionUID = 398382431841547719L;
 
@@ -150,59 +154,19 @@ public class AdvancedFilterableSupport implements Serializable {
      */
     public boolean isValidFilter(Filter filter) {
         assert filter != null : "filter must not be null";
-        if (filter instanceof JoinFilter) {
-            return isFilterable(((JoinFilter) filter).getJoinProperty());
-        } else if (filter instanceof PropertyFilter) {
-            return isFilterable(((PropertyFilter) filter).getPropertyId());
-        } else if (filter instanceof CompositeFilter) {
-            for (Filter f : ((CompositeFilter) filter).getFilters()) {
-                if (!isValidFilter(f)) {
-                    return false;
-                }
-            }
-        }
+        // TODO:
+        // if (filter instanceof JoinFilter) {
+        // return isFilterable(((JoinFilter) filter).getJoinProperty());
+        // } else if (filter instanceof PropertyFilter) {
+        // return isFilterable(((PropertyFilter) filter).getPropertyId());
+        // } else if (filter instanceof CompositeFilter) {
+        // for (Filter f : ((CompositeFilter) filter).getFilters()) {
+        // if (!isValidFilter(f)) {
+        // return false;
+        // }
+        // }
+        // }
         return true;
-    }
-
-    /**
-     * @see AdvancedFilterable#addFilter(com.vaadin.addon.jpacontainer.Filter)
-     */
-    public void addFilter(Filter filter) throws IllegalArgumentException {
-        if (!isValidFilter(filter)) {
-            throw new IllegalArgumentException("Invalid filter");
-        }
-        filters.add(filter);
-        if (isApplyFiltersImmediately()) {
-            fireListeners();
-        } else {
-            unappliedFilters = true;
-        }
-    }
-
-    /**
-     * @see AdvancedFilterable#removeFilter(com.vaadin.addon.jpacontainer.Filter)
-     */
-    public void removeFilter(Filter filter) {
-        assert filter != null : "filter must not be null";
-        if (filters.remove(filter)) {
-            if (isApplyFiltersImmediately()) {
-                fireListeners();
-            } else {
-                unappliedFilters = true;
-            }
-        }
-    }
-
-    /**
-     * @see AdvancedFilterable#removeAllFilters()
-     */
-    public void removeAllFilters() {
-        filters.clear();
-        if (isApplyFiltersImmediately()) {
-            fireListeners();
-        } else {
-            unappliedFilters = true;
-        }
     }
 
     /**
@@ -252,44 +216,53 @@ public class AdvancedFilterableSupport implements Serializable {
     }
 
     /**
-     * Converts a Vaadin 6.6 container filter into a JPAContainer filter.
+     * Converts a Vaadin 6.6 container filter into a JPA criteria predicate.
      * 
      * @param filter
-     *            Vaadin 6.6 {@link com.vaadin.data.Container.Filter}
-     * @return {@link com.vaadin.addon.jpacontainer.Filter}
+     *            Vaadin 6.6 {@link Filter}
+     * @return {@link Predicate}
      */
-    public static com.vaadin.addon.jpacontainer.Filter convertFilter(
-            com.vaadin.data.Container.Filter filter) {
+    public static Predicate convertFilter(
+            com.vaadin.data.Container.Filter filter,
+            CriteriaBuilder criteriaBuilder, Root<?> root) {
         assert filter != null : "filter must not be null";
 
         // Handle compound filters
         if (filter instanceof And) {
-            return Filters.and(convertFilters(((And) filter).getFilters()));
+            return criteriaBuilder.and(convertFiltersToArray(
+                    ((And) filter).getFilters(), criteriaBuilder, root));
         }
         if (filter instanceof Or) {
-            return Filters.or(convertFilters(((Or) filter).getFilters()));
+            return criteriaBuilder.or(convertFiltersToArray(
+                    ((Or) filter).getFilters(), criteriaBuilder, root));
         }
 
         if (filter instanceof Compare) {
+            // TODO: make sure the types are correct
             Compare compare = (Compare) filter;
+            Expression<String> propertyExpr = getPropertyPath(root,
+                    compare.getPropertyId());
+            Expression<? extends Comparable> valueExpr = criteriaBuilder
+                    .literal((Comparable<?>) compare.getValue());
             switch (compare.getOperation()) {
             case EQUAL:
-                return Filters.eq(compare.getPropertyId(), compare.getValue());
+                return criteriaBuilder.equal(propertyExpr, valueExpr);
             case GREATER:
-                return Filters.gt(compare.getPropertyId(), compare.getValue());
+                return criteriaBuilder.greaterThan(propertyExpr, valueExpr);
             case GREATER_OR_EQUAL:
-                return Filters
-                        .gteq(compare.getPropertyId(), compare.getValue());
+                return criteriaBuilder.greaterThanOrEqualTo(propertyExpr,
+                        valueExpr);
             case LESS:
-                return Filters.lt(compare.getPropertyId(), compare.getValue());
+                return criteriaBuilder.lessThan(propertyExpr, valueExpr);
             case LESS_OR_EQUAL:
-                return Filters
-                        .lteq(compare.getPropertyId(), compare.getValue());
+                return criteriaBuilder.lessThanOrEqualTo(propertyExpr,
+                        valueExpr);
             }
         }
 
         if (filter instanceof IsNull) {
-            return Filters.isNull(((IsNull) filter).getPropertyId());
+            return criteriaBuilder.isNull(getPropertyPath(root,
+                    ((IsNull) filter).getPropertyId().toString()));
         }
 
         if (filter instanceof SimpleStringFilter) {
@@ -300,27 +273,109 @@ public class AdvancedFilterableSupport implements Serializable {
             } else {
                 filterString = "%" + filterString + "%";
             }
-            return Filters.like(stringFilter.getPropertyId(), filterString,
-                    !stringFilter.isIgnoreCase());
+            if (stringFilter.isIgnoreCase()) {
+                return criteriaBuilder.like(criteriaBuilder
+                        .upper(getPropertyPath(root, stringFilter
+                                .getPropertyId().toString())), criteriaBuilder
+                        .upper(criteriaBuilder.literal(filterString)));
+            } else {
+                return criteriaBuilder.like(
+                        getPropertyPath(root, stringFilter.getPropertyId()
+                                .toString()), criteriaBuilder
+                                .literal(filterString));
+            }
+        }
+
+        if (filter instanceof Like) {
+            Like like = (Like) filter;
+            if (like.isCaseSensitive()) {
+                return criteriaBuilder.like(
+                        getPropertyPath(root, like.getPropertyId().toString()),
+                        criteriaBuilder.literal(like.getValue()));
+            } else {
+                return criteriaBuilder.like(criteriaBuilder
+                        .upper(getPropertyPath(root, like.getPropertyId()
+                                .toString())), criteriaBuilder
+                        .upper(criteriaBuilder.literal(like.getValue())));
+            }
         }
 
         return null;
     }
 
+    @Deprecated
+    public static Path<String> getPropertyPath(Root<?> root, Object propertyId) {
+        String pid = propertyId.toString();
+        String[] idStrings = pid.split("\\.");
+        Path<String> path = root.get(idStrings[0]);
+        for (int i = 1; i < idStrings.length; i++) {
+            path = path.get(idStrings[i]);
+        }
+        return path;
+    }
+
+    public static <T> Path<T> getPropertyPathTyped(Root<T> root,
+            Object propertyId) {
+        String pid = propertyId.toString();
+        String[] idStrings = pid.split("\\.");
+        Path<T> path = root.get(idStrings[0]);
+        for (int i = 1; i < idStrings.length; i++) {
+            path = path.get(idStrings[i]);
+        }
+        return path;
+    }
+
     /**
-     * Converts a collection of {@link com.vaadin.data.Container.Filter} into a
-     * list of {@link com.vaadin.addon.jpacontainer.Filter}.
+     * Converts a collection of {@link Filter} into a list of {@link Predicate}.
      * 
      * @param filters
-     *            Collection of {@link com.vaadin.data.Container.Filter}
-     * @return List of {@link com.vaadin.addon.jpacontainer.Filter}
+     *            Collection of {@link Filter}
+     * @return List of {@link Predicate}
      */
-    public static List<Filter> convertFilters(
-            Collection<com.vaadin.data.Container.Filter> filters) {
-        List<Filter> result = new ArrayList<Filter>();
+    public static List<Predicate> convertFilters(Collection<Filter> filters,
+            CriteriaBuilder criteriaBuilder, Root<?> root) {
+        List<Predicate> result = new ArrayList<Predicate>();
         for (com.vaadin.data.Container.Filter filter : filters) {
-            result.add(convertFilter(filter));
+            result.add(convertFilter(filter, criteriaBuilder, root));
         }
         return result;
+    }
+
+    private static Predicate[] convertFiltersToArray(
+            Collection<Filter> filters, CriteriaBuilder criteriaBuilder,
+            Root<?> root) {
+        List<Predicate> predicates = convertFilters(filters, criteriaBuilder,
+                root);
+        return predicates.toArray(new Predicate[predicates.size()]);
+    }
+
+    /**
+     * @param filter
+     */
+    public void addFilter(Filter filter) {
+        filters.add(filter);
+        unappliedFilters = true;
+        if (isApplyFiltersImmediately()) {
+            applyFilters();
+        }
+    }
+
+    /**
+     * @param filter
+     */
+    public void removeFilter(Filter filter) {
+        filters.remove(filter);
+        unappliedFilters = true;
+        if (isApplyFiltersImmediately()) {
+            applyFilters();
+        }
+    }
+
+    public void removeAllFilters() {
+        filters.clear();
+        unappliedFilters = true;
+        if (isApplyFiltersImmediately()) {
+            applyFilters();
+        }
     }
 }

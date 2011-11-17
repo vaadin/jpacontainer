@@ -6,6 +6,7 @@ package com.vaadin.addon.jpacontainer.provider;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,11 +15,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import com.vaadin.addon.jpacontainer.EntityProvider;
-import com.vaadin.addon.jpacontainer.Filter;
 import com.vaadin.addon.jpacontainer.SortBy;
+import com.vaadin.data.Container.Filter;
+import com.vaadin.data.Item;
 
 /**
  * Delegate class that implements caching for {@link LocalEntityProvider}s and
@@ -46,12 +48,13 @@ class CachingSupport<T> implements Serializable {
 
         private static final long serialVersionUID = 6142104349424102387L;
 
-        public String toQLString() {
-            return "";
+        public boolean passesFilter(Object itemId, Item item)
+                throws UnsupportedOperationException {
+            return true;
         }
 
-        public String toQLString(PropertyIdPreprocessor propertyIdPreprocessor) {
-            return "";
+        public boolean appliesToProperty(Object propertyId) {
+            return false;
         }
     };
     /**
@@ -381,7 +384,8 @@ class CachingSupport<T> implements Serializable {
                 idListMap.put(sortBy, entry);
             }
             if (!entry.containsAll) {
-                entry.idList = new ArrayList(getIds(getFilter(), sortBy, 0, -1));
+                entry.idList = new ArrayList<Object>(getIds(getFilter(),
+                        sortBy, 0, -1));
                 entry.listOffset = 0;
                 entry.containsAll = true;
             }
@@ -447,13 +451,12 @@ class CachingSupport<T> implements Serializable {
      *            retrieve all.
      * @return a list of identifiers.
      */
-    @SuppressWarnings("unchecked")
     protected List<Object> getIds(Filter filter, List<SortBy> sortBy,
             int startFrom, int fetchMax) {
-        Query query = entityProvider.createFilteredQuery("obj."
-                + entityProvider.getEntityClassMetadata()
-                        .getIdentifierProperty().getName(), "obj", filter,
-                entityProvider.addPrimaryKeyToSortList(sortBy), false, null);
+        TypedQuery<Object> query = entityProvider.createFilteredQuery(
+                Arrays.asList(entityProvider.getEntityClassMetadata()
+                        .getIdentifierProperty().getName()), filter,
+                entityProvider.addPrimaryKeyToSortList(sortBy), false);
         query.setFirstResult(startFrom);
         if (fetchMax > 0) {
             query.setMaxResults(fetchMax);
@@ -482,8 +485,8 @@ class CachingSupport<T> implements Serializable {
      */
     protected List<Object> getNextIds(Filter filter, List<SortBy> sortBy,
             Object startFrom, int fetchMax) {
-        Query query = entityProvider.createSiblingQuery(startFrom, filter,
-                sortBy, false);
+        TypedQuery<Object> query = entityProvider.createSiblingQuery(startFrom,
+                filter, sortBy, false);
         if (fetchMax > 0) {
             query.setMaxResults(fetchMax);
         }
@@ -511,8 +514,8 @@ class CachingSupport<T> implements Serializable {
      */
     protected List<Object> getPreviousIds(Filter filter, List<SortBy> sortBy,
             Object startFrom, int fetchMax) {
-        Query query = entityProvider.createSiblingQuery(startFrom, filter,
-                sortBy, true);
+        TypedQuery<Object> query = entityProvider.createSiblingQuery(startFrom,
+                filter, sortBy, true);
         if (fetchMax > 0) {
             query.setMaxResults(fetchMax);
         }

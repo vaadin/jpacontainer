@@ -6,6 +6,8 @@ package com.vaadin.addon.jpacontainer;
 import java.io.Serializable;
 import java.util.List;
 
+import com.vaadin.data.Container.Filter;
+
 /**
  * Like the name suggests, the purpose of the <code>EntityProvider</code> is to
  * provide entities to {@link EntityContainer}s. It basically contains a subset
@@ -195,4 +197,5 @@ public interface EntityProvider<T> extends Serializable {
      * @return the number of matches.
      */
     public int getEntityCount(Filter filter);
+
 }

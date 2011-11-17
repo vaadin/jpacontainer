@@ -14,8 +14,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.vaadin.addon.jpacontainer.EntityProviderChangeEvent.EntityPropertyUpdatedEvent;
-import com.vaadin.addon.jpacontainer.filter.Filters;
-import com.vaadin.addon.jpacontainer.filter.PropertyFilter;
 import com.vaadin.addon.jpacontainer.filter.util.AdvancedFilterableSupport;
 import com.vaadin.addon.jpacontainer.metadata.EntityClassMetadata;
 import com.vaadin.addon.jpacontainer.metadata.MetadataFactory;
@@ -24,6 +22,10 @@ import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Validator.InvalidValueException;
+import com.vaadin.data.util.filter.And;
+import com.vaadin.data.util.filter.Compare.Equal;
+import com.vaadin.data.util.filter.IsNull;
+import com.vaadin.data.util.filter.SimpleStringFilter;
 import com.vaadin.data.util.filter.UnsupportedFilterException;
 
 /**
@@ -157,7 +159,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
                     private static final long serialVersionUID = -23196201919497112L;
 
                     public void filtersApplied(AdvancedFilterableSupport sender) {
-                        fireContainerItemSetChange(new FiltersAppliedEvent(
+                        fireContainerItemSetChange(new FiltersAppliedEvent<JPAContainer<T>>(
                                 JPAContainer.this));
                     }
                 });
@@ -296,7 +298,6 @@ public class JPAContainer<T> implements EntityContainer<T>,
         return entityProvider;
     }
 
-    @SuppressWarnings("unchecked")
     public boolean isReadOnly() {
         return !(doGetEntityProvider() instanceof MutableEntityProvider)
                 || readOnly;
@@ -374,6 +375,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 
     }
 
+    @SuppressWarnings("unchecked")
     private void firePropertyValueChangeEvent(Object itemId, String propertyId) {
         LinkedList<WeakReference<JPAContainerItem<T>>> linkedList;
         synchronized (itemRegistry) {
@@ -405,7 +407,6 @@ public class JPAContainer<T> implements EntityContainer<T>,
         return true;
     }
 
-    @SuppressWarnings("unchecked")
     public void setReadOnly(boolean readOnly)
             throws UnsupportedOperationException {
         if (readOnly) {
@@ -477,7 +478,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
             // #7711 map property ID to a sortable sub-property if configured
             Object sortProperty = propertyList.getSortablePropertyMap().get(
                     propertyId[i]);
-            sortByList.add(new SortBy(sortProperty, ascending[i]));
+            sortByList.add(new SortBy(sortProperty.toString(), ascending[i]));
         }
         sortByList = Collections.unmodifiableList(sortByList);
         fireContainerItemSetChange(new ContainerSortedEvent());
@@ -841,35 +842,24 @@ public class JPAContainer<T> implements EntityContainer<T>,
         }
     }
 
-    public void addFilter(com.vaadin.addon.jpacontainer.Filter filter)
-            throws IllegalArgumentException {
-        filterSupport.addFilter(filter);
-    }
-
-    public void applyFilters() {
-        filterSupport.applyFilters();
-    }
-
-    public List<com.vaadin.addon.jpacontainer.Filter> getAppliedFilters() {
-        return filterSupport.getAppliedFilters();
-    }
-
     /**
      * Returns a conjunction (filter1 AND filter2 AND ... AND filterN) of all
      * the applied filters. If there are no applied filters, this method returns
      * null.
      * 
      * @see #getAppliedFilters()
-     * @see Filters#and(com.vaadin.addon.jpacontainer.Filter[])
      * @return a conjunction filter or null.
      */
-    protected com.vaadin.addon.jpacontainer.Filter getAppliedFiltersAsConjunction() {
+    protected Filter getAppliedFiltersAsConjunction() {
         if (getAppliedFilters().isEmpty()) {
             return null;
         } else if (getAppliedFilters().size() == 1) {
             return getAppliedFilters().iterator().next();
         } else {
-            return Filters.and(getAppliedFilters());
+            List<Filter> filters = getAppliedFilters();
+            Filter[] appliedFilters = filters
+                    .toArray(new Filter[filters.size()]);
+            return new And(appliedFilters);
         }
     }
 
@@ -877,87 +867,57 @@ public class JPAContainer<T> implements EntityContainer<T>,
         return filterSupport.getFilterablePropertyIds();
     }
 
-    public List<com.vaadin.addon.jpacontainer.Filter> getFilters() {
-        return filterSupport.getFilters();
-    }
-
-    public boolean hasUnappliedFilters() {
-        return filterSupport.hasUnappliedFilters();
-    }
-
-    public boolean isApplyFiltersImmediately() {
-        return filterSupport.isApplyFiltersImmediately();
-    }
-
     public boolean isFilterable(Object propertyId) {
         return filterSupport.isFilterable(propertyId);
     }
 
-    public void removeAllFilters() {
-        filterSupport.removeAllFilters();
+    public List<Filter> getFilters() {
+        return filterSupport.getFilters();
     }
 
-    public void removeFilter(com.vaadin.addon.jpacontainer.Filter filter) {
-        filterSupport.removeFilter(filter);
+    public List<Filter> getAppliedFilters() {
+        return filterSupport.getAppliedFilters();
     }
 
     public void setApplyFiltersImmediately(boolean applyFiltersImmediately) {
         filterSupport.setApplyFiltersImmediately(applyFiltersImmediately);
     }
 
+    public boolean isApplyFiltersImmediately() {
+        return filterSupport.isApplyFiltersImmediately();
+    }
+
+    public void applyFilters() {
+        filterSupport.applyFilters();
+    }
+
+    public boolean hasUnappliedFilters() {
+        return filterSupport.hasUnappliedFilters();
+    }
+
     public void addContainerFilter(Object propertyId, String filterString,
             boolean ignoreCase, boolean onlyMatchPrefix) {
-        // TODO Test me!
-        if (onlyMatchPrefix) {
-            filterString = filterString + "%";
-        } else {
-            filterString = "%" + filterString + "%";
-        }
-        addFilter(Filters.like(propertyId, filterString, !ignoreCase));
+        addContainerFilter(new SimpleStringFilter(propertyId, filterString,
+                ignoreCase, onlyMatchPrefix));
         if (!isApplyFiltersImmediately()) {
             applyFilters();
         }
     }
 
     public void removeAllContainerFilters() {
-        // TODO Test me!
-        removeAllFilters();
-        if (!isApplyFiltersImmediately()) {
-            applyFilters();
-        }
+        filterSupport.removeAllFilters();
     }
 
     public void removeContainerFilters(Object propertyId) {
-        // TODO Test me!
-        List<com.vaadin.addon.jpacontainer.Filter> filters = getFilters();
-        for (int i = filters.size() - 1; i >= 0; i--) {
-            com.vaadin.addon.jpacontainer.Filter f = filters.get(i);
-            if (f instanceof PropertyFilter
-                    && ((PropertyFilter) f).getPropertyId().equals(propertyId)) {
-                removeFilter(f);
-            }
-        }
-        if (!isApplyFiltersImmediately()) {
-            applyFilters();
-        }
     }
 
     public void addContainerFilter(Filter filter)
             throws UnsupportedFilterException {
-        // TODO Test me!
-        addFilter(AdvancedFilterableSupport.convertFilter(filter));
-        if (!isApplyFiltersImmediately()) {
-            applyFilters();
-        }
+        filterSupport.addFilter(filter);
     }
 
     public void removeContainerFilter(Filter filter) {
-        // TODO Test me!
-        // reconstruct the container filter and find old one based on equals()
-        removeFilter(AdvancedFilterableSupport.convertFilter(filter));
-        if (!isApplyFiltersImmediately()) {
-            applyFilters();
-        }
+        filterSupport.removeFilter(filter);
     }
 
     /**
@@ -1035,7 +995,6 @@ public class JPAContainer<T> implements EntityContainer<T>,
      * @throws UnsupportedOperationException
      *             if the entity provider does not support editing.
      */
-    @SuppressWarnings("unchecked")
     protected void requireWritableContainer() throws IllegalStateException,
             UnsupportedOperationException {
         if (!(entityProvider instanceof MutableEntityProvider)) {
@@ -1233,7 +1192,6 @@ public class JPAContainer<T> implements EntityContainer<T>,
         }
     }
 
-    @SuppressWarnings("unchecked")
     public boolean isReadThrough() {
         EntityProvider<T> ep = doGetEntityProvider();
         if (ep instanceof CachingEntityProvider) {
@@ -1242,7 +1200,6 @@ public class JPAContainer<T> implements EntityContainer<T>,
         return true; // There is no cache at all
     }
 
-    @SuppressWarnings("unchecked")
     public boolean isWriteThrough() {
         return !(doGetEntityProvider() instanceof BatchableEntityProvider)
                 || writeThrough;
@@ -1264,7 +1221,6 @@ public class JPAContainer<T> implements EntityContainer<T>,
      * <b>Note</b>, that write-through mode can only be turned off if the entity
      * provider implements the {@link BatchableEntityProvider} interface.
      */
-    @SuppressWarnings("unchecked")
     public void setWriteThrough(boolean writeThrough) throws SourceException,
             InvalidValueException {
         if (writeThrough) {
@@ -1315,19 +1271,18 @@ public class JPAContainer<T> implements EntityContainer<T>,
         return parentProperty != null && containsId(itemId);
     }
 
-    private com.vaadin.addon.jpacontainer.Filter getChildrenFilter(
-            Object parentId) {
-        com.vaadin.addon.jpacontainer.Filter parentFilter;
+    private Filter getChildrenFilter(Object parentId) {
+        Filter parentFilter;
         if (parentId == null) {
-            parentFilter = Filters.isNull(parentProperty);
+            parentFilter = new IsNull(parentProperty);
         } else {
-            parentFilter = Filters.eq(parentIdProperty, parentId);
+            parentFilter = new Equal(parentIdProperty, parentId);
         }
-        com.vaadin.addon.jpacontainer.Filter appliedFilter = getAppliedFiltersAsConjunction();
+        Filter appliedFilter = getAppliedFiltersAsConjunction();
         if (appliedFilter == null) {
             return parentFilter;
         } else {
-            return Filters.and(parentFilter, appliedFilter);
+            return new And(parentFilter, appliedFilter);
         }
     }
 
@@ -1349,6 +1304,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
             return null;
         } else {
             EntityItem<T> item = getItem(itemId);
+            @SuppressWarnings("unchecked")
             T parent = item == null ? null : (T) item.getItemProperty(
                     parentProperty).getValue();
             if (parent == null) {

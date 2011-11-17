@@ -3,15 +3,23 @@ ${license.header.text}
  */
 package com.vaadin.addon.jpacontainer.filter.util;
 
-import com.vaadin.addon.jpacontainer.filter.CompositeFilter;
-import com.vaadin.addon.jpacontainer.Filter;
-import com.vaadin.addon.jpacontainer.filter.PropertyFilter;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.Collection;
 import java.util.LinkedList;
+
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import static org.easymock.EasyMock.*;
+
+import com.vaadin.data.Container.Filter;
 
 /**
  * Test case for {@link AdvancedFilterableSupport}.
@@ -21,258 +29,198 @@ import static org.easymock.EasyMock.*;
  */
 public class AdvancedFilterableSupportTest {
 
-	private AdvancedFilterableSupport testObject;
+    private AdvancedFilterableSupport testObject;
 
-	private AdvancedFilterableSupport.ApplyFiltersListener listenerMock;
+    private AdvancedFilterableSupport.ApplyFiltersListener listenerMock;
 
-	private Filter filterMock;
+    private Filter filterMock;
 
-	private PropertyFilter propertyFilterMock;
+    @Before
+    public void setUp() {
+        testObject = new AdvancedFilterableSupport();
+        listenerMock = createMock(AdvancedFilterableSupport.ApplyFiltersListener.class);
+        testObject.addListener(listenerMock);
+        filterMock = createMock(Filter.class);
+    }
 
-	private CompositeFilter compositeFilterMock;
+    @Test
+    public void testFilterablePropertyIds() {
+        // No property IDs by default
+        assertNotNull(testObject.getFilterablePropertyIds());
+        assertTrue(testObject.getFilterablePropertyIds().isEmpty());
 
-	@Before
-	public void setUp() {
-		testObject = new AdvancedFilterableSupport();
-		listenerMock = createMock(AdvancedFilterableSupport.ApplyFiltersListener.class);
-		testObject.addListener(listenerMock);
-		filterMock = createMock(Filter.class);
-		propertyFilterMock = createMock(PropertyFilter.class);
-		compositeFilterMock = createMock(CompositeFilter.class);
-	}
+        // Add some property IDs
+        testObject.setFilterablePropertyIds("hello", "world");
 
-	@Test
-	public void testFilterablePropertyIds() {
-		// No property IDs by default
-		assertNotNull(testObject.getFilterablePropertyIds());
-		assertTrue(testObject.getFilterablePropertyIds().isEmpty());
+        assertEquals(2, testObject.getFilterablePropertyIds().size());
+        assertTrue(testObject.getFilterablePropertyIds().contains("hello"));
+        assertTrue(testObject.getFilterablePropertyIds().contains("world"));
+        assertTrue(testObject.isFilterable("hello"));
+        assertTrue(testObject.isFilterable("world"));
+        assertFalse(testObject.isFilterable("foo"));
 
-		// Add some property IDs
-		testObject.setFilterablePropertyIds("hello", "world");
+        // Add some property IDs using the collection setter
+        Collection<Object> collection = new LinkedList<Object>();
+        collection.add("Hello");
+        testObject.setFilterablePropertyIds(collection);
 
-		assertEquals(2, testObject.getFilterablePropertyIds().size());
-		assertTrue(testObject.getFilterablePropertyIds().contains("hello"));
-		assertTrue(testObject.getFilterablePropertyIds().contains("world"));
-		assertTrue(testObject.isFilterable("hello"));
-		assertTrue(testObject.isFilterable("world"));
-		assertFalse(testObject.isFilterable("foo"));
+        assertEquals(1, testObject.getFilterablePropertyIds().size());
+        assertTrue(testObject.getFilterablePropertyIds().contains("Hello"));
+    }
 
-		// Add some property IDs using the collection setter
-		Collection<Object> collection = new LinkedList<Object>();
-		collection.add("Hello");
-		testObject.setFilterablePropertyIds(collection);
+    @Test
+    public void testFilterablePropertyIds_Unmodifiable() {
+        try {
+            testObject.getFilterablePropertyIds().add("hello");
+            fail("No exception thrown");
+        } catch (Exception e) {
+            assertTrue(testObject.getFilterablePropertyIds().isEmpty());
+        }
+    }
 
-		assertEquals(1, testObject.getFilterablePropertyIds().size());
-		assertTrue(testObject.getFilterablePropertyIds().contains("Hello"));
-	}
+    @Test
+    public void testIsValid_CustomFilter() {
+        assertTrue(testObject.isValidFilter(filterMock));
+    }
 
-	@Test
-	public void testFilterablePropertyIds_Unmodifiable() {
-		try {
-			testObject.getFilterablePropertyIds().add("hello");
-			fail("No exception thrown");
-		} catch (Exception e) {
-			assertTrue(testObject.getFilterablePropertyIds().isEmpty());
-		}
-	}
+    @Test
+    public void testAddFilter_ApplyImmediately() {
+        assertTrue(testObject.isApplyFiltersImmediately());
+        assertFalse(testObject.hasUnappliedFilters());
 
-	@Test
-	public void testIsValidFilter_PropertyFilter() {
-		testObject.setFilterablePropertyIds("hello", "world");
+        listenerMock.filtersApplied(testObject);
+        replay(listenerMock);
 
-		expect(propertyFilterMock.getPropertyId()).andReturn("hello");
-		expect(propertyFilterMock.getPropertyId()).andReturn("nonexistent");
-		replay(propertyFilterMock);
+        assertFalse(testObject.getFilters().contains(filterMock));
+        testObject.addFilter(filterMock);
+        assertTrue(testObject.getFilters().contains(filterMock));
+        assertEquals(testObject.getAppliedFilters(), testObject.getFilters());
+        assertFalse(testObject.hasUnappliedFilters());
 
-		assertTrue(testObject.isValidFilter(propertyFilterMock));
-		// Second time, the filter should return a different property Id
-		assertFalse(testObject.isValidFilter(propertyFilterMock));
+        verify(listenerMock);
+    }
 
-		verify(propertyFilterMock);
-	}
+    @Test
+    public void testAddFilter_ApplyLater() {
+        testObject.setApplyFiltersImmediately(false);
+        assertFalse(testObject.isApplyFiltersImmediately());
+        assertFalse(testObject.hasUnappliedFilters());
 
-	@Test
-	public void testIsValidFilter_CompositeFilter() {
-		testObject.setFilterablePropertyIds("hello", "world");
-		LinkedList<Filter> filterList = new LinkedList<Filter>();
-		filterList.add(propertyFilterMock);
+        listenerMock.filtersApplied(testObject);
+        expectLastCall().once();
+        replay(listenerMock);
 
-		expect(compositeFilterMock.getFilters()).andStubReturn(filterList);
-		replay(compositeFilterMock);
+        assertFalse(testObject.getFilters().contains(filterMock));
+        testObject.addFilter(filterMock);
+        assertTrue(testObject.getFilters().contains(filterMock));
+        assertFalse(testObject.getAppliedFilters().contains(filterMock));
+        assertTrue(testObject.hasUnappliedFilters());
+        testObject.applyFilters();
+        assertFalse(testObject.hasUnappliedFilters());
+        assertEquals(testObject.getAppliedFilters(), testObject.getFilters());
+        verify(listenerMock);
+    }
 
-		expect(propertyFilterMock.getPropertyId()).andReturn("hello");
-		expect(propertyFilterMock.getPropertyId()).andReturn("nonexistent");
-		replay(propertyFilterMock);
+    @Test
+    public void testFilters_Unmodifiable() {
+        assertTrue(testObject.getFilters().isEmpty());
+        try {
+            testObject.getFilters().add(filterMock);
+            fail("No exception thrown");
+        } catch (Exception e) {
+            assertTrue(testObject.getFilters().isEmpty());
+        }
+    }
 
-		assertTrue(testObject.isValidFilter(compositeFilterMock));
-		// Second time, the filter should return a different property Id
-		assertFalse(testObject.isValidFilter(compositeFilterMock));
+    @Test
+    public void testRemoveFilter_ApplyImmediately() {
+        assertTrue(testObject.isApplyFiltersImmediately());
+        assertFalse(testObject.hasUnappliedFilters());
 
-		verify(compositeFilterMock);
-		verify(propertyFilterMock);
-	}
+        listenerMock.filtersApplied(testObject);
+        expectLastCall().times(2);
+        replay(listenerMock);
 
-	@Test
-	public void testIsValid_CustomFilter() {
-		assertTrue(testObject.isValidFilter(filterMock));
-	}
+        testObject.addFilter(filterMock);
+        assertTrue(testObject.getFilters().contains(filterMock));
+        assertFalse(testObject.hasUnappliedFilters());
+        testObject.removeFilter(filterMock);
+        assertFalse(testObject.getFilters().contains(filterMock));
+        assertFalse(testObject.hasUnappliedFilters());
+        assertEquals(testObject.getAppliedFilters(), testObject.getFilters());
 
-	@Test
-	public void testAddFilter_ApplyImmediately() {
-		assertTrue(testObject.isApplyFiltersImmediately());
-		assertFalse(testObject.hasUnappliedFilters());
+        verify(listenerMock);
+    }
 
-		listenerMock.filtersApplied(testObject);
-		replay(listenerMock);
+    @Test
+    public void testRemoveFilter_ApplyLater() {
+        testObject.setApplyFiltersImmediately(false);
+        assertFalse(testObject.isApplyFiltersImmediately());
+        assertFalse(testObject.hasUnappliedFilters());
 
-		assertFalse(testObject.getFilters().contains(filterMock));
-		testObject.addFilter(filterMock);
-		assertTrue(testObject.getFilters().contains(filterMock));
-		assertEquals(testObject.getAppliedFilters(), testObject.getFilters());
-		assertFalse(testObject.hasUnappliedFilters());
+        listenerMock.filtersApplied(testObject);
+        expectLastCall().times(2);
+        replay(listenerMock);
 
-		verify(listenerMock);
-	}
+        testObject.addFilter(filterMock);
+        testObject.applyFilters();
 
-	@Test
-	public void testAddFilter_ApplyLater() {
-		testObject.setApplyFiltersImmediately(false);
-		assertFalse(testObject.isApplyFiltersImmediately());
-		assertFalse(testObject.hasUnappliedFilters());
+        assertTrue(testObject.getFilters().contains(filterMock));
+        assertFalse(testObject.hasUnappliedFilters());
+        testObject.removeFilter(filterMock);
+        assertFalse(testObject.getFilters().contains(filterMock));
+        assertTrue(testObject.hasUnappliedFilters());
+        assertTrue(testObject.getAppliedFilters().contains(filterMock));
+        testObject.applyFilters();
+        assertFalse(testObject.hasUnappliedFilters());
+        assertEquals(testObject.getAppliedFilters(), testObject.getFilters());
 
-		listenerMock.filtersApplied(testObject);
-		expectLastCall().once();
-		replay(listenerMock);
+        verify(listenerMock);
+    }
 
-		assertFalse(testObject.getFilters().contains(filterMock));
-		testObject.addFilter(filterMock);
-		assertTrue(testObject.getFilters().contains(filterMock));
-		assertFalse(testObject.getAppliedFilters().contains(filterMock));
-		assertTrue(testObject.hasUnappliedFilters());
-		testObject.applyFilters();
-		assertFalse(testObject.hasUnappliedFilters());
-		assertEquals(testObject.getAppliedFilters(), testObject.getFilters());
-		verify(listenerMock);
-	}
+    @Test
+    public void testRemoveAll_ApplyImmediately() {
+        assertTrue(testObject.isApplyFiltersImmediately());
+        assertFalse(testObject.hasUnappliedFilters());
 
-	@Test
-	public void testAddFilter_InvalidFilter() {
-		testObject.setFilterablePropertyIds("hello");
-		expect(propertyFilterMock.getPropertyId()).andReturn("nonexistent");
-		replay(propertyFilterMock);
-		replay(listenerMock);
+        listenerMock.filtersApplied(testObject);
+        expectLastCall().times(2);
+        replay(listenerMock);
 
-		try {
-			testObject.addFilter(propertyFilterMock);
-			fail("No exception thrown");
-		} catch (IllegalArgumentException e) {
-			assertFalse(testObject.getFilters().contains(propertyFilterMock));
-		}
+        testObject.addFilter(filterMock);
+        assertTrue(testObject.getFilters().contains(filterMock));
+        assertFalse(testObject.hasUnappliedFilters());
+        testObject.removeAllFilters();
+        assertTrue(testObject.getFilters().isEmpty());
+        assertFalse(testObject.hasUnappliedFilters());
+        assertEquals(testObject.getAppliedFilters(), testObject.getFilters());
 
-		verify(propertyFilterMock);
-		verify(listenerMock);
-	}
+        verify(listenerMock);
+    }
 
-	@Test
-	public void testFilters_Unmodifiable() {
-		assertTrue(testObject.getFilters().isEmpty());
-		try {
-			testObject.getFilters().add(filterMock);
-			fail("No exception thrown");
-		} catch (Exception e) {
-			assertTrue(testObject.getFilters().isEmpty());
-		}
-	}
+    @Test
+    public void testRemoveAll_ApplyLater() {
+        testObject.setApplyFiltersImmediately(false);
+        assertFalse(testObject.isApplyFiltersImmediately());
+        assertFalse(testObject.hasUnappliedFilters());
 
-	@Test
-	public void testRemoveFilter_ApplyImmediately() {
-		assertTrue(testObject.isApplyFiltersImmediately());
-		assertFalse(testObject.hasUnappliedFilters());
+        listenerMock.filtersApplied(testObject);
+        expectLastCall().times(2);
+        replay(listenerMock);
 
-		listenerMock.filtersApplied(testObject);
-		expectLastCall().times(2);
-		replay(listenerMock);
+        testObject.addFilter(filterMock);
+        testObject.applyFilters();
 
-		testObject.addFilter(filterMock);
-		assertTrue(testObject.getFilters().contains(filterMock));
-		assertFalse(testObject.hasUnappliedFilters());
-		testObject.removeFilter(filterMock);
-		assertFalse(testObject.getFilters().contains(filterMock));
-		assertFalse(testObject.hasUnappliedFilters());
-		assertEquals(testObject.getAppliedFilters(), testObject.getFilters());
+        assertTrue(testObject.getFilters().contains(filterMock));
+        assertFalse(testObject.hasUnappliedFilters());
+        testObject.removeAllFilters();
+        assertTrue(testObject.getFilters().isEmpty());
+        assertFalse(testObject.getAppliedFilters().isEmpty());
+        assertTrue(testObject.hasUnappliedFilters());
+        testObject.applyFilters();
+        assertFalse(testObject.hasUnappliedFilters());
+        assertEquals(testObject.getAppliedFilters(), testObject.getFilters());
 
-		verify(listenerMock);
-	}
-
-	@Test
-	public void testRemoveFilter_ApplyLater() {
-		testObject.setApplyFiltersImmediately(false);
-		assertFalse(testObject.isApplyFiltersImmediately());
-		assertFalse(testObject.hasUnappliedFilters());
-
-		listenerMock.filtersApplied(testObject);
-		expectLastCall().times(2);
-		replay(listenerMock);
-
-		testObject.addFilter(filterMock);
-		testObject.applyFilters();
-
-		assertTrue(testObject.getFilters().contains(filterMock));
-		assertFalse(testObject.hasUnappliedFilters());
-		testObject.removeFilter(filterMock);
-		assertFalse(testObject.getFilters().contains(filterMock));
-		assertTrue(testObject.hasUnappliedFilters());
-		assertTrue(testObject.getAppliedFilters().contains(filterMock));
-		testObject.applyFilters();
-		assertFalse(testObject.hasUnappliedFilters());
-		assertEquals(testObject.getAppliedFilters(), testObject.getFilters());
-
-		verify(listenerMock);
-	}
-
-	@Test
-	public void testRemoveAll_ApplyImmediately() {
-		assertTrue(testObject.isApplyFiltersImmediately());
-		assertFalse(testObject.hasUnappliedFilters());
-
-		listenerMock.filtersApplied(testObject);
-		expectLastCall().times(2);
-		replay(listenerMock);
-
-		testObject.addFilter(filterMock);
-		assertTrue(testObject.getFilters().contains(filterMock));
-		assertFalse(testObject.hasUnappliedFilters());
-		testObject.removeAllFilters();
-		assertTrue(testObject.getFilters().isEmpty());
-		assertFalse(testObject.hasUnappliedFilters());
-		assertEquals(testObject.getAppliedFilters(), testObject.getFilters());
-
-		verify(listenerMock);
-	}
-
-	@Test
-	public void testRemoveAll_ApplyLater() {
-		testObject.setApplyFiltersImmediately(false);
-		assertFalse(testObject.isApplyFiltersImmediately());
-		assertFalse(testObject.hasUnappliedFilters());
-
-		listenerMock.filtersApplied(testObject);
-		expectLastCall().times(2);
-		replay(listenerMock);
-
-		testObject.addFilter(filterMock);
-		testObject.applyFilters();
-
-		assertTrue(testObject.getFilters().contains(filterMock));
-		assertFalse(testObject.hasUnappliedFilters());
-		testObject.removeAllFilters();
-		assertTrue(testObject.getFilters().isEmpty());
-		assertFalse(testObject.getAppliedFilters().isEmpty());
-		assertTrue(testObject.hasUnappliedFilters());
-		testObject.applyFilters();
-		assertFalse(testObject.hasUnappliedFilters());
-		assertEquals(testObject.getAppliedFilters(), testObject.getFilters());
-
-		verify(listenerMock);
-	}
+        verify(listenerMock);
+    }
 }

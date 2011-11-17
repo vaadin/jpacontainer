@@ -3,7 +3,8 @@ ${license.header.text}
  */
 package com.vaadin.addon.jpacontainer;
 
-import com.vaadin.addon.jpacontainer.filter.StringComparisonFilter;
+import javax.persistence.criteria.Predicate;
+
 import com.vaadin.data.Buffered;
 import com.vaadin.data.Container;
 import com.vaadin.data.Validator.InvalidValueException;
@@ -16,7 +17,7 @@ import com.vaadin.data.Validator.InvalidValueException;
  * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
-public interface EntityContainer<T> extends Container.Sortable,
+public interface EntityContainer<T> extends Container, Container.Sortable,
         AdvancedFilterable, Container.ItemSetChangeNotifier, Buffered,
         Container.Filterable {
 
@@ -158,10 +159,10 @@ public interface EntityContainer<T> extends Container.Sortable,
      * <p>
      * This method creates a new {@link StringComparisonFilter} for the
      * specified parameters and applies the filter immediately, regardless of
-     * the state of {@link #isApplyFiltersImmediately() }.
+     * the state of {@link #isApplyPredicatesImmediately() }.
      * 
-     * @see #addFilter(com.vaadin.addon.jpacontainer.Filter)
-     * @see #applyFilters()
+     * @see #addPredicate(Predicate)
+     * @see #applyPredicates()
      */
     public void addContainerFilter(Object propertyId, String filterString,
             boolean ignoreCase, boolean onlyMatchPrefix);
@@ -169,11 +170,11 @@ public interface EntityContainer<T> extends Container.Sortable,
     /**
      * {@inheritDoc}
      * <p>
-     * This method does the same as {@link #removeAllFilters() }, but the
+     * This method does the same as {@link #removeAllPredicates() }, but the
      * container is updated immediately regardless of the state of
-     * {@link #isApplyFiltersImmediately() }.
+     * {@link #isApplyPredicatesImmediately() }.
      * 
-     * @see #removeAllFilters()
+     * @see #removeAllPredicates()
      */
     public void removeAllContainerFilters();
 
@@ -181,9 +182,9 @@ public interface EntityContainer<T> extends Container.Sortable,
      * {@inheritDoc }
      * <p>
      * The container is updated immediately regardless of the state of
-     * {@link #isApplyFiltersImmediately() }.
+     * {@link #isApplyPredicatesImmediately() }.
      * 
-     * @see #removeFilter(com.vaadin.addon.jpacontainer.Filter)
+     * @see #removePredicate(Predicate)
      */
     public void removeContainerFilters(Object propertyId);
 }

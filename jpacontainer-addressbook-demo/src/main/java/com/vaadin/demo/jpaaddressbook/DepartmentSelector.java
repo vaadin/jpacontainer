@@ -28,12 +28,12 @@ public class DepartmentSelector extends CustomField {
         setCaption("Department");
         // Only list "roots" which are in our example geographical super
         // departments
-        geoContainer.addFilter(Filters.isNull("parent"));
+        geoContainer.addPredicate(Filters.isNull("parent"));
         geographicalDepartment.setContainerDataSource(geoContainer);
         geographicalDepartment.setItemCaptionPropertyId("name");
         geographicalDepartment.setImmediate(true);
 
-        container.setApplyFiltersImmediately(false);
+        container.setApplyPredicatesImmediately(false);
         filterDepartments(null);
         department.setContainerDataSource(container);
         department.setItemCaptionPropertyId("name");
@@ -85,8 +85,8 @@ public class DepartmentSelector extends CustomField {
             department.setEnabled(false);
         } else {
             container.removeAllContainerFilters();
-            container.addFilter(Filters.eq("parent", currentGeoDepartment));
-            container.applyFilters();
+            container.addPredicate(Filters.eq("parent", currentGeoDepartment));
+            container.applyPredicates();
             department.setValue(null);
             department.setEnabled(true);
         }

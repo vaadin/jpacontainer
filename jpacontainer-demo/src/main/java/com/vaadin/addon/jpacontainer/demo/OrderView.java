@@ -78,7 +78,7 @@ public class OrderView extends CustomComponent {
         HorizontalLayout toolbar = new HorizontalLayout();
         {
             customerContainer.setEntityProvider(customerProvider);
-            customerContainer.setApplyFiltersImmediately(true);
+            customerContainer.setApplyPredicatesImmediately(true);
             customerContainer.sort(new Object[]{"customerName", "custNo"},
                     new boolean[]{true, true});
             customerContainer.setReadOnly(true);
@@ -127,7 +127,7 @@ public class OrderView extends CustomComponent {
         Table orderTable = new Table();
         {
             orderContainer.setEntityProvider(entityProvider);
-            orderContainer.setApplyFiltersImmediately(false);
+            orderContainer.setApplyPredicatesImmediately(false);
             // Remove unused properties
             orderContainer.removeContainerProperty("id");
             orderContainer.removeContainerProperty("version");
@@ -217,8 +217,8 @@ public class OrderView extends CustomComponent {
         filterTo.setValue(null);
         filterFrom.setValue(null);
         filterCustomer.setValue(null);
-        orderContainer.removeAllFilters();
-        orderContainer.applyFilters();
+        orderContainer.removeAllPredicates();
+        orderContainer.applyPredicates();
         resetBtn.setEnabled(false);
     }
 
@@ -232,12 +232,12 @@ public class OrderView extends CustomComponent {
             return;
         }
 
-        orderContainer.removeAllFilters();
+        orderContainer.removeAllPredicates();
 
         if (customerId != null) {
             Customer c = customerContainer.getItem(customerId).
                     getEntity();
-            orderContainer.addFilter(Filters.eq("customer",
+            orderContainer.addPredicate(Filters.eq("customer",
                     c));
         }
 
@@ -248,15 +248,15 @@ public class OrderView extends CustomComponent {
                         Notification.TYPE_WARNING_MESSAGE);
                 return;
             }
-            orderContainer.addFilter(Filters.between("orderDate",
+            orderContainer.addPredicate(Filters.between("orderDate",
                     from,
                     to, true, true));
         } else if (from != null) {
-            orderContainer.addFilter(Filters.gteq("orderDate", from));
+            orderContainer.addPredicate(Filters.gteq("orderDate", from));
         } else if (to != null) {
-            orderContainer.addFilter(Filters.lteq("orderDate", to));
+            orderContainer.addPredicate(Filters.lteq("orderDate", to));
         }
-        orderContainer.applyFilters();
+        orderContainer.applyPredicates();
         resetBtn.setEnabled(true);
     }
 

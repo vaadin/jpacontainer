@@ -6,28 +6,33 @@ package com.vaadin.addon.jpacontainer.provider;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
-import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 import com.vaadin.addon.jpacontainer.EntityProvider;
-import com.vaadin.addon.jpacontainer.Filter;
-import com.vaadin.addon.jpacontainer.Filter.PropertyIdPreprocessor;
 import com.vaadin.addon.jpacontainer.SortBy;
-import com.vaadin.addon.jpacontainer.filter.CompositeFilter;
-import com.vaadin.addon.jpacontainer.filter.Filters;
-import com.vaadin.addon.jpacontainer.filter.IntervalFilter;
-import com.vaadin.addon.jpacontainer.filter.JoinFilter;
-import com.vaadin.addon.jpacontainer.filter.Junction;
-import com.vaadin.addon.jpacontainer.filter.ValueFilter;
+import com.vaadin.addon.jpacontainer.filter.util.AdvancedFilterableSupport;
 import com.vaadin.addon.jpacontainer.metadata.EntityClassMetadata;
 import com.vaadin.addon.jpacontainer.metadata.MetadataFactory;
+import com.vaadin.data.Container.Filter;
+import com.vaadin.data.util.filter.And;
+import com.vaadin.data.util.filter.Compare.Equal;
+import com.vaadin.data.util.filter.Compare.Greater;
+import com.vaadin.data.util.filter.Compare.Less;
+import com.vaadin.data.util.filter.Or;
 
 /**
  * A read-only entity provider that works with a local {@link EntityManager}.
@@ -174,6 +179,36 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
     }
 
     /**
+     * Translates SortBy instances, which possibly contain nested properties
+     * (e.g. name.firstName, name.lastName) into Order instances which can be
+     * used in a CriteriaQuery.
+     * 
+     * @param sortBy
+     *            the SortBy instance to translate
+     * @param swapSortOrder
+     *            swaps the specified sort order if true.
+     * @param cb
+     *            the {@link CriteriaBuilder} to use
+     * @param root
+     *            the {@link CriteriaQuery} {@link Root} to be used.
+     * @return
+     */
+    protected Order translateSortBy(SortBy sortBy, boolean swapSortOrder,
+            CriteriaBuilder cb, Root<T> root) {
+        String sortedPropId = sortBy.getPropertyId().toString();
+        // First split the id and build a Path.
+        Path<T> path = AdvancedFilterableSupport.getPropertyPathTyped(root,
+                sortedPropId);
+
+        // Make and return the Order instances.
+        if (sortBy.isAscending() != swapSortOrder) {
+            return cb.asc(path);
+        } else {
+            return cb.desc(path);
+        }
+    }
+
+    /**
      * Creates a filtered query that does not do any sorting.
      * 
      * @see #createFilteredQuery(java.lang.String, java.lang.String,
@@ -181,41 +216,15 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
      *      com.vaadin.addon.jpacontainer.Filter.PropertyIdPreprocessor)
      * @param fieldsToSelect
      *            the fields to select (must not be null).
-     * @param entityAlias
-     *            the alias of the entity (must not be null).
      * @param filter
      *            the filter to apply, or null if no filters should be applied.
      * @param propertyIdPreprocessor
      *            the property ID preprocessor (may be null).
      * @return the query (never null).
      */
-    protected Query createUnsortedFilteredQuery(String fieldsToSelect,
-            String entityAlias, Filter filter,
-            PropertyIdPreprocessor propertyIdPreprocessor) {
-        return createFilteredQuery(fieldsToSelect, entityAlias, filter, null,
-                false, propertyIdPreprocessor);
-    }
-
-    private void addJoins(Filter filter, StringBuffer sb, String entityAlias) {
-        if (filter instanceof JoinFilter) {
-            sb.append(" ");
-            JoinFilter jf = (JoinFilter) filter;
-            sb.append("join");
-            sb.append(" ");
-            sb.append(entityAlias);
-            sb.append(".");
-            sb.append(jf.getJoinProperty());
-            sb.append(" as ");
-            sb.append(jf.getJoinProperty());
-        } else if (filter instanceof CompositeFilter) {
-            /*
-             * Although JoinFilter is a composite filter, JoinFilters may never
-             * be nested inside each other.
-             */
-            for (Filter f : ((CompositeFilter) filter).getFilters()) {
-                addJoins(f, sb, entityAlias);
-            }
-        }
+    protected TypedQuery<Object> createUnsortedFilteredQuery(
+            List<String> fieldsToSelect, Filter filter) {
+        return createFilteredQuery(fieldsToSelect, filter, null, false);
     }
 
     /**
@@ -241,95 +250,63 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
      *            in most cases).
      * @return the query (never null).
      */
-    protected Query createFilteredQuery(String fieldsToSelect,
-            final String entityAlias, Filter filter, List<SortBy> sortBy,
-            boolean swapSortOrder, PropertyIdPreprocessor propertyIdPreprocessor) {
+    protected TypedQuery<Object> createFilteredQuery(
+            List<String> fieldsToSelect, Filter filter, List<SortBy> sortBy,
+            boolean swapSortOrder) {
         assert fieldsToSelect != null : "fieldsToSelect must not be null";
-        assert entityAlias != null : "entityAlias must not be null";
         assert sortBy == null || !sortBy.isEmpty() : "sortBy must be either null or non-empty";
 
-        StringBuffer sb = new StringBuffer();
-        sb.append("select ");
-        sb.append(fieldsToSelect);
-        sb.append(" from ");
-        sb.append(getEntityClassMetadata().getEntityName());
-        sb.append(" as ");
-        sb.append(entityAlias);
+        CriteriaBuilder cb = doGetEntityManager().getCriteriaBuilder();
+        CriteriaQuery<Object> query = cb.createQuery();
+        Root<T> root = query.from(entityClassMetadata.getMappedClass());
 
         if (filter != null) {
-            addJoins(filter, sb, entityAlias);
-        }
-
-        if (filter != null) {
-            sb.append(" where ");
-
-            if (propertyIdPreprocessor == null) {
-                sb.append(filter.toQLString(new PropertyIdPreprocessor() {
-
-                    public String process(Object propertyId) {
-                        return entityAlias + "." + propertyId;
-                    }
-                }));
-            } else {
-                sb.append(filter.toQLString(propertyIdPreprocessor));
-            }
+            query.where(AdvancedFilterableSupport.convertFilter(filter, cb,
+                    root));
         }
 
         if (sortBy != null && sortBy.size() > 0) {
-            sb.append(" order by ");
-            for (Iterator<SortBy> it = sortBy.iterator(); it.hasNext();) {
-                SortBy sortedProperty = it.next();
-                sb.append(entityAlias);
-                sb.append(".");
-                sb.append(sortedProperty.getPropertyId());
-                if (sortedProperty.isAscending() != swapSortOrder) {
-                    sb.append(" asc");
-                } else {
-                    sb.append(" desc");
-                }
-                if (it.hasNext()) {
-                    sb.append(", ");
-                }
+            List<Order> orderBy = new ArrayList<Order>();
+            for (SortBy sortedProperty : sortBy) {
+                orderBy.add(translateSortBy(sortedProperty, swapSortOrder, cb,
+                        root));
             }
+            query.orderBy(orderBy);
         }
-
-        String queryString = sb.toString();
-        Query query = doGetEntityManager().createQuery(queryString);
-        if (filter != null) {
-            setQueryParameters(query, filter);
-        }
-        return query;
-    }
-
-    private void setQueryParameters(Query query, Filter filter) {
-        // TODO Add test that detects if any specific filter type is missing!
-        if (filter instanceof ValueFilter) {
-            ValueFilter vf = (ValueFilter) filter;
-            query.setParameter(vf.getQLParameterName(), vf.getValue());
-        } else if (filter instanceof IntervalFilter) {
-            IntervalFilter intf = (IntervalFilter) filter;
-            query.setParameter(intf.getEndingPointQLParameterName(),
-                    intf.getEndingPoint());
-            query.setParameter(intf.getStartingPointQLParameterName(),
-                    intf.getStartingPoint());
-        } else if (filter instanceof CompositeFilter) {
-            for (Filter f : ((CompositeFilter) filter).getFilters()) {
-                setQueryParameters(query, f);
+        if (fieldsToSelect.size() > 1
+                || getEntityClassMetadata().hasEmbeddedIdentifier()) {
+            List<Path<?>> paths = new ArrayList<Path<?>>();
+            for (String fieldPath : fieldsToSelect) {
+                paths.add(AdvancedFilterableSupport.getPropertyPathTyped(root,
+                        fieldPath));
             }
+            query.multiselect(paths.toArray(new Path<?>[paths.size()]));
+        } else {
+            query.select(AdvancedFilterableSupport.getPropertyPathTyped(root,
+                    fieldsToSelect.get(0)));
         }
+        return doGetEntityManager().createQuery(query);
     }
 
     protected boolean doContainsEntity(Object entityId, Filter filter) {
         assert entityId != null : "entityId must not be null";
-        Filter entityIdFilter = Filters.eq(getEntityClassMetadata()
-                .getIdentifierProperty().getName(), entityId);
-        Filter f;
-        if (filter == null) {
-            f = entityIdFilter;
+        String entityIdPropertyName = getEntityClassMetadata()
+                .getIdentifierProperty().getName();
+
+        CriteriaBuilder cb = doGetEntityManager().getCriteriaBuilder();
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+        Root<T> root = query.from(getEntityClassMetadata().getMappedClass());
+
+        Predicate entityIdPredicate = cb.equal(root.get(entityIdPropertyName),
+                cb.literal(entityId));
+        if (filter != null) {
+            query.where(entityIdPredicate,
+                    AdvancedFilterableSupport.convertFilter(filter, cb, root));
         } else {
-            f = Filters.and(entityIdFilter, filter);
+            query.where(entityIdPredicate);
         }
-        Query query;
+
+        TypedQuery<Long> tq = null;
         if (getEntityClassMetadata().hasEmbeddedIdentifier()) {
             /*
              * Hibernate will generate SQL for "count(obj)" that does not run on
@@ -337,21 +314,18 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
              * With this hack, this method should work with both Hibernate and
              * EclipseLink.
              */
-            query = createUnsortedFilteredQuery(String.format(
-                    "count(obj.%s.%s)", getEntityClassMetadata()
-                            .getIdentifierProperty().getName(),
-                    getEntityClassMetadata().getIdentifierProperty()
-                            .getTypeMetadata().getPersistentPropertyNames()
-                            .iterator().next()), "obj", f, null);
+            tq = doGetEntityManager().createQuery(
+                    query.select(cb.count(root.get(entityIdPropertyName).get(
+                            getEntityClassMetadata().getIdentifierProperty()
+                                    .getTypeMetadata()
+                                    .getPersistentPropertyNames().iterator()
+                                    .next()))));
         } else {
-            query = createUnsortedFilteredQuery("count(obj)", "obj", f, null);
+            tq = doGetEntityManager().createQuery(
+                    query.select(cb.count(root.get(entityIdPropertyName))));
         }
-        Object result = query.getSingleResult();
-        if (result instanceof Integer) {
-            return ((Integer) result).intValue() == 1;
-        } else {
-            return ((Long) result).longValue() == 1;
-        }
+        Long result = tq.getSingleResult();
+        return result == 1;
     }
 
     public boolean containsEntity(Object entityId, Filter filter) {
@@ -374,9 +348,10 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         if (sortBy == null) {
             sortBy = Collections.emptyList();
         }
-        Query query = createFilteredQuery("obj."
-                + getEntityClassMetadata().getIdentifierProperty().getName(),
-                "obj", filter, addPrimaryKeyToSortList(sortBy), false, null);
+        TypedQuery<Object> query = createFilteredQuery(
+                Arrays.asList(getEntityClassMetadata().getIdentifierProperty()
+                        .getName()), filter, addPrimaryKeyToSortList(sortBy),
+                false);
         query.setMaxResults(1);
         query.setFirstResult(index);
         List<?> result = query.getResultList();
@@ -393,7 +368,19 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
     }
 
     protected int doGetEntityCount(Filter filter) {
-        Query query;
+        String entityIdPropertyName = getEntityClassMetadata()
+                .getIdentifierProperty().getName();
+
+        CriteriaBuilder cb = doGetEntityManager().getCriteriaBuilder();
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+        Root<T> root = query.from(getEntityClassMetadata().getMappedClass());
+
+        if (filter != null) {
+            query.where(AdvancedFilterableSupport.convertFilter(filter, cb,
+                    root));
+        }
+
+        TypedQuery<Long> tq = null;
         if (getEntityClassMetadata().hasEmbeddedIdentifier()) {
             /*
              * Hibernate will generate SQL for "count(obj)" that does not run on
@@ -401,22 +388,18 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
              * With this hack, this method should work with both Hibernate and
              * EclipseLink.
              */
-            query = createUnsortedFilteredQuery(String.format(
-                    "count(obj.%s.%s)", getEntityClassMetadata()
-                            .getIdentifierProperty().getName(),
-                    getEntityClassMetadata().getIdentifierProperty()
-                            .getTypeMetadata().getPersistentPropertyNames()
-                            .iterator().next()), "obj", filter, null);
+            tq = doGetEntityManager().createQuery(
+                    query.select(cb.count(root.get(entityIdPropertyName).get(
+                            getEntityClassMetadata().getIdentifierProperty()
+                                    .getTypeMetadata()
+                                    .getPersistentPropertyNames().iterator()
+                                    .next()))));
         } else {
-            query = createUnsortedFilteredQuery("count(obj)", "obj", filter,
-                    null);
+            tq = doGetEntityManager().createQuery(
+                    query.select(cb.count(root.get(entityIdPropertyName))));
         }
-        Object ret = query.getSingleResult();
-        if (ret instanceof Integer) {
-            return ((Integer) ret).intValue();
-        } else {
-            return ((Long) ret).intValue();
-        }
+        Long result = tq.getSingleResult();
+        return result.intValue();
     }
 
     public int getEntityCount(Filter filter) {
@@ -428,9 +411,19 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         if (sortBy == null) {
             sortBy = Collections.emptyList();
         }
-        Query query = createFilteredQuery("obj."
-                + getEntityClassMetadata().getIdentifierProperty().getName(),
-                "obj", filter, addPrimaryKeyToSortList(sortBy), false, null);
+
+        List<String> keyFields = Arrays.asList(getEntityClassMetadata()
+                .getIdentifierProperty().getName());
+        // if (getEntityClassMetadata().hasEmbeddedIdentifier()) {
+        // keyFields = new ArrayList<String>();
+        // for (String p : getEntityClassMetadata().getIdentifierProperty()
+        // .getTypeMetadata().getPersistentPropertyNames()) {
+        // keyFields.add(getEntityClassMetadata().getIdentifierProperty()
+        // .getName() + "." + p);
+        // }
+        // }
+        TypedQuery<Object> query = createFilteredQuery(keyFields, filter,
+                addPrimaryKeyToSortList(sortBy), false);
         query.setMaxResults(1);
         List<?> result = query.getResultList();
         if (result.isEmpty()) {
@@ -449,9 +442,12 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         if (sortBy == null) {
             sortBy = Collections.emptyList();
         }
-        Query query = createFilteredQuery("obj."
-                + getEntityClassMetadata().getIdentifierProperty().getName(),
-                "obj", filter, addPrimaryKeyToSortList(sortBy), true, null);
+        // The last 'true' parameter switches the sort order -> the last row is
+        // the first result.
+        TypedQuery<Object> query = createFilteredQuery(
+                Arrays.asList(getEntityClassMetadata().getIdentifierProperty()
+                        .getName()), filter, addPrimaryKeyToSortList(sortBy),
+                true);
         query.setMaxResults(1);
         List<?> result = query.getResultList();
         if (result.isEmpty()) {
@@ -488,7 +484,8 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
      */
     protected Object getSibling(Object entityId, Filter filter,
             List<SortBy> sortBy, boolean backwards) {
-        Query query = createSiblingQuery(entityId, filter, sortBy, backwards);
+        TypedQuery<Object> query = createSiblingQuery(entityId, filter, sortBy,
+                backwards);
         query.setMaxResults(1);
         List<?> result = query.getResultList();
         if (result.size() != 1) {
@@ -519,8 +516,8 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
      * @return the query that will return the sibling and all the subsequent
      *         entities unless limited.
      */
-    protected Query createSiblingQuery(Object entityId, Filter filter,
-            List<SortBy> sortBy, boolean backwards) {
+    protected TypedQuery<Object> createSiblingQuery(Object entityId,
+            Filter filter, List<SortBy> sortBy, boolean backwards) {
         assert entityId != null : "entityId must not be null";
         assert sortBy != null : "sortBy must not be null";
         Filter limitingFilter;
@@ -528,10 +525,10 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         if (sortBy.size() == 1) {
             // The list is sorted by primary key
             if (backwards) {
-                limitingFilter = Filters.lt(getEntityClassMetadata()
+                limitingFilter = new Less(getEntityClassMetadata()
                         .getIdentifierProperty().getName(), entityId);
             } else {
-                limitingFilter = Filters.gt(getEntityClassMetadata()
+                limitingFilter = new Greater(getEntityClassMetadata()
                         .getIdentifierProperty().getName(), entityId);
             }
         } else {
@@ -551,38 +548,42 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
             }
             // Now we can build a filter that limits the query to the entities
             // below entityId
-            limitingFilter = Filters.or();
+            List<Filter> orFilters = new ArrayList<Filter>();
             for (int i = sortBy.size() - 1; i >= 0; i--) {
                 // TODO Document this code snippet once it works
                 // TODO What happens with null values?
-                Junction caseFilter = Filters.and();
+                List<Filter> caseFilters = new ArrayList<Filter>();
                 SortBy sb;
                 for (int j = 0; j < i; j++) {
                     sb = sortBy.get(j);
-                    caseFilter.add(Filters.eq(sb.getPropertyId(),
-                            filterValues.get(sb.getPropertyId())));
+                    caseFilters.add(new Equal(sb.getPropertyId(), filterValues
+                            .get(sb.getPropertyId())));
                 }
                 sb = sortBy.get(i);
                 if (sb.isAscending() ^ backwards) {
-                    caseFilter.add(Filters.gt(sb.getPropertyId(),
+                    caseFilters.add(new Greater(sb.getPropertyId(),
                             filterValues.get(sb.getPropertyId())));
                 } else {
-                    caseFilter.add(Filters.lt(sb.getPropertyId(),
-                            filterValues.get(sb.getPropertyId())));
+                    caseFilters.add(new Less(sb.getPropertyId(), filterValues
+                            .get(sb.getPropertyId())));
                 }
-                ((Junction) limitingFilter).add(caseFilter);
+                And caseFilter = new And(
+                        caseFilters.toArray(new Filter[caseFilters.size()]));
+                orFilters.add(caseFilter);
             }
+            limitingFilter = new Or(orFilters.toArray(new Filter[orFilters
+                    .size()]));
         }
         // Now, we can create the query
         Filter queryFilter;
         if (filter == null) {
             queryFilter = limitingFilter;
         } else {
-            queryFilter = Filters.and(filter, limitingFilter);
+            queryFilter = new And(filter, limitingFilter);
         }
-        Query query = createFilteredQuery("obj."
-                + getEntityClassMetadata().getIdentifierProperty().getName(),
-                "obj", queryFilter, sortBy, backwards, null);
+        TypedQuery<Object> query = createFilteredQuery(
+                Arrays.asList(getEntityClassMetadata().getIdentifierProperty()
+                        .getName()), queryFilter, sortBy, backwards);
         return query;
     }
 
@@ -641,16 +642,15 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         this.entitiesDetached = detached;
     }
 
-    @SuppressWarnings("unchecked")
     protected List<Object> doGetAllEntityIdentifiers(Filter filter,
             List<SortBy> sortBy) {
         if (sortBy == null) {
             sortBy = Collections.emptyList();
         }
         sortBy = addPrimaryKeyToSortList(sortBy);
-        Query query = createFilteredQuery("obj."
-                + getEntityClassMetadata().getIdentifierProperty().getName(),
-                "obj", filter, sortBy, false, null);
+        TypedQuery<Object> query = createFilteredQuery(
+                Arrays.asList(getEntityClassMetadata().getIdentifierProperty()
+                        .getName()), filter, sortBy, false);
         return Collections.unmodifiableList(query.getResultList());
     }
 

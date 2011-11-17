@@ -7,6 +7,8 @@ import java.util.Collection;
 import java.util.List;
 
 import com.vaadin.data.Container;
+import com.vaadin.data.Container.Filter;
+import com.vaadin.data.Container.ItemSetChangeEvent;
 
 /**
  * Container that supports a bit more advanced filtering than {@link Filterable}
@@ -16,7 +18,7 @@ import com.vaadin.data.Container;
  * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
-public interface AdvancedFilterable extends Container {
+public interface AdvancedFilterable {
 
     /**
      * Gets the IDs of all the properties that are filterable.
@@ -35,50 +37,12 @@ public interface AdvancedFilterable extends Container {
     public boolean isFilterable(Object propertyId);
 
     /**
-     * Adds <code>filter</code> to the end of the list of filters to apply. If
-     * it already exists in the list of filters, it will be applied a second
-     * time.
-     * <p>
-     * If {@link #isApplyFiltersImmediately() } returns true, the filter will be
-     * applied immediately and the container updated.
-     * 
-     * @param filter
-     *            the filter to add (must not be null).
-     * @throws IllegalArgumentException
-     *             if the filter could not be added (e.g. due to a nonfilterable
-     *             property ID).
-     */
-    public void addFilter(com.vaadin.addon.jpacontainer.Filter filter)
-            throws IllegalArgumentException;
-
-    /**
-     * Removes <code>filter</code> from the list of filters to apply. If the
-     * filter has been added several times, the first occurence will be removed.
-     * If the filter has not been added, nothing happens.
-     * <p>
-     * If {@link #isApplyFiltersImmediately() } returns true, the container will
-     * be updated immediately.
-     * 
-     * @param filter
-     *            the filter to remove (must not be null).
-     */
-    public void removeFilter(com.vaadin.addon.jpacontainer.Filter filter);
-
-    /**
-     * Removes all filters.
-     * <p>
-     * If {@link #isApplyFiltersImmediately() } returns true, the container will
-     * be updated immediately.
-     */
-    public void removeAllFilters();
-
-    /**
      * Gets the list of filters to apply. The filters will be applied as a
      * conjunction (i.e. AND) in the order they appear in.
      * 
      * @return an unmodifiable list of filters (never null).
      */
-    public List<com.vaadin.addon.jpacontainer.Filter> getFilters();
+    public List<Filter> getFilters();
 
     /**
      * Gets the list of filters that are currently applied. If
@@ -87,7 +51,7 @@ public interface AdvancedFilterable extends Container {
      * 
      * @return an unmodifiable list of filters (never null).
      */
-    public List<com.vaadin.addon.jpacontainer.Filter> getAppliedFilters();
+    public List<Filter> getAppliedFilters();
 
     /**
      * Sets whether the filters should be applied immediately when a filter is
@@ -141,10 +105,11 @@ public interface AdvancedFilterable extends Container {
      * @author Petter Holmström (Vaadin Ltd)
      * @since 1.0
      */
-    public static class FiltersAppliedEvent implements ItemSetChangeEvent {
+    public static class FiltersAppliedEvent<C extends Container & AdvancedFilterable>
+            implements ItemSetChangeEvent {
 
         private static final long serialVersionUID = -6988494009645932112L;
-        private final AdvancedFilterable container;
+        private final C container;
 
         /**
          * Creates a new <code>FiltersAppliedEvent</code>.
@@ -152,11 +117,11 @@ public interface AdvancedFilterable extends Container {
          * @param container
          *            the filterable container that fired the event.
          */
-        public FiltersAppliedEvent(AdvancedFilterable container) {
+        public FiltersAppliedEvent(C container) {
             this.container = container;
         }
 
-        public AdvancedFilterable getContainer() {
+        public C getContainer() {
             return container;
         }
     }

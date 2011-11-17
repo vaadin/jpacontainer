@@ -3,14 +3,10 @@ ${license.header.text}
  */
 package com.vaadin.addon.jpacontainer.provider.emtests;
 
-import com.vaadin.addon.jpacontainer.testdata.Person;
-import com.vaadin.addon.jpacontainer.EntityProvider;
-import com.vaadin.addon.jpacontainer.SortBy;
-import com.vaadin.addon.jpacontainer.Filter;
-import com.vaadin.addon.jpacontainer.filter.Filters;
-import com.vaadin.addon.jpacontainer.testdata.EmbeddedIdPerson;
-import com.vaadin.addon.jpacontainer.testdata.Skill;
-import com.vaadin.addon.jpacontainer.testdata.TestDataGenerator;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,12 +17,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
 import org.junit.After;
-import org.junit.Test;
 import org.junit.Before;
-import org.junit.BeforeClass;
-import static org.junit.Assert.*;
+import org.junit.Test;
+
+import com.vaadin.addon.jpacontainer.EntityProvider;
+import com.vaadin.addon.jpacontainer.SortBy;
+import com.vaadin.addon.jpacontainer.testdata.EmbeddedIdPerson;
+import com.vaadin.addon.jpacontainer.testdata.Person;
+import com.vaadin.addon.jpacontainer.testdata.Skill;
+import com.vaadin.addon.jpacontainer.testdata.TestDataGenerator;
+import com.vaadin.data.Container.Filter;
 
 /**
  * Abstract test case for {@link EntityProvider} that should work with any
@@ -61,7 +71,6 @@ public abstract class AbstractEntityProviderEMTest {
 
     protected EntityProvider<Person> entityProvider;
     protected EntityProvider<EmbeddedIdPerson> entityProvider_EmbeddedId;
-    
 
     /*
      * @BeforeClass public static void setUpClass() throws Exception {
@@ -292,7 +301,8 @@ public abstract class AbstractEntityProviderEMTest {
     @Test
     public void testGetEntity_EmbeddedId() {
         System.out.println("testGetEntity_EmbeddedId");
-        doTestGetEntity_EmbeddedId(TestDataGenerator.getTestDataEmbeddedIdSortedByName());
+        doTestGetEntity_EmbeddedId(TestDataGenerator
+                .getTestDataEmbeddedIdSortedByName());
     }
 
     @Test
@@ -304,7 +314,8 @@ public abstract class AbstractEntityProviderEMTest {
     @Test
     public void testGetEntityCount_EmbeddedId() {
         System.out.println("testGetEntityCount_EmbeddedId");
-        doTestGetEntityCount_EmbeddedId(TestDataGenerator.getTestDataEmbeddedIdSortedByName(), null);
+        doTestGetEntityCount_EmbeddedId(
+                TestDataGenerator.getTestDataEmbeddedIdSortedByName(), null);
     }
 
     @Test
@@ -316,86 +327,100 @@ public abstract class AbstractEntityProviderEMTest {
     @Test
     public void testContainsEntity_EmbeddedId() {
         System.out.println("testContainsEntity_EmbeddedId");
-        doTestContainsEntity_EmbeddedId(TestDataGenerator.getTestDataEmbeddedIdSortedByName(), null);
+        doTestContainsEntity_EmbeddedId(
+                TestDataGenerator.getTestDataEmbeddedIdSortedByName(), null);
     }
 
     @Test
     public void testGetFirstEntity() {
         System.out.println("testGetFirstEntity");
-        doTestGetFirstEntity(TestDataGenerator.getTestDataSortedByName(), null, TestDataGenerator.getSortByName());
+        doTestGetFirstEntity(TestDataGenerator.getTestDataSortedByName(), null,
+                TestDataGenerator.getSortByName());
     }
 
     @Test
     public void testGetFirstEntity_EmbeddedId() {
         System.out.println("testGetFirstEntity_EmbeddedId");
-        doTestGetFirstEntity_EmbeddedId(TestDataGenerator.getTestDataEmbeddedIdSortedByName(), null,
+        doTestGetFirstEntity_EmbeddedId(
+                TestDataGenerator.getTestDataEmbeddedIdSortedByName(), null,
                 null);
     }
 
     @Test
     public void testGetNextEntity() {
         System.out.println("testGetNextEntity");
-        doTestGetNextEntity(TestDataGenerator.getTestDataSortedByName(), null, TestDataGenerator.getSortByName());
+        doTestGetNextEntity(TestDataGenerator.getTestDataSortedByName(), null,
+                TestDataGenerator.getSortByName());
     }
 
     @Test
     public void testGetNextEntity_EmbeddedId() {
         System.out.println("testGetNextEntity_EmbeddedId");
-        doTestGetNextEntity_EmbeddedId(TestDataGenerator.getTestDataEmbeddedIdSortedByName(), null,
+        doTestGetNextEntity_EmbeddedId(
+                TestDataGenerator.getTestDataEmbeddedIdSortedByName(), null,
                 null);
     }
 
     @Test
     public void testGetLastEntity() {
         System.out.println("testGetLastEntity");
-        doTestGetLastEntity(TestDataGenerator.getTestDataSortedByName(), null, TestDataGenerator.getSortByName());
+        doTestGetLastEntity(TestDataGenerator.getTestDataSortedByName(), null,
+                TestDataGenerator.getSortByName());
     }
 
     @Test
     public void testGetLastEntity_EmbeddedId() {
         System.out.println("testGetLastEntity_EmbeddedID");
-        doTestGetLastEntity_EmbeddedId(TestDataGenerator.getTestDataEmbeddedIdSortedByName(), null,
+        doTestGetLastEntity_EmbeddedId(
+                TestDataGenerator.getTestDataEmbeddedIdSortedByName(), null,
                 null);
     }
 
     @Test
     public void testGetPreviousEntity() {
         System.out.println("testGetPreviousEntity");
-        doTestGetPreviousEntity(TestDataGenerator.getTestDataSortedByName(), null, TestDataGenerator.getSortByName());
+        doTestGetPreviousEntity(TestDataGenerator.getTestDataSortedByName(),
+                null, TestDataGenerator.getSortByName());
     }
 
     @Test
     public void testGetPreviousEntity_EmbeddedId() {
         System.out.println("testGetPreviousEntity_EmbeddedId");
-        doTestGetPreviousEntity_EmbeddedId(TestDataGenerator.getTestDataEmbeddedIdSortedByName(),
-                null, null);
+        doTestGetPreviousEntity_EmbeddedId(
+                TestDataGenerator.getTestDataEmbeddedIdSortedByName(), null,
+                null);
     }
 
     @Test
     public void testGetEntityIdentifierAt() {
         System.out.println("testGetEntityIdentifierAt");
-        doTestGetEntityIdentifierAt(TestDataGenerator.getTestDataSortedByName(), null, TestDataGenerator.getSortByName());
+        doTestGetEntityIdentifierAt(
+                TestDataGenerator.getTestDataSortedByName(), null,
+                TestDataGenerator.getSortByName());
     }
 
     @Test
     public void testGetEntityIdentifierAtBackwards() {
         System.out.println("testGetEntityIdentifierAtBackwards");
-        doTestGetEntityIdentifierAtBackwards(TestDataGenerator.getTestDataSortedByName(), null,
+        doTestGetEntityIdentifierAtBackwards(
+                TestDataGenerator.getTestDataSortedByName(), null,
                 TestDataGenerator.getSortByName());
     }
 
     @Test
     public void testGetEntityIdentifierAt_EmbeddedId() {
         System.out.println("testGetEntityIdentifierAt_EmbeddedId");
-        doTestGetEntityIdentifierAt_EmbeddedId(TestDataGenerator.getTestDataEmbeddedIdSortedByName(),
-                null, null);
+        doTestGetEntityIdentifierAt_EmbeddedId(
+                TestDataGenerator.getTestDataEmbeddedIdSortedByName(), null,
+                null);
     }
 
     @Test
     public void testGetEntityIdentifierAtBackwards_EmbeddedId() {
         System.out.println("testGetEntityIdentifierAtBackwards_EmbeddedId");
         doTestGetEntityIdentifierAtBackwards_EmbeddedId(
-                TestDataGenerator.getTestDataEmbeddedIdSortedByName(), null, null);
+                TestDataGenerator.getTestDataEmbeddedIdSortedByName(), null,
+                null);
     }
 
     // TODO Add tests for container with duplicate sorted values
@@ -403,28 +428,32 @@ public abstract class AbstractEntityProviderEMTest {
     @Test
     public void testGetFirstEntity_SortedByLastNameAndStreet() {
         System.out.println("testGetFirstEntity_SortedByLastNameAndStreet");
-        doTestGetFirstEntity(TestDataGenerator.getTestDataSortedByLastNameAndStreet(), null,
+        doTestGetFirstEntity(
+                TestDataGenerator.getTestDataSortedByLastNameAndStreet(), null,
                 TestDataGenerator.getSortByLastNameAndStreet());
     }
 
     @Test
     public void testGetNextEntity_SortedByLastNameAndStreet() {
         System.out.println("testGetNextEntity_SortedByLastNameAndStreet");
-        doTestGetNextEntity(TestDataGenerator.getTestDataSortedByLastNameAndStreet(), null,
+        doTestGetNextEntity(
+                TestDataGenerator.getTestDataSortedByLastNameAndStreet(), null,
                 TestDataGenerator.getSortByLastNameAndStreet());
     }
 
     @Test
     public void testGetLastEntity_SortedByLastNameAndStreet() {
         System.out.println("testGetLastEntity_SortedByLastNameAndStreet");
-        doTestGetLastEntity(TestDataGenerator.getTestDataSortedByLastNameAndStreet(), null,
+        doTestGetLastEntity(
+                TestDataGenerator.getTestDataSortedByLastNameAndStreet(), null,
                 TestDataGenerator.getSortByLastNameAndStreet());
     }
 
     @Test
     public void testGetPreviousEntity_SortedByLastNameAndStreet() {
         System.out.println("testGetPreviousEntity_SortedByLastNameAndStreet");
-        doTestGetPreviousEntity(TestDataGenerator.getTestDataSortedByLastNameAndStreet(), null,
+        doTestGetPreviousEntity(
+                TestDataGenerator.getTestDataSortedByLastNameAndStreet(), null,
                 TestDataGenerator.getSortByLastNameAndStreet());
     }
 
@@ -432,7 +461,8 @@ public abstract class AbstractEntityProviderEMTest {
     public void testGetEntityIdentifierAt_SortedByLastNameAndStreet() {
         System.out
                 .println("testGetEntityIdentifierAt_SortedByLastNameAndStreet");
-        doTestGetEntityIdentifierAt(TestDataGenerator.getTestDataSortedByLastNameAndStreet(), null,
+        doTestGetEntityIdentifierAt(
+                TestDataGenerator.getTestDataSortedByLastNameAndStreet(), null,
                 TestDataGenerator.getSortByLastNameAndStreet());
     }
 
@@ -440,135 +470,162 @@ public abstract class AbstractEntityProviderEMTest {
     public void testGetEntityIdentifierAtBackwards_SortedByLastNameAndStreet() {
         System.out
                 .println("testGetEntityIdentifierAtBackwards_SortedByLastNameAndStreet");
-        doTestGetEntityIdentifierAtBackwards(TestDataGenerator.getTestDataSortedByLastNameAndStreet(),
-                null, TestDataGenerator.getSortByLastNameAndStreet());
+        doTestGetEntityIdentifierAtBackwards(
+                TestDataGenerator.getTestDataSortedByLastNameAndStreet(), null,
+                TestDataGenerator.getSortByLastNameAndStreet());
     }
 
     @Test
     public void testGetFirstEntity_SortedByPrimaryKey() {
         System.out.println("testGetFirstEntity_SortedByPrimaryKey");
-        doTestGetFirstEntity(TestDataGenerator.getTestDataSortedByPrimaryKey(), null, null);
+        doTestGetFirstEntity(TestDataGenerator.getTestDataSortedByPrimaryKey(),
+                null, null);
     }
 
     @Test
     public void testGetNextEntity_SortedByPrimaryKey() {
         System.out.println("testGetNextEntity_SortedByPrimaryKey");
-        doTestGetNextEntity(TestDataGenerator.getTestDataSortedByPrimaryKey(), null, null);
+        doTestGetNextEntity(TestDataGenerator.getTestDataSortedByPrimaryKey(),
+                null, null);
     }
 
     @Test
     public void testGetLastEntity_SortedByPrimaryKey() {
         System.out.println("testGetLastEntity_SortedByPrimaryKey");
-        doTestGetLastEntity(TestDataGenerator.getTestDataSortedByPrimaryKey(), null, null);
+        doTestGetLastEntity(TestDataGenerator.getTestDataSortedByPrimaryKey(),
+                null, null);
     }
 
     @Test
     public void testGetPreviousEntity_SortedByPrimaryKey() {
         System.out.println("testGetPreviousEntity_SortedByPrimaryKey");
-        doTestGetPreviousEntity(TestDataGenerator.getTestDataSortedByPrimaryKey(), null, null);
+        doTestGetPreviousEntity(
+                TestDataGenerator.getTestDataSortedByPrimaryKey(), null, null);
     }
 
     @Test
     public void testGetEntityIdentifierAt_SortedByPrimaryKey() {
         System.out.println("testGetEntityIdentifierAt_SortedByPrimaryKey");
-        doTestGetEntityIdentifierAt(TestDataGenerator.getTestDataSortedByPrimaryKey(), null, null);
+        doTestGetEntityIdentifierAt(
+                TestDataGenerator.getTestDataSortedByPrimaryKey(), null, null);
     }
 
     @Test
     public void testGetEntityIdentifierAtBackwards_SortedByPrimaryKey() {
         System.out
                 .println("testGetEntityIdentifierAtBackwards_SortedByPrimaryKey");
-        doTestGetEntityIdentifierAtBackwards(TestDataGenerator.getTestDataSortedByPrimaryKey(), null,
-                null);
+        doTestGetEntityIdentifierAtBackwards(
+                TestDataGenerator.getTestDataSortedByPrimaryKey(), null, null);
     }
 
     @Test
     public void testGetEntityCount_Filtered() {
         System.out.println("testGetEntityCount_Filtered");
-        doTestGetEntityCount(TestDataGenerator.getFilteredTestDataSortedByName(), TestDataGenerator.getTestFilter());
+        doTestGetEntityCount(
+                TestDataGenerator.getFilteredTestDataSortedByName(),
+                TestDataGenerator.getTestFilter());
     }
 
     @Test
     public void testGetContainsEntity_Filtered() {
         System.out.println("testGetContainsEntity_Filtered");
-        doTestContainsEntity(TestDataGenerator.getFilteredTestDataSortedByName(), TestDataGenerator.getTestFilter());
+        doTestContainsEntity(
+                TestDataGenerator.getFilteredTestDataSortedByName(),
+                TestDataGenerator.getTestFilter());
     }
 
     @Test
     public void testGetFirstEntity_Filtered() {
         System.out.println("testGetFirstEntity_Filtered");
-        doTestGetFirstEntity(TestDataGenerator.getFilteredTestDataSortedByName(), TestDataGenerator.getTestFilter(),
+        doTestGetFirstEntity(
+                TestDataGenerator.getFilteredTestDataSortedByName(),
+                TestDataGenerator.getTestFilter(),
                 TestDataGenerator.getSortByName());
     }
 
     @Test
     public void testGetNextEntity_Filtered() {
         System.out.println("testGetNextEntity_Filtered");
-        doTestGetNextEntity(TestDataGenerator.getFilteredTestDataSortedByName(), TestDataGenerator.getTestFilter(),
+        doTestGetNextEntity(
+                TestDataGenerator.getFilteredTestDataSortedByName(),
+                TestDataGenerator.getTestFilter(),
                 TestDataGenerator.getSortByName());
     }
 
     @Test
     public void testGetLastEntity_Filtered() {
         System.out.println("testGetLastEntity_Filtered");
-        doTestGetLastEntity(TestDataGenerator.getFilteredTestDataSortedByName(), TestDataGenerator.getTestFilter(),
+        doTestGetLastEntity(
+                TestDataGenerator.getFilteredTestDataSortedByName(),
+                TestDataGenerator.getTestFilter(),
                 TestDataGenerator.getSortByName());
     }
 
     @Test
     public void testGetPreviousEntity_Filtered() {
         System.out.println("testGetPreviousEntity_Filtered");
-        doTestGetPreviousEntity(TestDataGenerator.getFilteredTestDataSortedByName(), TestDataGenerator.getTestFilter(),
+        doTestGetPreviousEntity(
+                TestDataGenerator.getFilteredTestDataSortedByName(),
+                TestDataGenerator.getTestFilter(),
                 TestDataGenerator.getSortByName());
     }
 
     @Test
     public void testGetEntityIdentifierAt_Filtered() {
         System.out.println("testGetEntityIdentifierAt_Filtered");
-        doTestGetEntityIdentifierAt(TestDataGenerator.getFilteredTestDataSortedByName(), TestDataGenerator.getTestFilter(),
+        doTestGetEntityIdentifierAt(
+                TestDataGenerator.getFilteredTestDataSortedByName(),
+                TestDataGenerator.getTestFilter(),
                 TestDataGenerator.getSortByName());
     }
 
     @Test
     public void testGetEntityIdentifierAtBackwards_Filtered() {
         System.out.println("testGetEntityIdentifierAtBackwards_Filtered");
-        doTestGetEntityIdentifierAtBackwards(TestDataGenerator.getFilteredTestDataSortedByName(),
-                TestDataGenerator.getTestFilter(), TestDataGenerator.getSortByName());
+        doTestGetEntityIdentifierAtBackwards(
+                TestDataGenerator.getFilteredTestDataSortedByName(),
+                TestDataGenerator.getTestFilter(),
+                TestDataGenerator.getSortByName());
     }
 
     @Test
     public void testGetFirstEntity_Filtered_SortedByPrimaryKey() {
         System.out.println("testGetFirstEntity_Filtered_SortedByPrimaryKey");
-        doTestGetFirstEntity(TestDataGenerator.getFilteredTestDataSortedByPrimaryKey(), TestDataGenerator.getTestFilter(),
-                null);
+        doTestGetFirstEntity(
+                TestDataGenerator.getFilteredTestDataSortedByPrimaryKey(),
+                TestDataGenerator.getTestFilter(), null);
     }
 
     @Test
     public void testGetNextEntity_Filtered_SortedByPrimaryKey() {
         System.out.println("testGetNextEntity_Filtered_SortedByPrimaryKey");
-        doTestGetNextEntity(TestDataGenerator.getFilteredTestDataSortedByPrimaryKey(), TestDataGenerator.getTestFilter(),
-                null);
+        doTestGetNextEntity(
+                TestDataGenerator.getFilteredTestDataSortedByPrimaryKey(),
+                TestDataGenerator.getTestFilter(), null);
     }
 
     @Test
     public void testGetLastEntity_Filtered_SortedByPrimaryKey() {
         System.out.println("testGetLastEntity_Filtered_SortedByPrimaryKey");
-        doTestGetLastEntity(TestDataGenerator.getFilteredTestDataSortedByPrimaryKey(), TestDataGenerator.getTestFilter(),
-                null);
+        doTestGetLastEntity(
+                TestDataGenerator.getFilteredTestDataSortedByPrimaryKey(),
+                TestDataGenerator.getTestFilter(), null);
     }
 
     @Test
     public void testGetPreviousEntity_Filtered_SortedByPrimaryKey() {
         System.out.println("testGetPreviousEntity_Filtered_SortedByPrimaryKey");
-        doTestGetPreviousEntity(TestDataGenerator.getFilteredTestDataSortedByPrimaryKey(), TestDataGenerator.getTestFilter(),
-                null);
+        doTestGetPreviousEntity(
+                TestDataGenerator.getFilteredTestDataSortedByPrimaryKey(),
+                TestDataGenerator.getTestFilter(), null);
     }
 
     @Test
     public void testGetEntityIdentifierAt_Filtered_SortedByPrimaryKey() {
         System.out
                 .println("testGetEntityIdentifierAt_Filtered_SortedByPrimaryKey");
-        doTestGetEntityIdentifierAt(TestDataGenerator.getFilteredTestDataSortedByPrimaryKey(),
+        doTestGetEntityIdentifierAt(
+                TestDataGenerator.getFilteredTestDataSortedByPrimaryKey(),
                 TestDataGenerator.getTestFilter(), null);
     }
 
@@ -577,11 +634,12 @@ public abstract class AbstractEntityProviderEMTest {
         System.out
                 .println("testGetEntityIdentifierAtBackwards_Filtered_SortedByPrimaryKey");
         doTestGetEntityIdentifierAtBackwards(
-                TestDataGenerator.getFilteredTestDataSortedByPrimaryKey(), TestDataGenerator.getTestFilter(), null);
+                TestDataGenerator.getFilteredTestDataSortedByPrimaryKey(),
+                TestDataGenerator.getTestFilter(), null);
     }
 
     @Test
-    public void testJoinFilter() throws Exception {
+    public void testJoin() throws Exception {
         // Save some testing data
         Random rnd = new Random();
         Map<Skill, Collection<Object>> skillPersonMap = new HashMap<Skill, Collection<Object>>();
@@ -589,8 +647,9 @@ public abstract class AbstractEntityProviderEMTest {
         for (Skill s : TestDataGenerator.getSkills()) {
             Set<Object> persons = new HashSet<Object>();
             for (int i = 0; i < 10; i++) {
-                Person p = TestDataGenerator.getTestDataSortedByPrimaryKey().get(rnd
-                        .nextInt(TestDataGenerator.getTestDataSortedByPrimaryKey().size()));
+                Person p = TestDataGenerator.getTestDataSortedByPrimaryKey()
+                        .get(rnd.nextInt(TestDataGenerator
+                                .getTestDataSortedByPrimaryKey().size()));
                 System.out.println("Skill: " + s + " Person: " + p);
                 if (!persons.contains(p.getId())) {
                     persons.add(p.getId());
@@ -605,13 +664,39 @@ public abstract class AbstractEntityProviderEMTest {
 
         // Now try out the filter
         for (Skill s : TestDataGenerator.getSkills()) {
-            Filter filter = Filters
-                    .joinFilter("skills", Filters.eq("skill", s));
+            entityProvider
+                    .setQueryModifierDelegate(new DefaultQueryModifierDelegate() {
+                        private Join<Object, Object> skillsJoin;
+
+                        @Override
+                        public void queryWillBeBuilt(
+                                CriteriaBuilder criteriaBuilder,
+                                CriteriaQuery<?> query) {
+                            Root<?> root = query.getRoots().iterator().next();
+                            skillsJoin = root.join("skills", JoinType.LEFT);
+                        }
+
+                        @Override
+                        public void filtersWillBeAdded(
+                                CriteriaBuilder criteriaBuilder,
+                                CriteriaQuery<?> query,
+                                List<Predicate> predicates) {
+                            System.out.println(s.getSkillName());
+                            predicates.add(criteriaBuilder.equal(
+                                    skillsJoin.get("skill"),
+                                    criteriaBuilder.literal(s)));
+                        }
+
+                    });
             Collection<Object> returnedIds = entityProvider
-                    .getAllEntityIdentifiers(filter, null);
+                    .getAllEntityIdentifiers(null, null);
+            System.out.println(returnedIds);
             assertTrue(skillPersonMap.get(s).containsAll(returnedIds));
             assertEquals(skillPersonMap.get(s).size(), returnedIds.size());
+            entityProvider.setQueryModifierDelegate(null);
         }
+
+        entityProvider.setQueryModifierDelegate(null);
     }
 
     // TODO Add test for getAllEntityIdentifiers

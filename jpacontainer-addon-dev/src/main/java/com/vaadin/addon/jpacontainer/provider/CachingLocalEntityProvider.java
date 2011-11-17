@@ -8,8 +8,8 @@ import java.util.List;
 import javax.persistence.EntityManager;
 
 import com.vaadin.addon.jpacontainer.CachingEntityProvider;
-import com.vaadin.addon.jpacontainer.Filter;
 import com.vaadin.addon.jpacontainer.SortBy;
+import com.vaadin.data.Container.Filter;
 
 /**
  * En extended version of {@link LocalEntityProvider} that also implements the

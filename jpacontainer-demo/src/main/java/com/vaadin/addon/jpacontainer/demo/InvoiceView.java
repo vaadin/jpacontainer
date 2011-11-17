@@ -81,7 +81,7 @@ public class InvoiceView extends CustomComponent {
         HorizontalLayout toolbar = new HorizontalLayout();
         {
             customerContainer.setEntityProvider(customerProvider);
-            customerContainer.setApplyFiltersImmediately(true);
+            customerContainer.setApplyPredicatesImmediately(true);
             customerContainer.sort(new Object[]{"customerName", "custNo"},
                     new boolean[]{true, true});
             customerContainer.setReadOnly(true);
@@ -136,7 +136,7 @@ public class InvoiceView extends CustomComponent {
         Table invoiceTable = new Table();
         {
             invoiceContainer.setEntityProvider(invoiceProvider);
-            invoiceContainer.setApplyFiltersImmediately(false);
+            invoiceContainer.setApplyPredicatesImmediately(false);
             // Remove unused properties
             invoiceContainer.removeContainerProperty("id");
             invoiceContainer.removeContainerProperty("version");
@@ -194,19 +194,19 @@ public class InvoiceView extends CustomComponent {
             getWindow().showNotification("Nothing to do");
             return;
         }
-        invoiceContainer.removeAllFilters();
+        invoiceContainer.removeAllPredicates();
 
         if (customerId != null) {
             Customer c = customerContainer.getItem(customerId).
                     getEntity();
-            invoiceContainer.addFilter(Filters.eq("order.customer",
+            invoiceContainer.addPredicate(Filters.eq("order.customer",
                     c));
         }
 
         if (overdue) {
-            invoiceContainer.addFilter(Filters.lt("dueDate",
+            invoiceContainer.addPredicate(Filters.lt("dueDate",
                     new Date()));
-            invoiceContainer.addFilter(Filters.isNull("paidDate"));
+            invoiceContainer.addPredicate(Filters.isNull("paidDate"));
         }
 
         if (from != null && to != null) {
@@ -216,17 +216,17 @@ public class InvoiceView extends CustomComponent {
                         Notification.TYPE_WARNING_MESSAGE);
                 return;
             }
-            invoiceContainer.addFilter(Filters.between("invoiceDate",
+            invoiceContainer.addPredicate(Filters.between("invoiceDate",
                     from,
                     to, true, true));
         } else if (from != null) {
-            invoiceContainer.addFilter(Filters.gteq("invoiceDate",
+            invoiceContainer.addPredicate(Filters.gteq("invoiceDate",
                     from));
         } else if (to != null) {
-            invoiceContainer.addFilter(Filters.lteq("invoiceDate",
+            invoiceContainer.addPredicate(Filters.lteq("invoiceDate",
                     to));
         }
-        invoiceContainer.applyFilters();
+        invoiceContainer.applyPredicates();
         resetBtn.setEnabled(true);
     }
 
@@ -235,8 +235,8 @@ public class InvoiceView extends CustomComponent {
         filterFrom.setValue(null);
         filterCustomer.setValue(null);
         filterOverdue.setValue(false);
-        invoiceContainer.removeAllFilters();
-        invoiceContainer.applyFilters();
+        invoiceContainer.removeAllPredicates();
+        invoiceContainer.applyPredicates();
         resetBtn.setEnabled(false);
     }
 
