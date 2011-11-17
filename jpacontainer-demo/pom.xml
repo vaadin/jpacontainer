@@ -7,7 +7,7 @@
 	<packaging>war</packaging>
 
 	<properties>
-	<!-- may be overridden by build, keep this in sync to help development -->
+		<!-- may be overridden by build, keep this in sync to help development -->
 		<jpacontainer.version>2.0.0-SNAPSHOT</jpacontainer.version>
 		<spring.version>3.0.3.RELEASE</spring.version>
 		<aspectj.version>1.6.8</aspectj.version>
@@ -52,20 +52,19 @@
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate</artifactId>
-			<version>3.2.7.ga</version>
-			<exclusions>
-				<exclusion>
-					<groupId>javax.transaction</groupId>
-					<artifactId>jta</artifactId>
-				</exclusion>
-			</exclusions>
+			<artifactId>hibernate-entitymanager</artifactId>
+			<version>3.5.1-Final</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-entitymanager</artifactId>
-			<version>3.4.0.GA</version>
+			<artifactId>hibernate-core</artifactId>
+			<version>3.5.1-Final</version>
 		</dependency>
+        <dependency>
+            <groupId>org.hibernate.javax.persistence</groupId>
+            <artifactId>hibernate-jpa-2.0-api</artifactId>
+            <version>1.0.1.Final</version>
+        </dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>

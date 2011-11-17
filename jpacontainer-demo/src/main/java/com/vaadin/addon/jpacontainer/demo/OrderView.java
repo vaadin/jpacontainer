@@ -13,12 +13,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.vaadin.addon.jpacontainer.demo;
 
+import java.util.Date;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 import com.vaadin.addon.jpacontainer.EntityProvider;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.demo.domain.Customer;
 import com.vaadin.addon.jpacontainer.demo.domain.Order;
-import com.vaadin.addon.jpacontainer.filter.Filters;
 import com.vaadin.data.Item;
+import com.vaadin.data.util.filter.Between;
+import com.vaadin.data.util.filter.Compare.Equal;
+import com.vaadin.data.util.filter.Compare.GreaterOrEqual;
+import com.vaadin.data.util.filter.Compare.LessOrEqual;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -30,15 +41,10 @@ import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window.Notification;
-import java.util.Date;
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 /**
  * View for browsing orders.
- *
+ * 
  * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
@@ -51,17 +57,18 @@ public class OrderView extends CustomComponent {
     private EntityProvider<Order> entityProvider;
     @Resource(name = "customerProvider")
     private EntityProvider<Customer> customerProvider;
-    private JPAContainer<Order> orderContainer = new JPAContainer(Order.class);
-    private JPAContainer<Customer> customerContainer = new JPAContainer(
+    private JPAContainer<Order> orderContainer = new JPAContainer<Order>(
+            Order.class);
+    private JPAContainer<Customer> customerContainer = new JPAContainer<Customer>(
             Customer.class);
     private ComboBox filterCustomer = new ComboBox("Customer:") {
 
         @Override
         public String getItemCaption(Object itemId) {
             Item item = getItem(itemId);
-            return String.format("%s (%d)", item.getItemProperty("customerName").
-                    getValue(),
-                    item.getItemProperty("custNo").getValue());
+            return String.format("%s (%d)", item
+                    .getItemProperty("customerName").getValue(), item
+                    .getItemProperty("custNo").getValue());
         }
     };
     private DateField filterFrom = new DateField("From:");
@@ -78,9 +85,9 @@ public class OrderView extends CustomComponent {
         HorizontalLayout toolbar = new HorizontalLayout();
         {
             customerContainer.setEntityProvider(customerProvider);
-            customerContainer.setApplyPredicatesImmediately(true);
-            customerContainer.sort(new Object[]{"customerName", "custNo"},
-                    new boolean[]{true, true});
+            customerContainer.setApplyFiltersImmediately(true);
+            customerContainer.sort(new Object[] { "customerName", "custNo" },
+                    new boolean[] { true, true });
             customerContainer.setReadOnly(true);
 
             filterCustomer.setNullSelectionAllowed(true);
@@ -127,7 +134,7 @@ public class OrderView extends CustomComponent {
         Table orderTable = new Table();
         {
             orderContainer.setEntityProvider(entityProvider);
-            orderContainer.setApplyPredicatesImmediately(false);
+            orderContainer.setApplyFiltersImmediately(false);
             // Remove unused properties
             orderContainer.removeContainerProperty("id");
             orderContainer.removeContainerProperty("version");
@@ -141,44 +148,21 @@ public class OrderView extends CustomComponent {
 
             orderTable.setSizeFull();
             orderTable.setContainerDataSource(orderContainer);
-            orderTable.setVisibleColumns(
-                    new String[]{"orderNo",
-                        "orderDate",
-                        "customer.custNo",
-                        "customer.customerName",
-                        "customerReference",
-                        "salesReference",
-                        "billingAddress.streetOrBox",
-                        "billingAddress.postalCode",
-                        "billingAddress.postOffice",
-                        "billingAddress.country",
-                        "billedDate",
-                        "shippingAddress.streetOrBox",
-                        "shippingAddress.postalCode",
-                        "shippingAddress.postOffice",
-                        "shippingAddress.country",
-                        "shippedDate",
-                        "total"
-                    });
-            orderTable.setColumnHeaders(
-                    new String[]{"Order No",
-                        "Order Date",
-                        "Cust No",
-                        "Customer",
-                        "Customer Ref",
-                        "Sales Ref",
-                        "BillTo Address",
-                        "BillTo Postal Code",
-                        "BillTo Post Office",
-                        "BillTo Country",
-                        "Billed Date",
-                        "ShipTo Address",
-                        "ShipTo Postal Code",
-                        "ShipTo Post Office",
-                        "ShipTo Country",
-                        "Shipped Date",
-                        "Total Amount"
-                    });
+            orderTable.setVisibleColumns(new String[] { "orderNo", "orderDate",
+                    "customer.custNo", "customer.customerName",
+                    "customerReference", "salesReference",
+                    "billingAddress.streetOrBox", "billingAddress.postalCode",
+                    "billingAddress.postOffice", "billingAddress.country",
+                    "billedDate", "shippingAddress.streetOrBox",
+                    "shippingAddress.postalCode", "shippingAddress.postOffice",
+                    "shippingAddress.country", "shippedDate", "total" });
+            orderTable.setColumnHeaders(new String[] { "Order No",
+                    "Order Date", "Cust No", "Customer", "Customer Ref",
+                    "Sales Ref", "BillTo Address", "BillTo Postal Code",
+                    "BillTo Post Office", "BillTo Country", "Billed Date",
+                    "ShipTo Address", "ShipTo Postal Code",
+                    "ShipTo Post Office", "ShipTo Country", "Shipped Date",
+                    "Total Amount" });
             orderTable.setColumnAlignment("total", Table.ALIGN_RIGHT);
             orderTable.setColumnCollapsingAllowed(true);
             orderTable.setSelectable(true);
@@ -191,16 +175,14 @@ public class OrderView extends CustomComponent {
                         true);
                 orderTable.setColumnCollapsed("shippingAddress.postOffice",
                         true);
-                orderTable.setColumnCollapsed("shippingAddress.country",
-                        true);
+                orderTable.setColumnCollapsed("shippingAddress.country", true);
                 orderTable.setColumnCollapsed("billingAddress.streetOrBox",
                         true);
-                orderTable.setColumnCollapsed("billingAddress.postalCode",
-                        true);
-                orderTable.setColumnCollapsed("billingAddress.postOffice",
-                        true);
-                orderTable.setColumnCollapsed("billingAddress.country",
-                        true);
+                orderTable
+                        .setColumnCollapsed("billingAddress.postalCode", true);
+                orderTable
+                        .setColumnCollapsed("billingAddress.postOffice", true);
+                orderTable.setColumnCollapsed("billingAddress.country", true);
             } catch (IllegalStateException e) {
                 // Ignore it
             }
@@ -217,8 +199,8 @@ public class OrderView extends CustomComponent {
         filterTo.setValue(null);
         filterFrom.setValue(null);
         filterCustomer.setValue(null);
-        orderContainer.removeAllPredicates();
-        orderContainer.applyPredicates();
+        orderContainer.removeAllContainerFilters();
+        orderContainer.applyFilters();
         resetBtn.setEnabled(false);
     }
 
@@ -232,31 +214,28 @@ public class OrderView extends CustomComponent {
             return;
         }
 
-        orderContainer.removeAllPredicates();
+        orderContainer.removeAllContainerFilters();
 
         if (customerId != null) {
-            Customer c = customerContainer.getItem(customerId).
-                    getEntity();
-            orderContainer.addPredicate(Filters.eq("customer",
-                    c));
+            Customer c = customerContainer.getItem(customerId).getEntity();
+            orderContainer.addContainerFilter(new Equal("customer", c));
         }
 
         if (from != null && to != null) {
             if (to.before(from)) {
-                getWindow().showNotification(
-                        "Please check the dates!",
+                getWindow().showNotification("Please check the dates!",
                         Notification.TYPE_WARNING_MESSAGE);
                 return;
             }
-            orderContainer.addPredicate(Filters.between("orderDate",
-                    from,
-                    to, true, true));
+            orderContainer
+                    .addContainerFilter(new Between("orderDate", from, to));
         } else if (from != null) {
-            orderContainer.addPredicate(Filters.gteq("orderDate", from));
+            orderContainer.addContainerFilter(new GreaterOrEqual("orderDate",
+                    from));
         } else if (to != null) {
-            orderContainer.addPredicate(Filters.lteq("orderDate", to));
+            orderContainer.addContainerFilter(new LessOrEqual("orderDate", to));
         }
-        orderContainer.applyPredicates();
+        orderContainer.applyFilters();
         resetBtn.setEnabled(true);
     }
 

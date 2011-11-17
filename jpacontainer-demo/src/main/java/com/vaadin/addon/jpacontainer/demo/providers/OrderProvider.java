@@ -13,15 +13,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.vaadin.addon.jpacontainer.demo.providers;
 
-import com.vaadin.addon.jpacontainer.demo.domain.Order;
 import org.springframework.stereotype.Repository;
 
+import com.vaadin.addon.jpacontainer.demo.domain.Order;
+
 /**
- * Entity provider for {@link Order}s that uses Spring's declarative
- * transaction annotations. It is also annotated with the {@link Repository} annotation,
- * which means that the Spring container will automatically detect it and
- * add it to the container.
- *
+ * Entity provider for {@link Order}s that uses Spring's declarative transaction
+ * annotations. It is also annotated with the {@link Repository} annotation,
+ * which means that the Spring container will automatically detect it and add it
+ * to the container.
+ * 
  * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */

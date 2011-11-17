@@ -13,12 +13,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.vaadin.addon.jpacontainer.demo;
 
+import java.util.Date;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 import com.vaadin.addon.jpacontainer.EntityProvider;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.demo.domain.Customer;
 import com.vaadin.addon.jpacontainer.demo.domain.Invoice;
-import com.vaadin.addon.jpacontainer.filter.Filters;
 import com.vaadin.data.Item;
+import com.vaadin.data.util.filter.Between;
+import com.vaadin.data.util.filter.Compare.Equal;
+import com.vaadin.data.util.filter.Compare.GreaterOrEqual;
+import com.vaadin.data.util.filter.Compare.Less;
+import com.vaadin.data.util.filter.Compare.LessOrEqual;
+import com.vaadin.data.util.filter.IsNull;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -31,15 +44,10 @@ import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window.Notification;
-import java.util.Date;
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 /**
  * View for browsing invoices.
- *
+ * 
  * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
@@ -52,18 +60,18 @@ public class InvoiceView extends CustomComponent {
     private EntityProvider<Invoice> invoiceProvider;
     @Resource(name = "customerProvider")
     private EntityProvider<Customer> customerProvider;
-    private JPAContainer<Invoice> invoiceContainer = new JPAContainer(
+    private JPAContainer<Invoice> invoiceContainer = new JPAContainer<Invoice>(
             Invoice.class);
-    private JPAContainer<Customer> customerContainer = new JPAContainer(
+    private JPAContainer<Customer> customerContainer = new JPAContainer<Customer>(
             Customer.class);
     private ComboBox filterCustomer = new ComboBox("Customer:") {
 
         @Override
         public String getItemCaption(Object itemId) {
             Item item = getItem(itemId);
-            return String.format("%s (%d)", item.getItemProperty("customerName").
-                    getValue(),
-                    item.getItemProperty("custNo").getValue());
+            return String.format("%s (%d)", item
+                    .getItemProperty("customerName").getValue(), item
+                    .getItemProperty("custNo").getValue());
         }
     };
     private DateField filterFrom = new DateField("From:");
@@ -81,9 +89,9 @@ public class InvoiceView extends CustomComponent {
         HorizontalLayout toolbar = new HorizontalLayout();
         {
             customerContainer.setEntityProvider(customerProvider);
-            customerContainer.setApplyPredicatesImmediately(true);
-            customerContainer.sort(new Object[]{"customerName", "custNo"},
-                    new boolean[]{true, true});
+            customerContainer.setApplyFiltersImmediately(true);
+            customerContainer.sort(new Object[] { "customerName", "custNo" },
+                    new boolean[] { true, true });
             customerContainer.setReadOnly(true);
 
             filterCustomer.setNullSelectionAllowed(true);
@@ -98,9 +106,9 @@ public class InvoiceView extends CustomComponent {
             filterTo.setResolution(DateField.RESOLUTION_DAY);
             filterTo.setDateFormat("yyyy-MM-dd");
 
-            //toolbar.addComponent(new Label("Filter by Order Date:"));
+            // toolbar.addComponent(new Label("Filter by Order Date:"));
             toolbar.addComponent(filterFrom);
-            //toolbar.addComponent(new Label("-"));
+            // toolbar.addComponent(new Label("-"));
             toolbar.addComponent(filterTo);
 
             toolbar.addComponent(filterOverdue);
@@ -136,7 +144,7 @@ public class InvoiceView extends CustomComponent {
         Table invoiceTable = new Table();
         {
             invoiceContainer.setEntityProvider(invoiceProvider);
-            invoiceContainer.setApplyPredicatesImmediately(false);
+            invoiceContainer.setApplyFiltersImmediately(false);
             // Remove unused properties
             invoiceContainer.removeContainerProperty("id");
             invoiceContainer.removeContainerProperty("version");
@@ -144,33 +152,21 @@ public class InvoiceView extends CustomComponent {
 
             // Add some nested properties
             invoiceContainer.addNestedContainerProperty("order.orderNo");
-            invoiceContainer.addNestedContainerProperty(
-                    "order.customer.customerName");
-            invoiceContainer.addNestedContainerProperty("order.customer.custNo");
+            invoiceContainer
+                    .addNestedContainerProperty("order.customer.customerName");
+            invoiceContainer
+                    .addNestedContainerProperty("order.customer.custNo");
             invoiceContainer.addNestedContainerProperty("order.customer");
 
             invoiceTable.setSizeFull();
             invoiceTable.setContainerDataSource(invoiceContainer);
-            invoiceTable.setVisibleColumns(
-                    new String[]{"invoiceNo",
-                        "order.orderNo",
-                        "order.customer.custNo",
-                        "order.customer.customerName",
-                        "invoiceDate",
-                        "dueDate",
-                        "paidDate",
-                        "total"
-                    });
-            invoiceTable.setColumnHeaders(
-                    new String[]{"Invoice No",
-                        "Order No",
-                        "Cust No",
-                        "Customer",
-                        "Invoice Date",
-                        "Due Date",
-                        "Paid Date",
-                        "Total Amount"
-                    });
+            invoiceTable.setVisibleColumns(new String[] { "invoiceNo",
+                    "order.orderNo", "order.customer.custNo",
+                    "order.customer.customerName", "invoiceDate", "dueDate",
+                    "paidDate", "total" });
+            invoiceTable.setColumnHeaders(new String[] { "Invoice No",
+                    "Order No", "Cust No", "Customer", "Invoice Date",
+                    "Due Date", "Paid Date", "Total Amount" });
             invoiceTable.setColumnAlignment("total", Table.ALIGN_RIGHT);
             invoiceTable.setColumnCollapsingAllowed(true);
             invoiceTable.setSelectable(true);
@@ -194,39 +190,35 @@ public class InvoiceView extends CustomComponent {
             getWindow().showNotification("Nothing to do");
             return;
         }
-        invoiceContainer.removeAllPredicates();
+        invoiceContainer.removeAllContainerFilters();
 
         if (customerId != null) {
-            Customer c = customerContainer.getItem(customerId).
-                    getEntity();
-            invoiceContainer.addPredicate(Filters.eq("order.customer",
-                    c));
+            Customer c = customerContainer.getItem(customerId).getEntity();
+            invoiceContainer.addContainerFilter(new Equal("order.customer", c));
         }
 
         if (overdue) {
-            invoiceContainer.addPredicate(Filters.lt("dueDate",
-                    new Date()));
-            invoiceContainer.addPredicate(Filters.isNull("paidDate"));
+            invoiceContainer
+                    .addContainerFilter(new Less("dueDate", new Date()));
+            invoiceContainer.addContainerFilter(new IsNull("paidDate"));
         }
 
         if (from != null && to != null) {
             if (to.before(from)) {
-                getWindow().showNotification(
-                        "Please check the dates!",
+                getWindow().showNotification("Please check the dates!",
                         Notification.TYPE_WARNING_MESSAGE);
                 return;
             }
-            invoiceContainer.addPredicate(Filters.between("invoiceDate",
-                    from,
-                    to, true, true));
+            invoiceContainer.addContainerFilter(new Between("invoiceDate",
+                    from, to));
         } else if (from != null) {
-            invoiceContainer.addPredicate(Filters.gteq("invoiceDate",
-                    from));
+            invoiceContainer.addContainerFilter(new GreaterOrEqual(
+                    "invoiceDate", from));
         } else if (to != null) {
-            invoiceContainer.addPredicate(Filters.lteq("invoiceDate",
+            invoiceContainer.addContainerFilter(new LessOrEqual("invoiceDate",
                     to));
         }
-        invoiceContainer.applyPredicates();
+        invoiceContainer.applyFilters();
         resetBtn.setEnabled(true);
     }
 
@@ -235,8 +227,8 @@ public class InvoiceView extends CustomComponent {
         filterFrom.setValue(null);
         filterCustomer.setValue(null);
         filterOverdue.setValue(false);
-        invoiceContainer.removeAllPredicates();
-        invoiceContainer.applyPredicates();
+        invoiceContainer.removeAllContainerFilters();
+        invoiceContainer.applyFilters();
         resetBtn.setEnabled(false);
     }
 
