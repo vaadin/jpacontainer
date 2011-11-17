@@ -73,7 +73,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
     public LocalEntityProvider(Class<T> entityClass, EntityManager entityManager) {
         this(entityClass);
         assert entityManager != null : "entityManager must not be null";
-        this.entityManager = entityManager;
+        setEntityManager(entityManager);
     }
 
     /**
