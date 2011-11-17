@@ -1,11 +1,12 @@
 package com.vaadin.demo.jpaaddressbook;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
-import com.vaadin.addon.jpacontainer.filter.Filters;
-import com.vaadin.addon.jpacontainer.filter.Junction;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.BeanItem;
+import com.vaadin.data.util.filter.Compare.Equal;
+import com.vaadin.data.util.filter.Like;
+import com.vaadin.data.util.filter.Or;
 import com.vaadin.demo.jpaaddressbook.PersonEditor.EditorSavedEvent;
 import com.vaadin.demo.jpaaddressbook.PersonEditor.EditorSavedListener;
 import com.vaadin.demo.jpaaddressbook.domain.Department;
@@ -189,23 +190,23 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
     }
 
     private void updateFilters() {
-        persons.setApplyPredicatesImmediately(false);
-        persons.removeAllPredicates();
+        persons.setApplyFiltersImmediately(false);
+        persons.removeAllContainerFilters();
         if (departmentFilter != null) {
             // two level hierarchy at max in our demo
             if (departmentFilter.getParent() == null) {
-                persons.addPredicate(Filters.joinFilter("department",
-                        Filters.eq("parent", departmentFilter)));
+                persons.addContainerFilter(new Equal("department.parent",
+                        departmentFilter));
             } else {
-                persons.addPredicate(Filters.eq("department", departmentFilter));
+                persons.addContainerFilter(new Equal("department",
+                        departmentFilter));
             }
         }
         if (textFilter != null && !textFilter.equals("")) {
-            Junction or = Filters.or(
-                    Filters.like("firstName", textFilter + "%", false),
-                    Filters.like("lastName", textFilter + "%", false));
-            persons.addPredicate(or);
+            Or or = new Or(new Like("firstName", textFilter + "%", false),
+                    new Like("lastName", textFilter + "%", false));
+            persons.addContainerFilter(or);
         }
-        persons.applyPredicates();
+        persons.applyFilters();
     }
 }

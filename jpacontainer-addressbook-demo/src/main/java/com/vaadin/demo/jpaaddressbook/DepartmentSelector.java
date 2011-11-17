@@ -4,8 +4,9 @@ import org.vaadin.addon.customfield.CustomField;
 
 import com.vaadin.addon.jpacontainer.EntityItem;
 import com.vaadin.addon.jpacontainer.JPAContainer;
-import com.vaadin.addon.jpacontainer.filter.Filters;
 import com.vaadin.data.Property;
+import com.vaadin.data.util.filter.Compare.Equal;
+import com.vaadin.data.util.filter.IsNull;
 import com.vaadin.demo.jpaaddressbook.domain.Department;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CssLayout;
@@ -28,12 +29,12 @@ public class DepartmentSelector extends CustomField {
         setCaption("Department");
         // Only list "roots" which are in our example geographical super
         // departments
-        geoContainer.addPredicate(Filters.isNull("parent"));
+        geoContainer.addContainerFilter(new IsNull("parent"));
         geographicalDepartment.setContainerDataSource(geoContainer);
         geographicalDepartment.setItemCaptionPropertyId("name");
         geographicalDepartment.setImmediate(true);
 
-        container.setApplyPredicatesImmediately(false);
+        container.setApplyFiltersImmediately(false);
         filterDepartments(null);
         department.setContainerDataSource(container);
         department.setItemCaptionPropertyId("name");
@@ -85,8 +86,9 @@ public class DepartmentSelector extends CustomField {
             department.setEnabled(false);
         } else {
             container.removeAllContainerFilters();
-            container.addPredicate(Filters.eq("parent", currentGeoDepartment));
-            container.applyPredicates();
+            container.addContainerFilter(new Equal("parent",
+                    currentGeoDepartment));
+            container.applyFilters();
             department.setValue(null);
             department.setEnabled(true);
         }
