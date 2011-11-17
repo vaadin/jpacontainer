@@ -14,6 +14,7 @@ import javax.persistence.criteria.Root;
 import com.vaadin.addon.jpacontainer.util.CollectionUtil;
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.util.filter.And;
+import com.vaadin.data.util.filter.Between;
 import com.vaadin.data.util.filter.Compare;
 import com.vaadin.data.util.filter.Compare.Equal;
 import com.vaadin.data.util.filter.Compare.Greater;
@@ -116,8 +117,8 @@ public class FilterConverter {
 
         public <T> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
                 Root<T> root) {
-            return cb.isNull(AdvancedFilterableSupport.getPropertyPath(
-                    root, ((IsNull) filter).getPropertyId()));
+            return cb.isNull(AdvancedFilterableSupport.getPropertyPath(root,
+                    ((IsNull) filter).getPropertyId()));
         }
     }
 
@@ -175,12 +176,32 @@ public class FilterConverter {
         }
     }
 
+    private static class BetweenConverter implements Converter {
+        public boolean canConvert(Filter filter) {
+            return filter instanceof Between;
+        }
+
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        public <T> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
+                Root<T> root) {
+            Between between = (Between) filter;
+            Expression<? extends Comparable> field = AdvancedFilterableSupport
+                    .getPropertyPath(root, between.getPropertyId());
+            Expression<? extends Comparable> from = cb.literal(between
+                    .getStartValue());
+            Expression<? extends Comparable> to = cb.literal(between
+                    .getEndValue());
+            return cb.between(field, from, to);
+        }
+
+    }
+
     private static Collection<Converter> converters;
     static {
         converters = Collections.unmodifiableCollection(Arrays.asList(
                 new AndConverter(), new OrConverter(), new CompareConverter(),
                 new IsNullConverter(), new SimpleStringFilterConverter(),
-                new LikeConverter()));
+                new LikeConverter(), new BetweenConverter()));
     }
 
     /**
