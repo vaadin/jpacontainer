@@ -19,7 +19,9 @@ import javax.persistence.criteria.Root;
 
 import com.vaadin.addon.jpacontainer.AdvancedFilterable;
 import com.vaadin.data.Container.Filter;
+import com.vaadin.data.util.filter.AbstractJunctionFilter;
 import com.vaadin.data.util.filter.And;
+import com.vaadin.data.util.filter.Between;
 import com.vaadin.data.util.filter.Compare;
 import com.vaadin.data.util.filter.IsNull;
 import com.vaadin.data.util.filter.Like;
@@ -154,18 +156,23 @@ public class AdvancedFilterableSupport implements AdvancedFilterable,
      */
     public boolean isValidFilter(Filter filter) {
         assert filter != null : "filter must not be null";
-        // TODO:
-        // if (filter instanceof JoinFilter) {
-        // return isFilterable(((JoinFilter) filter).getJoinProperty());
-        // } else if (filter instanceof PropertyFilter) {
-        // return isFilterable(((PropertyFilter) filter).getPropertyId());
-        // } else if (filter instanceof CompositeFilter) {
-        // for (Filter f : ((CompositeFilter) filter).getFilters()) {
-        // if (!isValidFilter(f)) {
-        // return false;
-        // }
-        // }
-        // }
+        if (filter instanceof Between) {
+            return isFilterable(((Between) filter).getPropertyId());
+        } else if (filter instanceof Compare) {
+            return isFilterable(((Compare) filter).getPropertyId());
+        } else if (filter instanceof IsNull) {
+            return isFilterable(((IsNull) filter).getPropertyId());
+        } else if (filter instanceof Like) {
+            return isFilterable(((Like) filter).getPropertyId());
+        } else if (filter instanceof SimpleStringFilter) {
+            return isFilterable(((SimpleStringFilter) filter).getPropertyId());
+        } else if (filter instanceof AbstractJunctionFilter) {
+            for (Filter f : ((AbstractJunctionFilter) filter).getFilters()) {
+                if (!isValidFilter(f)) {
+                    return false;
+                }
+            }
+        }
         return true;
     }
 
