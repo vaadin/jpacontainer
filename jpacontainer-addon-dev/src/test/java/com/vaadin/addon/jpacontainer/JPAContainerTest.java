@@ -1,6 +1,3 @@
-/*
-${license.header.text}
- */
 package com.vaadin.addon.jpacontainer;
 
 import static org.easymock.EasyMock.anyObject;
