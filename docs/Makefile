@@ -7,8 +7,8 @@ all: images
 IMAGES =	three-layer-architecture architecture \
 			download-annotated \
 			application-class \
-			addressbookmainview-annotated addressbookmainview-class \
-			domain-model
+			crudview-annotated addressbookmainview-annotated addressbookmainview-class \
+			domain-model domain-model-department
 
 ################################################################################
 # Image conversions

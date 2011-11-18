@@ -15,7 +15,7 @@
    id="svg2475"
    sodipodi:version="0.32"
    inkscape:version="0.48.2 r9819"
-   sodipodi:docname="addressbookmainview-annotated.svg"
+   sodipodi:docname="crudview-annotated.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
    inkscape:export-filename="/home/magi/itmill/doc/cheatsheet/vaadin-cheatsheet.png"
    inkscape:export-xdpi="300.01001"
@@ -1046,6 +1046,18 @@
            style="fill:#f39300;fill-opacity:1;fill-rule:evenodd;stroke:none" />
       </g>
     </marker>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath18252">
+      <rect
+         style="color:#000000;fill:#939393;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:5.31496048;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+         id="rect18254"
+         width="442.91339"
+         height="272.83466"
+         x="265.74802"
+         y="201.96848"
+         ry="0" />
+    </clipPath>
   </defs>
   <metadata
      id="metadata2480">
@@ -1055,7 +1067,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -1069,7 +1081,8 @@
        id="image16980"
        xlink:href="file:///home/magi/itmill/JPAContainer/docs/img/addressbookmainview.png"
        height="271"
-       width="632" />
+       width="632"
+       clip-path="url(#clipPath18252)" />
     <flowRoot
        style="font-size:12px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Helvetica Rounded LT Std;-inkscape-font-specification:Helvetica Rounded LT Std Bold"
        id="flowRoot2485"
@@ -1098,27 +1111,6 @@
          id="flowPara8730" /></flowRoot>    <g
        transform="matrix(0.5,0,0,0.5,103.34299,0.7940752)"
        id="g18053" />
-    <path
-       style="fill:none;stroke:#f39300;stroke-width:3.54330707;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#marker52016)"
-       d="m 124.01575,131.10234 0,67.32283"
-       id="path8208-1-5-3"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cc" />
-    <text
-       xml:space="preserve"
-       style="font-size:16px;font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Helvetica LT Std;-inkscape-font-specification:Helvetica LT Std Light"
-       x="63.009644"
-       y="126.90581"
-       id="text84151-4-4-7-2-7-2-2-9"
-       sodipodi:linespacing="125%"
-       inkscape:transform-center-x="7.0447343"
-       inkscape:transform-center-y="1.4910516"><tspan
-         sodipodi:role="line"
-         x="63.009644"
-         y="126.90581"
-         id="tspan3271-2-9-1-2-7-0-4-8">groupTree : <tspan
-   style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Helvetica Rounded LT Std;-inkscape-font-specification:Helvetica Rounded LT Std Bold"
-   id="tspan18190">Tree</tspan></tspan></text>
     <path
        style="fill:none;stroke:#f39300;stroke-width:3.54330707;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#marker52016)"
        d="m 294.09449,173.62203 0,24.80314"
@@ -1176,27 +1168,6 @@
          x="374.87054"
          y="169.85472"
          id="tspan3271-2-9-1-2-7-0-4-8-0-6">editButton</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-size:16px;font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Helvetica LT Std;-inkscape-font-specification:Helvetica LT Std Light"
-       x="544.48981"
-       y="170.23003"
-       id="text84151-4-4-7-2-7-2-2-9-0"
-       sodipodi:linespacing="125%"
-       inkscape:transform-center-x="7.0447343"
-       inkscape:transform-center-y="1.4910516"><tspan
-         sodipodi:role="line"
-         x="544.48981"
-         y="170.23003"
-         id="tspan3271-2-9-1-2-7-0-4-8-9">searchField : <tspan
-   style="-inkscape-font-specification:Helvetica Rounded LT Std Bold;font-family:Helvetica Rounded LT Std;font-weight:bold;font-style:normal;font-stretch:normal;font-variant:normal"
-   id="tspan18192">TextField</tspan></tspan></text>
-    <path
-       style="fill:none;stroke:#f39300;stroke-width:3.54330707;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#marker52016)"
-       d="m 623.62205,173.62203 0,24.80314"
-       id="path8208-1-5-3-9-1-1"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cc" />
     <text
        xml:space="preserve"
        style="font-size:16px;font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:125%;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Helvetica LT Std;-inkscape-font-specification:Helvetica LT Std Light"
