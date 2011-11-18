@@ -7,7 +7,7 @@ import com.vaadin.addon.jpacontainer.BatchableEntityProvider;
 import com.vaadin.addon.jpacontainer.MutableEntityProvider;
 import com.vaadin.addon.jpacontainer.testdata.Address;
 import com.vaadin.addon.jpacontainer.testdata.Person;
-import com.vaadin.addon.jpacontainer.testdata.TestDataGenerator;
+import com.vaadin.addon.jpacontainer.testdata.DataGenerator;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -43,12 +43,12 @@ public abstract class AbstractBatchableEntityProviderEMTest extends
 		addedPerson.getAddress().setPostalCode("Postal Code");
 		addedPerson.getAddress().setPostOffice("Post Office");
 		
-		final Person updatedPerson = TestDataGenerator.getTestDataSortedByName().get(1).clone();
+		final Person updatedPerson = DataGenerator.getTestDataSortedByName().get(1).clone();
 		updatedPerson.setFirstName("Another changed first name");
 		addedPerson.setManager(updatedPerson);
 
 
-		final Person removedPerson = TestDataGenerator.getTestDataSortedByName().get(2).clone();
+		final Person removedPerson = DataGenerator.getTestDataSortedByName().get(2).clone();
 		final Object[] addedPersonId = new Object[1];
 		
 		entityProvider.setEntitiesDetached(false);

@@ -20,7 +20,7 @@ import com.vaadin.Application;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
 import com.vaadin.addon.jpacontainer.testdata.Person;
-import com.vaadin.addon.jpacontainer.testdata.TestDataGenerator;
+import com.vaadin.addon.jpacontainer.testdata.DataGenerator;
 import com.vaadin.service.ApplicationContext;
 import com.vaadin.terminal.ApplicationResource;
 import com.vaadin.terminal.PaintException;
@@ -47,7 +47,7 @@ public abstract class AbstractIntegrationTest {
     @Before
     public void setUp() throws Exception {
         if(!testdataReady) {
-            TestDataGenerator.persistTestData(getEntityManager());
+            DataGenerator.persistTestData(getEntityManager());
             testdataReady  = true;
         }
     }

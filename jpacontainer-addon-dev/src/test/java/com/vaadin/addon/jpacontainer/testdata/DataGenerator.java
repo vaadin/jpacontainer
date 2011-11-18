@@ -18,49 +18,49 @@ import com.vaadin.data.util.filter.Like;
 /**
  * A helper class to generate some test data and persist it.
  */
-public class TestDataGenerator {
+public class DataGenerator {
 
     @SuppressWarnings("unchecked")
     public static void createTestData() throws Exception {
         // Create the test data
-        TestDataGenerator.skills = new ArrayList<Skill>();
-        for (String skillName : TestDataGenerator.skillNames) {
+        DataGenerator.skills = new ArrayList<Skill>();
+        for (String skillName : DataGenerator.skillNames) {
             Skill skill = new Skill();
             skill.setSkillName(skillName);
-            TestDataGenerator.skills.add(skill);
+            DataGenerator.skills.add(skill);
         }
 
         Random rnd = new Random(1);
-        TestDataGenerator.testDataSortedByPrimaryKey = new ArrayList<Person>();
-        TestDataGenerator.filteredTestDataSortedByPrimaryKey = new ArrayList<Person>();
-        TestDataGenerator.testDataEmbeddedIdSortedByName = new ArrayList<EmbeddedIdPerson>();
+        DataGenerator.testDataSortedByPrimaryKey = new ArrayList<Person>();
+        DataGenerator.filteredTestDataSortedByPrimaryKey = new ArrayList<Person>();
+        DataGenerator.testDataEmbeddedIdSortedByName = new ArrayList<EmbeddedIdPerson>();
         for (int i = 0; i < 500; i++) {
             Person p = new Person();
-            p.setFirstName(TestDataGenerator.firstNames[(i / 10) % 10] + " "
+            p.setFirstName(DataGenerator.firstNames[(i / 10) % 10] + " "
                     + i);
-            p.setLastName(TestDataGenerator.lastNames[i % 10]);
+            p.setLastName(DataGenerator.lastNames[i % 10]);
             p.setDateOfBirth(new Date(rnd.nextLong()));
             p.setAddress(new Address());
             p.getAddress()
                     .setStreet(
                             rnd.nextInt(1000)
                                     + " "
-                                    + TestDataGenerator.streets[rnd
-                                            .nextInt(TestDataGenerator.streets.length)]);
+                                    + DataGenerator.streets[rnd
+                                            .nextInt(DataGenerator.streets.length)]);
             p.getAddress().setPostOffice(
-                    TestDataGenerator.postOffices[rnd
-                            .nextInt(TestDataGenerator.postOffices.length)]);
+                    DataGenerator.postOffices[rnd
+                            .nextInt(DataGenerator.postOffices.length)]);
             StringBuffer pc = new StringBuffer();
             for (int j = 0; j < 5; j++) {
                 pc.append(rnd.nextInt(10));
             }
             p.getAddress().setPostalCode(pc.toString());
-            TestDataGenerator.testDataSortedByPrimaryKey.add(p);
+            DataGenerator.testDataSortedByPrimaryKey.add(p);
             /*
              * Our filter only includes persons whose lastname begin with S
              */
             if (p.getLastName().startsWith("S")) {
-                TestDataGenerator.filteredTestDataSortedByPrimaryKey.add(p);
+                DataGenerator.filteredTestDataSortedByPrimaryKey.add(p);
             }
 
             // EmbeddedId test data
@@ -70,28 +70,28 @@ public class TestDataGenerator {
             eip.getName().setLastName(p.getLastName());
             eip.setAddress(p.getAddress().clone());
             eip.setDateOfBirth(p.getDateOfBirth());
-            TestDataGenerator.testDataEmbeddedIdSortedByName.add(eip);
+            DataGenerator.testDataEmbeddedIdSortedByName.add(eip);
         }
 
-        TestDataGenerator.testDataSortedByName = (ArrayList<Person>) ((ArrayList<Person>) TestDataGenerator.testDataSortedByPrimaryKey)
+        DataGenerator.testDataSortedByName = (ArrayList<Person>) ((ArrayList<Person>) DataGenerator.testDataSortedByPrimaryKey)
                 .clone();
-        TestDataGenerator.testDataSortedByLastNameAndStreet = (ArrayList<Person>) ((ArrayList<Person>) TestDataGenerator.testDataSortedByPrimaryKey)
+        DataGenerator.testDataSortedByLastNameAndStreet = (ArrayList<Person>) ((ArrayList<Person>) DataGenerator.testDataSortedByPrimaryKey)
                 .clone();
-        TestDataGenerator.filteredTestDataSortedByName = (ArrayList<Person>) ((ArrayList<Person>) TestDataGenerator.filteredTestDataSortedByPrimaryKey)
+        DataGenerator.filteredTestDataSortedByName = (ArrayList<Person>) ((ArrayList<Person>) DataGenerator.filteredTestDataSortedByPrimaryKey)
                 .clone();
         // Set up some helper fields
 
-        TestDataGenerator.sortByName = new ArrayList<SortBy>();
-        TestDataGenerator.sortByName.add(new SortBy("lastName", true));
-        TestDataGenerator.sortByName.add(new SortBy("firstName", true));
+        DataGenerator.sortByName = new ArrayList<SortBy>();
+        DataGenerator.sortByName.add(new SortBy("lastName", true));
+        DataGenerator.sortByName.add(new SortBy("firstName", true));
 
-        TestDataGenerator.sortByLastNameAndStreet = new ArrayList<SortBy>();
-        TestDataGenerator.sortByLastNameAndStreet.add(new SortBy("lastName",
+        DataGenerator.sortByLastNameAndStreet = new ArrayList<SortBy>();
+        DataGenerator.sortByLastNameAndStreet.add(new SortBy("lastName",
                 true));
-        TestDataGenerator.sortByLastNameAndStreet.add(new SortBy(
+        DataGenerator.sortByLastNameAndStreet.add(new SortBy(
                 "address.street", true));
 
-        TestDataGenerator.testFilter = new Like("lastName", "S%", true);
+        DataGenerator.testFilter = new Like("lastName", "S%", true);
 
         // Sort the test data lists
 
@@ -141,47 +141,47 @@ public class TestDataGenerator {
         };
 
         Collections
-                .sort(TestDataGenerator.testDataSortedByName, nameComparator);
-        Collections.sort(TestDataGenerator.testDataSortedByLastNameAndStreet,
+                .sort(DataGenerator.testDataSortedByName, nameComparator);
+        Collections.sort(DataGenerator.testDataSortedByLastNameAndStreet,
                 nameStreetComparator);
-        Collections.sort(TestDataGenerator.filteredTestDataSortedByName,
+        Collections.sort(DataGenerator.filteredTestDataSortedByName,
                 nameComparator);
-        Collections.sort(TestDataGenerator.testDataEmbeddedIdSortedByName,
+        Collections.sort(DataGenerator.testDataEmbeddedIdSortedByName,
                 nameComparatorEmbeddedId);
 
-        assertFalse(TestDataGenerator.testDataSortedByName
-                .equals(TestDataGenerator.testDataSortedByPrimaryKey));
-        assertFalse(TestDataGenerator.testDataSortedByLastNameAndStreet
-                .equals(TestDataGenerator.testDataSortedByPrimaryKey));
-        assertFalse(TestDataGenerator.filteredTestDataSortedByName
-                .equals(TestDataGenerator.filteredTestDataSortedByPrimaryKey));
+        assertFalse(DataGenerator.testDataSortedByName
+                .equals(DataGenerator.testDataSortedByPrimaryKey));
+        assertFalse(DataGenerator.testDataSortedByLastNameAndStreet
+                .equals(DataGenerator.testDataSortedByPrimaryKey));
+        assertFalse(DataGenerator.filteredTestDataSortedByName
+                .equals(DataGenerator.filteredTestDataSortedByPrimaryKey));
 
         // Make the collections unmodifiable
-        TestDataGenerator.testDataEmbeddedIdSortedByName = Collections
-                .unmodifiableList(TestDataGenerator.testDataEmbeddedIdSortedByName);
-        TestDataGenerator.testDataSortedByLastNameAndStreet = Collections
-                .unmodifiableList(TestDataGenerator.testDataSortedByLastNameAndStreet);
-        TestDataGenerator.testDataSortedByName = Collections
-                .unmodifiableList(TestDataGenerator.testDataSortedByName);
-        TestDataGenerator.testDataSortedByPrimaryKey = Collections
-                .unmodifiableList(TestDataGenerator.testDataSortedByPrimaryKey);
+        DataGenerator.testDataEmbeddedIdSortedByName = Collections
+                .unmodifiableList(DataGenerator.testDataEmbeddedIdSortedByName);
+        DataGenerator.testDataSortedByLastNameAndStreet = Collections
+                .unmodifiableList(DataGenerator.testDataSortedByLastNameAndStreet);
+        DataGenerator.testDataSortedByName = Collections
+                .unmodifiableList(DataGenerator.testDataSortedByName);
+        DataGenerator.testDataSortedByPrimaryKey = Collections
+                .unmodifiableList(DataGenerator.testDataSortedByPrimaryKey);
     }
 
     public static void persistTestData(EntityManager entityManager2)
             throws Exception {
         entityManager2.getTransaction().begin();
-        for (Skill s : TestDataGenerator.skills) {
+        for (Skill s : DataGenerator.skills) {
             s.setId(null);
             entityManager2.persist(s);
         }
-        for (Person p : TestDataGenerator.testDataSortedByPrimaryKey) {
+        for (Person p : DataGenerator.testDataSortedByPrimaryKey) {
             p.setId(null);
             if (p.getManager() != null) {
                 p.getManager().setId(null);
             }
             entityManager2.persist(p);
         }
-        for (EmbeddedIdPerson p : TestDataGenerator.testDataEmbeddedIdSortedByName) {
+        for (EmbeddedIdPerson p : DataGenerator.testDataEmbeddedIdSortedByName) {
             entityManager2.persist(p);
         }
         entityManager2.flush();

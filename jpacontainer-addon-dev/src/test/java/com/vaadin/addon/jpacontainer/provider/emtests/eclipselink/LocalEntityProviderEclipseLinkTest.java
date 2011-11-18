@@ -38,7 +38,7 @@ import com.vaadin.addon.jpacontainer.provider.LocalEntityProvider;
 import com.vaadin.addon.jpacontainer.provider.emtests.AbstractLocalEntityProviderEMTest;
 import com.vaadin.addon.jpacontainer.testdata.Person;
 import com.vaadin.addon.jpacontainer.testdata.Skill;
-import com.vaadin.addon.jpacontainer.testdata.TestDataGenerator;
+import com.vaadin.addon.jpacontainer.testdata.DataGenerator;
 import com.vaadin.data.util.filter.Compare.Equal;
 
 /**
@@ -83,11 +83,11 @@ public class LocalEntityProviderEclipseLinkTest extends
         Random rnd = new Random();
         Map<Skill, Collection<Object>> skillPersonMap = new HashMap<Skill, Collection<Object>>();
         getEntityManager().getTransaction().begin();
-        for (Skill s : TestDataGenerator.getSkills()) {
+        for (Skill s : DataGenerator.getSkills()) {
             Set<Object> persons = new HashSet<Object>();
             for (int i = 0; i < 10; i++) {
-                Person p = TestDataGenerator.getTestDataSortedByPrimaryKey()
-                        .get(rnd.nextInt(TestDataGenerator
+                Person p = DataGenerator.getTestDataSortedByPrimaryKey()
+                        .get(rnd.nextInt(DataGenerator
                                 .getTestDataSortedByPrimaryKey().size()));
                 System.out.println("Skill: " + s + " Person: " + p);
                 if (!persons.contains(p.getId())) {
@@ -102,7 +102,7 @@ public class LocalEntityProviderEclipseLinkTest extends
         getEntityManager().getTransaction().commit();
 
         // Now try out the filter
-        for (final Skill s : TestDataGenerator.getSkills()) {
+        for (final Skill s : DataGenerator.getSkills()) {
             Collection<Object> returnedIds = entityProvider
                     .getAllEntityIdentifiers(new Equal("skills.skill", s), null);
             assertTrue(skillPersonMap.get(s).containsAll(returnedIds));

@@ -19,7 +19,7 @@ import com.vaadin.addon.jpacontainer.MutableEntityProvider;
 import com.vaadin.addon.jpacontainer.integration.eclipselink.EclipselinkTestHelper;
 import com.vaadin.addon.jpacontainer.provider.LocalEntityProvider;
 import com.vaadin.addon.jpacontainer.testdata.Person;
-import com.vaadin.addon.jpacontainer.testdata.TestDataGenerator;
+import com.vaadin.addon.jpacontainer.testdata.DataGenerator;
 import com.vaadin.addon.jpacontainer.util.SingleSelectTranslator;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
@@ -73,7 +73,7 @@ public class BasicComponentIntegrationTest extends AbstractIntegrationTest {
 
         Item item = table.getItem(table.firstItemId());
         Property fnp = item.getItemProperty("firstName");
-        Person person = TestDataGenerator.getTestDataSortedByPrimaryKey()
+        Person person = DataGenerator.getTestDataSortedByPrimaryKey()
                 .get(0);
         assertEquals(person.getFirstName(), fnp.getValue());
 
