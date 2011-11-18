@@ -1141,7 +1141,7 @@ public class JPAContainerTest {
             public void containerItemSetChange(ItemSetChangeEvent event) {
                 assertTrue(event instanceof JPAContainer.ItemAddedEvent);
                 assertEquals(123l,
-                        ((JPAContainer<?>.ItemAddedEvent) event).getItemId());
+                        ((JPAContainer.ItemAddedEvent) event).getItemId());
                 listenerCalled[0] = true;
             }
         });
@@ -1169,7 +1169,7 @@ public class JPAContainerTest {
             public void containerItemSetChange(ItemSetChangeEvent event) {
                 assertTrue(event instanceof JPAContainer.ItemRemovedEvent);
                 assertEquals(123l,
-                        ((JPAContainer<?>.ItemRemovedEvent) event).getItemId());
+                        ((JPAContainer.ItemRemovedEvent) event).getItemId());
                 listenerCalled[0] = true;
             }
         });
