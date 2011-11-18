@@ -11,6 +11,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.vaadin.addon.jpacontainer.JPAContainer.ItemRemovedEvent;
+import com.vaadin.data.Container;
+import com.vaadin.data.Container.ItemSetChangeEvent;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.Validator.InvalidValueException;
@@ -246,6 +249,7 @@ public final class JPAContainerItem<T> implements EntityItem<T> {
             } catch (Exception e) {
                 throw new ConversionException(e);
             }
+            // FIXME #
             if (!isReadThrough() || isWriteThrough()) {
                 /*
                  * We don't want to notify the listeners if we have only updated
@@ -253,6 +257,7 @@ public final class JPAContainerItem<T> implements EntityItem<T> {
                  */
                 fireValueChangeEvent();
             }
+            
         }
 
         private List<ValueChangeListener> listeners;
@@ -586,5 +591,29 @@ public final class JPAContainerItem<T> implements EntityItem<T> {
     @Override
     public String toString() {
         return entity.toString();
+    }
+
+    public void refreshEntity() {
+        if(isPersistent()) {
+            entity = getContainer().getEntityProvider().refreshEntity(entity);
+            if(entity == null) {
+                /*
+                 * Entity has been removed, fire item set change for the container
+                 */
+                container.fireContainerItemSetChange(new ItemSetChangeEvent() {
+                    public Container getContainer() {
+                        return container;
+                    }
+                });
+                return;
+            }
+            if(isDirty()) {
+                discard();
+            }
+            Collection<String> itemPropertyIds = getItemPropertyIds();
+            for (String string : itemPropertyIds) {
+                getItemProperty(string).fireValueChangeEvent();
+            }
+        }
     }
 }

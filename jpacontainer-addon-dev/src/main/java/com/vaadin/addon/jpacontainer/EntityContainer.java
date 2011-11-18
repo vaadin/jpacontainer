@@ -179,4 +179,15 @@ public interface EntityContainer<T> extends Container, Container.Sortable,
      * @return the type of property indentified by given propertyId
      */
     public PropertyKind getPropertyKind(Object propertyId);
+
+    /**
+     * Causes all EntityItems created from this container and identified by
+     * given entityId to be refreshed.
+     * 
+     * @param entityId
+     * 
+     * @see EntityItem#refreshEntity()
+     */
+    public void refreshEntity(Object entityId);
+    
 }

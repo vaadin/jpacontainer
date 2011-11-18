@@ -14,6 +14,7 @@ import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
+import javax.persistence.TransactionRequiredException;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -748,6 +749,38 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
     public Object getIdentifier(T entity) {
         return getEntityManager().getEntityManagerFactory()
                 .getPersistenceUnitUtil().getIdentifier(entity);
+    }
+
+    public T refreshEntity(T entity) {
+        try {
+            getEntityManager().refresh(entity);
+        } catch (IllegalArgumentException e) {
+            // detached, removed or something, get by id from em and refresh
+            // than non-detached object
+            // that to be up to date or null if removed
+            entity = findAndRefresh(entity);
+        } catch (EntityNotFoundException e) {
+            return null;
+        } catch (TransactionRequiredException e) {
+            // TODO: handle exception, only in transactional?
+        }
+        return entity;
+    }
+
+    private T findAndRefresh(T entity) {
+        try {
+            entity = getEntityManager().find(
+                    getEntityClassMetadata().getMappedClass(),
+                    getIdentifier(entity));
+            if (entity != null) {
+                // now try to refresh the attached entity
+                getEntityManager().refresh(entity);
+                entity = detachEntity(entity);
+            }
+            return entity;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

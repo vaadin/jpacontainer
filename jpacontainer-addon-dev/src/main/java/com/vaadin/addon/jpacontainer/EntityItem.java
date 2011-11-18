@@ -198,4 +198,22 @@ public interface EntityItem<T> extends Item, Buffered,
      * in this collection.
      */
     public Collection<?> getItemPropertyIds();
+
+    /**
+     * This method refreshes persisted entity from EntityProvider and calls value change
+     * listeners for all properties.
+     * <p>
+     * The method can be used to update one item if developer know it has been
+     * changed either straight to the entity object or to backend.
+     * <p>
+     * Note, that in case the write buffering and {@link #isDirty()} flag is on,
+     * all changes will be lost and property values are overridden from the
+     * backend.
+     * <p>
+     * Also note that the entire container might get reloaded when calling this
+     * method when e.g. the entity has been deleted from the database.
+     * 
+     */
+    public void refreshEntity();
+
 }

@@ -1560,5 +1560,19 @@ public class JPAContainer<T> implements EntityContainer<T>,
         assert propertyId != null : "propertyId must not be null";
         return propertyList.getPropertyKind(propertyId.toString());
     }
+    
+    @SuppressWarnings("unchecked")
+    public void refreshEntity(Object entityId) {
+        LinkedList<WeakReference<JPAContainerItem<T>>> linkedList;
+        synchronized (itemRegistry) {
+             linkedList = (LinkedList<WeakReference<JPAContainerItem<T>>>) itemRegistry.get(entityId).clone();
+        }
+        for (WeakReference<JPAContainerItem<T>> weakReference : linkedList) {
+            JPAContainerItem<T> jpaContainerItem = weakReference.get();
+            if(jpaContainerItem != null) {
+                jpaContainerItem.refreshEntity();
+            }
+        }
+    }
 
 }

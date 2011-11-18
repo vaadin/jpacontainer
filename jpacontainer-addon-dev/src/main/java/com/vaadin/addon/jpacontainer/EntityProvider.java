@@ -330,5 +330,13 @@ public interface EntityProvider<T> extends Serializable {
      * @param entity
      */
     public Object getIdentifier(T entity);
+    
+    /**
+     * Refreshes an entity from DB. If entity no more exists, null is returned.
+     * 
+     * @param entity
+     * @return the refreshed entity or null
+     */
+    public T refreshEntity(T entity);
 
 }
