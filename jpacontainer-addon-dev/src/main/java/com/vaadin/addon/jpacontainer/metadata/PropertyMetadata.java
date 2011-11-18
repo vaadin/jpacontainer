@@ -141,6 +141,10 @@ public class PropertyMetadata implements Serializable {
     public boolean isWritable() {
         return setter != null;
     }
+    
+    public PropertyKind getPropertyKind() {
+        return PropertyKind.NONPERSISTENT;
+    }
 
     @Override
     public boolean equals(Object obj) {

@@ -34,11 +34,11 @@ public class PersistentPropertyMetadataTest {
 		Field field = getClass().getDeclaredField("dummyField");
 		PersistentPropertyMetadata prop = new PersistentPropertyMetadata(
 				"dummy", Integer.class,
-				PersistentPropertyMetadata.PropertyKind.SIMPLE, field);
+				PropertyKind.SIMPLE, field);
 		assertEquals("dummy", prop.getName());
 		assertSame(Integer.class, prop.getType());
 		assertNull(prop.getTypeMetadata());
-		assertEquals(PersistentPropertyMetadata.PropertyKind.SIMPLE, prop
+		assertEquals(PropertyKind.SIMPLE, prop
 				.getPropertyKind());
 		assertEquals(PersistentPropertyMetadata.AccessType.FIELD, prop
 				.getAccessType());
@@ -57,12 +57,12 @@ public class PersistentPropertyMetadataTest {
 				Integer.class);
 		PersistentPropertyMetadata prop = new PersistentPropertyMetadata(
 				"dummy", Integer.class,
-				PersistentPropertyMetadata.PropertyKind.COLLECTION, getter,
+				PropertyKind.COLLECTION, getter,
 				setter);
 		assertEquals("dummy", prop.getName());
 		assertSame(Integer.class, prop.getType());
 		assertNull(prop.getTypeMetadata());
-		assertEquals(PersistentPropertyMetadata.PropertyKind.COLLECTION, prop
+		assertEquals(PropertyKind.COLLECTION, prop
 				.getPropertyKind());
 		assertEquals(PersistentPropertyMetadata.AccessType.METHOD, prop
 				.getAccessType());
@@ -82,11 +82,11 @@ public class PersistentPropertyMetadataTest {
 		// will work anyway
 		PersistentPropertyMetadata prop = new PersistentPropertyMetadata(
 				"dummy", cmd,
-				PersistentPropertyMetadata.PropertyKind.REFERENCE, field);
+				PropertyKind.REFERENCE, field);
 		assertEquals("dummy", prop.getName());
 		assertSame(Integer.class, prop.getType());
 		assertSame(cmd, prop.getTypeMetadata());
-		assertEquals(PersistentPropertyMetadata.PropertyKind.REFERENCE, prop
+		assertEquals(PropertyKind.REFERENCE, prop
 				.getPropertyKind());
 		assertEquals(PersistentPropertyMetadata.AccessType.FIELD, prop
 				.getAccessType());
@@ -107,12 +107,12 @@ public class PersistentPropertyMetadataTest {
 		// It does not matter that Integer is not embeddable nor a reference, it
 		// will work anyway
 		PersistentPropertyMetadata prop = new PersistentPropertyMetadata(
-				"dummy", cmd, PersistentPropertyMetadata.PropertyKind.EMBEDDED,
+				"dummy", cmd, PropertyKind.EMBEDDED,
 				getter, setter);
 		assertEquals("dummy", prop.getName());
 		assertSame(Integer.class, prop.getType());
 		assertSame(cmd, prop.getTypeMetadata());
-		assertEquals(PersistentPropertyMetadata.PropertyKind.EMBEDDED, prop
+		assertEquals(PropertyKind.EMBEDDED, prop
 				.getPropertyKind());
 		assertEquals(PersistentPropertyMetadata.AccessType.METHOD, prop
 				.getAccessType());

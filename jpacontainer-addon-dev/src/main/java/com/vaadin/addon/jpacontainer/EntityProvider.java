@@ -324,4 +324,11 @@ public interface EntityProvider<T> extends Serializable {
                 CriteriaQuery<?> query);
     }
 
+    /**
+     * Returns identifier for given entity
+     * 
+     * @param entity
+     */
+    public Object getIdentifier(T entity);
+
 }

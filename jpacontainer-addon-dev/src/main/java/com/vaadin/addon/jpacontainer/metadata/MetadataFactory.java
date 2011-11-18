@@ -238,23 +238,23 @@ public class MetadataFactory {
                             AccessType.FIELD);
                     metadata.addProperties(new PersistentPropertyMetadata(f
                             .getName(), cm,
-                            PersistentPropertyMetadata.PropertyKind.EMBEDDED, f));
+                            PropertyKind.EMBEDDED, f));
                 } else if (isReference(f)) {
                     ClassMetadata<?> cm = getClassMetadata(f.getType(),
                             AccessType.FIELD);
                     metadata.addProperties(new PersistentPropertyMetadata(f
                             .getName(), cm,
-                            PersistentPropertyMetadata.PropertyKind.REFERENCE,
+                            PropertyKind.REFERENCE,
                             f));
                 } else if (isCollection(f)) {
                     metadata.addProperties(new PersistentPropertyMetadata(f
                             .getName(), f.getType(),
-                            PersistentPropertyMetadata.PropertyKind.COLLECTION,
+                            PropertyKind.COLLECTION,
                             f));
                 } else {
                     metadata.addProperties(new PersistentPropertyMetadata(f
                             .getName(), convertPrimitiveType(f.getType()),
-                            PersistentPropertyMetadata.PropertyKind.SIMPLE, f));
+                            PropertyKind.SIMPLE, f));
                 }
             }
         }
@@ -344,7 +344,7 @@ public class MetadataFactory {
                         metadata.addProperties(new PersistentPropertyMetadata(
                                 name,
                                 cm,
-                                PersistentPropertyMetadata.PropertyKind.EMBEDDED,
+                                PropertyKind.EMBEDDED,
                                 m, setter));
                     } else if (isReference(m)) {
                         ClassMetadata<?> cm = getClassMetadata(
@@ -352,18 +352,18 @@ public class MetadataFactory {
                         metadata.addProperties(new PersistentPropertyMetadata(
                                 name,
                                 cm,
-                                PersistentPropertyMetadata.PropertyKind.REFERENCE,
+                                PropertyKind.REFERENCE,
                                 m, setter));
                     } else if (isCollection(m)) {
                         metadata.addProperties(new PersistentPropertyMetadata(
                                 name,
                                 m.getReturnType(),
-                                PersistentPropertyMetadata.PropertyKind.COLLECTION,
+                                PropertyKind.COLLECTION,
                                 m, setter));
                     } else {
                         metadata.addProperties(new PersistentPropertyMetadata(
                                 name, m.getReturnType(),
-                                PersistentPropertyMetadata.PropertyKind.SIMPLE,
+                                PropertyKind.SIMPLE,
                                 m, setter));
                     }
                 } else {

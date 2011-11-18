@@ -21,40 +21,6 @@ public class PersistentPropertyMetadata extends PropertyMetadata {
     private static final long serialVersionUID = -4097189601179456814L;
 
     /**
-     * Enumeration defining the property kind.
-     * 
-     * @author Petter Holmström (Vaadin Ltd)
-     */
-    public enum PropertyKind {
-
-        /**
-         * The property is embedded.
-         * 
-         * @see javax.persistence.Embeddable
-         * @see javax.persistence.Embedded
-         */
-        EMBEDDED,
-        /**
-         * The property is a reference.
-         * 
-         * @see javax.persistence.OneToOne
-         * @see javax.persistence.ManyToOne
-         */
-        REFERENCE,
-        /**
-         * The property is a collection.
-         * 
-         * @see javax.persistence.OneToMany
-         * @see javax.persistence.ManyToMany
-         */
-        COLLECTION,
-        /**
-         * The property is of a simple datatype.
-         */
-        SIMPLE
-    }
-
-    /**
      * Enumeration defining the property access types.
      * 
      * @author Petter Holmström (Vaadin Ltd)
@@ -235,6 +201,7 @@ public class PersistentPropertyMetadata extends PropertyMetadata {
     /**
      * The kind of the property.
      */
+    @Override
     public PropertyKind getPropertyKind() {
         return propertyKind;
     }

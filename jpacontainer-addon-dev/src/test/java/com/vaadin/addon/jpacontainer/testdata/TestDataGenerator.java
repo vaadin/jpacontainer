@@ -30,7 +30,7 @@ public class TestDataGenerator {
             TestDataGenerator.skills.add(skill);
         }
 
-        Random rnd = new Random();
+        Random rnd = new Random(1);
         TestDataGenerator.testDataSortedByPrimaryKey = new ArrayList<Person>();
         TestDataGenerator.filteredTestDataSortedByPrimaryKey = new ArrayList<Person>();
         TestDataGenerator.testDataEmbeddedIdSortedByName = new ArrayList<EmbeddedIdPerson>();

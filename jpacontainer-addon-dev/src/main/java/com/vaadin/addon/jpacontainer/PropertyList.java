@@ -15,7 +15,7 @@ import java.util.Set;
 
 import com.vaadin.addon.jpacontainer.metadata.ClassMetadata;
 import com.vaadin.addon.jpacontainer.metadata.PersistentPropertyMetadata;
-import com.vaadin.addon.jpacontainer.metadata.PersistentPropertyMetadata.PropertyKind;
+import com.vaadin.addon.jpacontainer.metadata.PropertyKind;
 import com.vaadin.addon.jpacontainer.metadata.PropertyMetadata;
 
 /**
@@ -679,5 +679,18 @@ final class PropertyList<T> implements Serializable {
                     + propertyName);
         }
         metadata.setPropertyValue(object, propertyName, propertyValue);
+    }
+
+    public PropertyKind getPropertyKind(String propertyName) {
+        assert propertyName != null : "propertyName must not be null";
+        if (!getAllAvailablePropertyNames().contains(propertyName)) {
+            throw new IllegalArgumentException("Illegal property name: "
+                    + propertyName);
+        }
+        if (propertyName.indexOf('.') != -1) {
+            return getNestedProperty(propertyName).getPropertyMetadata().getPropertyKind();
+        } else {
+            return metadata.getProperty(propertyName).getPropertyKind();
+        }
     }
 }

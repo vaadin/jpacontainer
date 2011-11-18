@@ -745,4 +745,9 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         }
     }
 
+    public Object getIdentifier(T entity) {
+        return getEntityManager().getEntityManagerFactory()
+                .getPersistenceUnitUtil().getIdentifier(entity);
+    }
+
 }

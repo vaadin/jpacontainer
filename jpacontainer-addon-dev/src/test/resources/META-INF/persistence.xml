@@ -12,6 +12,16 @@
 		<class>com.vaadin.addon.jpacontainer.testdata.Skill</class>
 		<exclude-unlisted-classes>true</exclude-unlisted-classes>
 	</persistence-unit>
+	
+	<persistence-unit name="jpacontainer-itest">
+		<class>com.vaadin.addon.jpacontainer.testdata.Address</class>
+		<class>com.vaadin.addon.jpacontainer.testdata.EmbeddedIdPerson</class>
+		<class>com.vaadin.addon.jpacontainer.testdata.Name</class>
+		<class>com.vaadin.addon.jpacontainer.testdata.Person</class>
+		<class>com.vaadin.addon.jpacontainer.testdata.PersonSkill</class>
+		<class>com.vaadin.addon.jpacontainer.testdata.Skill</class>
+		<exclude-unlisted-classes>true</exclude-unlisted-classes>
+	</persistence-unit>
 
 	<persistence-unit name="eclipselink-in-memory">
 		<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>

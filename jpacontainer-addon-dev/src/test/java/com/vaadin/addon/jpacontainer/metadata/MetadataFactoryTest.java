@@ -87,7 +87,7 @@ public class MetadataFactoryTest {
 			assertEquals(String.class, prop.getType());
 			assertEquals(PersistentPropertyMetadata.AccessType.FIELD, prop
 					.getAccessType());
-			assertEquals(PersistentPropertyMetadata.PropertyKind.SIMPLE, prop
+			assertEquals(PropertyKind.SIMPLE, prop
 					.getPropertyKind());
 			assertNull(prop.getTypeMetadata());
 			assertTrue(prop.isWritable());
@@ -99,7 +99,7 @@ public class MetadataFactoryTest {
 			assertEquals(String.class, prop.getType());
 			assertEquals(PersistentPropertyMetadata.AccessType.FIELD, prop
 					.getAccessType());
-			assertEquals(PersistentPropertyMetadata.PropertyKind.SIMPLE, prop
+			assertEquals(PropertyKind.SIMPLE, prop
 					.getPropertyKind());
 			assertNull(prop.getTypeMetadata());
 			assertTrue(prop.isWritable());
@@ -111,7 +111,7 @@ public class MetadataFactoryTest {
 			assertEquals(Address_F.class, prop.getType());
 			assertEquals(PersistentPropertyMetadata.AccessType.FIELD, prop
 					.getAccessType());
-			assertEquals(PersistentPropertyMetadata.PropertyKind.EMBEDDED, prop
+			assertEquals(PropertyKind.EMBEDDED, prop
 					.getPropertyKind());
 			assertNotNull(prop.getTypeMetadata());
 			assertTrue(prop.isWritable());
@@ -123,7 +123,7 @@ public class MetadataFactoryTest {
 			assertEquals(Collection.class, prop.getType());
 			assertEquals(PersistentPropertyMetadata.AccessType.FIELD, prop
 					.getAccessType());
-			assertEquals(PersistentPropertyMetadata.PropertyKind.COLLECTION,
+			assertEquals(PropertyKind.COLLECTION,
 					prop.getPropertyKind());
 			assertNull(prop.getTypeMetadata());
 			assertTrue(prop.isWritable());
@@ -135,7 +135,7 @@ public class MetadataFactoryTest {
 			assertEquals(Person_F.class, prop.getType());
 			assertEquals(PersistentPropertyMetadata.AccessType.FIELD, prop
 					.getAccessType());
-			assertEquals(PersistentPropertyMetadata.PropertyKind.REFERENCE,
+			assertEquals(PropertyKind.REFERENCE,
 					prop.getPropertyKind());
 			assertSame(metadata, prop.getTypeMetadata());
 			assertTrue(prop.isWritable());
@@ -220,7 +220,7 @@ public class MetadataFactoryTest {
 			assertEquals(String.class, prop.getType());
 			assertEquals(PersistentPropertyMetadata.AccessType.METHOD, prop
 					.getAccessType());
-			assertEquals(PersistentPropertyMetadata.PropertyKind.SIMPLE, prop
+			assertEquals(PropertyKind.SIMPLE, prop
 					.getPropertyKind());
 			assertNull(prop.getTypeMetadata());
 			assertTrue(prop.isWritable());
@@ -232,7 +232,7 @@ public class MetadataFactoryTest {
 			assertEquals(String.class, prop.getType());
 			assertEquals(PersistentPropertyMetadata.AccessType.METHOD, prop
 					.getAccessType());
-			assertEquals(PersistentPropertyMetadata.PropertyKind.SIMPLE, prop
+			assertEquals(PropertyKind.SIMPLE, prop
 					.getPropertyKind());
 			assertNull(prop.getTypeMetadata());
 			assertTrue(prop.isWritable());
@@ -244,7 +244,7 @@ public class MetadataFactoryTest {
 			assertEquals(Address_M.class, prop.getType());
 			assertEquals(PersistentPropertyMetadata.AccessType.METHOD, prop
 					.getAccessType());
-			assertEquals(PersistentPropertyMetadata.PropertyKind.EMBEDDED, prop
+			assertEquals(PropertyKind.EMBEDDED, prop
 					.getPropertyKind());
 			assertNotNull(prop.getTypeMetadata());
 			assertTrue(prop.isWritable());
@@ -256,7 +256,7 @@ public class MetadataFactoryTest {
 			assertEquals(Collection.class, prop.getType());
 			assertEquals(PersistentPropertyMetadata.AccessType.METHOD, prop
 					.getAccessType());
-			assertEquals(PersistentPropertyMetadata.PropertyKind.COLLECTION,
+			assertEquals(PropertyKind.COLLECTION,
 					prop.getPropertyKind());
 			assertNull(prop.getTypeMetadata());
 			assertTrue(prop.isWritable());
@@ -268,7 +268,7 @@ public class MetadataFactoryTest {
 			assertEquals(Person_M.class, prop.getType());
 			assertEquals(PersistentPropertyMetadata.AccessType.METHOD, prop
 					.getAccessType());
-			assertEquals(PersistentPropertyMetadata.PropertyKind.REFERENCE,
+			assertEquals(PropertyKind.REFERENCE,
 					prop.getPropertyKind());
 			assertSame(metadata, prop.getTypeMetadata());
 			assertTrue(prop.isWritable());

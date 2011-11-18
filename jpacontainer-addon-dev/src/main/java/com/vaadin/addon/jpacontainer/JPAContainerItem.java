@@ -22,7 +22,7 @@ import com.vaadin.data.Validator.InvalidValueException;
  * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
-final class JPAContainerItem<T> implements EntityItem<T> {
+public final class JPAContainerItem<T> implements EntityItem<T> {
 
     private static final long serialVersionUID = 3835181888110236341L;
 
@@ -581,5 +581,10 @@ final class JPAContainerItem<T> implements EntityItem<T> {
             ((Property.ValueChangeNotifier) getItemProperty(propertyId))
                     .removeListener(listener);
         }
+    }
+    
+    @Override
+    public String toString() {
+        return entity.toString();
     }
 }

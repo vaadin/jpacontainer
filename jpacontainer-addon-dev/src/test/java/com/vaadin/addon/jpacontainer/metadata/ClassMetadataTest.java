@@ -37,7 +37,7 @@ public class ClassMetadataTest {
 				Person_M.class);
 		PersistentPropertyMetadata prop = new PersistentPropertyMetadata(
 				"firstName", String.class,
-				PersistentPropertyMetadata.PropertyKind.SIMPLE, Person_M.class
+				PropertyKind.SIMPLE, Person_M.class
 						.getDeclaredMethod("getFirstName"), Person_M.class
 						.getDeclaredMethod("setFirstName", String.class));
 		metadata.addProperties(prop);
@@ -126,7 +126,7 @@ public class ClassMetadataTest {
 				Person_F.class);
 		PersistentPropertyMetadata prop = new PersistentPropertyMetadata(
 				"firstName", String.class,
-				PersistentPropertyMetadata.PropertyKind.SIMPLE, Person_F.class
+				PropertyKind.SIMPLE, Person_F.class
 						.getDeclaredField("firstName"));
 		metadata.addProperties(prop);
 
@@ -141,14 +141,14 @@ public class ClassMetadataTest {
 		ClassMetadata<Address_F> addressMetadata = new ClassMetadata<Address_F>(
 				Address_F.class);
 		addressMetadata.addProperties(new PersistentPropertyMetadata("street",
-				String.class, PersistentPropertyMetadata.PropertyKind.SIMPLE,
+				String.class, PropertyKind.SIMPLE,
 				Address_F.class.getDeclaredField("street")));
 
 		ClassMetadata<Person_F> metadata = new ClassMetadata<Person_F>(
 				Person_F.class);
 		metadata.addProperties(new PersistentPropertyMetadata("address",
 				addressMetadata,
-				PersistentPropertyMetadata.PropertyKind.EMBEDDED,
+				PropertyKind.EMBEDDED,
 				Person_F.class.getDeclaredField("address")));
 
 		Person_F person = new Person_F();
@@ -168,7 +168,7 @@ public class ClassMetadataTest {
 				Person_F.class);
 		PersistentPropertyMetadata prop = new PersistentPropertyMetadata(
 				"firstName", String.class,
-				PersistentPropertyMetadata.PropertyKind.SIMPLE, Person_F.class
+				PropertyKind.SIMPLE, Person_F.class
 						.getDeclaredField("firstName"));
 		metadata.addProperties(prop);
 
@@ -183,14 +183,14 @@ public class ClassMetadataTest {
 		ClassMetadata<Address_F> addressMetadata = new ClassMetadata<Address_F>(
 				Address_F.class);
 		addressMetadata.addProperties(new PersistentPropertyMetadata("street",
-				String.class, PersistentPropertyMetadata.PropertyKind.SIMPLE,
+				String.class, PropertyKind.SIMPLE,
 				Address_F.class.getDeclaredField("street")));
 
 		ClassMetadata<Person_F> metadata = new ClassMetadata<Person_F>(
 				Person_F.class);
 		metadata.addProperties(new PersistentPropertyMetadata("address",
 				addressMetadata,
-				PersistentPropertyMetadata.PropertyKind.EMBEDDED,
+				PropertyKind.EMBEDDED,
 				Person_F.class.getDeclaredField("address")));
 
 		Person_F person = new Person_F();
@@ -206,7 +206,7 @@ public class ClassMetadataTest {
 				Person_M.class);
 		PersistentPropertyMetadata prop = new PersistentPropertyMetadata(
 				"firstName", String.class,
-				PersistentPropertyMetadata.PropertyKind.SIMPLE, Person_M.class
+				PropertyKind.SIMPLE, Person_M.class
 						.getDeclaredMethod("getFirstName"), Person_M.class
 						.getDeclaredMethod("setFirstName", String.class));
 		metadata.addProperties(prop);
@@ -222,7 +222,7 @@ public class ClassMetadataTest {
 		ClassMetadata<Address_M> addressMetadata = new ClassMetadata<Address_M>(
 				Address_M.class);
 		addressMetadata.addProperties(new PersistentPropertyMetadata("street",
-				String.class, PersistentPropertyMetadata.PropertyKind.SIMPLE,
+				String.class, PropertyKind.SIMPLE,
 				Address_M.class.getDeclaredMethod("getStreet"), Address_M.class
 						.getDeclaredMethod("setStreet", String.class)));
 
@@ -230,7 +230,7 @@ public class ClassMetadataTest {
 				Person_M.class);
 		metadata.addProperties(new PersistentPropertyMetadata("address",
 				addressMetadata,
-				PersistentPropertyMetadata.PropertyKind.EMBEDDED,
+				PropertyKind.EMBEDDED,
 				Person_M.class.getDeclaredMethod("getAddress"), Person_M.class
 						.getDeclaredMethod("setAddress", Address_M.class)));
 
@@ -251,7 +251,7 @@ public class ClassMetadataTest {
 				Person_M.class);
 		PersistentPropertyMetadata prop = new PersistentPropertyMetadata(
 				"firstName", String.class,
-				PersistentPropertyMetadata.PropertyKind.SIMPLE, Person_M.class
+				PropertyKind.SIMPLE, Person_M.class
 						.getDeclaredMethod("getFirstName"), Person_M.class
 						.getDeclaredMethod("setFirstName", String.class));
 		metadata.addProperties(prop);
@@ -267,7 +267,7 @@ public class ClassMetadataTest {
 		ClassMetadata<Address_M> addressMetadata = new ClassMetadata<Address_M>(
 				Address_M.class);
 		addressMetadata.addProperties(new PersistentPropertyMetadata("street",
-				String.class, PersistentPropertyMetadata.PropertyKind.SIMPLE,
+				String.class, PropertyKind.SIMPLE,
 				Address_M.class.getDeclaredMethod("getStreet"), Address_M.class
 						.getDeclaredMethod("setStreet", String.class)));
 
@@ -275,7 +275,7 @@ public class ClassMetadataTest {
 				Person_M.class);
 		metadata.addProperties(new PersistentPropertyMetadata("address",
 				addressMetadata,
-				PersistentPropertyMetadata.PropertyKind.EMBEDDED,
+				PropertyKind.EMBEDDED,
 				Person_M.class.getDeclaredMethod("getAddress"), Person_M.class
 						.getDeclaredMethod("setAddress", Address_M.class)));
 
@@ -307,7 +307,7 @@ public class ClassMetadataTest {
 
 		PersistentPropertyMetadata prop2 = new PersistentPropertyMetadata(
 				"firstName", String.class,
-				PersistentPropertyMetadata.PropertyKind.SIMPLE, Person_M.class
+				PropertyKind.SIMPLE, Person_M.class
 						.getDeclaredMethod("getFirstName"), Person_M.class
 						.getDeclaredMethod("setFirstName", String.class));
 		metadata1.addProperties(prop2);

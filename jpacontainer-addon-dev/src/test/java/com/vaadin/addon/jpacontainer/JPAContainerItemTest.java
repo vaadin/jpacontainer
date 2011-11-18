@@ -78,6 +78,11 @@ public class JPAContainerItemTest {
 		entity = new Person();
 		entity.setId(123l);
 		entity.setAddress(new Address());
+		
+		Person person = new Person();
+		person.setId(124l);
+		entity.setManager(person);
+		
 		item = new JPAContainerItem<Person>(container, entity);
 	}
 
@@ -180,6 +185,8 @@ public class JPAContainerItemTest {
 		assertEquals(String.class, item.getItemProperty("address.street")
 				.getType());
 		assertEquals(Address.class, item.getItemProperty("address").getType());
+		
+                assertEquals(Person.class, item.getItemProperty("manager").getType());
 
 		// should report wrapper types for beans primitive types
 		assertEquals(Boolean.class, item.getItemProperty("male").getType());

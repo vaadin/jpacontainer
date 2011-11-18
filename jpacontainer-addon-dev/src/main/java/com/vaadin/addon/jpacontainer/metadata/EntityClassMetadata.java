@@ -127,7 +127,7 @@ public class EntityClassMetadata<T> extends ClassMetadata<T> {
      */
     public boolean hasEmbeddedIdentifier() {
         return hasIdentifierProperty()
-                && getIdentifierProperty().getPropertyKind() == PersistentPropertyMetadata.PropertyKind.EMBEDDED;
+                && getIdentifierProperty().getPropertyKind() == PropertyKind.EMBEDDED;
     }
 
     @Override

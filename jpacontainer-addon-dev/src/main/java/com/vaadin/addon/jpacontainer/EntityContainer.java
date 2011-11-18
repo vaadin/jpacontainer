@@ -3,6 +3,7 @@ ${license.header.text}
  */
 package com.vaadin.addon.jpacontainer;
 
+import com.vaadin.addon.jpacontainer.metadata.PropertyKind;
 import com.vaadin.data.Buffered;
 import com.vaadin.data.Container;
 import com.vaadin.data.Validator.InvalidValueException;
@@ -171,4 +172,11 @@ public interface EntityContainer<T> extends Container, Container.Sortable,
      * {@link #isApplyFiltersImmediately() }.
      */
     public void removeContainerFilters(Object propertyId);
+
+    /**
+     * 
+     * @param propertyId
+     * @return the type of property indentified by given propertyId
+     */
+    public PropertyKind getPropertyKind(Object propertyId);
 }

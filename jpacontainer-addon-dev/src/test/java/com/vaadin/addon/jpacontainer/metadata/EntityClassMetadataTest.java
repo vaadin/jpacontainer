@@ -28,7 +28,7 @@ public class EntityClassMetadataTest {
 				Person_F.class, "entityName");
 		PersistentPropertyMetadata idProp = new PersistentPropertyMetadata(
 				"id", Integer.class,
-				PersistentPropertyMetadata.PropertyKind.SIMPLE,
+				PropertyKind.SIMPLE,
 				BaseEntity_F.class.getDeclaredField("id"));
 		metadata.addProperties(idProp);
 
@@ -53,7 +53,7 @@ public class EntityClassMetadataTest {
 		 */
 		PersistentPropertyMetadata idProp = new PersistentPropertyMetadata(
 				"id", new ClassMetadata<Integer>(Integer.class),
-				PersistentPropertyMetadata.PropertyKind.EMBEDDED,
+				PropertyKind.EMBEDDED,
 				BaseEntity_F.class.getDeclaredField("id"));
 		metadata.addProperties(idProp);
 
@@ -107,7 +107,7 @@ public class EntityClassMetadataTest {
 		EntityClassMetadata<Person_F> metadata = new EntityClassMetadata<Person_F>(
 				Person_F.class, "entityName");
 		metadata.addProperties(new PersistentPropertyMetadata("id",
-				Integer.class, PersistentPropertyMetadata.PropertyKind.SIMPLE,
+				Integer.class, PropertyKind.SIMPLE,
 				BaseEntity_F.class.getDeclaredField("id")));
 		metadata.setIdentifierPropertyName("id");
 		assertNotNull(metadata.getIdentifierProperty());
@@ -125,7 +125,7 @@ public class EntityClassMetadataTest {
 				Person_F.class, "entityName");
 		PersistentPropertyMetadata verProp = new PersistentPropertyMetadata(
 				"version", Integer.class,
-				PersistentPropertyMetadata.PropertyKind.SIMPLE,
+				PropertyKind.SIMPLE,
 				BaseEntity_F.class.getDeclaredField("version"));
 		metadata.addProperties(verProp);
 
@@ -175,7 +175,7 @@ public class EntityClassMetadataTest {
 		EntityClassMetadata<Person_F> metadata = new EntityClassMetadata<Person_F>(
 				Person_F.class, "entityName");
 		metadata.addProperties(new PersistentPropertyMetadata("version",
-				Integer.class, PersistentPropertyMetadata.PropertyKind.SIMPLE,
+				Integer.class, PropertyKind.SIMPLE,
 				BaseEntity_F.class.getDeclaredField("version")));
 		metadata.setVersionPropertyName("version");
 		assertNotNull(metadata.getVersionProperty());

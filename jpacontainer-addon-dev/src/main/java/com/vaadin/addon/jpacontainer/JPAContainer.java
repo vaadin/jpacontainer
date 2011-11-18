@@ -18,6 +18,7 @@ import com.vaadin.addon.jpacontainer.filter.util.AdvancedFilterableSupport;
 import com.vaadin.addon.jpacontainer.metadata.EntityClassMetadata;
 import com.vaadin.addon.jpacontainer.metadata.MetadataFactory;
 import com.vaadin.addon.jpacontainer.metadata.PersistentPropertyMetadata;
+import com.vaadin.addon.jpacontainer.metadata.PropertyKind;
 import com.vaadin.addon.jpacontainer.util.CollectionUtil;
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
@@ -1553,6 +1554,11 @@ public class JPAContainer<T> implements EntityContainer<T>,
         protected ItemRemovedEvent(Object itemId) {
             super(itemId);
         }
+    }
+
+    public PropertyKind getPropertyKind(Object propertyId) {
+        assert propertyId != null : "propertyId must not be null";
+        return propertyList.getPropertyKind(propertyId.toString());
     }
 
 }
