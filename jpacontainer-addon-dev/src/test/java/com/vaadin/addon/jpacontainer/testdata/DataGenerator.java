@@ -36,17 +36,15 @@ public class DataGenerator {
         DataGenerator.testDataEmbeddedIdSortedByName = new ArrayList<EmbeddedIdPerson>();
         for (int i = 0; i < 500; i++) {
             Person p = new Person();
-            p.setFirstName(DataGenerator.firstNames[(i / 10) % 10] + " "
-                    + i);
+            p.setFirstName(DataGenerator.firstNames[(i / 10) % 10] + " " + i);
             p.setLastName(DataGenerator.lastNames[i % 10]);
             p.setDateOfBirth(new Date(rnd.nextLong()));
             p.setAddress(new Address());
-            p.getAddress()
-                    .setStreet(
-                            rnd.nextInt(1000)
-                                    + " "
-                                    + DataGenerator.streets[rnd
-                                            .nextInt(DataGenerator.streets.length)]);
+            p.getAddress().setStreet(
+                    rnd.nextInt(1000)
+                            + " "
+                            + DataGenerator.streets[rnd
+                                    .nextInt(DataGenerator.streets.length)]);
             p.getAddress().setPostOffice(
                     DataGenerator.postOffices[rnd
                             .nextInt(DataGenerator.postOffices.length)]);
@@ -86,10 +84,9 @@ public class DataGenerator {
         DataGenerator.sortByName.add(new SortBy("firstName", true));
 
         DataGenerator.sortByLastNameAndStreet = new ArrayList<SortBy>();
-        DataGenerator.sortByLastNameAndStreet.add(new SortBy("lastName",
+        DataGenerator.sortByLastNameAndStreet.add(new SortBy("lastName", true));
+        DataGenerator.sortByLastNameAndStreet.add(new SortBy("address.street",
                 true));
-        DataGenerator.sortByLastNameAndStreet.add(new SortBy(
-                "address.street", true));
 
         DataGenerator.testFilter = new Like("lastName", "S%", true);
 
@@ -140,8 +137,7 @@ public class DataGenerator {
             }
         };
 
-        Collections
-                .sort(DataGenerator.testDataSortedByName, nameComparator);
+        Collections.sort(DataGenerator.testDataSortedByName, nameComparator);
         Collections.sort(DataGenerator.testDataSortedByLastNameAndStreet,
                 nameStreetComparator);
         Collections.sort(DataGenerator.filteredTestDataSortedByName,
@@ -184,6 +180,20 @@ public class DataGenerator {
         for (EmbeddedIdPerson p : DataGenerator.testDataEmbeddedIdSortedByName) {
             entityManager2.persist(p);
         }
+        entityManager2.flush();
+        entityManager2.getTransaction().commit();
+    }
+
+    public static void removeTestData(EntityManager entityManager2) {
+        entityManager2.getTransaction().begin();
+        entityManager2.createQuery("DELETE FROM PersonSkill ps")
+                .executeUpdate();
+        entityManager2.createQuery("DELETE FROM Skill s").executeUpdate();
+        entityManager2.createQuery("UPDATE Person p SET p.manager = null")
+                .executeUpdate();
+        entityManager2.createQuery("DELETE FROM Person p").executeUpdate();
+        entityManager2.createQuery("DELETE FROM EmbeddedIdPerson ep")
+                .executeUpdate();
         entityManager2.flush();
         entityManager2.getTransaction().commit();
     }

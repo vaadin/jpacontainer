@@ -41,11 +41,12 @@ public abstract class AbstractIntegrationTest {
     public static final String INTEGRATION_TEST_PERSISTENCE_UNIT = "jpacontainer-itest";
     private static EntityManagerFactory emf;
     private List<EntityManager> managers = new LinkedList<EntityManager>();
-    private static boolean testdataReady = false;
+    private boolean testdataReady = false;
 
     @Before
     public void setUp() throws Exception {
         if (!testdataReady) {
+            DataGenerator.removeTestData(getEntityManager());
             DataGenerator.persistTestData(getEntityManager());
             testdataReady = true;
         }
