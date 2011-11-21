@@ -10,8 +10,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Root;
 
 import com.vaadin.addon.jpacontainer.AdvancedFilterable;
 import com.vaadin.data.Container.Filter;
@@ -217,15 +217,16 @@ public class AdvancedFilterableSupport implements AdvancedFilterable,
     }
 
     @SuppressWarnings("unchecked")
-    public static Path<String> getPropertyPath(Root<?> root, Object propertyId) {
+    public static Path<String> getPropertyPath(From<?, ?> root,
+            Object propertyId) {
         return (Path<String>) getPropertyPathTyped(root, propertyId);
     }
 
-    public static <T> Path<T> getPropertyPathTyped(Root<T> root,
+    public static <X, Y> Path<X> getPropertyPathTyped(From<X, Y> root,
             Object propertyId) {
         String pid = propertyId.toString();
         String[] idStrings = pid.split("\\.");
-        Path<T> path = root.get(idStrings[0]);
+        Path<X> path = root.get(idStrings[0]);
         for (int i = 1; i < idStrings.length; i++) {
             path = path.get(idStrings[i]);
         }

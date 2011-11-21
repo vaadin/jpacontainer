@@ -8,9 +8,11 @@ import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.From;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import com.vaadin.addon.jpacontainer.filter.HibernateJoin;
 import com.vaadin.addon.jpacontainer.util.CollectionUtil;
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.util.filter.And;
@@ -41,8 +43,8 @@ public class FilterConverter {
     private interface Converter {
         public boolean canConvert(Filter filter);
 
-        public <T> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
-                Root<T> root);
+        public <X, Y> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
+                From<X, Y> root);
     }
 
     /**
@@ -53,8 +55,8 @@ public class FilterConverter {
             return filter instanceof And;
         }
 
-        public <T> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
-                Root<T> root) {
+        public <X, Y> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
+                From<X, Y> root) {
             return cb.and(convertFiltersToArray(((And) filter).getFilters(),
                     cb, root));
         }
@@ -68,8 +70,8 @@ public class FilterConverter {
             return filter instanceof Or;
         }
 
-        public <T> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
-                Root<T> root) {
+        public <X, Y> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
+                From<X, Y> root) {
             return cb.or(convertFiltersToArray(((Or) filter).getFilters(), cb,
                     root));
         }
@@ -84,8 +86,8 @@ public class FilterConverter {
         }
 
         @SuppressWarnings({ "rawtypes", "unchecked" })
-        public <T> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
-                Root<T> root) {
+        public <X, Y> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
+                From<X, Y> root) {
             Compare compare = (Compare) filter;
             Expression propertyExpr = AdvancedFilterableSupport
                     .getPropertyPath(root, compare.getPropertyId());
@@ -115,8 +117,8 @@ public class FilterConverter {
             return filter instanceof IsNull;
         }
 
-        public <T> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
-                Root<T> root) {
+        public <X, Y> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
+                From<X, Y> root) {
             return cb.isNull(AdvancedFilterableSupport.getPropertyPath(root,
                     ((IsNull) filter).getPropertyId()));
         }
@@ -130,8 +132,8 @@ public class FilterConverter {
             return filter instanceof SimpleStringFilter;
         }
 
-        public <T> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
-                Root<T> root) {
+        public <X, Y> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
+                From<X, Y> root) {
             SimpleStringFilter stringFilter = (SimpleStringFilter) filter;
             String filterString = stringFilter.getFilterString();
             if (stringFilter.isOnlyMatchPrefix()) {
@@ -160,8 +162,8 @@ public class FilterConverter {
             return filter instanceof Like;
         }
 
-        public <T> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
-                Root<T> root) {
+        public <X, Y> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
+                From<X, Y> root) {
             Like like = (Like) filter;
             if (like.isCaseSensitive()) {
                 return cb.like(AdvancedFilterableSupport.getPropertyPath(root,
@@ -182,8 +184,8 @@ public class FilterConverter {
         }
 
         @SuppressWarnings({ "unchecked", "rawtypes" })
-        public <T> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
-                Root<T> root) {
+        public <X, Y> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
+                From<X, Y> root) {
             Between between = (Between) filter;
             Expression<? extends Comparable> field = AdvancedFilterableSupport
                     .getPropertyPath(root, between.getPropertyId());
@@ -193,6 +195,20 @@ public class FilterConverter {
                     .getEndValue());
             return cb.between(field, from, to);
         }
+    }
+
+    private static class HibernateJoinConverter implements Converter {
+        public boolean canConvert(Filter filter) {
+            return filter instanceof HibernateJoin;
+        }
+
+        public <X, Y> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
+                From<X, Y> root) {
+            HibernateJoin hibernateJoin = (HibernateJoin) filter;
+            From<X, Y> join = root.join(hibernateJoin.getJoinProperty());
+            return cb.and(convertFiltersToArray(hibernateJoin.getFilters(), cb,
+                    join));
+        }
 
     }
 
@@ -201,7 +217,8 @@ public class FilterConverter {
         converters = Collections.unmodifiableCollection(Arrays.asList(
                 new AndConverter(), new OrConverter(), new CompareConverter(),
                 new IsNullConverter(), new SimpleStringFilterConverter(),
-                new LikeConverter(), new BetweenConverter()));
+                new LikeConverter(), new BetweenConverter(),
+                new HibernateJoinConverter()));
     }
 
     /**
@@ -218,8 +235,8 @@ public class FilterConverter {
      * @return a {@link Predicate} representing the {@link Filter} or null if
      *         conversion failed.
      */
-    public static <T> Predicate convertFilter(Filter filter,
-            CriteriaBuilder criteriaBuilder, Root<T> root) {
+    public static <X, Y> Predicate convertFilter(Filter filter,
+            CriteriaBuilder criteriaBuilder, From<X, Y> root) {
         assert filter != null : "filter must not be null";
 
         for (Converter c : converters) {
@@ -238,9 +255,9 @@ public class FilterConverter {
      *            Collection of {@link Filter}
      * @return List of {@link Predicate}
      */
-    public static <T> List<Predicate> convertFilters(
+    public static <X, Y> List<Predicate> convertFilters(
             Collection<Filter> filters, CriteriaBuilder criteriaBuilder,
-            Root<T> root) {
+            From<X, Y> root) {
         List<Predicate> result = new ArrayList<Predicate>();
         for (com.vaadin.data.Container.Filter filter : filters) {
             result.add(convertFilter(filter, criteriaBuilder, root));
@@ -248,9 +265,9 @@ public class FilterConverter {
         return result;
     }
 
-    private static <T> Predicate[] convertFiltersToArray(
+    private static <X, Y> Predicate[] convertFiltersToArray(
             Collection<Filter> filters, CriteriaBuilder criteriaBuilder,
-            Root<T> root) {
+            From<X, Y> root) {
         return CollectionUtil.toArray(Predicate.class,
                 convertFilters(filters, criteriaBuilder, root));
     }
