@@ -163,6 +163,12 @@
             <version>2.0.0</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.carrotsearch</groupId>
+            <artifactId>junit-benchmarks</artifactId>
+            <version>0.3.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <finalName>vaadin-jpacontainer-agpl-3.0-${project.version}</finalName>
