@@ -1,13 +1,16 @@
 package com.vaadin.addon.jpacontainer.integration;
 
+import static org.easymock.EasyMock.createNiceMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isA;
+import static org.easymock.EasyMock.replay;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import javax.persistence.EntityManager;
@@ -19,16 +22,12 @@ import org.junit.Before;
 import com.vaadin.Application;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
-import com.vaadin.addon.jpacontainer.testdata.Person;
 import com.vaadin.addon.jpacontainer.testdata.DataGenerator;
+import com.vaadin.addon.jpacontainer.testdata.Person;
 import com.vaadin.service.ApplicationContext;
-import com.vaadin.terminal.ApplicationResource;
 import com.vaadin.terminal.PaintException;
 import com.vaadin.terminal.PaintTarget;
 import com.vaadin.terminal.Paintable;
-import com.vaadin.terminal.Resource;
-import com.vaadin.terminal.StreamVariable;
-import com.vaadin.terminal.VariableOwner;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.Window;
@@ -46,16 +45,16 @@ public abstract class AbstractIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        if(!testdataReady) {
+        if (!testdataReady) {
             DataGenerator.persistTestData(getEntityManager());
-            testdataReady  = true;
+            testdataReady = true;
         }
     }
 
     protected EntityManager getEntityManager() throws IOException {
-        EntityManager createEntityManager = getEMF().createEntityManager();
-        managers.add(createEntityManager);
-        return createEntityManager;
+        EntityManager em = getEMF().createEntityManager();
+        managers.add(em);
+        return em;
     }
 
     private EntityManagerFactory getEMF() throws IOException {
@@ -111,193 +110,33 @@ public abstract class AbstractIntegrationTest {
         public TestLayout() {
 
             Application application = new Application() {
-
                 @Override
                 public void init() {
                     Window window = new Window();
                     setMainWindow(window);
                     window.setContent(TestLayout.this);
                 }
-
             };
 
             try {
                 application.start(new URL("http://localhost/test"),
-                        new Properties(), new ApplicationContext() {
-
-                            public File getBaseDirectory() {
-                                // TODO Auto-generated method stub
-                                return null;
-                            }
-
-                            public Collection<Application> getApplications() {
-                                // TODO Auto-generated method stub
-                                return null;
-                            }
-
-                            public void addTransactionListener(
-                                    TransactionListener listener) {
-                                // TODO Auto-generated method stub
-
-                            }
-
-                            public void removeTransactionListener(
-                                    TransactionListener listener) {
-                                // TODO Auto-generated method stub
-
-                            }
-
-                            public String generateApplicationResourceURL(
-                                    ApplicationResource resource, String urlKey) {
-                                // TODO Auto-generated method stub
-                                return null;
-                            }
-
-                            public boolean isApplicationResourceURL(
-                                    URL context, String relativeUri) {
-                                // TODO Auto-generated method stub
-                                return false;
-                            }
-
-                            public String getURLKey(URL context,
-                                    String relativeUri) {
-                                // TODO Auto-generated method stub
-                                return null;
-                            }
-                        });
+                        new Properties(), mockApplicationContext());
             } catch (MalformedURLException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
 
         }
+
+        private ApplicationContext mockApplicationContext() {
+            return createNiceMock(ApplicationContext.class);
+        }
     }
 
-    protected PaintTarget getFakePaintTarget() {
-        return new PaintTarget() {
-
-            public boolean startTag(Paintable paintable, String tag)
-                    throws PaintException {
-                return false;
-            }
-
-            public void startTag(String tagName) throws PaintException {
-
-            }
-
-            public void paintReference(Paintable paintable, String referenceName)
-                    throws PaintException {
-
-            }
-
-            public boolean isFullRepaint() {
-                return false;
-            }
-
-            public String getTag(Paintable paintable) {
-                return "tag";
-            }
-
-            public void endTag(String tagName) throws PaintException {
-            }
-
-            public void addXMLSection(String sectionTagName,
-                    String sectionData, String namespace) throws PaintException {
-
-            }
-
-            public void addVariable(VariableOwner owner, String name,
-                    Paintable value) throws PaintException {
-            }
-
-            public void addVariable(VariableOwner owner, String name,
-                    String[] value) throws PaintException {
-            }
-
-            public void addVariable(VariableOwner owner, String name,
-                    boolean value) throws PaintException {
-            }
-
-            public void addVariable(VariableOwner owner, String name,
-                    double value) throws PaintException {
-            }
-
-            public void addVariable(VariableOwner owner, String name,
-                    float value) throws PaintException {
-            }
-
-            public void addVariable(VariableOwner owner, String name, long value)
-                    throws PaintException {
-            }
-
-            public void addVariable(VariableOwner owner, String name, int value)
-                    throws PaintException {
-            }
-
-            public void addVariable(VariableOwner owner, String name,
-                    String value) throws PaintException {
-            }
-
-            public void addVariable(VariableOwner owner, String name,
-                    StreamVariable value) throws PaintException {
-            }
-
-            public void addUploadStreamVariable(VariableOwner owner, String name)
-                    throws PaintException {
-            }
-
-            public void addUIDL(String uidl) throws PaintException {
-            }
-
-            public void addText(String text) throws PaintException {
-            }
-
-            public void addSection(String sectionTagName, String sectionData)
-                    throws PaintException {
-            }
-
-            public void addCharacterData(String text) throws PaintException {
-            }
-
-            public void addAttribute(String string, Object[] keys) {
-            }
-
-            public void addAttribute(String name, Paintable value)
-                    throws PaintException {
-            }
-
-            public void addAttribute(String name, Map<?, ?> value)
-                    throws PaintException {
-            }
-
-            public void addAttribute(String name, String value)
-                    throws PaintException {
-            }
-
-            public void addAttribute(String name, double value)
-                    throws PaintException {
-            }
-
-            public void addAttribute(String name, float value)
-                    throws PaintException {
-            }
-
-            public void addAttribute(String name, long value)
-                    throws PaintException {
-            }
-
-            public void addAttribute(String name, Resource value)
-                    throws PaintException {
-            }
-
-            public void addAttribute(String name, int value)
-                    throws PaintException {
-            }
-
-            public void addAttribute(String name, boolean value)
-                    throws PaintException {
-            }
-        };
+    protected PaintTarget getFakePaintTarget() throws PaintException {
+        PaintTarget mockTarget = createNiceMock(PaintTarget.class);
+        expect(mockTarget.getTag(isA(Paintable.class))).andStubReturn("tag");
+        replay(mockTarget);
+        return mockTarget;
     }
-
 }

@@ -12,6 +12,7 @@ import static org.eclipse.persistence.config.PersistenceUnitProperties.TARGET_DA
 import static org.eclipse.persistence.config.PersistenceUnitProperties.TARGET_SERVER;
 import static org.eclipse.persistence.config.PersistenceUnitProperties.TRANSACTION_TYPE;
 
+import java.io.IOException;
 import java.util.HashMap;
 
 import javax.persistence.EntityManagerFactory;
@@ -23,13 +24,21 @@ import org.eclipse.persistence.jpa.PersistenceProvider;
 import org.junit.Assert;
 
 import com.vaadin.addon.jpacontainer.integration.AbstractIntegrationTest;
+import com.vaadin.addon.jpacontainer.integration.AbstractComponentIntegrationTest;
 
-public class EclipselinkTestHelper {
-    public static EntityManagerFactory getTestFactory(String dburl) {
+public class EclipselinkComponentIntegrationTest extends
+        AbstractComponentIntegrationTest {
+
+    public EclipselinkComponentIntegrationTest() throws IOException {
+        super();
+    }
+
+    @Override
+    public EntityManagerFactory getTestFactory(String dburl) {
         HashMap<String, String> properties = new HashMap<String, String>();
 
         properties.put(TRANSACTION_TYPE,
-                        PersistenceUnitTransactionType.RESOURCE_LOCAL.name());
+                PersistenceUnitTransactionType.RESOURCE_LOCAL.name());
 
         properties.put(JDBC_DRIVER, "org.hsqldb.jdbcDriver");
         properties.put(JDBC_URL, dburl);
@@ -42,7 +51,9 @@ public class EclipselinkTestHelper {
         properties.put(DDL_GENERATION, CREATE_ONLY);
 
         PersistenceProvider pp = new PersistenceProvider();
-        EntityManagerFactory emf = pp.createEntityManagerFactory(AbstractIntegrationTest.INTEGRATION_TEST_PERSISTENCE_UNIT, properties);
+        EntityManagerFactory emf = pp.createEntityManagerFactory(
+                AbstractIntegrationTest.INTEGRATION_TEST_PERSISTENCE_UNIT,
+                properties);
         Assert.assertNotNull("EntityManagerFactory should not be null", emf);
         return emf;
 

@@ -1,25 +1,24 @@
 package com.vaadin.addon.jpacontainer.integration;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
 import java.util.Arrays;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.vaadin.addon.jpacontainer.EntityItem;
 import com.vaadin.addon.jpacontainer.EntityItemProperty;
-import com.vaadin.addon.jpacontainer.EntityProvider;
 import com.vaadin.addon.jpacontainer.JPAContainer;
-import com.vaadin.addon.jpacontainer.MutableEntityProvider;
-import com.vaadin.addon.jpacontainer.integration.eclipselink.EclipselinkTestHelper;
 import com.vaadin.addon.jpacontainer.provider.LocalEntityProvider;
-import com.vaadin.addon.jpacontainer.testdata.Person;
 import com.vaadin.addon.jpacontainer.testdata.DataGenerator;
+import com.vaadin.addon.jpacontainer.testdata.Person;
 import com.vaadin.addon.jpacontainer.util.SingleSelectTranslator;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
@@ -34,31 +33,29 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.Table;
 
-/**
- * TODO run these tests also on Hibernate
- * 
- */
-public class BasicComponentIntegrationTest extends AbstractIntegrationTest {
+public abstract class AbstractComponentIntegrationTest extends
+        AbstractIntegrationTest {
 
-    private EntityManagerFactory emf2;
+    private EntityManagerFactory emf;
 
-    public BasicComponentIntegrationTest() throws IOException {
-        setEmf(EclipselinkTestHelper.getTestFactory(AbstractIntegrationTest
-                .getDatabaseUrl()));
+    public abstract EntityManagerFactory getTestFactory(String dburl);
+
+    public AbstractComponentIntegrationTest() throws IOException {
+        setEmf(getTestFactory(AbstractIntegrationTest.getDatabaseUrl()));
     }
 
-    protected BasicComponentIntegrationTest(EntityManagerFactory emf) {
+    protected AbstractComponentIntegrationTest(EntityManagerFactory emf) {
         setEmf(emf);
     }
 
     private void setEmf(EntityManagerFactory testFactory) {
-        this.emf2 = testFactory;
+        emf = testFactory;
     }
 
     @Override
     protected EntityManagerFactory createEntityManagerFactory()
             throws IOException {
-        return emf2;
+        return emf;
     }
 
     @Test
@@ -73,8 +70,7 @@ public class BasicComponentIntegrationTest extends AbstractIntegrationTest {
 
         Item item = table.getItem(table.firstItemId());
         Property fnp = item.getItemProperty("firstName");
-        Person person = DataGenerator.getTestDataSortedByPrimaryKey()
-                .get(0);
+        Person person = DataGenerator.getTestDataSortedByPrimaryKey().get(0);
         assertEquals(person.getFirstName(), fnp.getValue());
 
     }
@@ -138,11 +134,11 @@ public class BasicComponentIntegrationTest extends AbstractIntegrationTest {
         Object firstItemId = container.firstItemId();
         EntityItem<Person> item = container.getItem(firstItemId);
         Person entity = item.getEntity();
-        
+
         String initialFirstNameValue = entity.getFirstName();
 
         EntityItemProperty property = item.getItemProperty("firstName");
-        final int[] valueChangeCalls = new int[] {0};
+        final int[] valueChangeCalls = new int[] { 0 };
         Label label = new Label(property) {
             @Override
             public void valueChange(
@@ -155,66 +151,89 @@ public class BasicComponentIntegrationTest extends AbstractIntegrationTest {
         createDummyLayout().addComponent(label);
 
         assertEquals(entity.getFirstName(), label.getValue());
-        
+
         property.setValue("foo");
-        
+
         // FIXME due to bug we get double value change events
         assertEquals(2, valueChangeCalls[0]);
 
         assertEquals(entity.getFirstName(), label.getValue());
-        
+
         entity.setFirstName("bar");
 
         /*
-         * Although event listener was not fired, the value should be equal as we have read throught mode on
+         * Although event listener was not fired, the value should be equal as
+         * we have read throught mode on
          */
         assertEquals(2, valueChangeCalls[0]);
         assertEquals(entity.getFirstName(), label.getValue());
-        
+
         /*
          * Refresh the value from DB ("foo" is set to property)
          */
         item.refreshEntity();
         assertEquals(3, valueChangeCalls[0]);
         assertEquals("foo", label.getValue());
-        
+
         /*
-         * Save changes to DB so that Container don't know about that.
-         * TODO this should be done with jdbc
+         * Save changes to DB so that Container don't know about that. TODO this
+         * should be done with jdbc
          */
-        LocalEntityProvider<Person> entityProvider = (LocalEntityProvider<Person>) container.getEntityProvider();
+        LocalEntityProvider<Person> entityProvider = (LocalEntityProvider<Person>) container
+                .getEntityProvider();
         EntityManager em = entityProvider.getEntityManager();
         entity = em.find(Person.class, entity.getId());
-        
+
         entity.setFirstName("bar");
-        
+
         em.merge(entity);
 
         boolean shouldNotMatch = entity.getFirstName().equals(label.getValue());
         assertFalse(shouldNotMatch);
         assertEquals(3, valueChangeCalls[0]);
-        
+
         item.refreshEntity();
         assertEquals(4, valueChangeCalls[0]);
         assertEquals(entity.getFirstName(), label.getValue());
-        
+
         /*
          * Then same test with container level api
          */
         entity = em.find(Person.class, entity.getId());
-        
+
         entity.setFirstName("bar3");
-        
+
         em.merge(entity);
 
         shouldNotMatch = entity.getFirstName().equals(label.getValue());
         assertFalse(shouldNotMatch);
         assertEquals(4, valueChangeCalls[0]);
-        
+
         container.refreshEntity(entity.getId());
         assertEquals(5, valueChangeCalls[0]);
         assertEquals(entity.getFirstName(), label.getValue());
-
     }
 
+    @Ignore(value = "Enable when fixing the double value change event issue")
+    @Test
+    public void testShouldNotFireDoubleValueChangeEvents() {
+        JPAContainer<Person> container = getPersonContainer();
+        Object firstItemId = container.firstItemId();
+        EntityItem<Person> item = container.getItem(firstItemId);
+
+        EntityItemProperty property = item.getItemProperty("firstName");
+        final int[] valueChangeCalls = new int[] { 0 };
+        new Label(property) {
+            @Override
+            public void valueChange(
+                    com.vaadin.data.Property.ValueChangeEvent event) {
+                valueChangeCalls[0] = valueChangeCalls[0] + 1;
+                super.valueChange(event);
+            }
+        };
+
+        property.setValue("foo");
+
+        assertEquals(1, valueChangeCalls[0]);
+    }
 }

@@ -23,6 +23,7 @@ public class JPAContainerPerformance100k {
     private EntityManager em;
 
     static {
+        long time = System.currentTimeMillis();
         EntityManager em = emf.createEntityManager();
         EntityTransaction t = em.getTransaction();
         t.begin();
@@ -40,6 +41,8 @@ public class JPAContainerPerformance100k {
         }
         t.commit();
         em.close();
+        System.out.println("Database filled in "
+                + (System.currentTimeMillis() - time) + " ms");
     }
 
     @Before
