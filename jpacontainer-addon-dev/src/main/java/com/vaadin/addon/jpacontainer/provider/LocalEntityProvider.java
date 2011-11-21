@@ -752,17 +752,20 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
     }
 
     public T refreshEntity(T entity) {
-        try {
-            getEntityManager().refresh(entity);
-        } catch (IllegalArgumentException e) {
-            // detached, removed or something, get by id from em and refresh
-            // than non-detached object
-            // that to be up to date or null if removed
+        if(getEntityManager().contains(entity)) {
+            try {
+                getEntityManager().refresh(entity);
+            } catch (IllegalArgumentException e) {
+                // detached, removed or something, get by id from em and refresh
+                // than non-detached object
+                entity = findAndRefresh(entity);
+            } catch (EntityNotFoundException e) {
+                return null;
+            } catch (TransactionRequiredException e) {
+                // TODO: handle exception, only in transactional?
+            }
+        } else {
             entity = findAndRefresh(entity);
-        } catch (EntityNotFoundException e) {
-            return null;
-        } catch (TransactionRequiredException e) {
-            // TODO: handle exception, only in transactional?
         }
         return entity;
     }
