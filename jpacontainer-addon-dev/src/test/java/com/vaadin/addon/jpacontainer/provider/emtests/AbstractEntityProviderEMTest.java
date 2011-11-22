@@ -32,7 +32,7 @@ import org.junit.Test;
 
 import com.vaadin.addon.jpacontainer.EntityProvider;
 import com.vaadin.addon.jpacontainer.SortBy;
-import com.vaadin.addon.jpacontainer.filter.HibernateJoin;
+import com.vaadin.addon.jpacontainer.filter.JoinFilter;
 import com.vaadin.addon.jpacontainer.provider.DefaultQueryModifierDelegate;
 import com.vaadin.addon.jpacontainer.testdata.DataGenerator;
 import com.vaadin.addon.jpacontainer.testdata.EmbeddedIdPerson;
@@ -711,7 +711,7 @@ public abstract class AbstractEntityProviderEMTest {
         // Now try out the filter
         for (Skill s : DataGenerator.getSkills()) {
             Collection<Object> returnedIds = entityProvider
-                    .getAllEntityIdentifiers(new HibernateJoin("skills",
+                    .getAllEntityIdentifiers(new JoinFilter("skills",
                             new Equal("skill", s)), null);
             System.out.println(returnedIds);
             assertTrue(skillPersonMap.get(s).containsAll(returnedIds));

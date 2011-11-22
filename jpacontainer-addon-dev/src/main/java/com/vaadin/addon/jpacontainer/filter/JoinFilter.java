@@ -10,9 +10,9 @@ import com.vaadin.data.util.filter.AbstractJunctionFilter;
  * automatic joins, which allows you to filter by e.g.
  * <code>new Equal("skills.skill", s)</code>, while Hibernate requires you to do
  * the same using this filter e.g.
- * <code>new HibernateJoin("skills", new Equal("skill", s))</code>
+ * <code>new JoinFilter("skills", new Equal("skill", s))</code>
  */
-public class HibernateJoin extends AbstractJunctionFilter {
+public class JoinFilter extends AbstractJunctionFilter {
 
     private final String joinProperty;
 
@@ -25,7 +25,7 @@ public class HibernateJoin extends AbstractJunctionFilter {
      *            a set of filters filtering on the joined property. By default
      *            all filters much pass for the item to be matched.
      */
-    public HibernateJoin(String joinProperty, Filter... filters) {
+    public JoinFilter(String joinProperty, Filter... filters) {
         super(filters);
         this.joinProperty = joinProperty;
     }

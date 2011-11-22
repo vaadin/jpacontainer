@@ -12,7 +12,7 @@ import javax.persistence.criteria.From;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import com.vaadin.addon.jpacontainer.filter.HibernateJoin;
+import com.vaadin.addon.jpacontainer.filter.JoinFilter;
 import com.vaadin.addon.jpacontainer.util.CollectionUtil;
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.util.filter.And;
@@ -197,14 +197,14 @@ public class FilterConverter {
         }
     }
 
-    private static class HibernateJoinConverter implements Converter {
+    private static class JoinFilterConverter implements Converter {
         public boolean canConvert(Filter filter) {
-            return filter instanceof HibernateJoin;
+            return filter instanceof JoinFilter;
         }
 
         public <X, Y> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
                 From<X, Y> root) {
-            HibernateJoin hibernateJoin = (HibernateJoin) filter;
+            JoinFilter hibernateJoin = (JoinFilter) filter;
             From<X, Y> join = root.join(hibernateJoin.getJoinProperty());
             return cb.and(convertFiltersToArray(hibernateJoin.getFilters(), cb,
                     join));
@@ -218,7 +218,7 @@ public class FilterConverter {
                 new AndConverter(), new OrConverter(), new CompareConverter(),
                 new IsNullConverter(), new SimpleStringFilterConverter(),
                 new LikeConverter(), new BetweenConverter(),
-                new HibernateJoinConverter()));
+                new JoinFilterConverter()));
     }
 
     /**
