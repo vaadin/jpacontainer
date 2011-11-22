@@ -4,6 +4,7 @@ import org.vaadin.addon.customfield.CustomField;
 
 import com.vaadin.addon.jpacontainer.EntityItem;
 import com.vaadin.addon.jpacontainer.JPAContainer;
+import com.vaadin.addon.jpacontainer.JPAContainerFactory;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.filter.Compare.Equal;
 import com.vaadin.data.util.filter.IsNull;
@@ -22,10 +23,10 @@ public class DepartmentSelector extends CustomField {
     private JPAContainer<Department> geoContainer;
 
     public DepartmentSelector() {
-        ContainerFactory cf = JpaAddressbookApplication.getInstance()
-                .getContainerFactory();
-        container = cf.getDepartmentReadOnlyContainer();
-        geoContainer = cf.getDepartmentReadOnlyContainer();
+        container = JPAContainerFactory.make(Department.class,
+                JpaAddressbookApplication.PERSISTENCY_UNIT);
+        geoContainer = JPAContainerFactory.make(Department.class,
+                JpaAddressbookApplication.PERSISTENCY_UNIT);
         setCaption("Department");
         // Only list "roots" which are in our example geographical super
         // departments

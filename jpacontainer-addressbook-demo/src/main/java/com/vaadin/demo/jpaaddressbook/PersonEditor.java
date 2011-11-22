@@ -108,6 +108,7 @@ public class PersonEditor extends Window implements Button.ClickListener,
     }
 
     public static class EditorSavedEvent extends Component.Event {
+        
         private Item savedItem;
 
         public EditorSavedEvent(Component source, Item savedItem) {

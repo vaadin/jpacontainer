@@ -1,6 +1,7 @@
 package com.vaadin.demo.jpaaddressbook;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
+import com.vaadin.addon.jpacontainer.JPAContainerFactory;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.BeanItem;
@@ -46,10 +47,8 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
     private String textFilter;
 
     public AddressBookMainView() {
-        ContainerFactory cf = JpaAddressbookApplication.getInstance()
-                .getContainerFactory();
-        departments = cf.getDepartmentReadOnlyContainer();
-        persons = cf.getPersonContainer();
+        departments = new HierarchicalDepartmentContainer();
+        persons = JPAContainerFactory.make(Person.class, JpaAddressbookApplication.PERSISTENCY_UNIT);
         buildTree();
         buildMainArea();
 
