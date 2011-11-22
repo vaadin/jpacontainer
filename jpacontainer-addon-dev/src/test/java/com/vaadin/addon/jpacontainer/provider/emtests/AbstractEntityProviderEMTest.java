@@ -119,7 +119,7 @@ public abstract class AbstractEntityProviderEMTest {
             assertEquals(p, returned);
             // Make sure the entities are detached
             returned.setFirstName("Different firstname");
-            assertFalse(returned.equals(entityProvider.getEntity(p.getId())));
+            assertFalse(returned.getFirstName().equals(entityProvider.getEntity(p.getId()).getFirstName()));
         }
     }
 

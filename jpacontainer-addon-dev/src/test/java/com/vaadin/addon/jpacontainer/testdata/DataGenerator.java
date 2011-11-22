@@ -186,6 +186,8 @@ public class DataGenerator {
 
     public static void removeTestData(EntityManager entityManager2) {
         entityManager2.getTransaction().begin();
+        entityManager2.createQuery("DELETE FROM Department d")
+        .executeUpdate();
         entityManager2.createQuery("DELETE FROM PersonSkill ps")
                 .executeUpdate();
         entityManager2.createQuery("DELETE FROM Skill s").executeUpdate();

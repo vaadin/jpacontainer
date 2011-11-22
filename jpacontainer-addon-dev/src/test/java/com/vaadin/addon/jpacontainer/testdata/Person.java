@@ -23,9 +23,6 @@ import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 import javax.persistence.Version;
 
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.time.DateUtils;
-
 /**
  * Entity Java bean for testing.
  * 
@@ -151,15 +148,13 @@ public class Person implements Serializable, Cloneable {
     public boolean equals(Object obj) {
         if (obj instanceof Person) {
             Person p = (Person) obj;
-            return ObjectUtils.equals(address, p.address)
-                    && (ObjectUtils.equals(dateOfBirth, p.dateOfBirth) || (dateOfBirth != null
-                            && p.dateOfBirth != null && DateUtils.isSameDay(
-                            dateOfBirth, p.dateOfBirth)))
-                    && ObjectUtils.equals(firstName, p.firstName)
-                    && ObjectUtils.equals(lastName, p.lastName)
-                    && ObjectUtils.equals(manager, p.manager)
-                    && ObjectUtils.equals(skills, p.skills) && male == p.male
-                    && primitiveDouble == p.primitiveDouble;
+            if (this == p) {
+                return true;
+            }
+            if (this.id == null || p.id == null) {
+                return false;
+            }
+            return this.id.equals(p.id);
         }
 
         return super.equals(obj);
@@ -167,12 +162,7 @@ public class Person implements Serializable, Cloneable {
 
     @Override
     public int hashCode() {
-        return ObjectUtils.hashCode(address) + 7
-                * ObjectUtils.hashCode(dateOfBirth) + 7
-                * ObjectUtils.hashCode(firstName) + 7
-                * ObjectUtils.hashCode(lastName) + 7
-                * ObjectUtils.hashCode(manager) + 7
-                * ObjectUtils.hashCode(skills);
+        return id == null ? 0 : id.hashCode();
     }
 
     @Override

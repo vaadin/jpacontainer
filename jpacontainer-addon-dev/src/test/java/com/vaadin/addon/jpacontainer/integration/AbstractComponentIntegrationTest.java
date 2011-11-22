@@ -6,6 +6,8 @@ import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -16,9 +18,12 @@ import org.junit.Test;
 import com.vaadin.addon.jpacontainer.EntityItem;
 import com.vaadin.addon.jpacontainer.EntityItemProperty;
 import com.vaadin.addon.jpacontainer.JPAContainer;
+import com.vaadin.addon.jpacontainer.JPAContainerFactory;
 import com.vaadin.addon.jpacontainer.provider.LocalEntityProvider;
 import com.vaadin.addon.jpacontainer.testdata.DataGenerator;
+import com.vaadin.addon.jpacontainer.testdata.Department;
 import com.vaadin.addon.jpacontainer.testdata.Person;
+import com.vaadin.addon.jpacontainer.util.MultiSelectTranslator;
 import com.vaadin.addon.jpacontainer.util.SingleSelectTranslator;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
@@ -31,6 +36,7 @@ import com.vaadin.ui.Form;
 import com.vaadin.ui.FormFieldFactory;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
+import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.Table;
 
 public abstract class AbstractComponentIntegrationTest extends
@@ -126,6 +132,85 @@ public abstract class AbstractComponentIntegrationTest extends
         // ensure the first persons manager is the second person at bean level
         assertEquals(item2.getEntity(), item.getEntity().getManager());
 
+    }
+    
+
+    @Test
+    public void testCollectionTypeInListSelectWithMultiSelectTranslator() throws IOException {
+        
+        // TODO move creation of test data to DataGenerator
+        EntityManager entityManager = getEntityManager();
+        
+        entityManager.getTransaction().begin();
+        Department department = new Department();
+        department.setName("FOO");
+        
+        JPAContainer<Person> personContainer = getPersonContainer();
+        
+        Object personId = personContainer.firstItemId();
+        
+        Person person = personContainer.getItem(personId).getEntity();
+        
+        Set<Person> persons = new HashSet<Person>();
+        persons.add(person);
+        department.setPersons(persons);
+        
+        entityManager.persist(department);
+        
+        Department emptyDepartment = new Department();
+        emptyDepartment.setName("BAR");
+        
+        entityManager.persist(emptyDepartment);
+        
+        entityManager.getTransaction().commit();
+        
+        
+        JPAContainer<Department> departmentContainer = JPAContainerFactory.make(Department.class, entityManager);
+        
+        Object firstItemId = departmentContainer.firstItemId();
+        EntityItem<Department> item = departmentContainer.getItem(firstItemId);
+        
+        ListSelect listSelect = new ListSelect("foo", personContainer);
+        listSelect.setMultiSelect(true);
+        MultiSelectTranslator wrapperProperty = new MultiSelectTranslator(listSelect);
+        wrapperProperty.setPropertyDataSource(item.getItemProperty("persons"));
+        listSelect.setPropertyDataSource(wrapperProperty);
+        
+        Set<Object> value = (Set<Object>) listSelect.getValue();
+        boolean containsPersonId = value.contains(personId);
+        assertFalse(!containsPersonId);
+        assertEquals(1, value.size());
+        
+        Object secondPersonId = personContainer.nextItemId(personId);
+        Person secondPerson = personContainer.getItem(secondPersonId).getEntity();
+        listSelect.select(secondPersonId);
+        
+        value = (Set<Object>) listSelect.getValue();
+        containsPersonId = value.contains(personId);
+        assert(containsPersonId);
+        containsPersonId = value.contains(secondPersonId);
+        assert(containsPersonId);
+        assertEquals(2, value.size());
+        
+        Set<Person> persons2 = item.getEntity().getPersons();
+        assertEquals(2, persons2.size());
+        assert(persons2.contains(person));
+        assert(persons2.contains(secondPerson));
+        
+        
+        // Now test with initially empty department
+        Object nextItemId = departmentContainer.nextItemId(firstItemId);
+        EntityItem<Department> item2 = departmentContainer.getItem(nextItemId);
+        
+        Department department2 = item2.getEntity();
+        wrapperProperty.setPropertyDataSource(item2.getItemProperty("persons"));
+        
+        listSelect.select(personId);
+        
+        assertEquals(1, department2.getPersons().size());
+        assertFalse(!department.getPersons().contains(person));
+        
+        
     }
 
     @Test

@@ -20,6 +20,7 @@
 		<class>com.vaadin.addon.jpacontainer.testdata.Person</class>
 		<class>com.vaadin.addon.jpacontainer.testdata.PersonSkill</class>
 		<class>com.vaadin.addon.jpacontainer.testdata.Skill</class>
+		<class>com.vaadin.addon.jpacontainer.testdata.Department</class>
 		<exclude-unlisted-classes>true</exclude-unlisted-classes>
 	</persistence-unit>
 

@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.LinkedList;
 
 import org.easymock.Capture;
+import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 import org.junit.Before;
 import org.junit.Test;
@@ -1238,7 +1239,7 @@ public class JPAContainerTest {
                 .andStubReturn(null);
         replay(batchableEntityProviderMock);
 
-        expect(mutableEntityProviderMock.addEntity(p)).andReturn(pp);
+        expect(mutableEntityProviderMock.addEntity(EasyMock.isA(Person.class))).andReturn(pp);
         replay(mutableEntityProviderMock);
 
         // Run test

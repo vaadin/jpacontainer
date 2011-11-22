@@ -105,7 +105,9 @@ public abstract class PropertyTranslator extends AbstractProperty implements
         if (isReadOnly() != readOnly) {
             fireReadOnlyStatusChange();
         }
-        String newVal = toString();
+        
+        
+        Object newVal = getValue();
         if ((prevValue == null && newVal != null)
                 || (prevValue != null && !prevValue.equals(newVal))) {
             fireValueChange();

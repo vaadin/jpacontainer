@@ -66,7 +66,15 @@ public abstract class AbstractBatchableEntityProviderEMTest extends
 
 		assertEquals(updatedPerson, entityProvider.getEntity(updatedPerson.getId()));
 		assertFalse(entityProvider.containsEntity(removedPerson.getId(), null));
-		assertEquals(addedPerson, entityProvider.getEntity(addedPersonId[0]));
+		
+		Person entityFromProvider = entityProvider.getEntity(addedPersonId[0]);
+		assertEquals(addedPerson.getFirstName(), entityFromProvider.getFirstName());
+                assertEquals(addedPerson.getLastName(), entityFromProvider.getLastName());
+                assertEquals(addedPerson.getDateOfBirth(), entityFromProvider.getDateOfBirth());
+                assertEquals(addedPerson.getAddress().getStreet(), entityFromProvider.getAddress().getStreet());
+                assertEquals(addedPerson.getAddress().getPostalCode(), entityFromProvider.getAddress().getPostalCode());
+                assertEquals(addedPerson.getAddress().getPostOffice(), entityFromProvider.getAddress().getPostOffice());
+		
 		assertEquals(addedPerson.getManager(), updatedPerson);
 	}
 }
