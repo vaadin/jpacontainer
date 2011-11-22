@@ -85,7 +85,7 @@ public class JPAContainerFactory {
     public static <T> JPAContainer<T> make(Class<T> entityClass,
             String persistenceUnitName) {
         return make(entityClass,
-                getEntityManagerForPersistenceUnit(persistenceUnitName));
+                createEntityManagerForPersistenceUnit(persistenceUnitName));
     }
 
     /**
@@ -98,7 +98,7 @@ public class JPAContainerFactory {
      *            the name of the persistence unit.
      * @return an entity manager for the persistence unit.
      */
-    private static EntityManager getEntityManagerForPersistenceUnit(String name) {
+    public synchronized static EntityManager createEntityManagerForPersistenceUnit(String name) {
         if (!puToEmfMap.containsKey(name)) {
             puToEmfMap.put(name, Persistence.createEntityManagerFactory(name));
         }
@@ -144,7 +144,7 @@ public class JPAContainerFactory {
     public static <T> JPAContainer<T> makeReadOnly(Class<T> entityClass,
             String persistenceUnitName) {
         return makeReadOnly(entityClass,
-                getEntityManagerForPersistenceUnit(persistenceUnitName));
+                createEntityManagerForPersistenceUnit(persistenceUnitName));
     }
 
     /**
@@ -187,7 +187,7 @@ public class JPAContainerFactory {
     public static <T> JPAContainer<T> makeBatchable(Class<T> entityClass,
             String persistenceUnitName) {
         return makeBatchable(entityClass,
-                getEntityManagerForPersistenceUnit(persistenceUnitName));
+                createEntityManagerForPersistenceUnit(persistenceUnitName));
     }
 
     /**
@@ -229,7 +229,7 @@ public class JPAContainerFactory {
     public static <T> JPAContainer<T> makeNonCached(Class<T> entityClass,
             String persistenceUnitName) {
         return makeNonCached(entityClass,
-                getEntityManagerForPersistenceUnit(persistenceUnitName));
+                createEntityManagerForPersistenceUnit(persistenceUnitName));
     }
 
     /**
@@ -271,7 +271,7 @@ public class JPAContainerFactory {
     public static <T> JPAContainer<T> makeNonCachedReadOnly(
             Class<T> entityClass, String persistenceUnitName) {
         return makeNonCachedReadOnly(entityClass,
-                getEntityManagerForPersistenceUnit(persistenceUnitName));
+                createEntityManagerForPersistenceUnit(persistenceUnitName));
     }
 
 }
