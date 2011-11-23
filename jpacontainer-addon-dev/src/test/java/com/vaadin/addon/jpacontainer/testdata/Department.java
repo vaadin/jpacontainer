@@ -6,6 +6,7 @@ package com.vaadin.addon.jpacontainer.testdata;
 import java.io.Serializable;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -21,7 +22,7 @@ import javax.persistence.Version;
 @SuppressWarnings("serial")
 @Entity
 public class Department implements Serializable {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -51,12 +52,12 @@ public class Department implements Serializable {
             if (this == p) {
                 return true;
             }
-            if (this.id == null || p.id == null) {
+            if (id == null || p.id == null) {
                 return false;
             }
-            return this.id.equals(p.id);
+            return id.equals(p.id);
         }
-    
+
         return super.equals(obj);
     }
 
@@ -66,7 +67,7 @@ public class Department implements Serializable {
     }
 
     private String name;
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     private Set<Person> persons;
 
     public String getName() {
