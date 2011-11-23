@@ -1,7 +1,10 @@
 package com.vaadin.addon.jpacontainer.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import com.vaadin.addon.jpacontainer.EntityContainer;
 import com.vaadin.ui.AbstractSelect;
@@ -56,6 +59,21 @@ public class MultiSelectTranslator extends PropertyTranslator {
         Collection idset = (Collection) formattedValue;
 
         Collection value = (Collection) getPropertyDataSource().getValue();
+
+        if (value == null) {
+            Class<?> type = getPropertyDataSource().getType();
+            if (type.isInterface()) {
+                if(type == Set.class) {
+                    value = new HashSet();
+                } else if (type == List.class) {
+                    value = new ArrayList();
+                } else {
+                    throw new RuntimeException("Couldn't instantiate a collection for property.");
+                }
+            } else {
+                value = (Collection) type.newInstance();
+            }
+        }
 
         HashSet orphaned = new HashSet(value);
 
