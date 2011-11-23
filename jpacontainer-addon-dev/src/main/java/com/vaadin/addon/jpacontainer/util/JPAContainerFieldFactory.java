@@ -15,6 +15,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.DefaultFieldFactory;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.NativeSelect;
+import com.vaadin.ui.Table;
 
 /**
  * A helper class for JPAContainer users. E.g. automatically creates selects for
@@ -101,10 +102,26 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
         case REFERENCE:
             field = createReferenceSelect(jpacontainer, propertyId);
             break;
+        case COLLECTION: 
+            field = createCollectionSelect(jpacontainer, propertyId);
+            break;
         default:
             break;
         }
         return field;
+    }
+
+    private Field createCollectionSelect(EntityContainer containerForProperty,
+            Object propertyId) {
+        Class<?> type = containerForProperty.getType(propertyId);
+        JPAContainer container = createJPAContainerFor(type);
+        Table select = new Table(
+                DefaultFieldFactory.createCaptionByPropertyId(propertyId),
+                container);
+        select.setPropertyDataSource(new SingleSelectTranslator(
+                select));
+        select.setMultiSelect(true);
+        return select;
     }
 
     /**
