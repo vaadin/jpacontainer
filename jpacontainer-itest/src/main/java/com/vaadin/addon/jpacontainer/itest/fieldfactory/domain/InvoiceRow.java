@@ -14,10 +14,12 @@ public class InvoiceRow {
     private Long id;
     @ManyToOne
     private Invoice invoice;
-    private String description;
-    private Double amount;
-    private Double unitPrice;
-    private String unit;
+    private String description = "";
+    private Double amount = 0.0;
+    private Double unitPrice = 0.0;
+    private String unit = "pcs";
+    @ManyToOne
+    private Product product;
     
     public Long getId() {
         return id;
@@ -54,6 +56,12 @@ public class InvoiceRow {
     }
     public void setInvoice(Invoice invoice) {
         this.invoice = invoice;
+    }
+    public Product getProduct() {
+        return product;
+    }
+    public void setProduct(Product product) {
+        this.product = product;
     }
 
 }

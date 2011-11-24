@@ -10,12 +10,12 @@ import com.vaadin.addon.jpacontainer.itest.TestLauncherApplication;
 import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.Customer;
 import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.CustomerGroup;
 import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.Invoice;
+import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.Product;
 import com.vaadin.addon.jpacontainer.util.JPAContainerFieldFactory;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.filter.Compare;
 import com.vaadin.event.Action;
-import com.vaadin.event.Action.Handler;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -55,6 +55,19 @@ public class FieldFactoryTest extends Window {
         customer = new Customer();
         customer.setName("Pekka ltd");
         em.persist(customer);
+        
+        Product p = new Product();
+        p.setName("Chair");
+        em.persist(p);
+        p = new Product();
+        p.setName("Table");
+        em.persist(p);
+        p = new Product();
+        p.setName("Installation");
+        em.persist(p);
+        p = new Product();
+        p.setName("Consultation");
+        em.persist(p);
 
         em.getTransaction().commit();
     }
