@@ -32,6 +32,7 @@ import com.vaadin.ui.DefaultFieldFactory;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.Table;
+import com.vaadin.ui.TableFieldFactory;
 
 /**
  * A helper class for JPAContainer users. E.g. automatically creates selects for
@@ -214,6 +215,7 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
                     return actions;
                 }
             });
+            table.setTableFieldFactory(getFieldFactoryForMasterDetailEditor());
             table.setEditable(true);
 
         } else {
@@ -232,6 +234,16 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
             table.setVisibleColumns(asList.toArray());
         }
         return table;
+    }
+
+    /**
+     * TODO consider opening and adding parameters like propertyId, master class
+     * etc
+     * 
+     * @return
+     */
+    private TableFieldFactory getFieldFactoryForMasterDetailEditor() {
+        return this;
     }
 
     private String getMasterDetailRemoveItemCaption() {
