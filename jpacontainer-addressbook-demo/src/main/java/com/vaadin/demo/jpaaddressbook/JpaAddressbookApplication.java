@@ -5,7 +5,7 @@ import com.vaadin.ui.Window;
 
 public class JpaAddressbookApplication extends Application {
 
-    public static final String PERSISTENCY_UNIT = "addressbook";
+    public static final String PERSISTENCE_UNIT = "addressbook";
 
     static {
         DemoDataGenerator.create();

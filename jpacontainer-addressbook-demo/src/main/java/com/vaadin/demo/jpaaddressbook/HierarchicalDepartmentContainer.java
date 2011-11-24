@@ -12,7 +12,7 @@ public class HierarchicalDepartmentContainer extends JPAContainer<Department> {
         setEntityProvider(new CachingLocalEntityProvider<Department>(
                 Department.class,
                 JPAContainerFactory
-                        .createEntityManagerForPersistenceUnit(JpaAddressbookApplication.PERSISTENCY_UNIT)));
+                        .createEntityManagerForPersistenceUnit(JpaAddressbookApplication.PERSISTENCE_UNIT)));
         setParentProperty("parent");
     }
 

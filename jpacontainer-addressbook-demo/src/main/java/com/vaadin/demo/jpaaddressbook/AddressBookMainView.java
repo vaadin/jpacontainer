@@ -48,7 +48,7 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
 
     public AddressBookMainView() {
         departments = new HierarchicalDepartmentContainer();
-        persons = JPAContainerFactory.make(Person.class, JpaAddressbookApplication.PERSISTENCY_UNIT);
+        persons = JPAContainerFactory.make(Person.class, JpaAddressbookApplication.PERSISTENCE_UNIT);
         buildTree();
         buildMainArea();
 
