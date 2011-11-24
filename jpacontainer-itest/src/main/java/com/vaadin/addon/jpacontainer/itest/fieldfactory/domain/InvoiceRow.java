@@ -4,6 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 @Entity
 public class InvoiceRow {
@@ -11,10 +12,13 @@ public class InvoiceRow {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    @ManyToOne
+    private Invoice invoice;
     private String description;
     private Double amount;
     private Double unitPrice;
     private String unit;
+    
     public Long getId() {
         return id;
     }
@@ -44,6 +48,12 @@ public class InvoiceRow {
     }
     public void setUnit(String unit) {
         this.unit = unit;
+    }
+    public Invoice getInvoice() {
+        return invoice;
+    }
+    public void setInvoice(Invoice invoice) {
+        this.invoice = invoice;
     }
 
 }

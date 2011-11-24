@@ -9,6 +9,11 @@ public class AddressbookWindow extends Window {
     }
     
     public AddressbookWindow() {
+    }
+    
+    @Override
+    public void attach() {
+        super.attach();
         setContent(new AddressBookMainView());
     }
 

@@ -13,7 +13,7 @@ public class HierarchicalDepartmentContainer extends JPAContainer<Department> {
         setEntityProvider(new CachingLocalEntityProvider<Department>(
                 Department.class,
                 JPAContainerFactory
-                        .createEntityManagerForPersistenceUnit(TestLauncherApplication.PERSISTENCY_UNIT)));
+                        .createEntityManagerForPersistenceUnit(TestLauncherApplication.PERSISTENCE_UNIT)));
         setParentProperty("parent");
     }
 

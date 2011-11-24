@@ -6,7 +6,7 @@ import com.vaadin.ui.Window;
 
 public class TestLauncherApplication extends Application {
 
-    public static final String PERSISTENCY_UNIT = "addressbook";
+    public static final String PERSISTENCE_UNIT = "addressbook";
 
 
     @Override

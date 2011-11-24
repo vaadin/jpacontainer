@@ -25,9 +25,9 @@ public class DepartmentSelector extends CustomField {
 
     public DepartmentSelector() {
         container = JPAContainerFactory.make(Department.class,
-                TestLauncherApplication.PERSISTENCY_UNIT);
+                TestLauncherApplication.PERSISTENCE_UNIT);
         geoContainer = JPAContainerFactory.make(Department.class,
-                TestLauncherApplication.PERSISTENCY_UNIT);
+                TestLauncherApplication.PERSISTENCE_UNIT);
         setCaption("Department");
         // Only list "roots" which are in our example geographical super
         // departments

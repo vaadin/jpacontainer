@@ -7,13 +7,13 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 
 @Entity
-public class Customer {
+public class CustomerGroup {
     
     @Id
     private String name;
     
-    @ManyToMany
-    private Set<CustomerGroup> customerGroups;
+    @ManyToMany(mappedBy="customerGroups")
+    private Set<Customer> customers;
 
     public String getName() {
         return name;
@@ -22,18 +22,18 @@ public class Customer {
     public void setName(String name) {
         this.name = name;
     }
-
+    
     @Override
     public String toString() {
         return name;
     }
 
-    public Set<CustomerGroup> getCustomerGroups() {
-        return customerGroups;
+    public Set<Customer> getCustomers() {
+        return customers;
     }
 
-    public void setCustomerGroups(Set<CustomerGroup> groups) {
-        this.customerGroups = groups;
+    public void setCustomers(Set<Customer> customers) {
+        this.customers = customers;
     }
 
 }
