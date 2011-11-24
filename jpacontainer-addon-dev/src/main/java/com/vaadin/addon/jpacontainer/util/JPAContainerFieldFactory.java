@@ -1,8 +1,19 @@
 package com.vaadin.addon.jpacontainer.util;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.metamodel.Attribute;
+import javax.persistence.metamodel.Attribute.PersistentAttributeType;
+import javax.persistence.metamodel.EntityType;
+import javax.persistence.metamodel.Metamodel;
+import javax.persistence.metamodel.PluralAttribute;
+import javax.persistence.metamodel.Type;
 
 import com.vaadin.addon.jpacontainer.EntityContainer;
 import com.vaadin.addon.jpacontainer.JPAContainer;
@@ -10,7 +21,12 @@ import com.vaadin.addon.jpacontainer.JPAContainerFactory;
 import com.vaadin.addon.jpacontainer.JPAContainerItem;
 import com.vaadin.addon.jpacontainer.metadata.PropertyKind;
 import com.vaadin.data.Container;
+import com.vaadin.data.Container.Filter;
 import com.vaadin.data.Item;
+import com.vaadin.data.util.BeanItem;
+import com.vaadin.data.util.filter.Compare;
+import com.vaadin.event.Action;
+import com.vaadin.event.Action.Handler;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.DefaultFieldFactory;
 import com.vaadin.ui.Field;
@@ -39,18 +55,19 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
     public JPAContainerFieldFactory(EntityManagerFactory emfFactory) {
         this.emfFactory = emfFactory;
     }
-    
+
     /**
      * Creates a new JPAContainerFieldFactory. For referece/collection types
      * ComboBox or multiselects are created by default.
      * 
      * @param persistenceUnitName
-     *            the name of persiscenceUnit that will be used by default to create JPAContainers needed by fields
+     *            the name of persiscenceUnit that will be used by default to
+     *            create JPAContainers needed by fields
      */
     public JPAContainerFieldFactory(String persistenceUnitName) {
-        this.emfFactory = Persistence.createEntityManagerFactory(persistenceUnitName);
+        this.emfFactory = Persistence
+                .createEntityManagerFactory(persistenceUnitName);
     }
-
 
     /**
      * Creates a new JPAContainerFieldFactory. For referece/collection types
@@ -72,7 +89,8 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
                     propertyId);
             EntityContainer container = jpaitem.getContainer();
 
-            Field field = createJPAContainerBackedField(propertyId, container);
+            Field field = createJPAContainerBackedField(jpaitem.getItemId(),
+                    propertyId, container);
             if (field != null) {
                 return field;
             }
@@ -85,7 +103,7 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
             Object propertyId, Component uiContext) {
         if (container instanceof EntityContainer) {
             EntityContainer jpacontainer = (EntityContainer) container;
-            Field field = createJPAContainerBackedField(propertyId,
+            Field field = createJPAContainerBackedField(itemId, propertyId,
                     jpacontainer);
             if (field != null) {
                 return field;
@@ -94,16 +112,16 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
         return super.createField(container, itemId, propertyId, uiContext);
     }
 
-    private Field createJPAContainerBackedField(Object propertyId,
-            EntityContainer jpacontainer) {
+    private Field createJPAContainerBackedField(Object itemId,
+            Object propertyId, EntityContainer jpacontainer) {
         Field field = null;
         PropertyKind propertyKind = jpacontainer.getPropertyKind(propertyId);
         switch (propertyKind) {
         case REFERENCE:
             field = createReferenceSelect(jpacontainer, propertyId);
             break;
-        case COLLECTION: 
-            field = createCollectionSelect(jpacontainer, propertyId);
+        case COLLECTION:
+            field = createCollectionSelect(jpacontainer, itemId, propertyId);
             break;
         default:
             break;
@@ -111,17 +129,117 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
         return field;
     }
 
+    @SuppressWarnings({ "rawtypes", "serial" })
     private Field createCollectionSelect(EntityContainer containerForProperty,
-            Object propertyId) {
-        Class<?> type = containerForProperty.getType(propertyId);
-        JPAContainer container = createJPAContainerFor(type);
-        Table select = new Table(
+            Object itemId, Object propertyId) {
+        boolean oneToMany = false;
+        Type elementType = null;
+        Class referencedType = null;
+        Class masterEntityClass = containerForProperty.getEntityClass();
+        Metamodel metamodel = emfFactory.getMetamodel();
+        Set<EntityType<?>> entities = metamodel.getEntities();
+        for (EntityType<?> entityType : entities) {
+            Class<?> javaType = entityType.getJavaType();
+            if (javaType == masterEntityClass) {
+                Attribute<?, ?> attribute = entityType.getAttribute(propertyId
+                        .toString());
+                PersistentAttributeType persistentAttributeType = attribute
+                        .getPersistentAttributeType();
+                PluralAttribute pAttribute = (PluralAttribute) attribute;
+                elementType = pAttribute.getElementType();
+                referencedType = elementType.getJavaType();
+                if (persistentAttributeType == PersistentAttributeType.ONE_TO_MANY) {
+                    oneToMany = true;
+                }
+                break;
+            }
+        }
+        final JPAContainer container = createJPAContainerFor(referencedType);
+        final Table table = new Table(
                 DefaultFieldFactory.createCaptionByPropertyId(propertyId),
                 container);
-        select.setPropertyDataSource(new SingleSelectTranslator(
-                select));
-        select.setMultiSelect(true);
-        return select;
+        if (oneToMany) {
+            // oneToMany means we want a 'master-detail-view'
+
+            // Modify container to filter only those details that relate to
+            // this master data
+            // TODO should use mappedBy parameter of OneToMany annotation,
+            // currently using convention
+            final String backReferencePropertyId = masterEntityClass
+                    .getSimpleName().toLowerCase();
+            final Object masterEntity = containerForProperty
+                    .getEntityProvider().getEntity(itemId);
+            Filter filter = new Compare.Equal(backReferencePropertyId,
+                    masterEntity);
+            container.addContainerFilter(filter);
+
+            List<Object> asList = new ArrayList<Object>(Arrays.asList(table
+                    .getVisibleColumns()));
+            asList.remove("id");
+            asList.remove(backReferencePropertyId);
+            table.setVisibleColumns(asList.toArray());
+
+            final Action add = new Action(getMasterDetailAddItemCaption());
+            // add add and remove actions to table
+            Action remove = new Action(getMasterDetailRemoveItemCaption());
+            final Action[] actions = new Action[] { add, remove };
+
+            table.addActionHandler(new Handler() {
+
+                @SuppressWarnings("unchecked")
+                public void handleAction(Action action, Object sender,
+                        Object target) {
+                    if (action == add) {
+                        try {
+                            Object newInstance = container.getEntityClass()
+                                    .newInstance();
+                            BeanItem beanItem = new BeanItem(newInstance);
+                            beanItem.getItemProperty(backReferencePropertyId)
+                                    .setValue(masterEntity);
+                            // TODO need to update the actual property also!?
+                            container.addEntity(newInstance);
+                        } catch (InstantiationException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        } catch (IllegalAccessException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    } else {
+                        table.removeItem(target);
+                    }
+                }
+
+                public Action[] getActions(Object target, Object sender) {
+                    return actions;
+                }
+            });
+            table.setEditable(true);
+
+        } else {
+            // many to many, selectable from table listing all existing pojos
+            table.setPropertyDataSource(new MultiSelectTranslator(table));
+            table.setSelectable(true);
+            table.setMultiSelect(true);
+            List<Object> asList = new ArrayList<Object>(Arrays.asList(table
+                    .getVisibleColumns()));
+            asList.remove("id");
+            // TODO this should be the true "back reference" field from the
+            // opposite direction, now we expect convention
+            final String backReferencePropertyId = masterEntityClass
+                    .getSimpleName().toLowerCase() + "s";
+            asList.remove(backReferencePropertyId);
+            table.setVisibleColumns(asList.toArray());
+        }
+        return table;
+    }
+
+    private String getMasterDetailRemoveItemCaption() {
+        return "Remove";
+    }
+
+    private String getMasterDetailAddItemCaption() {
+        return "Add";
     }
 
     /**
@@ -146,10 +264,10 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
 
     private JPAContainer createJPAContainerFor(Class<?> type) {
         if (emfFactory != null) {
-            return JPAContainerFactory.makeReadOnly(type,
+            return JPAContainerFactory.make(type,
                     emfFactory.createEntityManager());
         } else if (em != null) {
-            return JPAContainerFactory.makeReadOnly(type, em);
+            return JPAContainerFactory.make(type, em);
         }
         throw new IllegalStateException(
                 "Either entitymanager or an entitymanagerfactory must be defined");
