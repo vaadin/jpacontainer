@@ -48,7 +48,8 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
 
     public AddressBookMainView() {
         departments = new HierarchicalDepartmentContainer();
-        persons = JPAContainerFactory.make(Person.class, JpaAddressbookApplication.PERSISTENCE_UNIT);
+        persons = JPAContainerFactory.make(Person.class,
+                JpaAddressbookApplication.PERSISTENCE_UNIT);
         buildTree();
         buildMainArea();
 
@@ -135,16 +136,8 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
 
             @Override
             public void textChange(TextChangeEvent event) {
-                String text = event.getText();
-                textFilter = sanitizeInputText(text);
+                textFilter = event.getText();
                 updateFilters();
-            }
-
-            private String sanitizeInputText(String text) {
-                if (text != null) {
-                    return text.replaceAll("[^a-zA-Z0-9 ]", "");
-                }
-                return null;
             }
         });
 
