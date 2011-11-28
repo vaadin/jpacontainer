@@ -101,7 +101,6 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
                     @Override
                     public void editorSaved(EditorSavedEvent event) {
                         persons.addEntity(newPersonItem.getBean());
-                        persons.commit();
                     }
                 });
                 getApplication().getMainWindow().addWindow(personEditor);
