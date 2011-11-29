@@ -2,6 +2,7 @@ package com.vaadin.addon.jpacontainer.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -43,6 +44,7 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
 
     private EntityManagerFactory emfFactory;
     private EntityManager em;
+    private HashMap<Class<?>, String[]> propertyOrders;
 
     /**
      * Creates a new JPAContainerFieldFactory. For referece/collection types
@@ -152,15 +154,20 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
         table.setPropertyDataSource(new MultiSelectTranslator(table));
         table.setSelectable(true);
         table.setMultiSelect(true);
-        List<Object> asList = new ArrayList<Object>(Arrays.asList(table
-                .getVisibleColumns()));
-        asList.remove("id");
-        // TODO this should be the true "back reference" field from the
-        // opposite direction, now we expect convention
-        final String backReferencePropertyId = masterEntityClass
-                .getSimpleName().toLowerCase() + "s";
-        asList.remove(backReferencePropertyId);
-        table.setVisibleColumns(asList.toArray());
+        Object[] visibleProperties = getVisibleProperties(referencedType);
+        if (visibleProperties == null) {
+            List<Object> asList = new ArrayList<Object>(Arrays.asList(table
+                    .getVisibleColumns()));
+            asList.remove("id");
+            // TODO this should be the true "back reference" field from the
+            // opposite direction, now we expect convention
+            final String backReferencePropertyId = masterEntityClass
+                    .getSimpleName().toLowerCase() + "s";
+            asList.remove(backReferencePropertyId);
+            visibleProperties = asList.toArray();
+        }
+        table.setVisibleColumns(visibleProperties);
+
         return table;
     }
 
@@ -186,11 +193,15 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
         Filter filter = new Compare.Equal(backReferencePropertyId, masterEntity);
         container.addContainerFilter(filter);
 
-        List<Object> asList = new ArrayList<Object>(Arrays.asList(table
-                .getVisibleColumns()));
-        asList.remove("id");
-        asList.remove(backReferencePropertyId);
-        table.setVisibleColumns(asList.toArray());
+        Object[] visibleProperties = getVisibleProperties(referencedType);
+        if (visibleProperties == null) {
+            List<Object> asList = new ArrayList<Object>(Arrays.asList(table
+                    .getVisibleColumns()));
+            asList.remove("id");
+            asList.remove(backReferencePropertyId);
+            visibleProperties = asList.toArray();
+        }
+        table.setVisibleColumns(visibleProperties);
 
         final Action add = new Action(getMasterDetailAddItemCaption());
         // add add and remove actions to table
@@ -315,6 +326,39 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
             return JPAContainerFactory.make(type, getEntityManagerFactory()
                     .createEntityManager());
         }
+    }
+
+    /**
+     * Configures visible properties and their order for fields created for
+     * reference/collection types referencing to given entity type. This order
+     * is for example used by Table's created for OneToMany or ManyToMany
+     * reference types.
+     * 
+     * @param containerType
+     *            the entity type for which the visible properties will be set
+     * @param propertyIdentifiers
+     *            the identifiers in wished order to be displayed
+     */
+    public void setVisibleProperties(Class<?> containerType,
+            String... propertyIdentifiers) {
+        if (propertyOrders == null) {
+            propertyOrders = new HashMap<Class<?>, String[]>();
+        }
+        propertyOrders.put(containerType, propertyIdentifiers);
+    }
+
+    /**
+     * Returns customized visible properties (and their order) for given entity
+     * type.
+     * 
+     * @param containerType
+     * @return property identifiers that are configured to be displayed
+     */
+    public String[] getVisibleProperties(Class<?> containerType) {
+        if (propertyOrders != null) {
+            return propertyOrders.get(containerType);
+        }
+        return null;
     }
 
 }
