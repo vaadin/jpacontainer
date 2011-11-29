@@ -10,6 +10,7 @@ import com.vaadin.addon.jpacontainer.itest.TestLauncherApplication;
 import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.Customer;
 import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.CustomerGroup;
 import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.Invoice;
+import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.InvoiceRow;
 import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.Product;
 import com.vaadin.addon.jpacontainer.util.JPAContainerFieldFactory;
 import com.vaadin.data.Property;
@@ -55,7 +56,7 @@ public class FieldFactoryTest extends Window {
         customer = new Customer();
         customer.setName("Pekka ltd");
         em.persist(customer);
-        
+
         Product p = new Product();
         p.setName("Chair");
         em.persist(p);
@@ -150,7 +151,8 @@ public class FieldFactoryTest extends Window {
             addComponent(customerForm);
         }
         customerForm.setItemDataSource(entityItem);
-        customerForm.setVisibleItemProperties(new Object[]{"customerGroups"});
+        customerForm
+                .setVisibleItemProperties(new Object[] { "customerGroups" });
 
     }
 
@@ -160,6 +162,8 @@ public class FieldFactoryTest extends Window {
             form.setCaption("Invoice editor");
             JPAContainerFieldFactory jpaContainerFieldFactory = new JPAContainerFieldFactory(
                     TestLauncherApplication.PERSISTENCE_UNIT);
+            jpaContainerFieldFactory.setVisibleProperties(InvoiceRow.class,
+                    "product", "description", "unit", "unitPrice");
             form.setFormFieldFactory(jpaContainerFieldFactory);
             addComponent(form);
         }
