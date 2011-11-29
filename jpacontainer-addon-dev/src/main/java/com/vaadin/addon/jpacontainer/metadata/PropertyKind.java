@@ -20,14 +20,25 @@ public enum PropertyKind {
      * @see javax.persistence.OneToOne
      * @see javax.persistence.ManyToOne
      */
-    REFERENCE,
+    MANY_TO_ONE,
     /**
+     * The property is a reference.
+     * 
+     * @see javax.persistence.ManyToOne
+     */
+    ONE_TO_ONE,
+     /**
      * The property is a collection.
      * 
      * @see javax.persistence.OneToMany
+     */
+    ONE_TO_MANY,
+    /**
+     * The property is a reference.
+     * 
      * @see javax.persistence.ManyToMany
      */
-    COLLECTION,
+    MANY_TO_MANY,
     /**
      * The property is of a simple datatype.
      */

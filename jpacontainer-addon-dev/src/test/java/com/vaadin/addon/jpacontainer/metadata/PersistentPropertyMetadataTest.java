@@ -57,12 +57,12 @@ public class PersistentPropertyMetadataTest {
 				Integer.class);
 		PersistentPropertyMetadata prop = new PersistentPropertyMetadata(
 				"dummy", Integer.class,
-				PropertyKind.COLLECTION, getter,
+				PropertyKind.ONE_TO_MANY, getter,
 				setter);
 		assertEquals("dummy", prop.getName());
 		assertSame(Integer.class, prop.getType());
 		assertNull(prop.getTypeMetadata());
-		assertEquals(PropertyKind.COLLECTION, prop
+		assertEquals(PropertyKind.ONE_TO_MANY, prop
 				.getPropertyKind());
 		assertEquals(PersistentPropertyMetadata.AccessType.METHOD, prop
 				.getAccessType());
@@ -82,11 +82,11 @@ public class PersistentPropertyMetadataTest {
 		// will work anyway
 		PersistentPropertyMetadata prop = new PersistentPropertyMetadata(
 				"dummy", cmd,
-				PropertyKind.REFERENCE, field);
+				PropertyKind.MANY_TO_ONE, field);
 		assertEquals("dummy", prop.getName());
 		assertSame(Integer.class, prop.getType());
 		assertSame(cmd, prop.getTypeMetadata());
-		assertEquals(PropertyKind.REFERENCE, prop
+		assertEquals(PropertyKind.MANY_TO_ONE, prop
 				.getPropertyKind());
 		assertEquals(PersistentPropertyMetadata.AccessType.FIELD, prop
 				.getAccessType());

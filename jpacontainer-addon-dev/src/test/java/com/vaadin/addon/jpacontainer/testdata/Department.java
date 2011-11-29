@@ -67,7 +67,8 @@ public class Department implements Serializable {
     }
 
     private String name;
-    @ManyToMany(cascade = CascadeType.ALL)
+    
+    @ManyToMany
     private Set<Person> persons;
 
     public String getName() {

@@ -137,33 +137,36 @@ public abstract class AbstractComponentIntegrationTest extends
 
     @Test
     public void testCollectionTypeInListSelectWithMultiSelectTranslator() throws IOException {
+        JPAContainer<Person> personContainer = getPersonContainer();
+        Object personId = personContainer.firstItemId();
+        Person person = personContainer.getItem(personId).getEntity();
         
         // TODO move creation of test data to DataGenerator
         EntityManager entityManager = getEntityManager();
-        
-        entityManager.getTransaction().begin();
-        Department department = new Department();
-        department.setName("FOO");
-        
-        JPAContainer<Person> personContainer = getPersonContainer();
-        
-        Object personId = personContainer.firstItemId();
-        
-        Person person = personContainer.getItem(personId).getEntity();
-        
-        Set<Person> persons = new HashSet<Person>();
-        persons.add(person);
-        department.setPersons(persons);
-        
-        entityManager.persist(department);
-        
-        Department emptyDepartment = new Department();
-        emptyDepartment.setName("BAR");
-        
-        entityManager.persist(emptyDepartment);
-        
-        entityManager.getTransaction().commit();
-        
+        Department department = null;
+        try {
+            department = (Department) entityManager.createQuery("SELECT d from Department d where d.name='FOO'").getSingleResult();
+        } catch (Exception e) {
+        }
+        if(department == null) {
+            entityManager.getTransaction().begin();
+            department = new Department();
+            department.setName("FOO");
+            
+            Set<Person> persons = new HashSet<Person>();
+            persons.add(person);
+            department.setPersons(persons);
+            
+            entityManager.persist(department);
+            
+            Department emptyDepartment = new Department();
+            emptyDepartment.setName("BAR");
+            
+            entityManager.persist(emptyDepartment);
+            
+            entityManager.getTransaction().commit();
+            
+        }
         
         JPAContainer<Department> departmentContainer = JPAContainerFactory.make(Department.class, entityManager);
         

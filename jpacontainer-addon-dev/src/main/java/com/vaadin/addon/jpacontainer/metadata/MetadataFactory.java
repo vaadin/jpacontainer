@@ -212,13 +212,19 @@ public class MetadataFactory {
     }
 
     protected boolean isReference(AccessibleObject ab) {
-        return (ab.getAnnotation(OneToOne.class) != null || ab
-                .getAnnotation(ManyToOne.class) != null);
+        return ab.getAnnotation(ManyToOne.class) != null;
+    }
+
+    private boolean isOneToOne(AccessibleObject ab) {
+        return ab.getAnnotation(OneToOne.class) != null;
     }
 
     protected boolean isCollection(AccessibleObject ab) {
-        return (ab.getAnnotation(OneToMany.class) != null || ab
-                .getAnnotation(ManyToMany.class) != null);
+        return ab.getAnnotation(OneToMany.class) != null;
+    }
+
+    private boolean isManyToMany(AccessibleObject ab) {
+        return ab.getAnnotation(ManyToMany.class) != null;
     }
 
     protected boolean isEmbedded(AccessibleObject ab) {
@@ -237,19 +243,23 @@ public class MetadataFactory {
                     ClassMetadata<?> cm = getClassMetadata(f.getType(),
                             AccessType.FIELD);
                     metadata.addProperties(new PersistentPropertyMetadata(f
-                            .getName(), cm,
-                            PropertyKind.EMBEDDED, f));
+                            .getName(), cm, PropertyKind.EMBEDDED, f));
                 } else if (isReference(f)) {
                     ClassMetadata<?> cm = getClassMetadata(f.getType(),
                             AccessType.FIELD);
                     metadata.addProperties(new PersistentPropertyMetadata(f
-                            .getName(), cm,
-                            PropertyKind.REFERENCE,
-                            f));
+                            .getName(), cm, PropertyKind.MANY_TO_ONE, f));
+                } else if (isOneToOne(f)) {
+                    ClassMetadata<?> cm = getClassMetadata(f.getType(),
+                            AccessType.FIELD);
+                    metadata.addProperties(new PersistentPropertyMetadata(f
+                            .getName(), cm, PropertyKind.ONE_TO_ONE, f));
                 } else if (isCollection(f)) {
                     metadata.addProperties(new PersistentPropertyMetadata(f
-                            .getName(), f.getType(),
-                            PropertyKind.COLLECTION,
+                            .getName(), f.getType(), PropertyKind.ONE_TO_MANY, f));
+                } else if (isManyToMany(f)) {
+                    metadata.addProperties(new PersistentPropertyMetadata(f
+                            .getName(), f.getType(), PropertyKind.MANY_TO_MANY,
                             f));
                 } else {
                     metadata.addProperties(new PersistentPropertyMetadata(f
@@ -342,28 +352,28 @@ public class MetadataFactory {
                         ClassMetadata<?> cm = getClassMetadata(
                                 m.getReturnType(), AccessType.METHOD);
                         metadata.addProperties(new PersistentPropertyMetadata(
-                                name,
-                                cm,
-                                PropertyKind.EMBEDDED,
-                                m, setter));
+                                name, cm, PropertyKind.EMBEDDED, m, setter));
                     } else if (isReference(m)) {
                         ClassMetadata<?> cm = getClassMetadata(
                                 m.getReturnType(), AccessType.METHOD);
                         metadata.addProperties(new PersistentPropertyMetadata(
-                                name,
-                                cm,
-                                PropertyKind.REFERENCE,
-                                m, setter));
+                                name, cm, PropertyKind.MANY_TO_ONE, m, setter));
+                    } else if (isOneToOne(m)) {
+                        ClassMetadata<?> cm = getClassMetadata(
+                                m.getReturnType(), AccessType.METHOD);
+                        metadata.addProperties(new PersistentPropertyMetadata(
+                                name, cm, PropertyKind.ONE_TO_ONE, m, setter));
                     } else if (isCollection(m)) {
                         metadata.addProperties(new PersistentPropertyMetadata(
-                                name,
-                                m.getReturnType(),
-                                PropertyKind.COLLECTION,
-                                m, setter));
-                    } else {
+                                name, m.getReturnType(),
+                                PropertyKind.ONE_TO_MANY, m, setter));
+                    } else if (isManyToMany(m)) {
                         metadata.addProperties(new PersistentPropertyMetadata(
                                 name, m.getReturnType(),
-                                PropertyKind.SIMPLE,
+                                PropertyKind.MANY_TO_MANY, m, setter));
+                    } else {
+                        metadata.addProperties(new PersistentPropertyMetadata(
+                                name, m.getReturnType(), PropertyKind.SIMPLE,
                                 m, setter));
                     }
                 } else {

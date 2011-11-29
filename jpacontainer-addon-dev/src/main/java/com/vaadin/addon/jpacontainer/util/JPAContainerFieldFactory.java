@@ -9,7 +9,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.metamodel.Attribute;
-import javax.persistence.metamodel.Attribute.PersistentAttributeType;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.PluralAttribute;
@@ -118,10 +117,16 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
         Field field = null;
         PropertyKind propertyKind = jpacontainer.getPropertyKind(propertyId);
         switch (propertyKind) {
-        case REFERENCE:
+        case MANY_TO_ONE:
             field = createReferenceSelect(jpacontainer, propertyId);
             break;
-        case COLLECTION:
+        case ONE_TO_ONE:
+            // TODO subform
+            break;
+        case ONE_TO_MANY:
+            field = createMasterDetailEditor(jpacontainer, itemId, propertyId);
+            break;
+        case MANY_TO_MANY:
             field = createCollectionSelect(jpacontainer, itemId, propertyId);
             break;
         default:
@@ -133,107 +138,136 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
     @SuppressWarnings({ "rawtypes", "serial" })
     private Field createCollectionSelect(EntityContainer containerForProperty,
             Object itemId, Object propertyId) {
-        boolean oneToMany = false;
-        Type elementType = null;
-        Class referencedType = null;
+        /*
+         * Detect what kind of reference type we have
+         */
         Class masterEntityClass = containerForProperty.getEntityClass();
-        Metamodel metamodel = emfFactory.getMetamodel();
+        Class referencedType = detectReferencedType(propertyId,
+                masterEntityClass);
+        final JPAContainer container = createJPAContainerFor(referencedType);
+        final Table table = new Table(
+                DefaultFieldFactory.createCaptionByPropertyId(propertyId),
+                container);
+        // many to many, selectable from table listing all existing pojos
+        table.setPropertyDataSource(new MultiSelectTranslator(table));
+        table.setSelectable(true);
+        table.setMultiSelect(true);
+        List<Object> asList = new ArrayList<Object>(Arrays.asList(table
+                .getVisibleColumns()));
+        asList.remove("id");
+        // TODO this should be the true "back reference" field from the
+        // opposite direction, now we expect convention
+        final String backReferencePropertyId = masterEntityClass
+                .getSimpleName().toLowerCase() + "s";
+        asList.remove(backReferencePropertyId);
+        table.setVisibleColumns(asList.toArray());
+        return table;
+    }
+
+    @SuppressWarnings({ "rawtypes", "serial" })
+    private Field createMasterDetailEditor(
+            EntityContainer containerForProperty, Object itemId,
+            Object propertyId) {
+        Class masterEntityClass = containerForProperty.getEntityClass();
+        Class referencedType = detectReferencedType(propertyId,
+                masterEntityClass);
+        final JPAContainer container = createJPAContainerFor(referencedType);
+        final Table table = new Table(
+                DefaultFieldFactory.createCaptionByPropertyId(propertyId),
+                container);
+        // Modify container to filter only those details that relate to
+        // this master data
+        // TODO should use mappedBy parameter of OneToMany annotation,
+        // currently using convention
+        final String backReferencePropertyId = masterEntityClass
+                .getSimpleName().toLowerCase();
+        final Object masterEntity = containerForProperty.getEntityProvider()
+                .getEntity(itemId);
+        Filter filter = new Compare.Equal(backReferencePropertyId, masterEntity);
+        container.addContainerFilter(filter);
+
+        List<Object> asList = new ArrayList<Object>(Arrays.asList(table
+                .getVisibleColumns()));
+        asList.remove("id");
+        asList.remove(backReferencePropertyId);
+        table.setVisibleColumns(asList.toArray());
+
+        final Action add = new Action(getMasterDetailAddItemCaption());
+        // add add and remove actions to table
+        Action remove = new Action(getMasterDetailRemoveItemCaption());
+        final Action[] actions = new Action[] { add, remove };
+
+        table.addActionHandler(new Handler() {
+
+            @SuppressWarnings("unchecked")
+            public void handleAction(Action action, Object sender, Object target) {
+                if (action == add) {
+                    try {
+                        Object newInstance = container.getEntityClass()
+                                .newInstance();
+                        BeanItem beanItem = new BeanItem(newInstance);
+                        beanItem.getItemProperty(backReferencePropertyId)
+                                .setValue(masterEntity);
+                        // TODO need to update the actual property also!?
+                        container.addEntity(newInstance);
+                    } catch (InstantiationException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (IllegalAccessException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                } else {
+                    table.removeItem(target);
+                }
+            }
+
+            public Action[] getActions(Object target, Object sender) {
+                return actions;
+            }
+        });
+        table.setTableFieldFactory(getFieldFactoryForMasterDetailEditor());
+        table.setEditable(true);
+
+        return table;
+    }
+
+    /**
+     * Detects the type entities in "collection types" (oneToMany, ManyToMany).
+     * 
+     * @param propertyId
+     * @param masterEntityClass
+     * @return the type of entities in collection type
+     */
+    @SuppressWarnings("rawtypes")
+    protected Class detectReferencedType(Object propertyId,
+            Class masterEntityClass) {
+        Class referencedType = null;
+        Metamodel metamodel = getEntityManagerFactory().getMetamodel();
         Set<EntityType<?>> entities = metamodel.getEntities();
         for (EntityType<?> entityType : entities) {
             Class<?> javaType = entityType.getJavaType();
             if (javaType == masterEntityClass) {
                 Attribute<?, ?> attribute = entityType.getAttribute(propertyId
                         .toString());
-                PersistentAttributeType persistentAttributeType = attribute
-                        .getPersistentAttributeType();
                 PluralAttribute pAttribute = (PluralAttribute) attribute;
-                elementType = pAttribute.getElementType();
+                Type elementType = pAttribute.getElementType();
                 referencedType = elementType.getJavaType();
-                if (persistentAttributeType == PersistentAttributeType.ONE_TO_MANY) {
-                    oneToMany = true;
-                }
                 break;
             }
         }
-        final JPAContainer container = createJPAContainerFor(referencedType);
-        final Table table = new Table(
-                DefaultFieldFactory.createCaptionByPropertyId(propertyId),
-                container);
-        if (oneToMany) {
-            // oneToMany means we want a 'master-detail-view'
+        return referencedType;
+    }
 
-            // Modify container to filter only those details that relate to
-            // this master data
-            // TODO should use mappedBy parameter of OneToMany annotation,
-            // currently using convention
-            final String backReferencePropertyId = masterEntityClass
-                    .getSimpleName().toLowerCase();
-            final Object masterEntity = containerForProperty
-                    .getEntityProvider().getEntity(itemId);
-            Filter filter = new Compare.Equal(backReferencePropertyId,
-                    masterEntity);
-            container.addContainerFilter(filter);
-
-            List<Object> asList = new ArrayList<Object>(Arrays.asList(table
-                    .getVisibleColumns()));
-            asList.remove("id");
-            asList.remove(backReferencePropertyId);
-            table.setVisibleColumns(asList.toArray());
-
-            final Action add = new Action(getMasterDetailAddItemCaption());
-            // add add and remove actions to table
-            Action remove = new Action(getMasterDetailRemoveItemCaption());
-            final Action[] actions = new Action[] { add, remove };
-
-            table.addActionHandler(new Handler() {
-
-                @SuppressWarnings("unchecked")
-                public void handleAction(Action action, Object sender,
-                        Object target) {
-                    if (action == add) {
-                        try {
-                            Object newInstance = container.getEntityClass()
-                                    .newInstance();
-                            BeanItem beanItem = new BeanItem(newInstance);
-                            beanItem.getItemProperty(backReferencePropertyId)
-                                    .setValue(masterEntity);
-                            // TODO need to update the actual property also!?
-                            container.addEntity(newInstance);
-                        } catch (InstantiationException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        } catch (IllegalAccessException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-                    } else {
-                        table.removeItem(target);
-                    }
-                }
-
-                public Action[] getActions(Object target, Object sender) {
-                    return actions;
-                }
-            });
-            table.setTableFieldFactory(getFieldFactoryForMasterDetailEditor());
-            table.setEditable(true);
-
-        } else {
-            // many to many, selectable from table listing all existing pojos
-            table.setPropertyDataSource(new MultiSelectTranslator(table));
-            table.setSelectable(true);
-            table.setMultiSelect(true);
-            List<Object> asList = new ArrayList<Object>(Arrays.asList(table
-                    .getVisibleColumns()));
-            asList.remove("id");
-            // TODO this should be the true "back reference" field from the
-            // opposite direction, now we expect convention
-            final String backReferencePropertyId = masterEntityClass
-                    .getSimpleName().toLowerCase() + "s";
-            asList.remove(backReferencePropertyId);
-            table.setVisibleColumns(asList.toArray());
+    private EntityManagerFactory getEntityManagerFactory() {
+        if (em != null) {
+            return em.getEntityManagerFactory();
         }
-        return table;
+        if (emfFactory != null) {
+            return emfFactory;
+        }
+        throw new IllegalStateException(
+                "Either entitymanager or an entitymanagerfactory must be defined");
     }
 
     /**
@@ -275,14 +309,12 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
     }
 
     private JPAContainer createJPAContainerFor(Class<?> type) {
-        if (emfFactory != null) {
-            return JPAContainerFactory.make(type,
-                    emfFactory.createEntityManager());
-        } else if (em != null) {
+        if (em != null) {
             return JPAContainerFactory.make(type, em);
+        } else {
+            return JPAContainerFactory.make(type, getEntityManagerFactory()
+                    .createEntityManager());
         }
-        throw new IllegalStateException(
-                "Either entitymanager or an entitymanagerfactory must be defined");
     }
 
 }

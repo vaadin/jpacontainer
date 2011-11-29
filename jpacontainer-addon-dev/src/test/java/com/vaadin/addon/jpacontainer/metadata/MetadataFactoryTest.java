@@ -123,7 +123,7 @@ public class MetadataFactoryTest {
 			assertEquals(Collection.class, prop.getType());
 			assertEquals(PersistentPropertyMetadata.AccessType.FIELD, prop
 					.getAccessType());
-			assertEquals(PropertyKind.COLLECTION,
+			assertEquals(PropertyKind.ONE_TO_MANY,
 					prop.getPropertyKind());
 			assertNull(prop.getTypeMetadata());
 			assertTrue(prop.isWritable());
@@ -135,7 +135,7 @@ public class MetadataFactoryTest {
 			assertEquals(Person_F.class, prop.getType());
 			assertEquals(PersistentPropertyMetadata.AccessType.FIELD, prop
 					.getAccessType());
-			assertEquals(PropertyKind.REFERENCE,
+			assertEquals(PropertyKind.MANY_TO_ONE,
 					prop.getPropertyKind());
 			assertSame(metadata, prop.getTypeMetadata());
 			assertTrue(prop.isWritable());
@@ -256,7 +256,7 @@ public class MetadataFactoryTest {
 			assertEquals(Collection.class, prop.getType());
 			assertEquals(PersistentPropertyMetadata.AccessType.METHOD, prop
 					.getAccessType());
-			assertEquals(PropertyKind.COLLECTION,
+			assertEquals(PropertyKind.ONE_TO_MANY,
 					prop.getPropertyKind());
 			assertNull(prop.getTypeMetadata());
 			assertTrue(prop.isWritable());
@@ -268,7 +268,7 @@ public class MetadataFactoryTest {
 			assertEquals(Person_M.class, prop.getType());
 			assertEquals(PersistentPropertyMetadata.AccessType.METHOD, prop
 					.getAccessType());
-			assertEquals(PropertyKind.REFERENCE,
+			assertEquals(PropertyKind.MANY_TO_ONE,
 					prop.getPropertyKind());
 			assertSame(metadata, prop.getTypeMetadata());
 			assertTrue(prop.isWritable());
