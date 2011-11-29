@@ -22,6 +22,7 @@ import com.vaadin.data.util.filter.Compare.Equal;
 import com.vaadin.data.util.filter.Compare.Greater;
 import com.vaadin.data.util.filter.IsNull;
 import com.vaadin.data.util.filter.Like;
+import com.vaadin.data.util.filter.Not;
 import com.vaadin.data.util.filter.Or;
 import com.vaadin.data.util.filter.SimpleStringFilter;
 
@@ -212,13 +213,25 @@ public class FilterConverter {
 
     }
 
+    private static class NotFilterConverter implements Converter {
+        public boolean canConvert(Filter filter) {
+            return filter instanceof Not;
+        }
+
+        public <X, Y> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
+                From<X, Y> root) {
+            Not not = (Not) filter;
+            return cb.not(convertFilter(not.getFilter(), cb, root));
+        }
+    }
+
     private static Collection<Converter> converters;
     static {
         converters = Collections.unmodifiableCollection(Arrays.asList(
                 new AndConverter(), new OrConverter(), new CompareConverter(),
                 new IsNullConverter(), new SimpleStringFilterConverter(),
                 new LikeConverter(), new BetweenConverter(),
-                new JoinFilterConverter()));
+                new JoinFilterConverter(), new NotFilterConverter()));
     }
 
     /**
@@ -245,7 +258,8 @@ public class FilterConverter {
             }
         }
 
-        return null;
+        throw new IllegalStateException("Cannot find any converters for "
+                + filter.getClass().getSimpleName() + " filters!");
     }
 
     /**
