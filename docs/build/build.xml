@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+
+<project name="Vaadin Sub-project"
+         basedir=".." default="all">
+
+  <target name="all" depends="convert-tutorial"/>
+
+  <target name="init">
+    <property name="result.dir" value="build/result"/>
+    <property name="unzip.dir" value="${result.dir}/unzip"/>
+    <property name="html.dir" value="${result.dir}/html"/>
+
+    <mkdir dir="${result.dir}"/>
+    <mkdir dir="${unzip.dir}"/>
+    <mkdir dir="${html.dir}"/>
+
+    <!-- Classpath for running the XSLT processor. -->
+    <path id="docbook-xsl.classpath">
+      <pathelement path="build/lib/fserializer.jar" />
+      <pathelement path="build/lib/xalan.jar" />
+      <pathelement path="build/lib/xercesImpl.jar" />
+      <pathelement path="build/lib/xml-apis.jar" />
+    </path>
+  </target>
+
+  <target name="copy-images" depends="init">
+    <copy todir="${html.dir}/Pictures">
+      <fileset dir="${unzip.dir}/Pictures">
+        <include name="**/*.png"/>
+        <include name="**/*.jpg"/>
+      </fileset>
+    </copy>
+
+    <copy todir="${html.dir}/img">
+      <fileset dir="img">
+        <include name="**/*.png"/>
+        <include name="**/*.jpg"/>
+      </fileset>
+    </copy>
+
+    <copy todir="${html.dir}">
+      <fileset dir="build/icons">
+        <include name="**/*.png"/>
+      </fileset>
+    </copy>
+  </target>
+    
+  <target name="convert-tutorial" depends="init, copy-images">
+    <unzip src="jpacontainer-tutorial.odt"
+           dest="${unzip.dir}">
+    </unzip>
+
+    <java classname="org.apache.xalan.xslt.Process" failonerror="yes" fork="yes" maxmemory="512m">
+      <arg value="-xsl" />
+      <arg value="build/vaadin-odt-to-html.xsl" />
+      <arg value="-in" />
+      <arg value="${unzip.dir}/content.xml" />
+      <arg value="-out" />
+      <arg value="${html.dir}/index.html" />
+
+      <classpath refid="docbook-xsl.classpath" />
+    </java>
+  </target>
+</project>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: xml
+sgml-omittag:nil
+sgml-shorttag:nil
+sgml-namecase-general:nil
+sgml-general-insert-case:lower
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:2
+sgml-indent-data:t
+sgml-parent-document:nil
+sgml-exposed-tags:nil
+sgml-local-catalogs:("/etc/sgml/catalog" "/usr/share/xemacs21/xemacs-packages/etc/psgml-dtds/CATALOG")
+sgml-local-ecat-files:("ECAT" "~/sgml/ECAT" "/usr/share/sgml/ECAT" "/usr/local/share/sgml/ECAT" "/usr/local/lib/sgml/ECAT")
+End:
+-->
