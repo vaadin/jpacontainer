@@ -1,0 +1,191 @@
+/******************************************************************************/
+/* Overall Page style                                                         */
+/******************************************************************************/
+
+body {
+  background: black;
+  align: center;
+}
+
+div#content {
+  border: thick solid black;
+  border-radius: 20px;
+  background: white url('vaadin-logo-title.png') no-repeat;
+  background-position: 650 10;
+  width: 800px;
+  padding: 50px;
+  margin: 0 auto;
+}
+
+/******************************************************************************/
+/* Heading styles                                                             */
+/******************************************************************************/
+
+.title {
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 36pt;
+  color: black;
+}
+
+.subtitle {
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 16pt;
+  color: #49c2f1;
+}
+
+.intro {
+  font-family: sans-serif;
+  font-size: 16pt;
+  margin-left: 7em;
+  margin-right: 7em;
+  color: #49c2f1;
+}
+
+h1 {
+  font-family: sans-serif;
+  font-size: 24pt;
+  color: #49c2f1;
+  border-top: solid 2px black;
+  padding-top: 1em;
+}
+
+h2 {
+  font-family: sans-serif;
+  font-size: 16pt;
+  margin-bottom: 0.21cm
+}
+
+h3 {
+  font-family: sans-serif;
+  font-size: 12pt;
+  margin-bottom: 0.21cm
+}
+
+/******************************************************************************/
+/* Table of Contents                                                          */
+/******************************************************************************/
+
+.toc-heading {
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 16pt;
+  color: black;
+  margin-left:  10em;
+  margin-right: 2em;
+}
+
+.toc1 {
+  margin-left:   12em;
+  margin-right:  2em;
+  margin-bottom: 0cm;
+}
+
+/******************************************************************************/
+/* Paragraph styles                                                           */
+/******************************************************************************/
+
+p {
+  margin-bottom: 0.5em;
+}
+
+p.caption {
+  font-weight: bold;
+}
+
+p.dictionary-term {
+  font-weight: bold;
+  margin-bottom: 0.2em;
+}
+
+p.dictionary-definition {
+  padding-left: 1.0cm;
+  margin-top: 0cm;
+  margin-bottom: 0.21cm;
+}
+
+A:link { so-language: zxx }
+
+ul {
+  list-style-image: url('vaadin-arrow-16px.png');
+}
+
+.illustration {
+  text-align: center;
+}
+
+/******************************************************************************/
+/* Source Code                                                                */
+/******************************************************************************/
+.source-file {
+  margin-left:   1cm;
+  margin-right:  1cm;
+  margin-bottom: 0cm;
+  margin-top:    0cm;
+  border: solid 2px black;
+  padding-left: 10px;
+  padding-right: 10px;
+  background: #ddd;
+  white-space: pre;
+  font-family: courier;
+}
+.source-file-start {
+  margin-top: 0.21cm;
+  padding-top: 10px;
+  border-bottom: none;
+}
+.source-file-middle {
+  border-top: none;
+  border-bottom: none;
+}
+.source-file-end {
+  border-top: none;
+  margin-bottom: 0.21cm;
+  padding-bottom: 10px;
+}
+
+/******************************************************************************/
+/* Text Styles                                                                */
+/******************************************************************************/
+
+a {
+  text-decoration: none;
+}
+
+.classname {
+  font-weight: bold;
+}
+
+.methodname {
+  font-style: italic;
+}
+
+.parameter {
+  font-family: courier;
+}
+
+.filename {
+  font-family: courier;
+}
+
+.guilabel {
+  font-weight: bold;
+}
+
+.guibutton {
+  font-weight: bold;
+}
+
+.code-keyword {
+  font-weight: bold;
+  color: #202020;
+}
+
+.code-string {
+  color: #0000ff;
+}
+
+.unknown-text-style {
+  color: red;
+}

@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!-- ======================================================================= -->
+<!-- ODT to HTML conversion                                                  -->
+<!-- Requires the use of the Vaadin ODT template with proper style names     -->
+<!-- Copyright 2011 Vaadin inc.                                              -->
+<!-- All rights reserved                                                     -->
+<!-- ======================================================================= -->
+
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version="1.0"
-
   xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
   xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0"
   xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0"
@@ -13,26 +20,6 @@
   xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0"
   xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0"
   xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0"
-  xmlns:chart="urn:oasis:names:tc:opendocument:xmlns:chart:1.0"
-  xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0"
-  xmlns:math="http://www.w3.org/1998/Math/MathML"
-  xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0"
-  xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0"
-  xmlns:ooo="http://openoffice.org/2004/office"
-  xmlns:ooow="http://openoffice.org/2004/writer"
-  xmlns:oooc="http://openoffice.org/2004/calc"
-  xmlns:dom="http://www.w3.org/2001/xml-events"
-  xmlns:xforms="http://www.w3.org/2002/xforms"
-  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:rpt="http://openoffice.org/2005/report"
-  xmlns:of="urn:oasis:names:tc:opendocument:xmlns:of:1.2"
-  xmlns:xhtml="http://www.w3.org/1999/xhtml"
-  xmlns:grddl="http://www.w3.org/2003/g/data-view#"
-  xmlns:tableooo="http://openoffice.org/2009/table"
-  xmlns:field="urn:openoffice:names:experimental:ooo-ms-interop:xmlns:field:1.0"
-  xmlns:formx="urn:openoffice:names:experimental:ooxml-odf-interop:xmlns:form:1.0"
-  xmlns:css3t="http://www.w3.org/TR/css3-text/"
   office:version="1.2">
 
   <xsl:output method="xml"/>
@@ -41,102 +28,19 @@
   <xsl:template match="/">
     <html>
       <head>
+        <title>
+          <xsl:apply-templates select="office:document-content/office:body/office:text" mode="pagetitle"/>
+        </title>
+
+        <!-- Customizable stylesheet -->
+        <link href="styles.css" rel="stylesheet" type="text/css" />
+
+        <!-- Generate automatic styles -->
         <style type="text/css">
-          body {
-            background: black;
-            align: center;
-          }
-
-          div#content {
-            border: thick solid black;
-            border-radius: 20px;
-            background: white;
-            width: 800px;
-            padding: 50px;
-            margin: 0 auto;
-          }
-
-          p { margin-bottom: 0.21cm }
-
-          p.toc1 {
-            margin-left:   2cm;
-            margin-right:  2cm;
-            margin-bottom: 0cm;
-          }
-
-          .source-file {
-            margin-left:   1cm;
-            margin-right:  1cm;
-            margin-bottom: 0cm;
-            margin-top:    0cm;
-            border: solid 2px black;
-            padding-left: 10px;
-            padding-right: 10px;
-            background: #ddd;
-            white-space: pre;
-            font-family: courier;
-          }
-          .source-file-start {
-            margin-top: 0.21cm;
-            padding-top: 10px;
-            border-bottom: none;
-          }
-          .source-file-middle {
-            border-top: none;
-            border-bottom: none;
-          }
-          .source-file-end {
-            border-top: none;
-            margin-bottom: 0.21cm;
-            padding-bottom: 10px;
-          }
-
-          p.caption { font-weight: bold; }
-
-          p.dictionary-term {
-            font-weight: bold;
-            margin-bottom: 0.10cm;
-          }
-
-          p.dictionary-definition {
-            padding-left: 1.0cm;
-            margin-top: 0cm;
-            margin-bottom: 0.21cm;
-          }
-
-          p.title {
-            font-size: 24pt;
-            color: #49c2f1;
-          }
-          h1 {
-            font-size: 24pt;
-            color: #49c2f1;
-          }
-          h2 {
-            margin-bottom: 0.21cm
-          }
-          h3 {
-            margin-bottom: 0.21cm
-          }
-          A:link { so-language: zxx }
-
-          ul {
-            list-style-image: url('vaadin-arrow-16px.png');
-          }
-          
-          .illustration {
-            text-align: center;
-          }
-
-          .classname {
-            font-weight: bold;
-          }
-
-          .filename {
-            font-family: courier;
-          }
+          <xsl:apply-templates select="office:document-content/office:automatic-styles/style:style" mode="autostyles"/>
         </style>
       </head>
+
       <body bgcolor="#FFFFFF">
         <div id="content">
           <xsl:apply-templates select="office:document-content/office:body/office:text"/>
@@ -149,9 +53,11 @@
   <!-- Title                                                                 -->
   <!-- ===================================================================== -->
 
-  <xsl:template match="text:p[@text:style-name='Title']">
-    <p class="title"><xsl:apply-templates/></p>
+  <!-- Page title -->
+  <xsl:template match="text:p[@text:style-name='Title']" mode="pagetitle">
+    <xsl:value-of select="text()"/>
   </xsl:template>
+  <xsl:template match="text()" mode="pagetitle"/>
 
   <xsl:template match="text:line-break">
     <br/>
@@ -194,9 +100,11 @@
         <!-- ODF style name to CSS style class mapping -->
         <xsl:when test="$stylename = 'Text_20_body'">normal</xsl:when>
         <xsl:when test="$stylename = 'Introducing_20_list'">normal</xsl:when>
+        <xsl:when test="$stylename = 'INTRO'">intro</xsl:when>
+        <xsl:when test="$stylename = 'Title'">title</xsl:when>
+        <xsl:when test="$stylename = 'Subtitle'">subtitle</xsl:when>
         <xsl:when test="$stylename = 'Caption'">caption</xsl:when>
         <xsl:when test="$stylename = 'Illustration'">illustration</xsl:when>
-        <xsl:when test="$stylename = 'Contents_20_1'">toc1</xsl:when>
         <xsl:when test="$stylename = 'Source_20_File'">source-file</xsl:when>
         <xsl:when test="$stylename = 'Source_20_File_20_Start'">source-file source-file-start</xsl:when>
         <xsl:when test="$stylename = 'Source_20_File_20_Middle'">source-file source-file-middle</xsl:when>
@@ -208,6 +116,10 @@
         <xsl:when test="$stylename = 'Dictionary_20_Definition'">dictionary-definition</xsl:when>
 
         <!-- Elements to discard altogether -->
+        <xsl:when test="$stylename = 'Front_20_Matter'">discard</xsl:when>
+        <xsl:when test="$stylename = 'Textformatvorlage'">discard</xsl:when>
+        <xsl:when test="$stylename = 'Contents_20_Heading'">discard</xsl:when>
+        <xsl:when test="$stylename = 'Contents_20_1'">discard</xsl:when>
         <xsl:when test="$stylename = 'Contents_20_2'">discard</xsl:when>
         <xsl:when test="$stylename = 'Contents_20_3'">discard</xsl:when>
 
@@ -382,8 +294,16 @@
       <xsl:choose>
         <!-- ODF text style name to CSS style class mapping -->
         <xsl:when test="$stylename = 'Class_20_Name'">classname</xsl:when>
+        <xsl:when test="$stylename = 'Method_20_Name'">methodname</xsl:when>
+        <xsl:when test="$stylename = 'Parameter'">parameter</xsl:when>
         <xsl:when test="$stylename = 'Filename'">filename</xsl:when>
-        <xsl:otherwise>unknown</xsl:otherwise>
+        <xsl:when test="$stylename = 'GUI_20_Label'">guilabel</xsl:when>
+        <xsl:when test="$stylename = 'GUI_20_Button'">guibutton</xsl:when>
+        <xsl:when test="$stylename = 'Code_20_Keyword'">code-keyword</xsl:when>
+        <xsl:when test="$stylename = 'Code_20_String'">code-string</xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="concat('auto-', $stylename)"/>
+        </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
 
@@ -395,10 +315,74 @@
     </xsl:element>
   </xsl:template>
 
+  <!-- Automatic style definitions -->
+  <xsl:template match="style:style[@style:family='text']" mode="autostyles">
+    <xsl:text>.auto-</xsl:text>
+    <xsl:value-of select="@style:name"/>
+    <xsl:text> {</xsl:text>
+
+    <xsl:if test="style:text-properties/@fo:font-style">
+      <xsl:text>font-style: </xsl:text>
+      <xsl:value-of select="style:text-properties/@fo:font-style"/>
+      <xsl:text>; </xsl:text>
+    </xsl:if>
+
+    <xsl:if test="style:text-properties/@fo:font-weight">
+      <xsl:text>font-weight: </xsl:text>
+      <xsl:value-of select="style:text-properties/@fo:font-weight"/>
+      <xsl:text>; </xsl:text>
+    </xsl:if>
+
+    <xsl:if test="style:text-properties/@fo:color">
+      <xsl:text>color: </xsl:text>
+      <xsl:value-of select="style:text-properties/@fo:color"/>
+      <xsl:text>; </xsl:text>
+    </xsl:if>
+    <xsl:text>} </xsl:text>
+  </xsl:template>
+
+  <xsl:template match="*" mode="autostyles"/>
+
+  <!-- ===================================================================== -->
+  <!-- Hyperlinks                                                            -->
+  <!-- ===================================================================== -->
+  <xsl:template match="text:a">
+    <xsl:element name="a">
+      <xsl:attribute name="href">
+        <xsl:value-of select="@xlink:href"/>
+      </xsl:attribute>
+
+      <xsl:apply-templates/>
+    </xsl:element>
+  </xsl:template>
+
+  <!-- ===================================================================== -->
+  <!-- Crossreferences                                                       -->
+  <!-- ===================================================================== -->
+  <xsl:template match="text:bookmark-ref">
+    <xsl:element name="a">
+      <xsl:attribute name="href">
+        <xsl:value-of select="concat('#',@text:ref-name)"/>
+      </xsl:attribute>
+
+      <xsl:apply-templates/>
+    </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="text:bookmark">
+    <xsl:element name="a">
+      <xsl:attribute name="name">
+        <xsl:value-of select="@text:name"/>
+      </xsl:attribute>
+
+      <xsl:text> </xsl:text>
+    </xsl:element>
+  </xsl:template>
+
   <!-- ===================================================================== -->
   <!-- Eat elements                                                          -->
   <!-- ===================================================================== -->
   <xsl:template match="office:annotation"/>
-
+  <xsl:template match="text:table-of-content-source"/>
   <xsl:template match="text:p[@text:style-name='Header']"/>
 </xsl:stylesheet>

@@ -6,13 +6,18 @@
   <target name="all" depends="convert-tutorial"/>
 
   <target name="init">
+    <!-- Source directories -->
+    <property name="src.icons" value="build/icons"/>
+    <property name="src.html" value="html"/>
+
+    <!-- Build temporary and result directories -->
     <property name="result.dir" value="build/result"/>
-    <property name="unzip.dir" value="${result.dir}/unzip"/>
-    <property name="html.dir" value="${result.dir}/html"/>
+    <property name="result.unzip" value="${result.dir}/unzip"/>
+    <property name="result.html.dir" value="${result.dir}/html"/>
 
     <mkdir dir="${result.dir}"/>
-    <mkdir dir="${unzip.dir}"/>
-    <mkdir dir="${html.dir}"/>
+    <mkdir dir="${result.unzip}"/>
+    <mkdir dir="${result.html.dir}"/>
 
     <!-- Classpath for running the XSLT processor. -->
     <path id="docbook-xsl.classpath">
@@ -24,22 +29,26 @@
   </target>
 
   <target name="copy-images" depends="init">
-    <copy todir="${html.dir}/Pictures">
-      <fileset dir="${unzip.dir}/Pictures">
+    <copy todir="${result.html.dir}/Pictures">
+      <fileset dir="${result.unzip}/Pictures">
         <include name="**/*.png"/>
         <include name="**/*.jpg"/>
       </fileset>
     </copy>
 
-    <copy todir="${html.dir}/img">
+    <copy todir="${result.html.dir}/img">
       <fileset dir="img">
         <include name="**/*.png"/>
         <include name="**/*.jpg"/>
       </fileset>
     </copy>
 
-    <copy todir="${html.dir}">
-      <fileset dir="build/icons">
+    <copy todir="${result.html.dir}">
+      <fileset dir="${src.html}">
+        <include name="**/*.css"/>
+        <include name="**/*.png"/>
+      </fileset>
+      <fileset dir="${src.icons}">
         <include name="**/*.png"/>
       </fileset>
     </copy>
@@ -47,16 +56,16 @@
     
   <target name="convert-tutorial" depends="init, copy-images">
     <unzip src="jpacontainer-tutorial.odt"
-           dest="${unzip.dir}">
+           dest="${result.unzip}">
     </unzip>
 
     <java classname="org.apache.xalan.xslt.Process" failonerror="yes" fork="yes" maxmemory="512m">
       <arg value="-xsl" />
       <arg value="build/vaadin-odt-to-html.xsl" />
       <arg value="-in" />
-      <arg value="${unzip.dir}/content.xml" />
+      <arg value="${result.unzip}/content.xml" />
       <arg value="-out" />
-      <arg value="${html.dir}/index.html" />
+      <arg value="${result.html.dir}/index.html" />
 
       <classpath refid="docbook-xsl.classpath" />
     </java>
