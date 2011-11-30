@@ -100,6 +100,12 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
     private Serializable serializableEntityManager;
     private QueryModifierDelegate queryModifierDelegate;
 
+    /**
+     * The lazy loading delegate explicitly handles loading lazy collections
+     * where needed (e.g. when using Hibernate)
+     */
+    private LazyLoadingDelegate lazyLoadingDelegate;
+
     // TODO Test serialization of entity manager
     protected Object writeReplace() throws ObjectStreamException {
         if (entityManager != null && entityManager instanceof Serializable) {
@@ -752,7 +758,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
     }
 
     public T refreshEntity(T entity) {
-        if(getEntityManager().contains(entity)) {
+        if (getEntityManager().contains(entity)) {
             try {
                 getEntityManager().refresh(entity);
             } catch (IllegalArgumentException e) {
@@ -784,6 +790,21 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.vaadin.addon.jpacontainer.EntityContainer#setLazyLoadingDelegate(
+     * com.vaadin.addon.jpacontainer.EntityContainer.LazyLoadingDelegate)
+     */
+    public void setLazyLoadingDelegate(LazyLoadingDelegate delegate) {
+        lazyLoadingDelegate = delegate;
+    }
+
+    public LazyLoadingDelegate getLazyLoadingDelegate() {
+        return lazyLoadingDelegate;
     }
 
 }

@@ -6,6 +6,7 @@ package com.vaadin.addon.jpacontainer;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Order;
@@ -330,7 +331,7 @@ public interface EntityProvider<T> extends Serializable {
      * @param entity
      */
     public Object getIdentifier(T entity);
-    
+
     /**
      * Refreshes an entity from DB. If entity no more exists, null is returned.
      * 
@@ -339,4 +340,58 @@ public interface EntityProvider<T> extends Serializable {
      */
     public T refreshEntity(T entity);
 
+    /**
+     * Sets the entity manager.
+     * 
+     * @param entityManager
+     *            the entity manager to set.
+     */
+    void setEntityManager(EntityManager entityManager);
+
+    /**
+     * Gets the entity manager.
+     * 
+     * @return the entity manager, or null if none has been specified.
+     */
+    EntityManager getEntityManager();
+
+    /**
+     * Set the delegate used for lazy loading.
+     * 
+     * @param delegate
+     *            the {@link LazyLoadingDelegate} to use.
+     */
+    public void setLazyLoadingDelegate(LazyLoadingDelegate delegate);
+
+    /**
+     * @return the {@link LazyLoadingDelegate} in use or null if none
+     *         registered.
+     */
+    public LazyLoadingDelegate getLazyLoadingDelegate();
+
+    /**
+     * The LazyLoadingDelegate is called when a property that is lazily loaded
+     * is being accessed through the Vaadin data API. The LazyLoadingDelegate is
+     * responsible for ensuring that the lazily loaded property is loaded and
+     * accessible.
+     * 
+     * @since 2.0
+     */
+    public interface LazyLoadingDelegate {
+        /**
+         * This method is called when a lazily loaded property is accessed in an
+         * entity. The implementation of this method is responsible for ensuring
+         * that the property in question is accessible on the instance of
+         * <code>entity</code> that is returned.
+         * 
+         * @param entity
+         *            The entity containing a lazy property.
+         * @param propertyName
+         *            The name of the lazy property to be accessed.
+         * @return an instance of <code>entity</code> with
+         *         <code>propertyName</code> attached and accessible. This may
+         *         be the same instance as passed in or a new one.
+         */
+        public <E> E ensureLazyPropertyLoaded(E entity, String propertyName);
+    }
 }

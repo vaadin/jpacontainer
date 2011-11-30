@@ -55,7 +55,7 @@ public class JPAContainerPerformance100k {
         em.close();
     }
 
-    /* The test fails if it takes more than 1.5 seconds to run */
+    /* The test fails if it takes more than 18(!!) seconds to run */
     @Test(timeout = 18000)
     public void testJPAContainerWithPagelength75() {
         long t = System.currentTimeMillis();
@@ -69,7 +69,7 @@ public class JPAContainerPerformance100k {
         System.out.println("Time (ms): " + (System.currentTimeMillis() - t));
     }
 
-    /* The test fails if it takes more than 1.5 seconds to run */
+    /* The test fails if it takes more than 20(!!) seconds to run */
     @Test(timeout = 20000)
     public void testJPAContainerWithPagelength100() {
         long t = System.currentTimeMillis();
@@ -83,8 +83,8 @@ public class JPAContainerPerformance100k {
         System.out.println("Time (ms): " + (System.currentTimeMillis() - t));
     }
 
-    /* The test fails if it takes more than 0.5 seconds to run */
-    @Test(timeout = 4000)
+    /* The test fails if it takes more than 5(!!) seconds to run */
+    @Test(timeout = 5000)
     public void testJPAContainerWithPagelength20() {
         long t = System.currentTimeMillis();
         JPAContainer<Skill> c = JPAContainerFactory.makeNonCached(Skill.class,

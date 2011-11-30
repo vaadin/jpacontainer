@@ -13,6 +13,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.ElementCollection;
+import javax.persistence.FetchType;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
+
 import com.vaadin.addon.jpacontainer.metadata.ClassMetadata;
 import com.vaadin.addon.jpacontainer.metadata.PersistentPropertyMetadata;
 import com.vaadin.addon.jpacontainer.metadata.PropertyKind;
@@ -170,7 +175,7 @@ final class PropertyList<T> implements Serializable {
             throws IllegalArgumentException {
         assert propertyName != null : "propertyName must not be null";
 
-        if (propertyName.indexOf('.') == -1) {
+        if (!isNestedProperty(propertyName)) {
             throw new IllegalArgumentException(propertyName + " is not nested");
         }
 
@@ -362,7 +367,7 @@ final class PropertyList<T> implements Serializable {
             return nestedPropertyMap.get(propertyName);
         } else {
             try {
-                if (propertyName.indexOf('.') != -1) {
+                if (isNestedProperty(propertyName)) {
                     // Try with the parent
                     int offset = propertyName.lastIndexOf('.');
                     String parentName = propertyName.substring(0, offset);
@@ -414,6 +419,10 @@ final class PropertyList<T> implements Serializable {
                 }
             }
         }
+    }
+
+    private boolean isNestedProperty(String propertyName) {
+        return propertyName.indexOf('.') != -1;
     }
 
     private Method getGetterMethod(String prop, Class<?> parent) {
@@ -592,7 +601,7 @@ final class PropertyList<T> implements Serializable {
             throw new IllegalArgumentException("Illegal property name: "
                     + propertyName);
         }
-        if (propertyName.indexOf('.') != -1) {
+        if (isNestedProperty(propertyName)) {
             return getNestedProperty(propertyName).getType();
         } else {
             return metadata.getProperty(propertyName).getType();
@@ -617,7 +626,7 @@ final class PropertyList<T> implements Serializable {
             throw new IllegalArgumentException("Illegal property name: "
                     + propertyName);
         }
-        if (propertyName.indexOf('.') != -1) {
+        if (isNestedProperty(propertyName)) {
             return getNestedProperty(propertyName).isWritable();
         } else {
             return metadata.getProperty(propertyName).isWritable();
@@ -687,10 +696,59 @@ final class PropertyList<T> implements Serializable {
             throw new IllegalArgumentException("Illegal property name: "
                     + propertyName);
         }
-        if (propertyName.indexOf('.') != -1) {
-            return getNestedProperty(propertyName).getPropertyMetadata().getPropertyKind();
+        if (isNestedProperty(propertyName)) {
+            return getNestedProperty(propertyName).getPropertyMetadata()
+                    .getPropertyKind();
         } else {
             return metadata.getProperty(propertyName).getPropertyKind();
         }
+    }
+
+    /**
+     * Finds out whether a given property or any property in a nested "path" is
+     * lazy loaded.
+     * 
+     * @param propertyName
+     *            the name of the property to inspect
+     * @return true if the property is loaded lazily
+     */
+    public boolean isPropertyLazyLoadedCollection(String propertyName) {
+        if (isNestedProperty(propertyName)) {
+            int dotIx = propertyName.indexOf('.');
+            if (isPropertyLazyLoadedCollection(propertyName
+                    .substring(dotIx + 1))) {
+                return true;
+            }
+            return getCollectionPropertyFetchType(propertyName.substring(0,
+                    dotIx)) == FetchType.LAZY;
+        }
+
+        return getCollectionPropertyFetchType(propertyName) == FetchType.LAZY;
+    }
+
+    /**
+     * Finds the fetch type for the given property.
+     * 
+     * @param propertyName
+     *            the name of the property
+     * @return the {@link FetchType} or null if not applicable (e.g. not a
+     *         reference to another table on the database level)
+     */
+    private FetchType getCollectionPropertyFetchType(String propertyName) {
+        PropertyMetadata pm = metadata.getProperty(propertyName);
+        if (pm != null) {
+            if (pm.getAnnotation(ElementCollection.class) != null) {
+                return pm.getAnnotation(ElementCollection.class).fetch();
+            } else if (pm.getAnnotation(ManyToMany.class) != null) {
+                return pm.getAnnotation(ManyToMany.class).fetch();
+            } else if (pm.getAnnotation(OneToMany.class) != null) {
+                return pm.getAnnotation(OneToMany.class).fetch();
+                // } else if (pm.getAnnotation(ManyToOne.class) != null) {
+                // return pm.getAnnotation(ManyToOne.class).fetch();
+                // } else if (pm.getAnnotation(OneToOne.class) != null) {
+                // return pm.getAnnotation(OneToOne.class).fetch();
+            }
+        }
+        return null;
     }
 }

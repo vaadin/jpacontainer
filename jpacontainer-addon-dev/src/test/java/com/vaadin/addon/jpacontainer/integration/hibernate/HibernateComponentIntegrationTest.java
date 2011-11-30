@@ -5,8 +5,6 @@ import java.io.IOException;
 import javax.persistence.EntityManagerFactory;
 
 import org.hibernate.ejb.Ejb3Configuration;
-import org.junit.Ignore;
-import org.junit.Test;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
@@ -18,6 +16,7 @@ import com.vaadin.addon.jpacontainer.testdata.Name;
 import com.vaadin.addon.jpacontainer.testdata.Person;
 import com.vaadin.addon.jpacontainer.testdata.PersonSkill;
 import com.vaadin.addon.jpacontainer.testdata.Skill;
+import com.vaadin.addon.jpacontainer.util.HibernateLazyLoadingDelegate;
 
 public class HibernateComponentIntegrationTest extends
         AbstractComponentIntegrationTest {
@@ -62,17 +61,12 @@ public class HibernateComponentIntegrationTest extends
         try {
             container = JPAContainerFactory.makeNonCached(Person.class,
                     getEntityManager());
-            container.getEntityProvider().setEntitiesDetached(false);
+            container.getEntityProvider().setLazyLoadingDelegate(
+                    new HibernateLazyLoadingDelegate(getEntityManager()));
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return container;
-    }
-
-    @Override
-    @Ignore(value = "Re-enable when lazy loading works")
-    @Test
-    public void testValueChangeEventsFromEntityProperty() {
     }
 }

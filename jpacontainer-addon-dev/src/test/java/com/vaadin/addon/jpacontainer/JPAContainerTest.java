@@ -58,9 +58,19 @@ public class JPAContainerTest {
     @Before
     public void setUp() throws Exception {
         entityProviderMock = createMock(EntityProvider.class);
+        expect(entityProviderMock.getLazyLoadingDelegate()).andStubReturn(null);
+
         cachingEntityProviderMock = createMock(CachingEntityProvider.class);
+        expect(cachingEntityProviderMock.getLazyLoadingDelegate())
+                .andStubReturn(null);
+
         mutableEntityProviderMock = createMock(MutableEntityProvider.class);
+        expect(mutableEntityProviderMock.getLazyLoadingDelegate())
+                .andStubReturn(null);
+
         batchableEntityProviderMock = createMock(BatchableEntityProvider.class);
+        expect(batchableEntityProviderMock.getLazyLoadingDelegate())
+                .andStubReturn(null);
 
         container = new JPAContainer<Person>(Person.class);
     }
@@ -1239,7 +1249,8 @@ public class JPAContainerTest {
                 .andStubReturn(null);
         replay(batchableEntityProviderMock);
 
-        expect(mutableEntityProviderMock.addEntity(EasyMock.isA(Person.class))).andReturn(pp);
+        expect(mutableEntityProviderMock.addEntity(EasyMock.isA(Person.class)))
+                .andReturn(pp);
         replay(mutableEntityProviderMock);
 
         // Run test

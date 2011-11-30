@@ -12,6 +12,7 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -47,7 +48,7 @@ public class Person implements Serializable, Cloneable {
     @Embedded
     private Address address;
     private transient String tempData;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Person manager;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "person")
     private Set<PersonSkill> skills = new HashSet<PersonSkill>();
@@ -151,10 +152,10 @@ public class Person implements Serializable, Cloneable {
             if (this == p) {
                 return true;
             }
-            if (this.id == null || p.id == null) {
+            if (id == null || p.id == null) {
                 return false;
             }
-            return this.id.equals(p.id);
+            return id.equals(p.id);
         }
 
         return super.equals(obj);

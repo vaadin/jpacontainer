@@ -149,12 +149,7 @@ public class ClassMetadata<T> implements Serializable {
             if (property instanceof PersistentPropertyMetadata) {
                 PersistentPropertyMetadata ppmd = (PersistentPropertyMetadata) property;
                 if (ppmd.field != null) {
-                    try {
-                        ppmd.field.setAccessible(true);
-                        return ppmd.field.get(object);
-                    } finally {
-                        ppmd.field.setAccessible(false);
-                    }
+                    return getPropertyValueFromField(object, ppmd);
                 }
             }
             return property.getter.invoke(object);
@@ -165,6 +160,36 @@ public class ClassMetadata<T> implements Serializable {
             throw new IllegalArgumentException(
                     "Cannot access the property value", e);
         }
+    }
+
+    private Object getPropertyValueFromField(T object,
+            PersistentPropertyMetadata ppmd) throws IllegalAccessException,
+            IllegalArgumentException, InvocationTargetException {
+        // First we try to find a getter for the field in order to
+        // make getter-based lazy loading work.
+        Class clazz = ppmd.field.getDeclaringClass();
+        Method getter = null;
+        try {
+            getter = clazz.getMethod("get" + capitalize(ppmd.fieldName));
+        } catch (Exception e) {
+            try {
+                getter = clazz.getMethod("is" + capitalize(ppmd.fieldName));
+            } catch (Exception e1) {
+            }
+        }
+        if (getter == null) {
+            try {
+                ppmd.field.setAccessible(true);
+                return ppmd.field.get(object);
+            } finally {
+                ppmd.field.setAccessible(false);
+            }
+        }
+        return getter.invoke(object);
+    }
+
+    private String capitalize(String string) {
+        return string.substring(0, 1).toUpperCase() + string.substring(1);
     }
 
     /**

@@ -11,7 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import com.vaadin.addon.jpacontainer.JPAContainer.ItemRemovedEvent;
+import com.vaadin.addon.jpacontainer.EntityProvider.LazyLoadingDelegate;
 import com.vaadin.data.Container;
 import com.vaadin.data.Container.ItemSetChangeEvent;
 import com.vaadin.data.Property;
@@ -169,6 +169,7 @@ public final class JPAContainerItem<T> implements EntityItem<T> {
          * @return the real value.
          */
         private Object getRealValue() {
+            ensurePropertyLoaded(propertyId);
             return propertyList.getPropertyValue(entity, propertyId);
         }
 
@@ -208,8 +209,37 @@ public final class JPAContainerItem<T> implements EntityItem<T> {
          *            the new value to set.
          */
         private void setRealValue(Object newValue) {
+            ensurePropertyLoaded(propertyId);
             propertyList.setPropertyValue(entity, propertyId, newValue);
             dirty = true;
+        }
+
+        /**
+         * Ensures that any lazy loaded properties are available.
+         * 
+         * @param propertyId
+         *            the id of the property to check.
+         */
+        private void ensurePropertyLoaded(String propertyId) {
+            LazyLoadingDelegate lazyLoadingDelegate = getContainer()
+                    .getEntityProvider().getLazyLoadingDelegate();
+            if (lazyLoadingDelegate == null) {
+                return;
+            }
+
+            try {
+                propertyList.getPropertyValue(entity, propertyId);
+            } catch (IllegalArgumentException e) {
+                entity = lazyLoadingDelegate.ensureLazyPropertyLoaded(entity,
+                        propertyId);
+                return;
+            }
+
+            if (propertyList.isPropertyLazyLoadedCollection(propertyId)) {
+                // The property is not available.
+                entity = lazyLoadingDelegate.ensureLazyPropertyLoaded(entity,
+                        propertyId);
+            }
         }
 
         public void setValue(Object newValue) throws ReadOnlyException,
@@ -257,7 +287,7 @@ public final class JPAContainerItem<T> implements EntityItem<T> {
                  */
                 fireValueChangeEvent();
             }
-            
+
         }
 
         private List<ValueChangeListener> listeners;
@@ -587,18 +617,19 @@ public final class JPAContainerItem<T> implements EntityItem<T> {
                     .removeListener(listener);
         }
     }
-    
+
     @Override
     public String toString() {
         return entity.toString();
     }
 
     public void refreshEntity() {
-        if(isPersistent()) {
+        if (isPersistent()) {
             entity = getContainer().getEntityProvider().refreshEntity(entity);
-            if(entity == null) {
+            if (entity == null) {
                 /*
-                 * Entity has been removed, fire item set change for the container
+                 * Entity has been removed, fire item set change for the
+                 * container
                  */
                 container.fireContainerItemSetChange(new ItemSetChangeEvent() {
                     public Container getContainer() {
@@ -607,7 +638,7 @@ public final class JPAContainerItem<T> implements EntityItem<T> {
                 });
                 return;
             }
-            if(isDirty()) {
+            if (isDirty()) {
                 discard();
             }
             Collection<String> itemPropertyIds = getItemPropertyIds();

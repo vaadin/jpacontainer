@@ -189,5 +189,4 @@ public interface EntityContainer<T> extends Container, Container.Sortable,
      * @see EntityItem#refreshEntity()
      */
     public void refreshEntity(Object entityId);
-    
 }
