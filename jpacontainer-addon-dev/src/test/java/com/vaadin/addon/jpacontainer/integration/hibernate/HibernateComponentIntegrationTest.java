@@ -62,7 +62,7 @@ public class HibernateComponentIntegrationTest extends
             container = JPAContainerFactory.makeNonCached(Person.class,
                     getEntityManager());
             container.getEntityProvider().setLazyLoadingDelegate(
-                    new HibernateLazyLoadingDelegate(getEntityManager()));
+                    new HibernateLazyLoadingDelegate());
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

@@ -1,6 +1,8 @@
 package com.vaadin.addon.jpacontainer;
 
 import static org.easymock.EasyMock.createNiceMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
 import static org.junit.Assert.assertEquals;
 
 import java.util.HashSet;
@@ -106,8 +108,13 @@ public class JPAContainerItemHibernateLazyLoadingTest {
         em.close(); // Make sure all entities really are detached.
         em = emf.createEntityManager();
 
-        HibernateLazyLoadingDelegate delegate = new HibernateLazyLoadingDelegate(
-                em);
+        @SuppressWarnings("unchecked")
+        EntityProvider<Person> epMock = createNiceMock(EntityProvider.class);
+        expect(epMock.getEntityManager()).andStubReturn(em);
+        replay(epMock);
+        HibernateLazyLoadingDelegate delegate = new HibernateLazyLoadingDelegate();
+        delegate.setEntityProvider(epMock);
+
         detachedPerson = delegate.ensureLazyPropertyLoaded(detachedPerson,
                 "skills");
         assertEquals("Typing", detachedPerson.getSkills().iterator().next()
@@ -134,7 +141,7 @@ public class JPAContainerItemHibernateLazyLoadingTest {
     @SuppressWarnings("unchecked")
     public void testEntityLazyLoading() {
         container.getEntityProvider().setLazyLoadingDelegate(
-                new HibernateLazyLoadingDelegate(em));
+                new HibernateLazyLoadingDelegate());
         assertEquals("Typing",
                 ((Set<PersonSkill>) firstItem.getItemProperty("skills")
                         .getValue()).iterator().next().getSkill()
@@ -145,8 +152,9 @@ public class JPAContainerItemHibernateLazyLoadingTest {
     public void testEntityLazyLoading_nested() {
         em.close();
         em = emf.createEntityManager();
+        container.getEntityProvider().setEntityManager(em);
         container.getEntityProvider().setLazyLoadingDelegate(
-                new HibernateLazyLoadingDelegate(em));
+                new HibernateLazyLoadingDelegate());
         container.addNestedContainerProperty("manager.firstName");
         container.addNestedContainerProperty("manager.lastName");
         assertEquals("Jim", firstItem.getItemProperty("manager.firstName")
@@ -167,7 +175,7 @@ public class JPAContainerItemHibernateLazyLoadingTest {
         em = emf.createEntityManager();
         container.getEntityProvider().setEntityManager(em);
         container.getEntityProvider().setLazyLoadingDelegate(
-                new HibernateLazyLoadingDelegate(em));
+                new HibernateLazyLoadingDelegate());
         container.addNestedContainerProperty("manager.firstName");
         firstItem.getItemProperty("manager.firstName").setValue("Jimmy");
         assertEquals("Jimmy", firstItem.getEntity().getManager().getFirstName());

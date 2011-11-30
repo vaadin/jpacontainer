@@ -393,5 +393,15 @@ public interface EntityProvider<T> extends Serializable {
          *         be the same instance as passed in or a new one.
          */
         public <E> E ensureLazyPropertyLoaded(E entity, String propertyName);
+
+        /**
+         * Sets the EntityProvider that this delegate is associated with.
+         * Automatically called by
+         * {@link EntityProvider#setLazyLoadingDelegate(LazyLoadingDelegate)}.
+         * The EntityProvider is used to get the current {@link EntityManager}.
+         * 
+         * @param ep
+         */
+        public void setEntityProvider(EntityProvider<?> ep);
     }
 }

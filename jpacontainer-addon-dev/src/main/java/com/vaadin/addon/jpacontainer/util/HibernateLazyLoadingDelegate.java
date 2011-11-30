@@ -8,12 +8,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.EntityManager;
 import javax.persistence.Id;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
+import com.vaadin.addon.jpacontainer.EntityProvider;
 import com.vaadin.addon.jpacontainer.EntityProvider.LazyLoadingDelegate;
 
 /**
@@ -31,10 +31,10 @@ import com.vaadin.addon.jpacontainer.EntityProvider.LazyLoadingDelegate;
  */
 public class HibernateLazyLoadingDelegate implements LazyLoadingDelegate {
 
-    private final EntityManager em;
+    private EntityProvider<?> entityProvider;
 
-    public HibernateLazyLoadingDelegate(EntityManager em) {
-        this.em = em;
+    public void setEntityProvider(EntityProvider<?> ep) {
+        entityProvider = ep;
     }
 
     public <E> E ensureLazyPropertyLoaded(E entity, String propertyName) {
@@ -55,12 +55,13 @@ public class HibernateLazyLoadingDelegate implements LazyLoadingDelegate {
      * @return the result list from the query.
      */
     private <E> Object lazilyLoadPropertyValue(E entity, String prop) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaBuilder cb = entityProvider.getEntityManager()
+                .getCriteriaBuilder();
         CriteriaQuery<Object> q = cb.createQuery();
         Root<? extends Object> root = q.from(entity.getClass());
         q.select(root.get(prop));
         q.where(cb.equal(root.get("id"), cb.literal(tryGetEntityId(entity))));
-        return em.createQuery(q).getResultList();
+        return entityProvider.getEntityManager().createQuery(q).getResultList();
     }
 
     /**
@@ -223,4 +224,5 @@ public class HibernateLazyLoadingDelegate implements LazyLoadingDelegate {
         }
         return null;
     }
+
 }

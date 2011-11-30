@@ -20,5 +20,24 @@
 				value="database" />
 		</properties>
 	</persistence-unit>
-
+	
+	<persistence-unit name="lazyhibernate">
+		<provider>org.hibernate.ejb.HibernatePersistence</provider>
+		<class>com.vaadin.addon.jpacontainer.itest.lazyhibernate.domain.LazyPerson</class>
+        <class>com.vaadin.addon.jpacontainer.itest.lazyhibernate.domain.LazySkill</class>
+		<exclude-unlisted-classes>true</exclude-unlisted-classes>
+		<properties>
+			<property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
+			<property name="hibernate.connection.driver_class" value="org.h2.Driver" />
+			<property name="hibernate.connection.url" value="jdbc:h2:mem:lazyhibernate" />
+			<property name="hibernate.connection.username" value="sa" />
+			<property name="hibernate.connection.password" value="" />
+			<property name="hibernate.connection.pool_size" value="1" />
+			<property name="hibernate.connection.autocommit" value="true" />
+			<property name="hibernate.cache.provider_class" value="org.hibernate.cache.HashtableCacheProvider" />
+			<property name="hibernate.hbm2ddl.auto" value="create" />
+			<property name="hibernate.show_sql" value="true" />
+		</properties>
+	</persistence-unit>
+	
 </persistence>

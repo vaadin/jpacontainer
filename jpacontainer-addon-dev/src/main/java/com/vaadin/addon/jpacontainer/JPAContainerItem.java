@@ -228,17 +228,25 @@ public final class JPAContainerItem<T> implements EntityItem<T> {
             }
 
             try {
-                propertyList.getPropertyValue(entity, propertyId);
+                Object value = propertyList
+                        .getPropertyValue(entity, propertyId);
+                if (Collection.class.isAssignableFrom(propertyList
+                        .getPropertyType(propertyId))) {
+                    ((Collection<?>) value).iterator().hasNext();
+                }
             } catch (IllegalArgumentException e) {
                 entity = lazyLoadingDelegate.ensureLazyPropertyLoaded(entity,
                         propertyId);
-                return;
-            }
-
-            if (propertyList.isPropertyLazyLoadedCollection(propertyId)) {
-                // The property is not available.
-                entity = lazyLoadingDelegate.ensureLazyPropertyLoaded(entity,
-                        propertyId);
+            } catch (RuntimeException e) {
+                // Check by class name, since we don't want to force the
+                // Hibernate dependency on all projects using JPAContainer.
+                if ("LazyInitializationException".equals(e.getClass()
+                        .getSimpleName())) {
+                    entity = lazyLoadingDelegate.ensureLazyPropertyLoaded(
+                            entity, propertyId);
+                } else {
+                    throw e;
+                }
             }
         }
 

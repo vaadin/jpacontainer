@@ -801,6 +801,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
      */
     public void setLazyLoadingDelegate(LazyLoadingDelegate delegate) {
         lazyLoadingDelegate = delegate;
+        lazyLoadingDelegate.setEntityProvider(this);
     }
 
     public LazyLoadingDelegate getLazyLoadingDelegate() {
