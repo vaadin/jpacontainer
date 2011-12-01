@@ -24,6 +24,7 @@ import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Form;
 import com.vaadin.ui.Table;
@@ -82,8 +83,14 @@ public class FieldFactoryTest extends Window {
     private JPAContainer<Customer> customers;
     private Form customerForm;
     private ComboBox customerSelect;
+    private CheckBox bufferedInvoiceFormCheckbox;
+    private Button commitButton;
 
     public FieldFactoryTest() {
+        
+        bufferedInvoiceFormCheckbox = new CheckBox("Buffered Invoice form");
+        
+        addComponent(bufferedInvoiceFormCheckbox);
         customerSelect = new ComboBox("Select (or create) customer");
         customers = JPAContainerFactory.make(Customer.class,
                 TestLauncherApplication.PERSISTENCE_UNIT);
@@ -169,7 +176,17 @@ public class FieldFactoryTest extends Window {
             jpaContainerFieldFactory.setVisibleProperties(BillingAddress.class, "street", "city", "postalCode");
             form.setFormFieldFactory(jpaContainerFieldFactory);
             addComponent(form);
+            commitButton = new Button("Commit", new Button.ClickListener() {
+                @Override
+                public void buttonClick(ClickEvent event) {
+                    form.commit();
+                }
+            });
+            form.getFooter().addComponent(commitButton);
         }
+        
+        form.getFooter().setVisible(bufferedInvoiceFormCheckbox.booleanValue());
+        form.setWriteThrough(!bufferedInvoiceFormCheckbox.booleanValue());
         EntityItem<Invoice> item = invoices.getItem(value);
         form.setItemDataSource(item, Arrays.asList("customer", "date", "billingAddress", "rows"));
     }
