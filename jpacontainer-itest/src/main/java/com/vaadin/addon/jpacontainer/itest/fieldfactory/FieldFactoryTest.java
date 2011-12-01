@@ -27,7 +27,9 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Form;
+import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.Table;
+import com.vaadin.ui.TwinColSelect;
 import com.vaadin.ui.Window;
 
 public class FieldFactoryTest extends Window {
@@ -156,7 +158,7 @@ public class FieldFactoryTest extends Window {
             customerForm = new Form();
             customerForm.setCaption("EditCustomer groups");
             JPAContainerFieldFactory jpaContainerFieldFactory = new JPAContainerFieldFactory();
-            
+            jpaContainerFieldFactory.setMultiSelectType(CustomerGroup.class, TwinColSelect.class);
             customerForm.setFormFieldFactory(jpaContainerFieldFactory);
             addComponent(customerForm);
         }
@@ -174,6 +176,7 @@ public class FieldFactoryTest extends Window {
             jpaContainerFieldFactory.setVisibleProperties(InvoiceRow.class,
                     "product", "description", "unit", "unitPrice");
             jpaContainerFieldFactory.setVisibleProperties(BillingAddress.class, "street", "city", "postalCode");
+            jpaContainerFieldFactory.setSingleSelectType(Customer.class, ListSelect.class);
             form.setFormFieldFactory(jpaContainerFieldFactory);
             addComponent(form);
             commitButton = new Button("Commit", new Button.ClickListener() {
