@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.vaadin.addon.jpacontainer.EntityProvider.LazyLoadingDelegate;
+import com.vaadin.addon.jpacontainer.util.HibernateUtil;
 import com.vaadin.data.Container;
 import com.vaadin.data.Container.ItemSetChangeEvent;
 import com.vaadin.data.Property;
@@ -223,30 +224,33 @@ public final class JPAContainerItem<T> implements EntityItem<T> {
         private void ensurePropertyLoaded(String propertyId) {
             LazyLoadingDelegate lazyLoadingDelegate = getContainer()
                     .getEntityProvider().getLazyLoadingDelegate();
-            if (lazyLoadingDelegate == null) {
+            if (lazyLoadingDelegate == null
+                    || !propertyList.isPropertyLazyLoaded(propertyId)) {
+                // Don't need to do anything
                 return;
             }
-
+            boolean shouldLoadEntity = false;
             try {
                 Object value = propertyList
                         .getPropertyValue(entity, propertyId);
+                shouldLoadEntity = HibernateUtil
+                        .isUninitializedAndUnattachedProxy(value);
                 if (Collection.class.isAssignableFrom(propertyList
                         .getPropertyType(propertyId))) {
                     ((Collection<?>) value).iterator().hasNext();
                 }
             } catch (IllegalArgumentException e) {
-                entity = lazyLoadingDelegate.ensureLazyPropertyLoaded(entity,
-                        propertyId);
+                shouldLoadEntity = true;
             } catch (RuntimeException e) {
-                // Check by class name, since we don't want to force the
-                // Hibernate dependency on all projects using JPAContainer.
-                if ("LazyInitializationException".equals(e.getClass()
-                        .getSimpleName())) {
-                    entity = lazyLoadingDelegate.ensureLazyPropertyLoaded(
-                            entity, propertyId);
+                if (HibernateUtil.isLazyInitializationException(e)) {
+                    shouldLoadEntity = true;
                 } else {
                     throw e;
                 }
+            }
+            if (shouldLoadEntity) {
+                entity = lazyLoadingDelegate.ensureLazyPropertyLoaded(entity,
+                        propertyId);
             }
         }
 

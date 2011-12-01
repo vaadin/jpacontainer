@@ -4,6 +4,7 @@ import static org.easymock.EasyMock.createNiceMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -167,6 +168,18 @@ public class JPAContainerItemHibernateLazyLoadingTest {
     public void testSetLazyLoadedProperty() {
         firstItem.getItemProperty("skills")
                 .setValue(new HashSet<PersonSkill>());
+    }
+
+    @Test
+    public void testEntityLazyLoading_lazyManyToOne() {
+        em.close();
+        em = emf.createEntityManager();
+        container.getEntityProvider().setEntityManager(em);
+        container.getEntityProvider().setLazyLoadingDelegate(
+                new HibernateLazyLoadingDelegate());
+        assertNotNull(firstItem.getItemProperty("manager").getValue());
+        assertEquals("Jim", ((Person) firstItem.getItemProperty("manager")
+                .getValue()).getFirstName());
     }
 
     @Test

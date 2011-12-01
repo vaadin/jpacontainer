@@ -5,6 +5,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import com.vaadin.addon.jpacontainer.testdata.Person;
+
 @Entity
 public class LazySkill {
     @Id
@@ -27,5 +29,26 @@ public class LazySkill {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Person) {
+            LazySkill other = (LazySkill) obj;
+            if (this == other) {
+                return true;
+            }
+            if (id == null) {
+                return false;
+            }
+            return id.equals(other.id);
+        }
+
+        return super.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return id == null ? 0 : id.hashCode();
     }
 }

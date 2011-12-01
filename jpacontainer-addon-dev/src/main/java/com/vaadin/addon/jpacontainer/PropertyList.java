@@ -13,10 +13,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.Basic;
 import javax.persistence.ElementCollection;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 import com.vaadin.addon.jpacontainer.metadata.ClassMetadata;
 import com.vaadin.addon.jpacontainer.metadata.PersistentPropertyMetadata;
@@ -712,18 +715,16 @@ final class PropertyList<T> implements Serializable {
      *            the name of the property to inspect
      * @return true if the property is loaded lazily
      */
-    public boolean isPropertyLazyLoadedCollection(String propertyName) {
+    public boolean isPropertyLazyLoaded(String propertyName) {
         if (isNestedProperty(propertyName)) {
             int dotIx = propertyName.indexOf('.');
-            if (isPropertyLazyLoadedCollection(propertyName
-                    .substring(dotIx + 1))) {
+            if (isPropertyLazyLoaded(propertyName.substring(dotIx + 1))) {
                 return true;
             }
-            return getCollectionPropertyFetchType(propertyName.substring(0,
-                    dotIx)) == FetchType.LAZY;
+            return getPropertyFetchType(propertyName.substring(0, dotIx)) == FetchType.LAZY;
         }
 
-        return getCollectionPropertyFetchType(propertyName) == FetchType.LAZY;
+        return getPropertyFetchType(propertyName) == FetchType.LAZY;
     }
 
     /**
@@ -734,19 +735,21 @@ final class PropertyList<T> implements Serializable {
      * @return the {@link FetchType} or null if not applicable (e.g. not a
      *         reference to another table on the database level)
      */
-    private FetchType getCollectionPropertyFetchType(String propertyName) {
+    private FetchType getPropertyFetchType(String propertyName) {
         PropertyMetadata pm = metadata.getProperty(propertyName);
         if (pm != null) {
-            if (pm.getAnnotation(ElementCollection.class) != null) {
+            if (pm.getAnnotation(Basic.class) != null) {
+                return pm.getAnnotation(Basic.class).fetch();
+            } else if (pm.getAnnotation(ElementCollection.class) != null) {
                 return pm.getAnnotation(ElementCollection.class).fetch();
             } else if (pm.getAnnotation(ManyToMany.class) != null) {
                 return pm.getAnnotation(ManyToMany.class).fetch();
             } else if (pm.getAnnotation(OneToMany.class) != null) {
                 return pm.getAnnotation(OneToMany.class).fetch();
-                // } else if (pm.getAnnotation(ManyToOne.class) != null) {
-                // return pm.getAnnotation(ManyToOne.class).fetch();
-                // } else if (pm.getAnnotation(OneToOne.class) != null) {
-                // return pm.getAnnotation(OneToOne.class).fetch();
+            } else if (pm.getAnnotation(ManyToOne.class) != null) {
+                return pm.getAnnotation(ManyToOne.class).fetch();
+            } else if (pm.getAnnotation(OneToOne.class) != null) {
+                return pm.getAnnotation(OneToOne.class).fetch();
             }
         }
         return null;

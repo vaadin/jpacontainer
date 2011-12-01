@@ -729,17 +729,17 @@ public class PropertyListTest {
 
     @Test
     public void testIsPropertyLazyCollection() {
-        assertTrue(propertyList.isPropertyLazyLoadedCollection("skills"));
+        assertTrue(propertyList.isPropertyLazyLoaded("skills"));
     }
 
     @Test
     public void testIsPropertyLazyCollection_notLazy() {
-        assertFalse(propertyList.isPropertyLazyLoadedCollection("address"));
+        assertFalse(propertyList.isPropertyLazyLoaded("address"));
     }
 
     @Test
     public void testIsPropertyLazyCollection_notACollection() {
-        assertFalse(propertyList.isPropertyLazyLoadedCollection("firstName"));
+        assertFalse(propertyList.isPropertyLazyLoaded("firstName"));
     }
 
 }

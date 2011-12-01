@@ -11,6 +11,8 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
+import com.vaadin.addon.jpacontainer.testdata.Person;
+
 @Entity
 public class LazyPerson {
 
@@ -93,6 +95,29 @@ public class LazyPerson {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    // TODO: equals & hashcode
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Person) {
+            LazyPerson other = (LazyPerson) obj;
+            if (this == other) {
+                return true;
+            }
+            if (id == null) {
+                return false;
+            }
+            return id.equals(other.id);
+        }
+
+        return super.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return id == null ? 0 : id.hashCode();
     }
 
     @Override
