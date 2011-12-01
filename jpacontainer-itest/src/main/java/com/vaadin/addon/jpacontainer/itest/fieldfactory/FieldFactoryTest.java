@@ -1,5 +1,7 @@
 package com.vaadin.addon.jpacontainer.itest.fieldfactory;
 
+import java.util.Arrays;
+
 import javax.persistence.EntityManager;
 import javax.persistence.Persistence;
 
@@ -7,6 +9,7 @@ import com.vaadin.addon.jpacontainer.EntityItem;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
 import com.vaadin.addon.jpacontainer.itest.TestLauncherApplication;
+import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.BillingAddress;
 import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.Customer;
 import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.CustomerGroup;
 import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.Invoice;
@@ -146,6 +149,7 @@ public class FieldFactoryTest extends Window {
             customerForm = new Form();
             customerForm.setCaption("EditCustomer groups");
             JPAContainerFieldFactory jpaContainerFieldFactory = new JPAContainerFieldFactory();
+            
             customerForm.setFormFieldFactory(jpaContainerFieldFactory);
             addComponent(customerForm);
         }
@@ -162,11 +166,12 @@ public class FieldFactoryTest extends Window {
             JPAContainerFieldFactory jpaContainerFieldFactory = new JPAContainerFieldFactory();
             jpaContainerFieldFactory.setVisibleProperties(InvoiceRow.class,
                     "product", "description", "unit", "unitPrice");
+            jpaContainerFieldFactory.setVisibleProperties(BillingAddress.class, "street", "city", "postalCode");
             form.setFormFieldFactory(jpaContainerFieldFactory);
             addComponent(form);
         }
         EntityItem<Invoice> item = invoices.getItem(value);
-        form.setItemDataSource(item);
+        form.setItemDataSource(item, Arrays.asList("customer", "date", "billingAddress", "rows"));
     }
 
     private static final Action NEW = new Action("New invoice");

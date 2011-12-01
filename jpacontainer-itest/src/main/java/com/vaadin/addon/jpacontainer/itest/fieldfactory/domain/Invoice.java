@@ -9,6 +9,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
@@ -25,6 +26,9 @@ public class Invoice {
     
     @OneToMany(mappedBy="invoice")
     private List<InvoiceRow> rows;
+    
+    @OneToOne
+    private BillingAddress billingAddress;
 
     public Long getId() {
         return id;
@@ -56,6 +60,14 @@ public class Invoice {
 
     public void setRows(List<InvoiceRow> rows) {
         this.rows = rows;
+    }
+
+    public BillingAddress getBillingAddress() {
+        return billingAddress;
+    }
+
+    public void setBillingAddress(BillingAddress billingAddress) {
+        this.billingAddress = billingAddress;
     }
 
 }
