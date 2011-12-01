@@ -60,7 +60,9 @@ public class EntityManagerPerRequestHelper {
      */
     public void requestEnd() {
         for (EntityProvider<?> provider : providerToEMF.keySet()) {
-            provider.getEntityManager().close();
+            if (provider.getEntityManager().isOpen()) {
+                provider.getEntityManager().close();
+            }
         }
     }
 }
