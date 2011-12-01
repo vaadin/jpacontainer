@@ -6,9 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
@@ -43,45 +41,27 @@ import com.vaadin.ui.TableFieldFactory;
  */
 public class JPAContainerFieldFactory extends DefaultFieldFactory {
 
-    private EntityManagerFactory emfFactory;
-    private EntityManager em;
     private HashMap<Class<?>, String[]> propertyOrders;
+    private EntityManagerPerRequestHelper entityManagerPerRequestHelper;
 
     /**
      * Creates a new JPAContainerFieldFactory. For referece/collection types
      * ComboBox or multiselects are created by default.
-     * 
-     * @param emfFactory
-     *            the emfFactory that will be used to create EntityManagers for
-     *            JPAContainers that are needed.
      */
-    public JPAContainerFieldFactory(EntityManagerFactory emfFactory) {
-        this.emfFactory = emfFactory;
+    public JPAContainerFieldFactory() {
     }
 
     /**
      * Creates a new JPAContainerFieldFactory. For referece/collection types
      * ComboBox or multiselects are created by default.
      * 
-     * @param persistenceUnitName
-     *            the name of persiscenceUnit that will be used by default to
-     *            create JPAContainers needed by fields
+     * @param emprHelper
+     *            the {@link EntityManagerPerRequestHelper} to use for updating
+     *            the entity manager in internally generated JPAContainers for
+     *            each request.
      */
-    public JPAContainerFieldFactory(String persistenceUnitName) {
-        this.emfFactory = Persistence
-                .createEntityManagerFactory(persistenceUnitName);
-    }
-
-    /**
-     * Creates a new JPAContainerFieldFactory. For referece/collection types
-     * ComboBox or multiselects are created by default.
-     * 
-     * @param emfFactory
-     *            the emfFactory that will be used to create EntityManagers for
-     *            JPAContainers that are needed.
-     */
-    public JPAContainerFieldFactory(EntityManager em) {
-        this.em = em;
+    public JPAContainerFieldFactory(EntityManagerPerRequestHelper emprHelper) {
+        setEntityManagerPerRequestHelper(emprHelper);
     }
 
     @SuppressWarnings("rawtypes")
@@ -163,9 +143,11 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
          * Detect what kind of reference type we have
          */
         Class masterEntityClass = containerForProperty.getEntityClass();
-        Class referencedType = detectReferencedType(propertyId,
+        Class referencedType = detectReferencedType(
+                getEntityManagerFactory(containerForProperty), propertyId,
                 masterEntityClass);
-        final JPAContainer container = createJPAContainerFor(referencedType);
+        final JPAContainer container = createJPAContainerFor(
+                containerForProperty, referencedType);
         final Table table = new Table(
                 DefaultFieldFactory.createCaptionByPropertyId(propertyId),
                 container);
@@ -195,9 +177,11 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
             EntityContainer containerForProperty, Object itemId,
             Object propertyId) {
         Class masterEntityClass = containerForProperty.getEntityClass();
-        Class referencedType = detectReferencedType(propertyId,
+        Class referencedType = detectReferencedType(
+                getEntityManagerFactory(containerForProperty), propertyId,
                 masterEntityClass);
-        final JPAContainer container = createJPAContainerFor(referencedType);
+        final JPAContainer container = createJPAContainerFor(
+                containerForProperty, referencedType);
         final Table table = new Table(
                 DefaultFieldFactory.createCaptionByPropertyId(propertyId),
                 container);
@@ -270,10 +254,10 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
      * @return the type of entities in collection type
      */
     @SuppressWarnings("rawtypes")
-    protected Class detectReferencedType(Object propertyId,
-            Class masterEntityClass) {
+    protected Class detectReferencedType(EntityManagerFactory emf,
+            Object propertyId, Class masterEntityClass) {
         Class referencedType = null;
-        Metamodel metamodel = getEntityManagerFactory().getMetamodel();
+        Metamodel metamodel = emf.getMetamodel();
         Set<EntityType<?>> entities = metamodel.getEntities();
         for (EntityType<?> entityType : entities) {
             Class<?> javaType = entityType.getJavaType();
@@ -289,15 +273,10 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
         return referencedType;
     }
 
-    private EntityManagerFactory getEntityManagerFactory() {
-        if (em != null) {
-            return em.getEntityManagerFactory();
-        }
-        if (emfFactory != null) {
-            return emfFactory;
-        }
-        throw new IllegalStateException(
-                "Either entitymanager or an entitymanagerfactory must be defined");
+    private EntityManagerFactory getEntityManagerFactory(
+            EntityContainer<?> containerForProperty) {
+        return containerForProperty.getEntityProvider().getEntityManager()
+                .getEntityManagerFactory();
     }
 
     /**
@@ -329,7 +308,8 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
     protected Field createReferenceSelect(EntityContainer containerForProperty,
             Object propertyId) {
         Class<?> type = containerForProperty.getType(propertyId);
-        JPAContainer container = createJPAContainerFor(type);
+        JPAContainer container = createJPAContainerFor(containerForProperty,
+                type);
         NativeSelect nativeSelect = new NativeSelect(
                 DefaultFieldFactory.createCaptionByPropertyId(propertyId),
                 container);
@@ -340,13 +320,15 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
     }
 
     @SuppressWarnings("rawtypes")
-    private JPAContainer createJPAContainerFor(Class<?> type) {
-        if (em != null) {
-            return JPAContainerFactory.make(type, em);
-        } else {
-            return JPAContainerFactory.make(type, getEntityManagerFactory()
-                    .createEntityManager());
+    private JPAContainer createJPAContainerFor(
+            EntityContainer containerForProperty, Class<?> type) {
+        JPAContainer<?> container = null;
+        container = JPAContainerFactory.make(type, containerForProperty
+                .getEntityProvider().getEntityManager());
+        if (entityManagerPerRequestHelper != null) {
+            entityManagerPerRequestHelper.addContainer(container);
         }
+        return container;
     }
 
     /**
@@ -382,4 +364,23 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
         return null;
     }
 
+    /**
+     * @return The {@link EntityManagerPerRequestHelper} that is used for
+     *         updating the entity managers for all JPAContainers generated by
+     *         this field factory.
+     */
+    public EntityManagerPerRequestHelper getEntityManagerPerRequestHelper() {
+        return entityManagerPerRequestHelper;
+    }
+
+    /**
+     * Sets the {@link EntityManagerPerRequestHelper} that is used for updating
+     * the entity manager of JPAContainers generated by this field factory.
+     * 
+     * @param entityManagerPerRequestHelper
+     */
+    public void setEntityManagerPerRequestHelper(
+            EntityManagerPerRequestHelper entityManagerPerRequestHelper) {
+        this.entityManagerPerRequestHelper = entityManagerPerRequestHelper;
+    }
 }

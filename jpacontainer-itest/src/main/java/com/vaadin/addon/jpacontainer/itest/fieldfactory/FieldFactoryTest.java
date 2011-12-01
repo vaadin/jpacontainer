@@ -145,8 +145,7 @@ public class FieldFactoryTest extends Window {
         if (customerForm == null) {
             customerForm = new Form();
             customerForm.setCaption("EditCustomer groups");
-            JPAContainerFieldFactory jpaContainerFieldFactory = new JPAContainerFieldFactory(
-                    TestLauncherApplication.PERSISTENCE_UNIT);
+            JPAContainerFieldFactory jpaContainerFieldFactory = new JPAContainerFieldFactory();
             customerForm.setFormFieldFactory(jpaContainerFieldFactory);
             addComponent(customerForm);
         }
@@ -160,8 +159,7 @@ public class FieldFactoryTest extends Window {
         if (form == null) {
             form = new Form();
             form.setCaption("Invoice editor");
-            JPAContainerFieldFactory jpaContainerFieldFactory = new JPAContainerFieldFactory(
-                    TestLauncherApplication.PERSISTENCE_UNIT);
+            JPAContainerFieldFactory jpaContainerFieldFactory = new JPAContainerFieldFactory();
             jpaContainerFieldFactory.setVisibleProperties(InvoiceRow.class,
                     "product", "description", "unit", "unitPrice");
             form.setFormFieldFactory(jpaContainerFieldFactory);
