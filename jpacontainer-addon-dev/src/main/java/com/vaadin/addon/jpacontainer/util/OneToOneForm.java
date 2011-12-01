@@ -9,11 +9,13 @@ import java.util.LinkedHashSet;
 import com.vaadin.addon.jpacontainer.EntityItem;
 import com.vaadin.addon.jpacontainer.EntityItemProperty;
 import com.vaadin.addon.jpacontainer.JPAContainer;
-import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.ui.Form;
 
+/**
+ * TODO test in buffered mode the situation where the field is initially null.
+ */
 public class OneToOneForm extends Form {
 
     private Object createdInstance;
@@ -33,12 +35,10 @@ public class OneToOneForm extends Form {
             try {
                 createdInstance = newDataSource.getType().newInstance();
                 tryToSetBackReference();
-                if (isWriteThrough()) {
-                    editedEntityItem = createItemForInstance(createdInstance);
-                    setItemDataSource(editedEntityItem, getVisiblePropertyIds());
-                    newDataSource.setValue(editedEntityItem.getEntity());
-                    createdInstance = null;
-                }
+                editedEntityItem = createItemForInstance(createdInstance);
+                setItemDataSource(editedEntityItem, getVisiblePropertyIds());
+                newDataSource.setValue(editedEntityItem.getEntity());
+                createdInstance = null;
             } catch (InstantiationException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -82,6 +82,11 @@ public class OneToOneForm extends Form {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private EntityItem createItemForInstance(Object createdInstance) {
         JPAContainer jpaContainer = getContainer(createdInstance);
+        if (!isWriteThrough()) {
+            // don't actually insert the new item, just create an item around
+            // it, expect cascades are set in the "owning" entity.
+            jpaContainer.setWriteThrough(false);
+        }
         Object itemId = jpaContainer.addEntity(createdInstance);
         return jpaContainer.getItem(itemId);
     }
