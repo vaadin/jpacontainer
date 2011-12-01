@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EntityType;
@@ -29,6 +30,7 @@ import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.DefaultFieldFactory;
 import com.vaadin.ui.Field;
+import com.vaadin.ui.Form;
 import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TableFieldFactory;
@@ -72,7 +74,7 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
             EntityContainer container = jpaitem.getContainer();
 
             Field field = createJPAContainerBackedField(jpaitem.getItemId(),
-                    propertyId, container);
+                    propertyId, container, uiContext);
             if (field != null) {
                 return field;
             }
@@ -103,7 +105,7 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
         if (container instanceof EntityContainer) {
             EntityContainer jpacontainer = (EntityContainer) container;
             Field field = createJPAContainerBackedField(itemId, propertyId,
-                    jpacontainer);
+                    jpacontainer, uiContext);
             if (field != null) {
                 return field;
             }
@@ -114,7 +116,7 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
 
     @SuppressWarnings("rawtypes")
     private Field createJPAContainerBackedField(Object itemId,
-            Object propertyId, EntityContainer jpacontainer) {
+            Object propertyId, EntityContainer jpacontainer, Component uiContext) {
         Field field = null;
         PropertyKind propertyKind = jpacontainer.getPropertyKind(propertyId);
         switch (propertyKind) {
@@ -122,7 +124,8 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
             field = createReferenceSelect(jpacontainer, propertyId);
             break;
         case ONE_TO_ONE:
-            field = createOneToOneField(jpacontainer, itemId, propertyId);
+            field = createOneToOneField(jpacontainer, itemId, propertyId,
+                    uiContext);
             break;
         case ONE_TO_MANY:
             field = createMasterDetailEditor(jpacontainer, itemId, propertyId);
@@ -136,11 +139,26 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
         return field;
     }
 
-    protected OneToOneForm createOneToOneField(EntityContainer jpacontainer, Object itemId, Object propertyId) {
+    protected OneToOneForm createOneToOneField(EntityContainer jpacontainer,
+            Object itemId, Object propertyId, Component uiContext) {
         OneToOneForm oneToOneForm = new OneToOneForm();
-        oneToOneForm.setBackReferenceId(jpacontainer.getEntityClass().getSimpleName().toLowerCase());
-        oneToOneForm.setCaption(DefaultFieldFactory.createCaptionByPropertyId(propertyId));
+        oneToOneForm.setBackReferenceId(jpacontainer.getEntityClass()
+                .getSimpleName().toLowerCase());
+        oneToOneForm.setCaption(DefaultFieldFactory
+                .createCaptionByPropertyId(propertyId));
         oneToOneForm.setFormFieldFactory(this);
+        if (uiContext instanceof Form) {
+            // write buffering is configure by Form after binding the data
+            // source. Yes, you may read the previous sentence again or verify
+            // this from the Vaadin code if you don't believe what you just
+            // read.
+            // As oneToOneForm creates the referenced type on demand if required
+            // the buffering state needs to be available when proeprty is set
+            // (otherwise the original master entity will be modified once the
+            // form is opened).
+            Form f = (Form) uiContext;
+            oneToOneForm.setWriteThrough(f.isWriteThrough());
+        }
         return oneToOneForm;
     }
 
@@ -155,7 +173,7 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
                 getEntityManagerFactory(containerForProperty), propertyId,
                 masterEntityClass);
         final JPAContainer container = createJPAContainerFor(
-                containerForProperty, referencedType);
+                containerForProperty, referencedType, false);
         final Table table = new Table(
                 DefaultFieldFactory.createCaptionByPropertyId(propertyId),
                 container);
@@ -184,12 +202,13 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
     private Field createMasterDetailEditor(
             EntityContainer containerForProperty, Object itemId,
             Object propertyId) {
+        // FIXME buffered mode
         Class masterEntityClass = containerForProperty.getEntityClass();
         Class referencedType = detectReferencedType(
                 getEntityManagerFactory(containerForProperty), propertyId,
                 masterEntityClass);
         final JPAContainer container = createJPAContainerFor(
-                containerForProperty, referencedType);
+                containerForProperty, referencedType, false);
         final Table table = new Table(
                 DefaultFieldFactory.createCaptionByPropertyId(propertyId),
                 container);
@@ -317,7 +336,7 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
             Object propertyId) {
         Class<?> type = containerForProperty.getType(propertyId);
         JPAContainer container = createJPAContainerFor(containerForProperty,
-                type);
+                type, false);
         NativeSelect nativeSelect = new NativeSelect(
                 DefaultFieldFactory.createCaptionByPropertyId(propertyId),
                 container);
@@ -329,10 +348,15 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
 
     @SuppressWarnings("rawtypes")
     protected JPAContainer createJPAContainerFor(
-            EntityContainer containerForProperty, Class<?> type) {
+            EntityContainer containerForProperty, Class<?> type, boolean buffered) {
         JPAContainer<?> container = null;
-        container = JPAContainerFactory.make(type, containerForProperty
-                .getEntityProvider().getEntityManager());
+        EntityManager em = containerForProperty
+                .getEntityProvider().getEntityManager();
+        if(buffered) {
+            container = JPAContainerFactory.makeBatchable(type, em);
+        } else {
+            container = JPAContainerFactory.make(type, em );
+        }
         if (entityManagerPerRequestHelper != null) {
             entityManagerPerRequestHelper.addContainer(container);
         }

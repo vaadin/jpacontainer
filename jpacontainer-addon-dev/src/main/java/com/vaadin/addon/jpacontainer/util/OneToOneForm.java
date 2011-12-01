@@ -34,11 +34,15 @@ public class OneToOneForm extends Form {
         if (newDataSource.getValue() == null) {
             try {
                 createdInstance = newDataSource.getType().newInstance();
-                tryToSetBackReference();
+                if(isWriteThrough()) {
+                    tryToSetBackReference();
+                }
                 editedEntityItem = createItemForInstance(createdInstance);
                 setItemDataSource(editedEntityItem, getVisiblePropertyIds());
-                newDataSource.setValue(editedEntityItem.getEntity());
-                createdInstance = null;
+                if(isWriteThrough()) {
+                    newDataSource.setValue(editedEntityItem.getEntity());
+                    createdInstance = null;
+                }
             } catch (InstantiationException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -94,7 +98,7 @@ public class OneToOneForm extends Form {
     private JPAContainer getContainer(Object createdInstance) {
         JPAContainerFieldFactory formFieldFactory = getJPAContainerFieldFactory();
         JPAContainer jpaContaienr = formFieldFactory.createJPAContainerFor(
-                property.getItem().getContainer(), createdInstance.getClass());
+                property.getItem().getContainer(), createdInstance.getClass(), !isWriteThrough());
         return jpaContaienr;
     }
 
@@ -132,7 +136,7 @@ public class OneToOneForm extends Form {
     public void commit() throws SourceException, InvalidValueException {
         super.commit();
         if (createdInstance != null) {
-            getPropertyDataSource().setValue(createdInstance);
+            property.setValue(createdInstance);
         }
     }
 
