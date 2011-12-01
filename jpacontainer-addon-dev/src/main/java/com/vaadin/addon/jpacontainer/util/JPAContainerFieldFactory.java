@@ -122,7 +122,7 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
             field = createReferenceSelect(jpacontainer, propertyId);
             break;
         case ONE_TO_ONE:
-            // TODO subform
+            field = createOneToOneField(jpacontainer, itemId, propertyId);
             break;
         case ONE_TO_MANY:
             field = createMasterDetailEditor(jpacontainer, itemId, propertyId);
@@ -134,6 +134,14 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
             break;
         }
         return field;
+    }
+
+    protected OneToOneForm createOneToOneField(EntityContainer jpacontainer, Object itemId, Object propertyId) {
+        OneToOneForm oneToOneForm = new OneToOneForm();
+        oneToOneForm.setBackReferenceId(jpacontainer.getEntityClass().getSimpleName().toLowerCase());
+        oneToOneForm.setCaption(DefaultFieldFactory.createCaptionByPropertyId(propertyId));
+        oneToOneForm.setFormFieldFactory(this);
+        return oneToOneForm;
     }
 
     @SuppressWarnings({ "rawtypes", "serial" })
@@ -320,7 +328,7 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
     }
 
     @SuppressWarnings("rawtypes")
-    private JPAContainer createJPAContainerFor(
+    protected JPAContainer createJPAContainerFor(
             EntityContainer containerForProperty, Class<?> type) {
         JPAContainer<?> container = null;
         container = JPAContainerFactory.make(type, containerForProperty
