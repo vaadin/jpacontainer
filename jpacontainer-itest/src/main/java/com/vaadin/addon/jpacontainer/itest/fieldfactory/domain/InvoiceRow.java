@@ -14,9 +14,9 @@ public class InvoiceRow {
     private Long id;
     @ManyToOne
     private Invoice invoice;
-    private String description = "";
-    private Double amount = 0.0;
-    private Double unitPrice = 0.0;
+    private String description;
+    private Double amount;
+    private Double unitPrice;
     private String unit = "pcs";
     @ManyToOne
     private Product product;
