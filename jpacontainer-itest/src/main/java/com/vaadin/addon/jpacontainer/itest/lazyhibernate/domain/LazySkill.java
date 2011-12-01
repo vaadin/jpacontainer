@@ -5,8 +5,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
-import com.vaadin.addon.jpacontainer.testdata.Person;
-
 @Entity
 public class LazySkill {
     @Id
@@ -33,7 +31,7 @@ public class LazySkill {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Person) {
+        if (obj instanceof LazySkill) {
             LazySkill other = (LazySkill) obj;
             if (this == other) {
                 return true;
