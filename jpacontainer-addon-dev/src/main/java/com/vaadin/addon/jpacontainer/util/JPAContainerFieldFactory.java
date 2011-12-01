@@ -121,17 +121,17 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
         PropertyKind propertyKind = jpacontainer.getPropertyKind(propertyId);
         switch (propertyKind) {
         case MANY_TO_ONE:
-            field = createReferenceSelect(jpacontainer, propertyId);
+            field = createReferenceSelect(jpacontainer, itemId, propertyId, uiContext);
             break;
         case ONE_TO_ONE:
             field = createOneToOneField(jpacontainer, itemId, propertyId,
                     uiContext);
             break;
         case ONE_TO_MANY:
-            field = createMasterDetailEditor(jpacontainer, itemId, propertyId);
+            field = createMasterDetailEditor(jpacontainer, itemId, propertyId, uiContext);
             break;
         case MANY_TO_MANY:
-            field = createCollectionSelect(jpacontainer, itemId, propertyId);
+            field = createCollectionSelect(jpacontainer, itemId, propertyId, uiContext);
             break;
         default:
             break;
@@ -163,8 +163,8 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
     }
 
     @SuppressWarnings({ "rawtypes", "serial" })
-    private Field createCollectionSelect(EntityContainer containerForProperty,
-            Object itemId, Object propertyId) {
+    protected Field createCollectionSelect(EntityContainer containerForProperty,
+            Object itemId, Object propertyId, Component uiContext) {
         /*
          * Detect what kind of reference type we have
          */
@@ -201,7 +201,7 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
     @SuppressWarnings({ "rawtypes", "serial" })
     private Field createMasterDetailEditor(
             EntityContainer containerForProperty, Object itemId,
-            Object propertyId) {
+            Object propertyId, Component uiContext) {
         // FIXME buffered mode
         Class masterEntityClass = containerForProperty.getEntityClass();
         Class referencedType = detectReferencedType(
@@ -332,8 +332,8 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
      * @return
      */
     @SuppressWarnings("rawtypes")
-    protected Field createReferenceSelect(EntityContainer containerForProperty,
-            Object propertyId) {
+    protected Field createReferenceSelect(EntityContainer containerForProperty, Object itemId, 
+            Object propertyId, Component uiContext) {
         Class<?> type = containerForProperty.getType(propertyId);
         JPAContainer container = createJPAContainerFor(containerForProperty,
                 type, false);
