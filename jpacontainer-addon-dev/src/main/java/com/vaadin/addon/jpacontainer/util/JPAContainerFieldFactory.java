@@ -26,6 +26,7 @@ import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.filter.Compare;
 import com.vaadin.event.Action;
 import com.vaadin.event.Action.Handler;
+import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.DefaultFieldFactory;
@@ -45,6 +46,8 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
 
     private HashMap<Class<?>, String[]> propertyOrders;
     private EntityManagerPerRequestHelper entityManagerPerRequestHelper;
+    private HashMap<Class<?>, Class<? extends AbstractSelect>> multiselectTypes;
+    private HashMap<Class<?>, Class<? extends AbstractSelect>> singleselectTypes;
 
     /**
      * Creates a new JPAContainerFieldFactory. For referece/collection types
@@ -174,28 +177,33 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
                 masterEntityClass);
         final JPAContainer container = createJPAContainerFor(
                 containerForProperty, referencedType, false);
-        final Table table = new Table(
-                DefaultFieldFactory.createCaptionByPropertyId(propertyId),
-                container);
+        final AbstractSelect select = constructCollectionSelect(containerForProperty, itemId, propertyId, uiContext, referencedType);
+        select.setCaption(DefaultFieldFactory.createCaptionByPropertyId(propertyId));
+        select.setContainerDataSource(container);
         // many to many, selectable from table listing all existing pojos
-        table.setPropertyDataSource(new MultiSelectTranslator(table));
-        table.setSelectable(true);
-        table.setMultiSelect(true);
-        Object[] visibleProperties = getVisibleProperties(referencedType);
-        if (visibleProperties == null) {
-            List<Object> asList = new ArrayList<Object>(Arrays.asList(table
-                    .getVisibleColumns()));
-            asList.remove("id");
-            // TODO this should be the true "back reference" field from the
-            // opposite direction, now we expect convention
-            final String backReferencePropertyId = masterEntityClass
-                    .getSimpleName().toLowerCase() + "s";
-            asList.remove(backReferencePropertyId);
-            visibleProperties = asList.toArray();
+        select.setPropertyDataSource(new MultiSelectTranslator(select));
+        select.setMultiSelect(true);
+        if (select instanceof Table) {
+            Table t = (Table) select;
+            t.setSelectable(true);
+            Object[] visibleProperties = getVisibleProperties(referencedType);
+            if (visibleProperties == null) {
+                List<Object> asList = new ArrayList<Object>(Arrays.asList(t
+                        .getVisibleColumns()));
+                asList.remove("id");
+                // TODO this should be the true "back reference" field from the
+                // opposite direction, now we expect convention
+                final String backReferencePropertyId = masterEntityClass
+                        .getSimpleName().toLowerCase() + "s";
+                asList.remove(backReferencePropertyId);
+                visibleProperties = asList.toArray();
+            }
+            t.setVisibleColumns(visibleProperties);
+        } else {
+            select.setItemCaptionMode(AbstractSelect.ITEM_CAPTION_MODE_ITEM);
         }
-        table.setVisibleColumns(visibleProperties);
 
-        return table;
+        return select;
     }
 
     @SuppressWarnings({ "rawtypes", "serial" })
@@ -337,13 +345,51 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
         Class<?> type = containerForProperty.getType(propertyId);
         JPAContainer container = createJPAContainerFor(containerForProperty,
                 type, false);
-        NativeSelect nativeSelect = new NativeSelect(
-                DefaultFieldFactory.createCaptionByPropertyId(propertyId),
-                container);
+        
+        AbstractSelect nativeSelect = constructReferenceSelect(containerForProperty, itemId, propertyId, uiContext, type);
+        nativeSelect.setMultiSelect(false);
+        nativeSelect.setCaption(DefaultFieldFactory.createCaptionByPropertyId(propertyId));
+        nativeSelect.setItemCaptionMode(NativeSelect.ITEM_CAPTION_MODE_ITEM);
+        nativeSelect.setContainerDataSource(container);
         nativeSelect.setPropertyDataSource(new SingleSelectTranslator(
                 nativeSelect));
-        nativeSelect.setItemCaptionMode(NativeSelect.ITEM_CAPTION_MODE_ITEM);
         return nativeSelect;
+    }
+
+    protected AbstractSelect constructReferenceSelect(
+            EntityContainer containerForProperty, Object itemId,
+            Object propertyId, Component uiContext, Class<?> type) {
+        if(singleselectTypes != null) {
+            Class<? extends AbstractSelect> class1 = singleselectTypes.get(type);
+            try {
+                return class1.newInstance();
+            } catch (InstantiationException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        return new NativeSelect();
+    }
+    
+    protected AbstractSelect constructCollectionSelect(
+            EntityContainer containerForProperty, Object itemId,
+            Object propertyId, Component uiContext, Class<?> type) {
+        if(multiselectTypes != null) {
+            Class<? extends AbstractSelect> class1 = multiselectTypes.get(type);
+            try {
+                return class1.newInstance();
+            } catch (InstantiationException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        return new Table();
     }
 
     @SuppressWarnings("rawtypes")
@@ -380,6 +426,20 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
             propertyOrders = new HashMap<Class<?>, String[]>();
         }
         propertyOrders.put(containerType, propertyIdentifiers);
+    }
+    
+    public void setMultiSelectType(Class<?> referenceType, Class<? extends AbstractSelect> selectType) {
+        if(multiselectTypes == null) {
+            multiselectTypes = new HashMap<Class<?>,Class<? extends AbstractSelect>>();
+        }
+        multiselectTypes.put(referenceType, selectType);
+    }
+    
+    public void setSingleSelectType(Class<?> referenceType, Class<? extends AbstractSelect> selectType) {
+        if(singleselectTypes == null) {
+            singleselectTypes = new HashMap<Class<?>,Class<? extends AbstractSelect>>();
+        }
+        singleselectTypes.put(referenceType, selectType);
     }
 
     /**
