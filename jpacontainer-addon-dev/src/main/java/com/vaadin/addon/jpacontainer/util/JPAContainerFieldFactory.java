@@ -123,17 +123,20 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
         PropertyKind propertyKind = jpacontainer.getPropertyKind(propertyId);
         switch (propertyKind) {
         case MANY_TO_ONE:
-            field = createReferenceSelect(jpacontainer, itemId, propertyId, uiContext);
+            field = createReferenceSelect(jpacontainer, itemId, propertyId,
+                    uiContext);
             break;
         case ONE_TO_ONE:
             field = createOneToOneField(jpacontainer, itemId, propertyId,
                     uiContext);
             break;
         case ONE_TO_MANY:
-            field = createMasterDetailEditor(jpacontainer, itemId, propertyId, uiContext);
+            field = createMasterDetailEditor(jpacontainer, itemId, propertyId,
+                    uiContext);
             break;
         case MANY_TO_MANY:
-            field = createCollectionSelect(jpacontainer, itemId, propertyId, uiContext);
+            field = createCollectionSelect(jpacontainer, itemId, propertyId,
+                    uiContext);
             break;
         default:
             break;
@@ -165,8 +168,9 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
     }
 
     @SuppressWarnings({ "serial" })
-    protected Field createCollectionSelect(EntityContainer containerForProperty,
-            Object itemId, Object propertyId, Component uiContext) {
+    protected Field createCollectionSelect(
+            EntityContainer containerForProperty, Object itemId,
+            Object propertyId, Component uiContext) {
         /*
          * Detect what kind of reference type we have
          */
@@ -176,8 +180,11 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
                 masterEntityClass);
         final JPAContainer container = createJPAContainerFor(
                 containerForProperty, referencedType, false);
-        final AbstractSelect select = constructCollectionSelect(containerForProperty, itemId, propertyId, uiContext, referencedType);
-        select.setCaption(DefaultFieldFactory.createCaptionByPropertyId(propertyId));
+        final AbstractSelect select = constructCollectionSelect(
+                containerForProperty, itemId, propertyId, uiContext,
+                referencedType);
+        select.setCaption(DefaultFieldFactory
+                .createCaptionByPropertyId(propertyId));
         select.setContainerDataSource(container);
         // many to many, selectable from table listing all existing pojos
         select.setPropertyDataSource(new MultiSelectTranslator(select));
@@ -258,12 +265,10 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
                                 .setValue(masterEntity);
                         // TODO need to update the actual property also!?
                         container.addEntity(newInstance);
-                    } catch (InstantiationException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    } catch (IllegalAccessException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
+                    } catch (Exception e) {
+                        Logger.getLogger(getClass().getName()).warning(
+                                "Could not instantiate detail instance "
+                                        + container.getEntityClass().getName());
                     }
                 } else {
                     table.removeItem(target);
@@ -337,15 +342,17 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
      * @param propertyId
      * @return
      */
-    protected Field createReferenceSelect(EntityContainer containerForProperty, Object itemId, 
-            Object propertyId, Component uiContext) {
+    protected Field createReferenceSelect(EntityContainer containerForProperty,
+            Object itemId, Object propertyId, Component uiContext) {
         Class<?> type = containerForProperty.getType(propertyId);
         JPAContainer container = createJPAContainerFor(containerForProperty,
                 type, false);
-        
-        AbstractSelect nativeSelect = constructReferenceSelect(containerForProperty, itemId, propertyId, uiContext, type);
+
+        AbstractSelect nativeSelect = constructReferenceSelect(
+                containerForProperty, itemId, propertyId, uiContext, type);
         nativeSelect.setMultiSelect(false);
-        nativeSelect.setCaption(DefaultFieldFactory.createCaptionByPropertyId(propertyId));
+        nativeSelect.setCaption(DefaultFieldFactory
+                .createCaptionByPropertyId(propertyId));
         nativeSelect.setItemCaptionMode(NativeSelect.ITEM_CAPTION_MODE_ITEM);
         nativeSelect.setContainerDataSource(container);
         nativeSelect.setPropertyDataSource(new SingleSelectTranslator(
@@ -356,46 +363,47 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
     protected AbstractSelect constructReferenceSelect(
             EntityContainer containerForProperty, Object itemId,
             Object propertyId, Component uiContext, Class<?> type) {
-        if(singleselectTypes != null) {
-            Class<? extends AbstractSelect> class1 = singleselectTypes.get(type);
-            if(class1 != null) {
+        if (singleselectTypes != null) {
+            Class<? extends AbstractSelect> class1 = singleselectTypes
+                    .get(type);
+            if (class1 != null) {
                 try {
                     return class1.newInstance();
                 } catch (Exception e) {
-                    Logger.getLogger(getClass().getName()).warning("Could not create select of type " + type.getName());
+                    Logger.getLogger(getClass().getName()).warning(
+                            "Could not create select of type "
+                                    + class1.getName());
                 }
             }
         }
         return new NativeSelect();
     }
-    
+
     protected AbstractSelect constructCollectionSelect(
             EntityContainer containerForProperty, Object itemId,
             Object propertyId, Component uiContext, Class<?> type) {
-        if(multiselectTypes != null) {
+        if (multiselectTypes != null) {
             Class<? extends AbstractSelect> class1 = multiselectTypes.get(type);
             try {
                 return class1.newInstance();
-            } catch (InstantiationException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            } catch (Exception e) {
+                Logger.getLogger(getClass().getName()).warning(
+                        "Could not create select of type " + class1.getName());
             }
         }
         return new Table();
     }
 
     protected JPAContainer createJPAContainerFor(
-            EntityContainer containerForProperty, Class<?> type, boolean buffered) {
+            EntityContainer containerForProperty, Class<?> type,
+            boolean buffered) {
         JPAContainer<?> container = null;
-        EntityManager em = containerForProperty
-                .getEntityProvider().getEntityManager();
-        if(buffered) {
+        EntityManager em = containerForProperty.getEntityProvider()
+                .getEntityManager();
+        if (buffered) {
             container = JPAContainerFactory.makeBatchable(type, em);
         } else {
-            container = JPAContainerFactory.make(type, em );
+            container = JPAContainerFactory.make(type, em);
         }
         if (entityManagerPerRequestHelper != null) {
             entityManagerPerRequestHelper.addContainer(container);
@@ -421,17 +429,19 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
         }
         propertyOrders.put(containerType, propertyIdentifiers);
     }
-    
-    public void setMultiSelectType(Class<?> referenceType, Class<? extends AbstractSelect> selectType) {
-        if(multiselectTypes == null) {
-            multiselectTypes = new HashMap<Class<?>,Class<? extends AbstractSelect>>();
+
+    public void setMultiSelectType(Class<?> referenceType,
+            Class<? extends AbstractSelect> selectType) {
+        if (multiselectTypes == null) {
+            multiselectTypes = new HashMap<Class<?>, Class<? extends AbstractSelect>>();
         }
         multiselectTypes.put(referenceType, selectType);
     }
-    
-    public void setSingleSelectType(Class<?> referenceType, Class<? extends AbstractSelect> selectType) {
-        if(singleselectTypes == null) {
-            singleselectTypes = new HashMap<Class<?>,Class<? extends AbstractSelect>>();
+
+    public void setSingleSelectType(Class<?> referenceType,
+            Class<? extends AbstractSelect> selectType) {
+        if (singleselectTypes == null) {
+            singleselectTypes = new HashMap<Class<?>, Class<? extends AbstractSelect>>();
         }
         singleselectTypes.put(referenceType, selectType);
     }
