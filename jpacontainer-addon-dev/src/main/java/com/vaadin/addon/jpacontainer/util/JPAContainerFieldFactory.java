@@ -43,6 +43,7 @@ import com.vaadin.ui.TableFieldFactory;
  * 
  * TODO collection types, open for extension
  */
+@SuppressWarnings("rawtypes")
 public class JPAContainerFieldFactory extends DefaultFieldFactory {
 
     private HashMap<Class<?>, String[]> propertyOrders;
@@ -70,7 +71,6 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
         setEntityManagerPerRequestHelper(emprHelper);
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
     public Field createField(Item item, Object propertyId, Component uiContext) {
         if (item instanceof JPAContainerItem) {
@@ -102,7 +102,6 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
         return field;
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
     public Field createField(Container container, Object itemId,
             Object propertyId, Component uiContext) {
@@ -118,7 +117,6 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
                 propertyId, uiContext));
     }
 
-    @SuppressWarnings("rawtypes")
     private Field createJPAContainerBackedField(Object itemId,
             Object propertyId, EntityContainer jpacontainer, Component uiContext) {
         Field field = null;
@@ -166,7 +164,7 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
         return oneToOneForm;
     }
 
-    @SuppressWarnings({ "rawtypes", "serial" })
+    @SuppressWarnings({ "serial" })
     protected Field createCollectionSelect(EntityContainer containerForProperty,
             Object itemId, Object propertyId, Component uiContext) {
         /*
@@ -207,7 +205,7 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
         return select;
     }
 
-    @SuppressWarnings({ "rawtypes", "serial" })
+    @SuppressWarnings({ "serial" })
     private Field createMasterDetailEditor(
             EntityContainer containerForProperty, Object itemId,
             Object propertyId, Component uiContext) {
@@ -289,7 +287,6 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
      * @param masterEntityClass
      * @return the type of entities in collection type
      */
-    @SuppressWarnings("rawtypes")
     protected Class detectReferencedType(EntityManagerFactory emf,
             Object propertyId, Class masterEntityClass) {
         Class referencedType = null;
@@ -340,7 +337,6 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
      * @param propertyId
      * @return
      */
-    @SuppressWarnings("rawtypes")
     protected Field createReferenceSelect(EntityContainer containerForProperty, Object itemId, 
             Object propertyId, Component uiContext) {
         Class<?> type = containerForProperty.getType(propertyId);
@@ -391,7 +387,6 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
         return new Table();
     }
 
-    @SuppressWarnings("rawtypes")
     protected JPAContainer createJPAContainerFor(
             EntityContainer containerForProperty, Class<?> type, boolean buffered) {
         JPAContainer<?> container = null;
