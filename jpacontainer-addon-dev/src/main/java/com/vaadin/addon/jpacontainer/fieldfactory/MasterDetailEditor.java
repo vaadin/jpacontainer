@@ -12,10 +12,15 @@ import com.vaadin.data.Container.Filter;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.filter.Compare;
 import com.vaadin.event.Action;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.DefaultFieldFactory;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TableFieldFactory;
+import com.vaadin.ui.VerticalLayout;
 
 public class MasterDetailEditor extends JPAContainerCustomField implements
         Action.Handler {
@@ -71,6 +76,29 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
     }
 
     private void buildLayout() {
+        VerticalLayout vl = new VerticalLayout();
+        buildTable();
+        vl.addComponent(table);
+
+        CssLayout buttons = new CssLayout();
+        buttons.addComponent(new Button(getMasterDetailAddItemCaption(),
+                new ClickListener() {
+                    public void buttonClick(ClickEvent event) {
+                        addNew();
+                    }
+                }));
+        buttons.addComponent(new Button(getMasterDetailRemoveItemCaption(),
+                new ClickListener() {
+                    public void buttonClick(ClickEvent event) {
+                        remove(table.getValue());
+                    }
+                }));
+        vl.addComponent(buttons);
+
+        setCompositionRoot(vl);
+    }
+
+    private void buildTable() {
         table = new Table(null, container);
         Object[] visibleProperties = fieldFactory
                 .getVisibleProperties(referencedType);
@@ -87,7 +115,6 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
 
         table.setTableFieldFactory(getFieldFactoryForMasterDetailEditor());
         table.setEditable(true);
-        setCompositionRoot(table);
     }
 
     /**
@@ -120,24 +147,11 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
         return referencedType;
     }
 
-    @SuppressWarnings("unchecked")
     public void handleAction(Action action, Object sender, Object target) {
         if (action == add) {
-            try {
-                Object newInstance = container.getEntityClass().newInstance();
-                @SuppressWarnings("rawtypes")
-                BeanItem<?> beanItem = new BeanItem(newInstance);
-                beanItem.getItemProperty(backReferencePropertyId).setValue(
-                        masterEntity);
-                // TODO need to update the actual property also!?
-                container.addEntity(newInstance);
-            } catch (Exception e) {
-                Logger.getLogger(getClass().getName()).warning(
-                        "Could not instantiate detail instance "
-                                + container.getEntityClass().getName());
-            }
+            addNew();
         } else {
-            table.removeItem(target);
+            remove(target);
         }
     }
 
@@ -145,4 +159,24 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
         return actions;
     }
 
+    private void remove(Object itemId) {
+        table.removeItem(itemId);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void addNew() {
+        try {
+            Object newInstance = container.getEntityClass().newInstance();
+            @SuppressWarnings("rawtypes")
+            BeanItem<?> beanItem = new BeanItem(newInstance);
+            beanItem.getItemProperty(backReferencePropertyId).setValue(
+                    masterEntity);
+            // TODO need to update the actual property also!?
+            container.addEntity(newInstance);
+        } catch (Exception e) {
+            Logger.getLogger(getClass().getName()).warning(
+                    "Could not instantiate detail instance "
+                            + container.getEntityClass().getName());
+        }
+    }
 }
