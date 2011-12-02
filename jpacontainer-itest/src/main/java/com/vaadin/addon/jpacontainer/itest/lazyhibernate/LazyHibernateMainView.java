@@ -4,10 +4,10 @@ import java.util.Set;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
+import com.vaadin.addon.jpacontainer.fieldfactory.JPAContainerFieldFactory;
 import com.vaadin.addon.jpacontainer.itest.lazyhibernate.domain.LazyPerson;
 import com.vaadin.addon.jpacontainer.itest.lazyhibernate.domain.LazySkill;
 import com.vaadin.addon.jpacontainer.util.HibernateLazyLoadingDelegate;
-import com.vaadin.addon.jpacontainer.util.JPAContainerFieldFactory;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.ui.Button;

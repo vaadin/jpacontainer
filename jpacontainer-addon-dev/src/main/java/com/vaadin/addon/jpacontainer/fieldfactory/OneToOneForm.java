@@ -1,4 +1,4 @@
-package com.vaadin.addon.jpacontainer.util;
+package com.vaadin.addon.jpacontainer.fieldfactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -34,12 +34,12 @@ public class OneToOneForm extends Form {
         if (newDataSource.getValue() == null) {
             try {
                 createdInstance = newDataSource.getType().newInstance();
-                if(isWriteThrough()) {
+                if (isWriteThrough()) {
                     tryToSetBackReference();
                 }
                 editedEntityItem = createItemForInstance(createdInstance);
                 setItemDataSource(editedEntityItem, getVisiblePropertyIds());
-                if(isWriteThrough()) {
+                if (isWriteThrough()) {
                     newDataSource.setValue(editedEntityItem.getEntity());
                     createdInstance = null;
                 }
@@ -95,11 +95,12 @@ public class OneToOneForm extends Form {
         return jpaContainer.getItem(itemId);
     }
 
-    private JPAContainer getContainer(Object createdInstance) {
+    private JPAContainer<?> getContainer(Object createdInstance) {
         JPAContainerFieldFactory formFieldFactory = getJPAContainerFieldFactory();
-        JPAContainer jpaContaienr = formFieldFactory.createJPAContainerFor(
-                property.getItem().getContainer(), createdInstance.getClass(), !isWriteThrough());
-        return jpaContaienr;
+        JPAContainer<?> jpaContainer = formFieldFactory.createJPAContainerFor(
+                property.getItem().getContainer(), createdInstance.getClass(),
+                !isWriteThrough());
+        return jpaContainer;
     }
 
     private JPAContainerFieldFactory getJPAContainerFieldFactory() {
@@ -141,7 +142,7 @@ public class OneToOneForm extends Form {
     }
 
     public void setBackReferenceId(String simpleName) {
-        this.backReferenceId = simpleName;
+        backReferenceId = simpleName;
     }
 
 }

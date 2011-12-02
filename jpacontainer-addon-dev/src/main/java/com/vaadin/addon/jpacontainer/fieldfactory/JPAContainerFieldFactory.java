@@ -1,4 +1,4 @@
-package com.vaadin.addon.jpacontainer.util;
+package com.vaadin.addon.jpacontainer.fieldfactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,13 +20,11 @@ import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
 import com.vaadin.addon.jpacontainer.JPAContainerItem;
 import com.vaadin.addon.jpacontainer.metadata.PropertyKind;
+import com.vaadin.addon.jpacontainer.util.EntityManagerPerRequestHelper;
+import com.vaadin.addon.jpacontainer.util.MultiSelectTranslator;
+import com.vaadin.addon.jpacontainer.util.SingleSelectTranslator;
 import com.vaadin.data.Container;
-import com.vaadin.data.Container.Filter;
 import com.vaadin.data.Item;
-import com.vaadin.data.util.BeanItem;
-import com.vaadin.data.util.filter.Compare;
-import com.vaadin.event.Action;
-import com.vaadin.event.Action.Handler;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Component;
@@ -35,7 +33,6 @@ import com.vaadin.ui.Field;
 import com.vaadin.ui.Form;
 import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.Table;
-import com.vaadin.ui.TableFieldFactory;
 
 /**
  * A helper class for JPAContainer users. E.g. automatically creates selects for
@@ -216,72 +213,8 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
     private Field createMasterDetailEditor(
             EntityContainer containerForProperty, Object itemId,
             Object propertyId, Component uiContext) {
-        // FIXME buffered mode
-        Class masterEntityClass = containerForProperty.getEntityClass();
-        Class referencedType = detectReferencedType(
-                getEntityManagerFactory(containerForProperty), propertyId,
-                masterEntityClass);
-        final JPAContainer container = createJPAContainerFor(
-                containerForProperty, referencedType, false);
-        final Table table = new Table(
-                DefaultFieldFactory.createCaptionByPropertyId(propertyId),
-                container);
-        // Modify container to filter only those details that relate to
-        // this master data
-        final String backReferencePropertyId = HibernateUtil
-                .getMappedByProperty(containerForProperty.getItem(itemId)
-                        .getEntity(), propertyId.toString());
-        final Object masterEntity = containerForProperty.getEntityProvider()
-                .getEntity(itemId);
-        Filter filter = new Compare.Equal(backReferencePropertyId, masterEntity);
-        container.addContainerFilter(filter);
-
-        Object[] visibleProperties = getVisibleProperties(referencedType);
-        if (visibleProperties == null) {
-            List<Object> asList = new ArrayList<Object>(Arrays.asList(table
-                    .getVisibleColumns()));
-            asList.remove("id");
-            asList.remove(backReferencePropertyId);
-            visibleProperties = asList.toArray();
-        }
-        table.setVisibleColumns(visibleProperties);
-
-        final Action add = new Action(getMasterDetailAddItemCaption());
-        // add add and remove actions to table
-        Action remove = new Action(getMasterDetailRemoveItemCaption());
-        final Action[] actions = new Action[] { add, remove };
-
-        table.addActionHandler(new Handler() {
-
-            @SuppressWarnings("unchecked")
-            public void handleAction(Action action, Object sender, Object target) {
-                if (action == add) {
-                    try {
-                        Object newInstance = container.getEntityClass()
-                                .newInstance();
-                        BeanItem beanItem = new BeanItem(newInstance);
-                        beanItem.getItemProperty(backReferencePropertyId)
-                                .setValue(masterEntity);
-                        // TODO need to update the actual property also!?
-                        container.addEntity(newInstance);
-                    } catch (Exception e) {
-                        Logger.getLogger(getClass().getName()).warning(
-                                "Could not instantiate detail instance "
-                                        + container.getEntityClass().getName());
-                    }
-                } else {
-                    table.removeItem(target);
-                }
-            }
-
-            public Action[] getActions(Object target, Object sender) {
-                return actions;
-            }
-        });
-        table.setTableFieldFactory(getFieldFactoryForMasterDetailEditor());
-        table.setEditable(true);
-
-        return table;
+        return new MasterDetailEditor(this, containerForProperty, itemId,
+                propertyId, uiContext);
     }
 
     /**
@@ -310,28 +243,10 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
         return referencedType;
     }
 
-    private EntityManagerFactory getEntityManagerFactory(
+    protected EntityManagerFactory getEntityManagerFactory(
             EntityContainer<?> containerForProperty) {
         return containerForProperty.getEntityProvider().getEntityManager()
                 .getEntityManagerFactory();
-    }
-
-    /**
-     * TODO consider opening and adding parameters like propertyId, master class
-     * etc
-     * 
-     * @return
-     */
-    private TableFieldFactory getFieldFactoryForMasterDetailEditor() {
-        return this;
-    }
-
-    private String getMasterDetailRemoveItemCaption() {
-        return "Remove";
-    }
-
-    private String getMasterDetailAddItemCaption() {
-        return "Add";
     }
 
     /**
