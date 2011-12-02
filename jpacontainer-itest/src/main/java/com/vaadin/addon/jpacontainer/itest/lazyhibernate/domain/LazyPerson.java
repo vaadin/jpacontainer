@@ -10,8 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-
-import com.vaadin.addon.jpacontainer.testdata.Person;
+import javax.persistence.OneToMany;
 
 @Entity
 public class LazyPerson {
@@ -28,6 +27,9 @@ public class LazyPerson {
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<LazySkill> skills;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "manager")
+    private Set<LazyPerson> employees;
 
     /**
      * @return the firstName
@@ -101,7 +103,7 @@ public class LazyPerson {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Person) {
+        if (obj instanceof LazyPerson) {
             LazyPerson other = (LazyPerson) obj;
             if (this == other) {
                 return true;
@@ -123,5 +125,13 @@ public class LazyPerson {
     @Override
     public String toString() {
         return getFirstName() + " " + getLastName();
+    }
+
+    public Set<LazyPerson> getEmployees() {
+        return employees;
+    }
+
+    public void setEmployees(Set<LazyPerson> employees) {
+        this.employees = employees;
     }
 }
