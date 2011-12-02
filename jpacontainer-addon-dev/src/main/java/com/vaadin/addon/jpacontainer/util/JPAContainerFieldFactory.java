@@ -361,14 +361,16 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
             Object propertyId, Component uiContext, Class<?> type) {
         if(singleselectTypes != null) {
             Class<? extends AbstractSelect> class1 = singleselectTypes.get(type);
-            try {
-                return class1.newInstance();
-            } catch (InstantiationException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            if(class1 != null) {
+                try {
+                    return class1.newInstance();
+                } catch (InstantiationException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
         }
         return new NativeSelect();
