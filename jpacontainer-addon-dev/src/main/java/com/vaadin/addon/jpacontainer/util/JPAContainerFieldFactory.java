@@ -144,7 +144,7 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
         return field;
     }
 
-    protected OneToOneForm createOneToOneField(EntityContainer jpacontainer,
+    protected OneToOneForm createOneToOneField(EntityContainer<?> jpacontainer,
             Object itemId, Object propertyId, Component uiContext) {
         OneToOneForm oneToOneForm = new OneToOneForm();
         oneToOneForm.setBackReferenceId(jpacontainer.getEntityClass()
@@ -228,10 +228,9 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
                 container);
         // Modify container to filter only those details that relate to
         // this master data
-        // TODO should use mappedBy parameter of OneToMany annotation,
-        // currently using convention
-        final String backReferencePropertyId = masterEntityClass
-                .getSimpleName().toLowerCase();
+        final String backReferencePropertyId = HibernateUtil
+                .getMappedByProperty(containerForProperty.getItem(itemId)
+                        .getEntity(), propertyId.toString());
         final Object masterEntity = containerForProperty.getEntityProvider()
                 .getEntity(itemId);
         Filter filter = new Compare.Equal(backReferencePropertyId, masterEntity);
@@ -394,17 +393,25 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
         return new Table();
     }
 
-    protected JPAContainer createJPAContainerFor(
-            EntityContainer containerForProperty, Class<?> type,
+    protected EntityManager getEntityManagerFor(
+            EntityContainer<?> containerForProperty) {
+        return containerForProperty.getEntityProvider().getEntityManager();
+    }
+
+    protected JPAContainer<?> createJPAContainerFor(
+            EntityContainer<?> containerForProperty, Class<?> type,
             boolean buffered) {
         JPAContainer<?> container = null;
-        EntityManager em = containerForProperty.getEntityProvider()
-                .getEntityManager();
+        EntityManager em = getEntityManagerFor(containerForProperty);
         if (buffered) {
             container = JPAContainerFactory.makeBatchable(type, em);
         } else {
             container = JPAContainerFactory.make(type, em);
         }
+        // Set the lazy loading delegate to the same as the parent.
+        container.getEntityProvider().setLazyLoadingDelegate(
+                containerForProperty.getEntityProvider()
+                        .getLazyLoadingDelegate());
         if (entityManagerPerRequestHelper != null) {
             entityManagerPerRequestHelper.addContainer(container);
         }
