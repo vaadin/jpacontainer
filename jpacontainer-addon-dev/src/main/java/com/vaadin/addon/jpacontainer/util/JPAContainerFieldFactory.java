@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -364,12 +365,8 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
             if(class1 != null) {
                 try {
                     return class1.newInstance();
-                } catch (InstantiationException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (IllegalAccessException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                } catch (Exception e) {
+                    Logger.getLogger(getClass().getName()).warning("Could not create select of type " + type.getName());
                 }
             }
         }
