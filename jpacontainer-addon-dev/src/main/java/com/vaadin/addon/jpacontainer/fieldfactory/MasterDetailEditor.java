@@ -87,12 +87,14 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
                         addNew();
                     }
                 }));
-        buttons.addComponent(new Button(getMasterDetailRemoveItemCaption(),
-                new ClickListener() {
-                    public void buttonClick(ClickEvent event) {
-                        remove(table.getValue());
-                    }
-                }));
+        // TODO replace with a (-) button in a generated column? Table currently
+        // not selectable.
+//        buttons.addComponent(new Button(getMasterDetailRemoveItemCaption(),
+//                new ClickListener() {
+//                    public void buttonClick(ClickEvent event) {
+//                        remove(table.getValue());
+//                    }
+//                }));
         vl.addComponent(buttons);
 
         setCompositionRoot(vl);
