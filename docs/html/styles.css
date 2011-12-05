@@ -10,11 +10,14 @@ body {
 div#content {
   border: thick solid black;
   border-radius: 20px;
-  background: white url('vaadin-logo-title.png') no-repeat;
-  background-position: 650 10;
+  background: white;
   width: 800px;
-  padding: 50px;
+  padding: 10px 50px 50px 50px;
   margin: 0 auto;
+}
+
+div#logo {
+  float: right;
 }
 
 /******************************************************************************/
@@ -26,6 +29,7 @@ div#content {
   font-weight: bold;
   font-size: 36pt;
   color: black;
+  clear: both;
 }
 
 .subtitle {

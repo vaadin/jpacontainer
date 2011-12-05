@@ -9,6 +9,8 @@
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version="1.0"
+  xmlns="http://www.w3.org/1999/xhtml"
+  exclude-result-prefixes="office style text table draw fo xlink dc meta number svg"
   xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
   xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0"
   xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0"
@@ -22,27 +24,44 @@
   xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0"
   office:version="1.2">
 
-  <xsl:output method="xml"/>
-  <xsl:strip-space elements="p span"/> 
+  <xsl:output method="xml"
+              doctype-public="-//W3C//DTD XHTML 1.0 Strict//EN"
+              doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"/>
+  <xsl:strip-space elements="text:p"/>
+  <xsl:preserve-space elements=""/>
 
   <xsl:template match="/">
+    <xsl:text>&#x0a;</xsl:text>
     <html>
+      <xsl:text>&#x0a;  </xsl:text>
       <head>
+      <xsl:text>&#x0a;    </xsl:text>
         <title>
           <xsl:apply-templates select="office:document-content/office:body/office:text" mode="pagetitle"/>
         </title>
 
         <!-- Customizable stylesheet -->
+        <xsl:text>&#x0a;    </xsl:text>
         <link href="styles.css" rel="stylesheet" type="text/css" />
 
         <!-- Generate automatic styles -->
+        <xsl:text>&#x0a;    </xsl:text>
         <style type="text/css">
+          <xsl:text>&#x0a;</xsl:text>
           <xsl:apply-templates select="office:document-content/office:automatic-styles/style:style" mode="autostyles"/>
+          <xsl:text>    </xsl:text>
         </style>
+      <xsl:text>&#x0a;  </xsl:text>
       </head>
+      <xsl:text>&#x0a;  </xsl:text>
 
-      <body bgcolor="#FFFFFF">
+      <body>
         <div id="content">
+          <div id="logo">
+            <a href="http://vaadin.com/">
+              <img src="vaadin-logo-title.png" alt="Vaadin"/>
+            </a>
+          </div>
           <xsl:apply-templates select="office:document-content/office:body/office:text"/>
         </div>
       </body>
@@ -257,6 +276,8 @@
       <xsl:attribute name="width">
         <xsl:value-of select="number(substring-before(@svg:width,'cm'))*50"/>
       </xsl:attribute>
+
+      <xsl:attribute name="alt">[Image]</xsl:attribute>
     </xsl:element>
   </xsl:template>
 
@@ -317,7 +338,7 @@
 
   <!-- Automatic style definitions -->
   <xsl:template match="style:style[@style:family='text']" mode="autostyles">
-    <xsl:text>.auto-</xsl:text>
+    <xsl:text>      .auto-</xsl:text>
     <xsl:value-of select="@style:name"/>
     <xsl:text> {</xsl:text>
 
@@ -338,7 +359,7 @@
       <xsl:value-of select="style:text-properties/@fo:color"/>
       <xsl:text>; </xsl:text>
     </xsl:if>
-    <xsl:text>} </xsl:text>
+    <xsl:text>}&#x0a;</xsl:text>
   </xsl:template>
 
   <xsl:template match="*" mode="autostyles"/>
