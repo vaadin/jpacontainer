@@ -21,8 +21,6 @@ import com.vaadin.addon.jpacontainer.JPAContainerFactory;
 import com.vaadin.addon.jpacontainer.JPAContainerItem;
 import com.vaadin.addon.jpacontainer.metadata.PropertyKind;
 import com.vaadin.addon.jpacontainer.util.EntityManagerPerRequestHelper;
-import com.vaadin.addon.jpacontainer.util.MultiSelectTranslator;
-import com.vaadin.addon.jpacontainer.util.SingleSelectTranslator;
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.ui.AbstractSelect;

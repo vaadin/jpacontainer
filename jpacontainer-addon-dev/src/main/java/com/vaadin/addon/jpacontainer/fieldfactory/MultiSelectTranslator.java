@@ -1,4 +1,4 @@
-package com.vaadin.addon.jpacontainer.util;
+package com.vaadin.addon.jpacontainer.fieldfactory;
 
 import java.util.ArrayList;
 import java.util.Collection;

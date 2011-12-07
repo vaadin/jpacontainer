@@ -1,4 +1,4 @@
-package com.vaadin.addon.jpacontainer.provider;
+package com.vaadin.addon.jpacontainer.util;
 
 import java.util.List;
 

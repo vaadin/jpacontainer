@@ -1,4 +1,4 @@
-package com.vaadin.addon.jpacontainer.util;
+package com.vaadin.addon.jpacontainer.fieldfactory;
 
 import com.vaadin.addon.jpacontainer.EntityContainer;
 import com.vaadin.ui.AbstractSelect;

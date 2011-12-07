@@ -25,6 +25,7 @@ import org.junit.Test;
 
 import com.vaadin.addon.jpacontainer.QueryModifierDelegate;
 import com.vaadin.addon.jpacontainer.testdata.Person;
+import com.vaadin.addon.jpacontainer.util.DefaultQueryModifierDelegate;
 
 public class QueryModifierDelegateTest {
 
