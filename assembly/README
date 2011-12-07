@@ -1,0 +1,42 @@
+===================
+Vaadin JPAContainer
+===================
+
+------------------------------------
+Contents of the Installation Package
+------------------------------------
+
+${project.build.finalName}.jar
+
+  The JPAContainer library. You can either add the JAR
+  in your project or use the Maven dependency declaration
+  given in Vaadin Directory.
+
+jpacontainer-tutorial.pdf
+
+  The JPAContainer Tutorial in PDF format.
+
+jpacontainer-tutorial-html
+
+  The JPAContainer Tutorial in HTML format. The latest version is
+  always available at http://vaadin.com/download/jpacontainer-tutorial/
+
+jpacontainer-addressbook-demo
+
+  The JPAContainer AddressBook Demo covered in the tutorial. You
+  can compile the demo project with "mvn package" or run in
+  Jetty with "mvn jetty:run". You can also import it in Eclipse as
+  a project (requires the m2e plugin).
+
+jpacontainer-demo-${jpacontainer.version}.war
+
+  A deployable demo WAR. This is a different demo than the
+  AddressBook demo.
+
+licensing.txt
+
+  Information about the licenses and licensing.
+
+license-${license.short.name}.txt
+
+  The license for the JPAContainer.

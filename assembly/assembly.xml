@@ -42,14 +42,14 @@
     </fileSet>
     <fileSet>
       <directory>../jpacontainer-addon/target/site</directory>
-      <outputDirectory></outputDirectory>
+      <outputDirectory>${project.build.finalName}</outputDirectory>
       <includes>
         <include>apidocs/**</include>
       </includes>
     </fileSet>
     <fileSet>
       <directory>../jpacontainer-demo/target</directory>
-      <outputDirectory></outputDirectory>
+      <outputDirectory>${project.build.finalName}</outputDirectory>
       <includes>
         <include>*.war</include>
       </includes>
@@ -61,6 +61,15 @@
       <source>../assembly/licensing-${license.short.name}.txt</source>
       <outputDirectory>${project.build.finalName}</outputDirectory>
       <destName>licensing.txt</destName>
+    </file>
+    <file>
+      <source>../assembly/license-${license.short.name}.txt</source>
+      <outputDirectory>${project.build.finalName}</outputDirectory>
+    </file>
+    <file>
+      <source>../assembly/README</source>
+      <outputDirectory>${project.build.finalName}</outputDirectory>
+      <filtered>true</filtered>
     </file>
     <file>
       <source>../assembly/MANIFEST.MF</source>

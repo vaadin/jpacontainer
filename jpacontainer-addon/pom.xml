@@ -325,7 +325,7 @@
                         <id>javadoc-jar</id>
                         <phase>generate-resources</phase>
                         <goals>
-                            <!-- <goal>javadoc</goal> -->
+                            <goal>javadoc</goal>
                             <goal>jar</goal>
                         </goals>
                     </execution>
