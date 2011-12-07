@@ -6,7 +6,6 @@ package com.vaadin.addon.jpacontainer.testdata;
 import java.io.Serializable;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -67,7 +66,7 @@ public class Department implements Serializable {
     }
 
     private String name;
-    
+
     @ManyToMany
     private Set<Person> persons;
 

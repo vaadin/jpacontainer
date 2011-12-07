@@ -186,6 +186,10 @@ public class DataGenerator {
 
     public static void removeTestData(EntityManager entityManager2) {
         entityManager2.getTransaction().begin();
+        // Make Hibernate cascade into the join table. Surprise, surprise it
+        // works correctly in EclipseLink.
+        entityManager2.createNativeQuery("DELETE FROM DEPARTMENT_PERSON dp")
+                .executeUpdate();
         entityManager2.createQuery("DELETE FROM Department d").executeUpdate();
         entityManager2.createQuery("DELETE FROM PersonSkill ps")
                 .executeUpdate();
