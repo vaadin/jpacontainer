@@ -214,6 +214,6 @@ public interface EntityItem<T> extends Item, Buffered,
      * method when e.g. the entity has been deleted from the database.
      * 
      */
-    public void refreshEntity();
+    public void refresh();
 
 }

@@ -184,11 +184,11 @@ public interface EntityContainer<T> extends Container, Container.Sortable,
      * Causes all EntityItems created from this container and identified by
      * given entityId to be refreshed.
      * 
-     * @param entityId
+     * @param itemId
      * 
-     * @see EntityItem#refreshEntity()
+     * @see EntityItem#refresh()
      */
-    public void refreshEntity(Object entityId);
+    public void refreshItem(Object itemId);
 
     /**
      * Refreshes the entire container from the database. All unsaved data will

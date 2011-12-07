@@ -1584,16 +1584,16 @@ public class JPAContainer<T> implements EntityContainer<T>,
     }
 
     @SuppressWarnings("unchecked")
-    public void refreshEntity(Object entityId) {
+    public void refreshItem(Object itemId) {
         LinkedList<WeakReference<JPAContainerItem<T>>> linkedList;
         synchronized (itemRegistry) {
             linkedList = (LinkedList<WeakReference<JPAContainerItem<T>>>) itemRegistry
-                    .get(entityId).clone();
+                    .get(itemId).clone();
         }
         for (WeakReference<JPAContainerItem<T>> weakReference : linkedList) {
             JPAContainerItem<T> jpaContainerItem = weakReference.get();
             if (jpaContainerItem != null) {
-                jpaContainerItem.refreshEntity();
+                jpaContainerItem.refresh();
             }
         }
     }
@@ -1608,7 +1608,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
         bufferingDelegate.discard();
         synchronized (itemRegistry) {
             for (Object id : itemRegistry.keySet()) {
-                refreshEntity(id);
+                refreshItem(id);
             }
         }
         fireContainerItemSetChange(new AllItemsRefreshedEvent());

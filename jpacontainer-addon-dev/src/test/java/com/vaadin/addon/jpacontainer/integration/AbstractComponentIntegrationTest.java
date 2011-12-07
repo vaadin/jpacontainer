@@ -262,7 +262,7 @@ public abstract class AbstractComponentIntegrationTest extends
         /*
          * Refresh the value from DB ("foo" is set to property)
          */
-        item.refreshEntity();
+        item.refresh();
         assertEquals(3, valueChangeCalls[0]);
         assertEquals("foo", label.getValue());
 
@@ -283,7 +283,7 @@ public abstract class AbstractComponentIntegrationTest extends
         assertFalse(shouldNotMatch);
         assertEquals(3, valueChangeCalls[0]);
 
-        item.refreshEntity();
+        item.refresh();
         assertEquals(4, valueChangeCalls[0]);
         assertEquals(entity.getFirstName(), label.getValue());
 
@@ -300,7 +300,7 @@ public abstract class AbstractComponentIntegrationTest extends
         assertFalse(shouldNotMatch);
         assertEquals(4, valueChangeCalls[0]);
 
-        container.refreshEntity(entity.getId());
+        container.refreshItem(entity.getId());
         assertEquals(5, valueChangeCalls[0]);
         assertEquals(entity.getFirstName(), label.getValue());
     }
