@@ -2,6 +2,7 @@ package com.vaadin.addon.jpacontainer.fieldfactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -37,6 +38,8 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
     private String backReferencePropertyId;
     private Object masterEntity;
     private final Object propertyId;
+    private final EntityContainer<?> containerForProperty;
+    private final Object itemId;
 
     /**
      * @param containerForProperty
@@ -48,17 +51,18 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
             EntityContainer<?> containerForProperty, Object itemId,
             Object propertyId, Component uiContext) {
         this.fieldFactory = fieldFactory;
+        this.containerForProperty = containerForProperty;
+        this.itemId = itemId;
         this.propertyId = propertyId;
 
-        buildContainer(containerForProperty, itemId);
+        buildContainer();
 
         buildLayout();
 
         setCaption(DefaultFieldFactory.createCaptionByPropertyId(propertyId));
     }
 
-    private void buildContainer(EntityContainer<?> containerForProperty,
-            Object itemId) {
+    private void buildContainer() {
         // FIXME buffered mode
         Class<?> masterEntityClass = containerForProperty.getEntityClass();
         referencedType = fieldFactory.detectReferencedType(
@@ -89,12 +93,12 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
                 }));
         // TODO replace with a (-) button in a generated column? Table currently
         // not selectable.
-//        buttons.addComponent(new Button(getMasterDetailRemoveItemCaption(),
-//                new ClickListener() {
-//                    public void buttonClick(ClickEvent event) {
-//                        remove(table.getValue());
-//                    }
-//                }));
+        buttons.addComponent(new Button(getMasterDetailRemoveItemCaption(),
+                new ClickListener() {
+                    public void buttonClick(ClickEvent event) {
+                        remove(table.getValue());
+                    }
+                }));
         vl.addComponent(buttons);
 
         setCompositionRoot(vl);
@@ -117,6 +121,7 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
 
         table.setTableFieldFactory(getFieldFactoryForMasterDetailEditor());
         table.setEditable(true);
+        table.setSelectable(true);
     }
 
     /**
@@ -162,7 +167,13 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
     }
 
     private void remove(Object itemId) {
-        table.removeItem(itemId);
+        if (itemId != null) {
+            Collection<?> collection = (Collection<?>) containerForProperty
+                    .getItem(this.itemId).getItemProperty(propertyId)
+                    .getValue();
+            collection.remove(container.getItem(itemId).getEntity());
+            container.removeItem(itemId);
+        }
     }
 
     @SuppressWarnings("unchecked")
