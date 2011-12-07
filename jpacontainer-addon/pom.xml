@@ -208,19 +208,28 @@
         		<directory>../jpacontainer-addon-dev/src/test/resources</directory>
         	</testResource>
         </testResources>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-assembly-plugin</artifactId>
-                    <version>2.2.1</version>
-                    <configuration>
-                        <skipAssembly>true</skipAssembly>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
         <plugins>
+            <plugin>
+             <groupId>org.apache.maven.plugins</groupId>
+             <artifactId>maven-assembly-plugin</artifactId>
+             <version>2.2.1</version>
+             <configuration>
+                 <appendAssemblyId>false</appendAssemblyId>
+                 <descriptors>
+                     <descriptor>../assembly/assembly.xml</descriptor>
+                 </descriptors>
+             </configuration>
+             <executions>
+                 <execution>
+                     <id>make-assembly</id>
+                     <phase>package</phase>
+                     <goals>
+                         <goal>single</goal>
+                     </goals>
+                 </execution>
+             </executions>
+            </plugin>
+     
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>properties-maven-plugin</artifactId>

@@ -97,7 +97,6 @@
     <modules>
 <!--         <module>jpacontainer-demo</module> -->
         <module>jpacontainer-addon</module>
-        <module>assembly</module>
     </modules>
 
     <build>
@@ -129,7 +128,7 @@
             </plugins>
         </pluginManagement>
         <plugins>
-            <plugin>
+	        <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>properties-maven-plugin</artifactId>
                 <version>1.0-alpha-2</version>
