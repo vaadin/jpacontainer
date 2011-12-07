@@ -74,7 +74,7 @@
 
   <target name="publish" depends="convert-tutorial">
     <echo>Publishing to server...</echo>
-    <apply executable="scp" parallel="true" verbose="true" searchpath="true" resultproperty="publish.scp.result">
+    <apply executable="scp" parallel="true" verbose="true" searchpath="true" resultproperty="publish.scp1.result">
       <arg value="-r"/>
       <srcfile/>
       <arg value="vaadin@vaadin.com:download/jpacontainer-tutorial/"/>
@@ -82,6 +82,14 @@
         <include name="*"/>
       </fileset>
     </apply>
+
+    <!-- Copy directories recursively -->
+    <exec executable="scp" searchpath="true" resultproperty="publish.scp2.result">
+      <arg value="-r"/>
+      <arg value="${result.html.dir}/img"/>
+      <arg value="${result.html.dir}/Pictures"/>
+      <arg value="vaadin@vaadin.com:download/jpacontainer-tutorial/"/>
+    </exec>
   </target>
 </project>
 
