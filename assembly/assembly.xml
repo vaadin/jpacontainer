@@ -75,7 +75,7 @@
     </file>
     <file>
       <source>../assembly/MANIFEST.MF</source>
-      <outputDirectory>${project.build.finalName}/META-INF</outputDirectory>
+      <outputDirectory>META-INF</outputDirectory>
       <filtered>true</filtered>
     </file>
     <file>
