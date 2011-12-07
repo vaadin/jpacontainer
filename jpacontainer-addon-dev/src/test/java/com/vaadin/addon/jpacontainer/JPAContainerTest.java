@@ -5,6 +5,8 @@ import static org.easymock.EasyMock.capture;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.isA;
+import static org.easymock.EasyMock.isNull;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertEquals;
@@ -23,6 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.easymock.Capture;
 import org.easymock.EasyMock;
@@ -30,9 +33,11 @@ import org.easymock.IAnswer;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.vaadin.addon.jpacontainer.JPAContainer.AllItemsRefreshedEvent;
 import com.vaadin.addon.jpacontainer.testdata.Address;
 import com.vaadin.addon.jpacontainer.testdata.Person;
 import com.vaadin.data.Container;
+import com.vaadin.data.Container.Filter;
 import com.vaadin.data.Container.ItemSetChangeEvent;
 import com.vaadin.data.Container.ItemSetChangeListener;
 import com.vaadin.data.util.filter.And;
@@ -1596,5 +1601,73 @@ public class JPAContainerTest {
             return lastEvent;
         }
 
+    }
+
+    @Test
+    public void testRefreshContainerFiresItemSetChange() {
+        ItemSetChangeListener listener = createMock(ItemSetChangeListener.class);
+        listener.containerItemSetChange(isA(AllItemsRefreshedEvent.class));
+        expectLastCall().once();
+        replay(listener);
+        container.setEntityProvider(entityProviderMock);
+        container.addListener(listener);
+        container.refresh();
+        verify(listener);
+    }
+
+    @Test
+    public void testRefreshContainerRefreshesEntityProvider() {
+        entityProviderMock.refresh();
+        expectLastCall().once();
+        replay(entityProviderMock);
+        container.setEntityProvider(entityProviderMock);
+        container.refresh();
+        verify(entityProviderMock);
+    }
+
+    @Test
+    public void testRefreshContainerClearsBufferingDelegate() {
+        container.setEntityProvider(batchableEntityProviderMock);
+        container.setWriteThrough(false);
+        Person p = new Person();
+        p.setId(123l);
+        p.setFirstName("Joe");
+        p.setLastName("Cool");
+        Object id = container.addEntity(p);
+        assertEquals(p, container.getItem(id).getEntity());
+        container.refresh();
+        assertNull(container.getItem(id));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testRefreshContainerDiscardsChanges() {
+        Person p = new Person();
+        p.setId(123l);
+        p.setFirstName("Joe");
+        p.setLastName("Cool");
+        Person p2 = p.clone();
+
+        expect(batchableEntityProviderMock.getLazyLoadingDelegate())
+                .andStubReturn(null);
+        expect(
+                batchableEntityProviderMock.getFirstEntityIdentifier(
+                        (Filter) isNull(), isA(List.class)))
+                .andStubReturn(123L);
+        batchableEntityProviderMock.refresh();
+        expectLastCall().once();
+        expect(batchableEntityProviderMock.getEntity(isA(Object.class)))
+                .andStubReturn(p);
+        expect(batchableEntityProviderMock.refreshEntity(isA(Person.class)))
+                .andStubReturn(p2);
+        replay(batchableEntityProviderMock);
+        container.setEntityProvider(batchableEntityProviderMock);
+
+        Object id = container.firstItemId();
+        JPAContainerItem<Person> item = (JPAContainerItem<Person>) container
+                .getItem(id);
+        item.getItemProperty("firstName").setValue("foo");
+        container.refresh();
+        assertEquals("Joe", item.getItemProperty("firstName").getValue());
     }
 }

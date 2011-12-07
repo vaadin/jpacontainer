@@ -1566,6 +1566,18 @@ public class JPAContainer<T> implements EntityContainer<T>,
         }
     }
 
+    public final class AllItemsRefreshedEvent implements ItemSetChangeEvent {
+
+        private static final long serialVersionUID = 530180436710345623L;
+
+        protected AllItemsRefreshedEvent() {
+        }
+
+        public Container getContainer() {
+            return JPAContainer.this;
+        }
+    }
+
     public PropertyKind getPropertyKind(Object propertyId) {
         assert propertyId != null : "propertyId must not be null";
         return propertyList.getPropertyKind(propertyId.toString());
@@ -1584,5 +1596,21 @@ public class JPAContainer<T> implements EntityContainer<T>,
                 jpaContainerItem.refreshEntity();
             }
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.vaadin.addon.jpacontainer.EntityContainer#refresh()
+     */
+    public void refresh() {
+        doGetEntityProvider().refresh();
+        bufferingDelegate.discard();
+        synchronized (itemRegistry) {
+            for (Object id : itemRegistry.keySet()) {
+                refreshEntity(id);
+            }
+        }
+        fireContainerItemSetChange(new AllItemsRefreshedEvent());
     }
 }

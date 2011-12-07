@@ -404,4 +404,10 @@ public interface EntityProvider<T> extends Serializable {
          */
         public void setEntityProvider(EntityProvider<?> ep);
     }
+
+    /**
+     * Clears all caches and refreshes any loaded that cannot be discarded
+     * entities.
+     */
+    public void refresh();
 }

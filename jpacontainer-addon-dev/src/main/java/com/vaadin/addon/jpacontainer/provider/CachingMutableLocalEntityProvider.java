@@ -175,4 +175,14 @@ public class CachingMutableLocalEntityProvider<T> extends
         super.updateEntityProperty(entityId, propertyName, propertyValue);
         cachingSupport.invalidate(entityId, true);
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.vaadin.addon.jpacontainer.EntityProvider#refresh()
+     */
+    @Override
+    public void refresh() {
+        cachingSupport.clear();
+    }
 }

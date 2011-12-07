@@ -189,4 +189,10 @@ public interface EntityContainer<T> extends Container, Container.Sortable,
      * @see EntityItem#refreshEntity()
      */
     public void refreshEntity(Object entityId);
+
+    /**
+     * Refreshes the entire container from the database. All unsaved data will
+     * be lost.
+     */
+    public void refresh();
 }

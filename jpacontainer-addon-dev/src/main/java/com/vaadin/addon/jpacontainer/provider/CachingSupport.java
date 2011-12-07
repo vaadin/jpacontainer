@@ -881,4 +881,12 @@ class CachingSupport<T> implements Serializable {
         invalidate(entityId, false);
         invalidateSize();
     }
+
+    /**
+     * Clears the cache.
+     */
+    public void clear() {
+        entityCache.clear();
+        filterCache.clear();
+    }
 }

@@ -801,7 +801,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
      */
     public void setLazyLoadingDelegate(LazyLoadingDelegate delegate) {
         lazyLoadingDelegate = delegate;
-        if(lazyLoadingDelegate != null) {
+        if (lazyLoadingDelegate != null) {
             lazyLoadingDelegate.setEntityProvider(this);
         }
     }
@@ -810,4 +810,13 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         return lazyLoadingDelegate;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.vaadin.addon.jpacontainer.EntityProvider#refresh()
+     */
+    public void refresh() {
+        // Nothing to do in this implementation, since we don't keep any
+        // items/entities cached.
+    }
 }

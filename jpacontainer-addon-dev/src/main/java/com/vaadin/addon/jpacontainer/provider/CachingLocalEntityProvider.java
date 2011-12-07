@@ -148,4 +148,14 @@ public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T>
         return cachingSupport.getPreviousEntityIdentifier(entityId, filter,
                 sortBy);
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.vaadin.addon.jpacontainer.EntityProvider#refresh()
+     */
+    @Override
+    public void refresh() {
+        cachingSupport.clear();
+    }
 }
