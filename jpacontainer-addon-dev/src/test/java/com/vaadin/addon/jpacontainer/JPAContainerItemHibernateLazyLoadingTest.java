@@ -16,7 +16,6 @@ import org.hibernate.LazyInitializationException;
 import org.hibernate.ejb.Ejb3Configuration;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.vaadin.addon.jpacontainer.testdata.Address;
@@ -103,7 +102,6 @@ public class JPAContainerItemHibernateLazyLoadingTest {
                 .getLazyLoadingDelegate());
     }
 
-    @Ignore(value = "FIXME")
     @Test
     public void testHibernateMergingLazyLoadingDelegate() {
         Person detachedPerson = container.getItem(container.firstItemId())
@@ -140,7 +138,6 @@ public class JPAContainerItemHibernateLazyLoadingTest {
                         .getSkillName());
     }
 
-    @Ignore(value = "FIXME")
     @Test
     @SuppressWarnings("unchecked")
     public void testEntityLazyLoading() {
