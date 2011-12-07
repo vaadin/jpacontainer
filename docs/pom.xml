@@ -8,7 +8,7 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Maven module to build tutorial from odf</name>
 	<build>
-	    <plugings>
+	    <plugins>
     	    <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.7</version>
@@ -26,6 +26,6 @@
                     </execution>
                 </executions>
             </plugin>
-        </plugings>
+        </plugins>
 	</build>
 </project>
