@@ -7,10 +7,6 @@ import java.io.Serializable;
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Predicate;
 
 import com.vaadin.data.Container.Filter;
 
@@ -219,113 +215,6 @@ public interface EntityProvider<T> extends Serializable {
     public QueryModifierDelegate getQueryModifierDelegate();
 
     /**
-     * The QueryModifierDelegate interface defines methods that will be called
-     * at the different stages of {@link CriteriaQuery} generation. Implement
-     * this interface and call
-     * {@link EntityProvider#setQueryModifierDelegate(QueryModifierDelegate)} to
-     * receive calls while the {@link CriteriaQuery} is being built. The methods
-     * are allowed to modify the CriteriaQuery.
-     * 
-     * @since 2.0
-     */
-    public interface QueryModifierDelegate {
-        /**
-         * This method is called after the {@link CriteriaQuery} instance (
-         * <code>query</code>) has been instantiated, but before any state has
-         * been set.
-         * 
-         * Operations and configuration may be performed on the query instance.
-         * 
-         * @param criteriaBuilder
-         *            the {@link CriteriaBuilder} used to build the query
-         * @param query
-         *            the {@link CriteriaQuery} being built
-         */
-        public void queryWillBeBuilt(CriteriaBuilder criteriaBuilder,
-                CriteriaQuery<?> query);
-
-        /**
-         * This method is called after the {@link CriteriaQuery} instance has
-         * been completely built (configured).
-         * 
-         * Any operations may be performed on the query instance.
-         * 
-         * @param criteriaBuilder
-         *            the {@link CriteriaBuilder} used to build the query
-         * @param query
-         *            the {@link CriteriaQuery} being built
-         */
-        public void queryHasBeenBuilt(CriteriaBuilder criteriaBuilder,
-                CriteriaQuery<?> query);
-
-        /**
-         * This method is called after filters (in the form of {@link Filter})
-         * have been translated into instances of {@link Predicate}, but before
-         * the resulting predicates have been added to <code>query</code>.
-         * 
-         * The contents of the <code>predicates</code> list may be modified at
-         * this point. Any operations may be performed on the query instance.
-         * 
-         * @param criteriaBuilder
-         *            the {@link CriteriaBuilder} used to build the query
-         * @param query
-         *            the {@link CriteriaQuery} being built
-         * @param predicates
-         *            the list of predicates ({@link Predicate}) to be applied.
-         *            The contents of this list may be modified.
-         */
-        public void filtersWillBeAdded(CriteriaBuilder criteriaBuilder,
-                CriteriaQuery<?> query, List<Predicate> predicates);
-
-        /**
-         * This method is called after all filters have been applied to the
-         * query.
-         * 
-         * Any operations may be performed on the query instance.
-         * 
-         * @param criteriaBuilder
-         *            the {@link CriteriaBuilder} used to build the query
-         * @param query
-         *            the {@link CriteriaQuery} being built
-         */
-        public void filtersWereAdded(CriteriaBuilder criteriaBuilder,
-                CriteriaQuery<?> query);
-
-        /**
-         * This method is called after all {@link SortBy} instances have been
-         * translated into {@link Order} instances, but before they have been
-         * applied to the query.
-         * 
-         * The contents of the <code>orderBy</code> list may be modified at this
-         * point. Any operations may be performed on the query instance.
-         * 
-         * @param criteriaBuilder
-         *            the {@link CriteriaBuilder} used to build the query
-         * @param query
-         *            the {@link CriteriaQuery} being built
-         * @param orderBy
-         *            the list of order by rules ({@link Order}) to be applied.
-         *            The contents of this list may be modified.
-         */
-        public void orderByWillBeAdded(CriteriaBuilder criteriaBuilder,
-                CriteriaQuery<?> query, List<Order> orderBy);
-
-        /**
-         * This method is called after the order by has been applied for the
-         * query.
-         * 
-         * Any operations may be performed on the query instance.
-         * 
-         * @param criteriaBuilder
-         *            the {@link CriteriaBuilder} used to build the query
-         * @param query
-         *            the {@link CriteriaQuery} being built
-         */
-        public void orderByWereAdded(CriteriaBuilder criteriaBuilder,
-                CriteriaQuery<?> query);
-    }
-
-    /**
      * Returns identifier for given entity
      * 
      * @param entity
@@ -368,42 +257,6 @@ public interface EntityProvider<T> extends Serializable {
      *         registered.
      */
     public LazyLoadingDelegate getLazyLoadingDelegate();
-
-    /**
-     * The LazyLoadingDelegate is called when a property that is lazily loaded
-     * is being accessed through the Vaadin data API. The LazyLoadingDelegate is
-     * responsible for ensuring that the lazily loaded property is loaded and
-     * accessible.
-     * 
-     * @since 2.0
-     */
-    public interface LazyLoadingDelegate {
-        /**
-         * This method is called when a lazily loaded property is accessed in an
-         * entity. The implementation of this method is responsible for ensuring
-         * that the property in question is accessible on the instance of
-         * <code>entity</code> that is returned.
-         * 
-         * @param entity
-         *            The entity containing a lazy property.
-         * @param propertyName
-         *            The name of the lazy property to be accessed.
-         * @return an instance of <code>entity</code> with
-         *         <code>propertyName</code> attached and accessible. This may
-         *         be the same instance as passed in or a new one.
-         */
-        public <E> E ensureLazyPropertyLoaded(E entity, String propertyName);
-
-        /**
-         * Sets the EntityProvider that this delegate is associated with.
-         * Automatically called by
-         * {@link EntityProvider#setLazyLoadingDelegate(LazyLoadingDelegate)}.
-         * The EntityProvider is used to get the current {@link EntityManager}.
-         * 
-         * @param ep
-         */
-        public void setEntityProvider(EntityProvider<?> ep);
-    }
 
     /**
      * Clears all caches and refreshes any loaded that cannot be discarded

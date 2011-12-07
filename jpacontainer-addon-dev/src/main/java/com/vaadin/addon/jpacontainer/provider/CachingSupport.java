@@ -18,7 +18,7 @@ import java.util.Set;
 import javax.persistence.TypedQuery;
 
 import com.vaadin.addon.jpacontainer.EntityProvider;
-import com.vaadin.addon.jpacontainer.EntityProvider.QueryModifierDelegate;
+import com.vaadin.addon.jpacontainer.QueryModifierDelegate;
 import com.vaadin.addon.jpacontainer.SortBy;
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.Item;

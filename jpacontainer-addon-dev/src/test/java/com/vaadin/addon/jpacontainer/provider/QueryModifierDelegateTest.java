@@ -23,7 +23,7 @@ import javax.persistence.criteria.Root;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.vaadin.addon.jpacontainer.EntityProvider.QueryModifierDelegate;
+import com.vaadin.addon.jpacontainer.QueryModifierDelegate;
 import com.vaadin.addon.jpacontainer.testdata.Person;
 
 public class QueryModifierDelegateTest {

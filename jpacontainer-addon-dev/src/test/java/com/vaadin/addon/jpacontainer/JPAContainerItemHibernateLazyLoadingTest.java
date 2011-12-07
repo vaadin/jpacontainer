@@ -96,7 +96,7 @@ public class JPAContainerItemHibernateLazyLoadingTest {
 
     @Test
     public void testCanSetLazyLoadingDelegate() {
-        EntityProvider.LazyLoadingDelegate delegate = createNiceMock(EntityProvider.LazyLoadingDelegate.class);
+        LazyLoadingDelegate delegate = createNiceMock(LazyLoadingDelegate.class);
         container.getEntityProvider().setLazyLoadingDelegate(delegate);
         assertEquals(delegate, container.getEntityProvider()
                 .getLazyLoadingDelegate());

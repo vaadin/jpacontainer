@@ -7,7 +7,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 
-import com.vaadin.addon.jpacontainer.EntityProvider.QueryModifierDelegate;
+import com.vaadin.addon.jpacontainer.QueryModifierDelegate;
 
 /**
  * A default (empty) implementation of the {@link QueryModifierDelegate}

@@ -14,7 +14,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
 import com.vaadin.addon.jpacontainer.EntityProvider;
-import com.vaadin.addon.jpacontainer.EntityProvider.LazyLoadingDelegate;
+import com.vaadin.addon.jpacontainer.LazyLoadingDelegate;
 
 /**
  * HibernateLazyLoadingDelegate is the default implementation of the
