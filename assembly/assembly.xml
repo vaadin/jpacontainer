@@ -14,35 +14,32 @@
   <fileSets>
     <fileSet>
       <directory>.</directory>
-      <outputDirectory>${project.build.finalName}</outputDirectory>
       <includes>
         <include>license-${license.short.name}.txt</include>
       </includes>
     </fileSet>
     <fileSet>
       <directory>../jpacontainer-addon/target</directory>
-      <outputDirectory>${project.build.finalName}</outputDirectory>
       <includes>
         <include>*-${license.short.name}-*.jar</include>
       </includes>
     </fileSet>
     <fileSet>
       <directory>../docs/build/result/html</directory>
-      <outputDirectory>${project.build.finalName}/jpacontainer-tutorial-html</outputDirectory>
+      <outputDirectory>jpacontainer-tutorial-html</outputDirectory>
       <includes>
         <include>**</include>
       </includes>
     </fileSet>
     <fileSet>
       <directory>../jpacontainer-addressbook-demo</directory>
-      <outputDirectory>${project.build.finalName}/jpacontainer-addressbook-demo</outputDirectory>
+      <outputDirectory>jpacontainer-addressbook-demo</outputDirectory>
       <includes>
         <include>**</include>
       </includes>
     </fileSet>
     <fileSet>
       <directory>../jpacontainer-addon/target/site</directory>
-      <outputDirectory>${project.build.finalName}</outputDirectory>
       <includes>
         <include>apidocs/**</include>
       </includes>
@@ -61,16 +58,13 @@
   <files>
     <file>
       <source>../assembly/licensing-${license.short.name}.txt</source>
-      <outputDirectory>${project.build.finalName}</outputDirectory>
       <destName>licensing.txt</destName>
     </file>
     <file>
       <source>../assembly/license-${license.short.name}.txt</source>
-      <outputDirectory>${project.build.finalName}</outputDirectory>
     </file>
     <file>
       <source>../assembly/README</source>
-      <outputDirectory>${project.build.finalName}</outputDirectory>
       <filtered>true</filtered>
     </file>
     <file>
@@ -80,7 +74,6 @@
     </file>
     <file>
       <source>../docs/jpacontainer-tutorial.pdf</source>
-      <outputDirectory>${project.build.finalName}</outputDirectory>
       <destName>jpacontainer-tutorial.pdf</destName>
     </file>
   </files>
