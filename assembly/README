@@ -12,6 +12,10 @@ ${project.build.finalName}.jar
   in your project or use the Maven dependency declaration
   given in Vaadin Directory.
 
+apidocs
+
+  The JavaDoc API documentation of JPAContainer.
+
 jpacontainer-tutorial.pdf
 
   The JPAContainer Tutorial in PDF format.

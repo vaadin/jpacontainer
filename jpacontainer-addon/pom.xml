@@ -323,7 +323,7 @@
                 <executions>
                     <execution>
                         <id>javadoc-jar</id>
-                        <phase>generate-resources</phase>
+                        <phase>compile</phase>
                         <goals>
                             <goal>javadoc</goal>
                             <goal>jar</goal>
