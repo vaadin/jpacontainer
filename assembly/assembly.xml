@@ -40,7 +40,6 @@
         <include>**</include>
       </includes>
     </fileSet>
-    <!--
     <fileSet>
       <directory>../jpacontainer-addon/target/site</directory>
       <outputDirectory></outputDirectory>
@@ -55,7 +54,6 @@
         <include>*.war</include>
       </includes>
     </fileSet>
-    -->
   </fileSets>
 
   <files>
