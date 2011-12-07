@@ -64,7 +64,7 @@
         <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
         <Vaadin-Addon>vaadin-jpacontainer-${license.short.name}-${project.version}.jar</Vaadin-Addon>
         
-        <vaadin.version.maven>6.6.2</vaadin.version.maven>
+        <vaadin.version.maven>6.7-SNAPSHOT</vaadin.version.maven>
         <snapshot.repository.url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</snapshot.repository.url>
     </properties>
 
@@ -95,7 +95,7 @@
 <!--     </distributionManagement> -->
 
     <modules>
-        <module>jpacontainer-demo</module>
+<!--        <module>jpacontainer-demo</module> -->
         <module>jpacontainer-addon</module>
     </modules>
 

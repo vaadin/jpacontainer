@@ -47,6 +47,7 @@
         <include>apidocs/**</include>
       </includes>
     </fileSet>
+    <!-- 
     <fileSet>
       <directory>../jpacontainer-demo/target</directory>
       <outputDirectory>${project.build.finalName}</outputDirectory>
@@ -54,6 +55,7 @@
         <include>*.war</include>
       </includes>
     </fileSet>
+    -->
   </fileSets>
 
   <files>
