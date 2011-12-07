@@ -68,7 +68,7 @@ public class DefaultQueryModifierDelegate implements QueryModifierDelegate {
      * 
      * This default implementation does nothing.
      */
-    public void orderByWereAdded(CriteriaBuilder criteriaBuilder,
+    public void orderByWasAdded(CriteriaBuilder criteriaBuilder,
             CriteriaQuery<?> query) {
     }
 }

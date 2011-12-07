@@ -110,6 +110,6 @@ public interface QueryModifierDelegate {
      * @param query
      *            the {@link CriteriaQuery} being built
      */
-    public void orderByWereAdded(CriteriaBuilder criteriaBuilder,
+    public void orderByWasAdded(CriteriaBuilder criteriaBuilder,
             CriteriaQuery<?> query);
 }

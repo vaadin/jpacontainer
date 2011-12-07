@@ -115,7 +115,7 @@ public class QueryModifierDelegateTest {
         QueryModifierDelegate delegate = createMockDelegate();
         delegate.orderByWillBeAdded(isA(CriteriaBuilder.class),
                 isA(CriteriaQuery.class), isA(List.class));
-        delegate.orderByWereAdded(isA(CriteriaBuilder.class),
+        delegate.orderByWasAdded(isA(CriteriaBuilder.class),
                 isA(CriteriaQuery.class));
         replay(delegate);
         entityProvider.setQueryModifierDelegate(delegate);

@@ -750,7 +750,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
     private void tellDelegateOrderByWereAdded(CriteriaBuilder cb,
             CriteriaQuery<?> query) {
         if (queryModifierDelegate != null) {
-            queryModifierDelegate.orderByWereAdded(cb, query);
+            queryModifierDelegate.orderByWasAdded(cb, query);
         }
     }
 
