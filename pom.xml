@@ -95,6 +95,7 @@
 <!--     </distributionManagement> -->
 
     <modules>
+        <module>docs</module>
 <!--        <module>jpacontainer-demo</module> -->
         <module>jpacontainer-addon</module>
     </modules>
@@ -156,24 +157,6 @@
                         <phase>verify</phase>
                         <goals>
                             <goal>sign</goal>
-                        </goals>
-                    </execution>
-                    
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.7</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <configuration>
-                          <target>
-                            <ant antfile="build/build.xml" dir="docs"/>            
-                          </target>
-                        </configuration>
-                        <goals>
-                          <goal>run</goal>
                         </goals>
                     </execution>
                 </executions>
