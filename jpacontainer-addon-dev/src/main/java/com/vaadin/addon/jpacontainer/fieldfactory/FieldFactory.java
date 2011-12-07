@@ -41,7 +41,7 @@ import com.vaadin.ui.Table;
  * TODO collection types, open for extension
  */
 @SuppressWarnings("rawtypes")
-public class JPAContainerFieldFactory extends DefaultFieldFactory {
+public class FieldFactory extends DefaultFieldFactory {
 
     private HashMap<Class<?>, String[]> propertyOrders;
     private EntityManagerPerRequestHelper entityManagerPerRequestHelper;
@@ -52,7 +52,7 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
      * Creates a new JPAContainerFieldFactory. For referece/collection types
      * ComboBox or multiselects are created by default.
      */
-    public JPAContainerFieldFactory() {
+    public FieldFactory() {
     }
 
     /**
@@ -64,7 +64,7 @@ public class JPAContainerFieldFactory extends DefaultFieldFactory {
      *            the entity manager in internally generated JPAContainers for
      *            each request.
      */
-    public JPAContainerFieldFactory(EntityManagerPerRequestHelper emprHelper) {
+    public FieldFactory(EntityManagerPerRequestHelper emprHelper) {
         setEntityManagerPerRequestHelper(emprHelper);
     }
 

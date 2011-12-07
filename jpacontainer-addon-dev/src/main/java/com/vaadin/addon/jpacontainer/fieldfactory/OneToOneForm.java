@@ -96,15 +96,15 @@ public class OneToOneForm extends Form {
     }
 
     private JPAContainer<?> getContainer(Object createdInstance) {
-        JPAContainerFieldFactory formFieldFactory = getJPAContainerFieldFactory();
+        FieldFactory formFieldFactory = getJPAContainerFieldFactory();
         JPAContainer<?> jpaContainer = formFieldFactory.createJPAContainerFor(
                 property.getItem().getContainer(), createdInstance.getClass(),
                 !isWriteThrough());
         return jpaContainer;
     }
 
-    private JPAContainerFieldFactory getJPAContainerFieldFactory() {
-        JPAContainerFieldFactory formFieldFactory = (JPAContainerFieldFactory) getFormFieldFactory();
+    private FieldFactory getJPAContainerFieldFactory() {
+        FieldFactory formFieldFactory = (FieldFactory) getFormFieldFactory();
         return formFieldFactory;
     }
 

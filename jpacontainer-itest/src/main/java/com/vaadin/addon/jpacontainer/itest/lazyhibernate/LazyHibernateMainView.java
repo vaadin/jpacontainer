@@ -4,7 +4,7 @@ import java.util.Set;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
-import com.vaadin.addon.jpacontainer.fieldfactory.JPAContainerFieldFactory;
+import com.vaadin.addon.jpacontainer.fieldfactory.FieldFactory;
 import com.vaadin.addon.jpacontainer.itest.lazyhibernate.domain.LazyPerson;
 import com.vaadin.addon.jpacontainer.itest.lazyhibernate.domain.LazySkill;
 import com.vaadin.addon.jpacontainer.util.HibernateLazyLoadingDelegate;
@@ -56,7 +56,7 @@ public class LazyHibernateMainView extends VerticalLayout implements
 
         final Form form = new Form();
         form.setWriteThrough(false);
-        form.setFormFieldFactory(new JPAContainerFieldFactory(
+        form.setFormFieldFactory(new FieldFactory(
                 mainWindow.emprHelper));
         addComponent(form);
         addComponent(new Button("Save", new ClickListener() {

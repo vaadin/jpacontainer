@@ -8,7 +8,7 @@ import javax.persistence.Persistence;
 import com.vaadin.addon.jpacontainer.EntityItem;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
-import com.vaadin.addon.jpacontainer.fieldfactory.JPAContainerFieldFactory;
+import com.vaadin.addon.jpacontainer.fieldfactory.FieldFactory;
 import com.vaadin.addon.jpacontainer.itest.TestLauncherApplication;
 import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.BillingAddress;
 import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.Customer;
@@ -157,7 +157,7 @@ public class FieldFactoryTest extends Window {
         if (customerForm == null) {
             customerForm = new Form();
             customerForm.setCaption("EditCustomer groups");
-            JPAContainerFieldFactory jpaContainerFieldFactory = new JPAContainerFieldFactory();
+            FieldFactory jpaContainerFieldFactory = new FieldFactory();
             jpaContainerFieldFactory.setMultiSelectType(CustomerGroup.class, TwinColSelect.class);
             customerForm.setFormFieldFactory(jpaContainerFieldFactory);
             addComponent(customerForm);
@@ -172,7 +172,7 @@ public class FieldFactoryTest extends Window {
         if (form == null) {
             form = new Form();
             form.setCaption("Invoice editor");
-            JPAContainerFieldFactory jpaContainerFieldFactory = new JPAContainerFieldFactory();
+            FieldFactory jpaContainerFieldFactory = new FieldFactory();
             jpaContainerFieldFactory.setVisibleProperties(InvoiceRow.class,
                     "product", "description", "unit", "unitPrice");
             jpaContainerFieldFactory.setVisibleProperties(BillingAddress.class, "street", "city", "postalCode");

@@ -26,7 +26,7 @@ import com.vaadin.ui.VerticalLayout;
 public class MasterDetailEditor extends JPAContainerCustomField implements
         Action.Handler {
 
-    private final JPAContainerFieldFactory fieldFactory;
+    private final FieldFactory fieldFactory;
     private Class<?> referencedType;
 
     final Action add = new Action(getMasterDetailAddItemCaption());
@@ -47,7 +47,7 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
      * @param propertyId
      * @param uiContext
      */
-    public MasterDetailEditor(JPAContainerFieldFactory fieldFactory,
+    public MasterDetailEditor(FieldFactory fieldFactory,
             EntityContainer<?> containerForProperty, Object itemId,
             Object propertyId, Component uiContext) {
         this.fieldFactory = fieldFactory;
