@@ -20,6 +20,7 @@
     </fileSet>
     <fileSet>
       <directory>../jpacontainer-addon/target</directory>
+      <outputDirectory>./</outputDirectory>
       <includes>
         <include>*-${license.short.name}-*.jar</include>
       </includes>
@@ -40,6 +41,7 @@
     </fileSet>
     <fileSet>
       <directory>../jpacontainer-addon/target/site</directory>
+      <outputDirectory>apidocs</outputDirectory>
       <includes>
         <include>apidocs/**</include>
       </includes>
