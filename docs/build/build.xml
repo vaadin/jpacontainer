@@ -28,7 +28,12 @@
     </path>
   </target>
 
-  <target name="copy-images" depends="init">
+  <target name="unpack-odt" depends="init">
+    <unzip src="jpacontainer-tutorial.odt"
+           dest="${result.unzip}"/>
+  </target>
+
+  <target name="copy-images" depends="init, unpack-odt">
     <copy todir="${result.html.dir}/Pictures">
       <fileset dir="${result.unzip}/Pictures">
         <include name="**/*.png"/>
@@ -54,11 +59,7 @@
     </copy>
   </target>
     
-  <target name="convert-tutorial" depends="init, copy-images">
-    <unzip src="jpacontainer-tutorial.odt"
-           dest="${result.unzip}">
-    </unzip>
-
+  <target name="convert-tutorial" depends="init, unpack-odt, copy-images">
     <java classname="org.apache.xalan.xslt.Process" failonerror="yes" fork="yes" maxmemory="512m">
       <arg value="-xsl" />
       <arg value="build/vaadin-odt-to-html.xsl" />
