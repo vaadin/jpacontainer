@@ -12,8 +12,7 @@ import com.vaadin.data.Container.ItemSetChangeEvent;
 
 /**
  * Container that supports a bit more advanced filtering than {@link Filterable}
- * . It has been designed to be used explicitly with JPA (e.g. all filters
- * generate JPA-QL).
+ * . It has been designed to be used explicitly with JPA.
  * 
  * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
