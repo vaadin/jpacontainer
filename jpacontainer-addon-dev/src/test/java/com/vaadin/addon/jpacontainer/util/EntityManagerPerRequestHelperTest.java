@@ -12,7 +12,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.vaadin.addon.jpacontainer.EntityProvider;
@@ -31,6 +30,7 @@ public class EntityManagerPerRequestHelperTest {
     @Before
     public void setUp() {
         entityManagerMock = createNiceMock(EntityManager.class);
+        expect(entityManagerMock.isOpen()).andStubReturn(true);
         entityManagerFactoryMock = createMock(EntityManagerFactory.class);
         expect(entityManagerMock.getEntityManagerFactory()).andStubReturn(
                 entityManagerFactoryMock);
@@ -50,7 +50,6 @@ public class EntityManagerPerRequestHelperTest {
         verify(entityManagerMock, entityProviderMock);
     }
 
-    @Ignore(value = "FIXME")
     @Test
     public void testRequestEndClosesEntityManager() {
         entityManagerMock.close();
