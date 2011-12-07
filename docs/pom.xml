@@ -8,22 +8,24 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Maven module to build tutorial from odf</name>
 	<build>
-	    <plugin>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <version>1.7</version>
-            <executions>
-                <execution>
-                    <phase>package</phase>
-                    <configuration>
-                      <target>
-                        <ant antfile="build/build.xml"/>
-                      </target>
-                    </configuration>
-                    <goals>
-                      <goal>run</goal>
-                    </goals>
-                </execution>
-            </executions>
-        </plugin>
+	    <plugings>
+    	    <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <configuration>
+                          <target>
+                            <ant antfile="build/build.xml"/>
+                          </target>
+                        </configuration>
+                        <goals>
+                          <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugings>
 	</build>
 </project>
