@@ -170,7 +170,7 @@
                         <phase>package</phase>
                         <configuration>
                           <target>
-                            <ant antfile="docs/build/build.xml" dir="docs"/>            
+                            <ant antfile="build/build.xml" dir="docs"/>            
                           </target>
                         </configuration>
                         <goals>
