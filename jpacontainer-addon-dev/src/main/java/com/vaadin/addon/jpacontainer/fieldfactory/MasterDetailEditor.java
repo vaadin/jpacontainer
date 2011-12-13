@@ -29,9 +29,9 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
     private final FieldFactory fieldFactory;
     private Class<?> referencedType;
 
-    final Action add = new Action(getMasterDetailAddItemCaption());
-    final Action remove = new Action(getMasterDetailRemoveItemCaption());
-    final Action[] actions = new Action[] { add, remove };
+    final private Action add = new Action(getMasterDetailAddItemCaption());
+    final private Action remove = new Action(getMasterDetailRemoveItemCaption());
+    final private Action[] actions = new Action[] { add, remove };
     @SuppressWarnings("rawtypes")
     private JPAContainer container;
     private Table table;
@@ -82,7 +82,7 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
     private void buildLayout() {
         VerticalLayout vl = new VerticalLayout();
         buildTable();
-        vl.addComponent(table);
+        vl.addComponent(getTable());
 
         CssLayout buttons = new CssLayout();
         buttons.addComponent(new Button(getMasterDetailAddItemCaption(),
@@ -96,7 +96,7 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
         buttons.addComponent(new Button(getMasterDetailRemoveItemCaption(),
                 new ClickListener() {
                     public void buttonClick(ClickEvent event) {
-                        remove(table.getValue());
+                        remove(getTable().getValue());
                     }
                 }));
         vl.addComponent(buttons);
@@ -109,20 +109,27 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
         Object[] visibleProperties = fieldFactory
                 .getVisibleProperties(referencedType);
         if (visibleProperties == null) {
-            List<Object> asList = new ArrayList<Object>(Arrays.asList(table
+            List<Object> asList = new ArrayList<Object>(Arrays.asList(getTable()
                     .getVisibleColumns()));
             asList.remove("id");
             asList.remove(backReferencePropertyId);
             visibleProperties = asList.toArray();
         }
-        table.setVisibleColumns(visibleProperties);
+        getTable().setPageLength(5);
+        getTable().setVisibleColumns(visibleProperties);
+        getTable().addActionHandler(this);
 
-        table.addActionHandler(this);
-
-        table.setTableFieldFactory(getFieldFactoryForMasterDetailEditor());
-        table.setEditable(true);
-        table.setSelectable(true);
+        getTable().setTableFieldFactory(getFieldFactoryForMasterDetailEditor());
+        getTable().setEditable(true);
+        getTable().setSelectable(true);
     }
+    
+    
+
+    protected Table getTable() {
+        return table;
+    }
+
 
     /**
      * TODO consider opening and adding parameters like propertyId, master class
