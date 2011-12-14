@@ -21,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -382,6 +383,10 @@ public class JPAContainerTest {
                         4)).andStubReturn(null);
         expect(batchableEntityProviderMock.containsEntity("id4", null))
                 .andStubReturn(true);
+        expect(
+                batchableEntityProviderMock.getAllEntityIdentifiers(null,
+                        sortby)).andReturn(
+                Arrays.asList(new Object[] { "id1", "id2", "id3", "id4" }));
         replay(batchableEntityProviderMock);
 
         container.setEntityProvider(batchableEntityProviderMock);
@@ -398,8 +403,8 @@ public class JPAContainerTest {
 
         // Delete last item
         container.removeItem("id4");
-        // Item should still be there, although it is marked for deletion
-        assertEquals(4, container.indexOfId("id4"));
+        // Item should not be there, marked for deletion
+        assertEquals(-1, container.indexOfId("id4"));
 
         verify(batchableEntityProviderMock);
     }
@@ -436,6 +441,7 @@ public class JPAContainerTest {
 
     @Test
     public void testGetIdByIndex_Buffered() {
+        Equal filter = new Equal("firstName", "Hello");
         LinkedList<SortBy> orderby = new LinkedList<SortBy>();
         orderby.add(new SortBy("firstName", true));
         expect(
@@ -450,6 +456,12 @@ public class JPAContainerTest {
                 .andStubReturn("id3");
         expect(batchableEntityProviderMock.containsEntity("id3", null))
                 .andStubReturn(true);
+        expect(
+                batchableEntityProviderMock.getAllEntityIdentifiers(filter,
+                        orderby)).andStubReturn(
+                Arrays.asList(new Object[] { "id1", "id2", "id3" }));
+        expect(batchableEntityProviderMock.containsEntity("id3", filter))
+                .andStubReturn(true);
         replay(batchableEntityProviderMock);
 
         container.setEntityProvider(batchableEntityProviderMock);
@@ -459,7 +471,7 @@ public class JPAContainerTest {
         assertNull(container.getIdByIndex(1));
 
         // Now let's try with a filter and some sorting
-        container.addContainerFilter(new Equal("firstName", "Hello"));
+        container.addContainerFilter(filter);
         container.sort(new Object[] { "firstName" }, new boolean[] { true });
 
         assertEquals("id3", container.getIdByIndex(2));
@@ -483,8 +495,8 @@ public class JPAContainerTest {
 
         // Remove last item
         container.removeItem("id3");
-        // Should still be in the container
-        assertEquals("id3", container.getIdByIndex(3));
+        // Should not exist in the container
+        assertFalse(container.containsId("id3"));
 
         verify(batchableEntityProviderMock);
     }
@@ -555,10 +567,10 @@ public class JPAContainerTest {
 
         // Remove last item
         container.removeItem("id4");
-        // Should still be there
+        // WAS: Should still be there
         ids = container.getItemIds();
-        assertEquals(5, ids.size());
-        assertTrue(ids.contains("id4"));
+        assertEquals(4, ids.size());
+        assertFalse(ids.contains("id4"));
 
         verify(batchableEntityProviderMock);
     }
@@ -614,6 +626,10 @@ public class JPAContainerTest {
                 .andStubReturn(true);
         expect(batchableEntityProviderMock.getEntity("nonExistent"))
                 .andStubReturn(null);
+        expect(
+                batchableEntityProviderMock.getAllEntityIdentifiers(null,
+                        Collections.EMPTY_LIST)).andReturn(
+                Collections.EMPTY_LIST);
         replay(batchableEntityProviderMock);
 
         container.setEntityProvider(batchableEntityProviderMock);
@@ -717,16 +733,22 @@ public class JPAContainerTest {
 
     @Test
     public void testContainsId_Buffered() {
+        boolean[] id2InContainer = new boolean[] {true};
+        
         expect(batchableEntityProviderMock.containsEntity("id", null))
                 .andStubReturn(true);
         expect(batchableEntityProviderMock.containsEntity("id2", null))
-                .andStubReturn(true);
+                .andStubReturn(id2InContainer[0]);
         expect(
                 batchableEntityProviderMock.containsEntity("id", new Equal(
                         "firstName", "Hello"))).andStubReturn(true);
         expect(
                 batchableEntityProviderMock.containsEntity("id2", new Equal(
                         "firstName", "Hello"))).andStubReturn(false);
+        expect(
+                batchableEntityProviderMock.getAllEntityIdentifiers(null,
+                        Collections.EMPTY_LIST)).andStubReturn(
+                Collections.EMPTY_LIST);
         replay(batchableEntityProviderMock);
 
         container.setEntityProvider(batchableEntityProviderMock);
@@ -752,8 +774,9 @@ public class JPAContainerTest {
 
         // Remove an item
         container.removeItem("id2");
-        // should still be there
-        assertTrue(container.containsId("id2"));
+        id2InContainer[0] = false;
+        // should not be there
+        assertFalse(container.containsId("id2"));
 
         verify(batchableEntityProviderMock);
     }

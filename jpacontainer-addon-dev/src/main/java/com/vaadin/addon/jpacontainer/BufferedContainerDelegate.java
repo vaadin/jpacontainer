@@ -76,7 +76,7 @@ final class BufferedContainerDelegate<T> implements Serializable {
     // ... and a map for storing the actual entities.
     private Map<Object, T> addedEntitiesCache = new HashMap<Object, T>();
     // The same goes for the other caches
-    private Set<Object> deletedItemIdsCache = new HashSet<Object>();
+    private HashMap<Object, Integer> deletedItemIdsCache = new HashMap<Object, Integer>();
     private Map<Object, T> updatedEntitiesCache = new HashMap<Object, T>();
 
     private T cloneEntityIfPossible(T entity) {
@@ -109,7 +109,7 @@ final class BufferedContainerDelegate<T> implements Serializable {
      * @return an unmodifiable list of entity item IDs (never null).
      */
     public Collection<Object> getDeletedItemIds() {
-        return Collections.unmodifiableCollection(deletedItemIdsCache);
+        return Collections.unmodifiableCollection(deletedItemIdsCache.keySet());
     }
 
     /**
@@ -169,7 +169,7 @@ final class BufferedContainerDelegate<T> implements Serializable {
      */
     public boolean isDeleted(Object itemId) {
         assert itemId != null : "itemId must not be null";
-        return deletedItemIdsCache.contains(itemId);
+        return deletedItemIdsCache.containsKey(itemId);
     }
 
     /**
@@ -299,7 +299,11 @@ final class BufferedContainerDelegate<T> implements Serializable {
                 }
             }
             deltaList.add(new Delta(DeltaType.DELETE, itemId, null));
-            deletedItemIdsCache.add(itemId);
+            List<Object> allDbEntityIdentifiers = container.getEntityProvider().getAllEntityIdentifiers(
+                    container.getAppliedFiltersAsConjunction(), container.getSortByList());
+            int dbIndexOfDeletedItem = allDbEntityIdentifiers.indexOf(itemId);
+            deletedItemIdsCache.put(itemId,dbIndexOfDeletedItem);
+            
         }
     }
 
@@ -321,5 +325,21 @@ final class BufferedContainerDelegate<T> implements Serializable {
                     cloneEntityIfPossible(entity)));
             updatedEntitiesCache.put(itemId, entity);
         }
+    }
+
+    public int fixDbIndexWithDeletedItems(int index) {
+        Integer[] removedDbIndexes = getDbIndexesOfDeletedItems();
+        for(int i = 0; i < removedDbIndexes.length; i++) {
+            if(removedDbIndexes[i] <= index) {
+                index++;
+            }
+        }
+        return index;
+    }
+
+    private Integer[] getDbIndexesOfDeletedItems() {
+        Integer[] removedDbIndexes = new Integer[deletedItemIdsCache.size()];
+        removedDbIndexes = deletedItemIdsCache.values().toArray(removedDbIndexes);
+        return removedDbIndexes;
     }
 }

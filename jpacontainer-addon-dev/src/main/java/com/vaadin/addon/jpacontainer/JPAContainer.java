@@ -526,6 +526,10 @@ public class JPAContainer<T> implements EntityContainer<T>,
         if (isWriteThrough() || bufferingDelegate.getAddedItemIds().isEmpty()) {
             Object itemId = doGetEntityProvider().getFirstEntityIdentifier(
                     getAppliedFiltersAsConjunction(), getSortByList());
+            if (itemId != null && !isWriteThrough()
+                    && bufferingDelegate.getDeletedItemIds().contains(itemId)) {
+                itemId = nextItemId(itemId);
+            }
             return itemId;
         } else {
             return bufferingDelegate.getAddedItemIds().get(0);
@@ -558,15 +562,25 @@ public class JPAContainer<T> implements EntityContainer<T>,
     }
 
     public Object nextItemId(Object itemId) {
+        // Note, we do not check if given itemId is deleted as we use this
+        // method recursively to get itemId that is not deleted
         if (isWriteThrough() || bufferingDelegate.getAddedItemIds().isEmpty()
                 || !bufferingDelegate.isAdded(itemId)) {
-            return doGetEntityProvider().getNextEntityIdentifier(itemId,
+            Object id = doGetEntityProvider().getNextEntityIdentifier(itemId,
                     getAppliedFiltersAsConjunction(), getSortByList());
+            if(id != null && !isWriteThrough() && bufferingDelegate.isDeleted(id)) {
+                id = nextItemId(id);
+            }
+            return id;
         } else {
             int ix = bufferingDelegate.getAddedItemIds().indexOf(itemId);
             if (ix == bufferingDelegate.getAddedItemIds().size() - 1) {
-                return doGetEntityProvider().getFirstEntityIdentifier(
+                Object id = doGetEntityProvider().getFirstEntityIdentifier(
                         getAppliedFiltersAsConjunction(), getSortByList());
+                if(id != null && bufferingDelegate.isDeleted(id)) {
+                    id = nextItemId(id);
+                }
+                return id;
             } else {
                 return bufferingDelegate.getAddedItemIds().get(ix + 1);
             }
@@ -574,9 +588,15 @@ public class JPAContainer<T> implements EntityContainer<T>,
     }
 
     public Object prevItemId(Object itemId) {
+        // Note, we do not check if given itemId is deleted as we use this
+        // method recursively to get itemId that is not deleted
         if (isWriteThrough() || bufferingDelegate.getAddedItemIds().isEmpty()) {
-            return doGetEntityProvider().getPreviousEntityIdentifier(itemId,
+            Object id = doGetEntityProvider().getPreviousEntityIdentifier(itemId,
                     getAppliedFiltersAsConjunction(), getSortByList());
+            if(id != null && !isWriteThrough() && bufferingDelegate.isDeleted(id)) {
+                id = prevItemId(id);
+            }
+            return id;
         } else {
             if (bufferingDelegate.isAdded(itemId)) {
                 int ix = bufferingDelegate.getAddedItemIds().indexOf(itemId);
@@ -594,6 +614,9 @@ public class JPAContainer<T> implements EntityContainer<T>,
                     return bufferingDelegate.getAddedItemIds().get(
                             bufferingDelegate.getAddedItemIds().size() - 1);
                 } else {
+                    if(!isWriteThrough() && bufferingDelegate.isDeleted(prevId)) {
+                        prevId = prevItemId(prevId);
+                    }
                     return prevId;
                 }
             }
@@ -691,8 +714,8 @@ public class JPAContainer<T> implements EntityContainer<T>,
                     getAppliedFiltersAsConjunction());
         } else {
             return bufferingDelegate.isAdded(itemId)
-                    || doGetEntityProvider().containsEntity(itemId,
-                            getAppliedFiltersAsConjunction());
+                    || (!bufferingDelegate.isDeleted(itemId) && doGetEntityProvider().containsEntity(itemId,
+                            getAppliedFiltersAsConjunction()));
         }
     }
 
@@ -820,8 +843,9 @@ public class JPAContainer<T> implements EntityContainer<T>,
             return ids;
         } else {
             List<Object> newIds = new LinkedList<Object>();
-            newIds.addAll(bufferingDelegate.getAddedItemIds());
             newIds.addAll(ids);
+            newIds.addAll(bufferingDelegate.getAddedItemIds());
+            newIds.removeAll(bufferingDelegate.getDeletedItemIds());
             return Collections.unmodifiableCollection(newIds);
         }
     }
@@ -849,7 +873,8 @@ public class JPAContainer<T> implements EntityContainer<T>,
         if (isWriteThrough()) {
             return origSize;
         } else {
-            int newSize = origSize + bufferingDelegate.getAddedItemIds().size();
+            int newSize = origSize + bufferingDelegate.getAddedItemIds().size()
+                    - bufferingDelegate.getDeletedItemIds().size();
             return newSize;
         }
     }
@@ -962,9 +987,11 @@ public class JPAContainer<T> implements EntityContainer<T>,
             if (index < addedItems) {
                 return bufferingDelegate.getAddedItemIds().get(index);
             } else {
+                index -= addedItems;
+                index = bufferingDelegate.fixDbIndexWithDeletedItems(index);
                 Object itemId = doGetEntityProvider().getEntityIdentifierAt(
                         getAppliedFiltersAsConjunction(), getSortByList(),
-                        index - addedItems);
+                        index);
                 return itemId;
             }
         }
@@ -991,6 +1018,9 @@ public class JPAContainer<T> implements EntityContainer<T>,
             if (id == null) {
                 return -1;
             } else if (id.equals(itemId)) {
+                if(!isWriteThrough() && bufferingDelegate.isDeleted(id)) {
+                    return -1;
+                }
                 return i;
             }
         }
