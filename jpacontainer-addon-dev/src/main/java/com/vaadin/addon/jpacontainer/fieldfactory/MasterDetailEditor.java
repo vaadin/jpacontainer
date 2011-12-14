@@ -3,13 +3,16 @@ package com.vaadin.addon.jpacontainer.fieldfactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.logging.Logger;
 
 import com.vaadin.addon.jpacontainer.EntityContainer;
+import com.vaadin.addon.jpacontainer.EntityItem;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.util.HibernateUtil;
 import com.vaadin.data.Container.Filter;
+import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.filter.Compare;
 import com.vaadin.event.Action;
@@ -19,6 +22,7 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.DefaultFieldFactory;
+import com.vaadin.ui.Form;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TableFieldFactory;
 import com.vaadin.ui.VerticalLayout;
@@ -55,21 +59,26 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
         this.itemId = itemId;
         this.propertyId = propertyId;
 
-        buildContainer();
+        boolean writeThrough = true;
+        if (uiContext instanceof Form) {
+            Form f = (Form) uiContext;
+            writeThrough = f.isWriteThrough();
+        }
+        buildContainer(writeThrough);
 
         buildLayout();
 
         setCaption(DefaultFieldFactory.createCaptionByPropertyId(propertyId));
     }
 
-    private void buildContainer() {
+    private void buildContainer(boolean writeThrough) {
         // FIXME buffered mode
         Class<?> masterEntityClass = containerForProperty.getEntityClass();
         referencedType = fieldFactory.detectReferencedType(
                 fieldFactory.getEntityManagerFactory(containerForProperty),
                 propertyId, masterEntityClass);
         container = fieldFactory.createJPAContainerFor(containerForProperty,
-                referencedType, false);
+                referencedType, !writeThrough);
         backReferencePropertyId = HibernateUtil.getMappedByProperty(
                 containerForProperty.getItem(itemId).getEntity(),
                 propertyId.toString());
@@ -109,8 +118,8 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
         Object[] visibleProperties = fieldFactory
                 .getVisibleProperties(referencedType);
         if (visibleProperties == null) {
-            List<Object> asList = new ArrayList<Object>(Arrays.asList(getTable()
-                    .getVisibleColumns()));
+            List<Object> asList = new ArrayList<Object>(
+                    Arrays.asList(getTable().getVisibleColumns()));
             asList.remove("id");
             asList.remove(backReferencePropertyId);
             visibleProperties = asList.toArray();
@@ -123,13 +132,10 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
         getTable().setEditable(true);
         getTable().setSelectable(true);
     }
-    
-    
 
     protected Table getTable() {
         return table;
     }
-
 
     /**
      * TODO consider opening and adding parameters like propertyId, master class
@@ -178,7 +184,9 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
             Collection<?> collection = (Collection<?>) containerForProperty
                     .getItem(this.itemId).getItemProperty(propertyId)
                     .getValue();
-            collection.remove(container.getItem(itemId).getEntity());
+            EntityItem item = container.getItem(itemId);
+            collection.remove(item.getEntity());
+            item.getItemProperty(backReferencePropertyId).setValue(null);
             container.removeItem(itemId);
         }
     }
@@ -199,4 +207,29 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
                             + container.getEntityClass().getName());
         }
     }
+
+    @SuppressWarnings("rawtypes")
+    @Override
+    public void commit() throws SourceException, InvalidValueException {
+        if (!isWriteThrough()) {
+            container.commit();
+            // Update the original container to contain up to date list of
+            // referenced entities
+            Collection c = (Collection) getPropertyDataSource().getValue();
+            HashSet orphaned = new HashSet(c);
+            Collection itemIds = container.getItemIds();
+            for (Object object : itemIds) {
+                EntityItem item = container.getItem(object);
+                Object entity = item.getEntity();
+                orphaned.remove(entity);
+                if(!c.contains(entity)) {
+                    c.add(entity);
+                }
+            }
+            c.removeAll(orphaned);
+        } else {
+            super.commit();
+        }
+    }
+
 }

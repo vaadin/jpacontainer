@@ -207,8 +207,7 @@ public class FieldFactory extends DefaultFieldFactory {
         return select;
     }
 
-    @SuppressWarnings({ "serial" })
-    private Field createMasterDetailEditor(
+    protected Field createMasterDetailEditor(
             EntityContainer containerForProperty, Object itemId,
             Object propertyId, Component uiContext) {
         return new MasterDetailEditor(this, containerForProperty, itemId,
