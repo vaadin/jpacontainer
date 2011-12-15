@@ -634,6 +634,7 @@ public final class JPAContainerItem<T> implements EntityItem<T> {
         return entity.toString();
     }
 
+    @SuppressWarnings("serial")
     public void refresh() {
         if (isPersistent()) {
             entity = getContainer().getEntityProvider().refreshEntity(entity);

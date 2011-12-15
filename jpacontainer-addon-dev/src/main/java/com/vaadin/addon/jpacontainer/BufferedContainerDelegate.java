@@ -9,11 +9,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import com.vaadin.data.Buffered.SourceException;
@@ -211,7 +209,6 @@ final class BufferedContainerDelegate<T> implements Serializable {
      * @throws com.vaadin.data.Validator.InvalidValueException
      *             currently never thrown by this implementation.
      */
-    @SuppressWarnings("unchecked")
     public void commit() throws SourceException, InvalidValueException {
         assert container.getEntityProvider() instanceof BatchableEntityProvider : "entityProvider is not batchable";
         BatchableEntityProvider<T> ep = (BatchableEntityProvider<T>) container
