@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import com.vaadin.addon.jpacontainer.EntityProviderChangeEvent.EntityPropertyUpdatedEvent;
 import com.vaadin.addon.jpacontainer.filter.util.AdvancedFilterableSupport;
@@ -1009,11 +1010,11 @@ public class JPAContainer<T> implements EntityContainer<T>,
          * This is intentionally an ugly implementation! This method should not
          * be used!
          */
-        if (size() > 100) {
-            System.err
-                    .println("(JPAContainer) WARNING! Invoking indexOfId() when size > 100 is not recommended!");
+        int size = size();
+        if (size > 100) {
+            Logger.getLogger(getClass().getName()).warning("(JPAContainer) WARNING! Invoking indexOfId() when size > 100 is not recommended!");
         }
-        for (int i = 0; i < size(); i++) {
+        for (int i = 0; i < size; i++) {
             Object id = getIdByIndex(i);
             if (id == null) {
                 return -1;
