@@ -77,20 +77,6 @@ final class BufferedContainerDelegate<T> implements Serializable {
     private HashMap<Object, Integer> deletedItemIdsCache = new HashMap<Object, Integer>();
     private Map<Object, T> updatedEntitiesCache = new HashMap<Object, T>();
 
-    private T cloneEntityIfPossible(T entity) {
-        if (entity instanceof Cloneable) {
-            try {
-                Method m = entity.getClass().getMethod("clone");
-                T clonedEntity = container.getEntityClass().cast(
-                        m.invoke(entity));
-                return clonedEntity;
-            } catch (Exception e) {
-                // Do nothing.
-            }
-        }
-        return entity;
-    }
-
     /**
      * Gets a list of IDs of added entity items. The IDs appear in the order in
      * which they were added.
@@ -262,10 +248,9 @@ final class BufferedContainerDelegate<T> implements Serializable {
     public Object addEntity(T entity) {
         assert entity != null : "entity must not be null";
         UUID uuid = UUID.randomUUID();
-        deltaList.add(new Delta(DeltaType.ADD, uuid,
-                cloneEntityIfPossible(entity)));
+        deltaList.add(new Delta(DeltaType.ADD, uuid, entity));
         addedEntitiesCache.put(uuid, entity);
-        addedItemIdsCache.add(uuid);
+        addedItemIdsCache.add(0, uuid);
         return uuid;
     }
 
@@ -287,20 +272,26 @@ final class BufferedContainerDelegate<T> implements Serializable {
                 }
             }
         } else {
-            if (isUpdated(itemId)) {
-                updatedEntitiesCache.remove(itemId);
-                for (int i = deltaList.size() - 1; i >= 0; i--) {
-                    if (deltaList.get(i).itemId.equals(itemId)) {
-                        deltaList.remove(i);
-                    }
+            removeUpdateDelta(itemId);
+            deltaList.add(new Delta(DeltaType.DELETE, itemId, null));
+            List<Object> allDbEntityIdentifiers = container.getEntityProvider()
+                    .getAllEntityIdentifiers(
+                            container.getAppliedFiltersAsConjunction(),
+                            container.getSortByList());
+            int dbIndexOfDeletedItem = allDbEntityIdentifiers.indexOf(itemId);
+            deletedItemIdsCache.put(itemId, dbIndexOfDeletedItem);
+
+        }
+    }
+
+    private void removeUpdateDelta(Object itemId) {
+        if (isUpdated(itemId)) {
+            updatedEntitiesCache.remove(itemId);
+            for (int i = deltaList.size() - 1; i >= 0; i--) {
+                if (deltaList.get(i).itemId.equals(itemId)) {
+                    deltaList.remove(i);
                 }
             }
-            deltaList.add(new Delta(DeltaType.DELETE, itemId, null));
-            List<Object> allDbEntityIdentifiers = container.getEntityProvider().getAllEntityIdentifiers(
-                    container.getAppliedFiltersAsConjunction(), container.getSortByList());
-            int dbIndexOfDeletedItem = allDbEntityIdentifiers.indexOf(itemId);
-            deletedItemIdsCache.put(itemId,dbIndexOfDeletedItem);
-            
         }
     }
 
@@ -318,16 +309,18 @@ final class BufferedContainerDelegate<T> implements Serializable {
         assert itemId != null : "itemId must not be null";
 
         if (!isAdded(itemId)) {
-            deltaList.add(new Delta(DeltaType.UPDATE, itemId,
-                    cloneEntityIfPossible(entity)));
+            // remove possible old update, so that only the last update is
+            // applied and order will be dictated by the last update
+            removeUpdateDelta(itemId);
+            deltaList.add(new Delta(DeltaType.UPDATE, itemId, entity));
             updatedEntitiesCache.put(itemId, entity);
         }
     }
 
     public int fixDbIndexWithDeletedItems(int index) {
         Integer[] removedDbIndexes = getDbIndexesOfDeletedItems();
-        for(int i = 0; i < removedDbIndexes.length; i++) {
-            if(removedDbIndexes[i] <= index) {
+        for (int i = 0; i < removedDbIndexes.length; i++) {
+            if (removedDbIndexes[i] <= index) {
                 index++;
             }
         }
@@ -336,7 +329,8 @@ final class BufferedContainerDelegate<T> implements Serializable {
 
     private Integer[] getDbIndexesOfDeletedItems() {
         Integer[] removedDbIndexes = new Integer[deletedItemIdsCache.size()];
-        removedDbIndexes = deletedItemIdsCache.values().toArray(removedDbIndexes);
+        removedDbIndexes = deletedItemIdsCache.values().toArray(
+                removedDbIndexes);
         return removedDbIndexes;
     }
 }
