@@ -850,5 +850,24 @@ public class JPAContainerItemTest {
         }
     }
 
+    @Test
+    public void testWriteTroughOffReadThroughOn() {
+        item.setReadThrough(true);
+        item.setWriteThrough(false);
+
+        // sets the buffered value
+        item.getItemProperty("firstName").setValue("foo");
+
+        // gets the buffered value
+        assertEquals("foo", item.getItemProperty("firstName").getValue());
+
+        // make sure the value has not been written through
+        assertFalse("foo".equals(item.getEntity().getFirstName()));
+
+        // after commit the entity should be updated.
+        item.commit();
+        assertEquals("foo", item.getEntity().getFirstName());
+    }
+
     // TODO Test registering property listeners through item
 }
