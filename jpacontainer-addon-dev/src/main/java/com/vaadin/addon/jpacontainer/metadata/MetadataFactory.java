@@ -239,31 +239,31 @@ public class MetadataFactory {
             if (!Modifier.isFinal(mod) && !Modifier.isStatic(mod)
                     && !Modifier.isTransient(mod)
                     && f.getAnnotation(Transient.class) == null) {
+                Class<?> fieldType = getFieldType(f);
                 if (isEmbedded(f)) {
-                    ClassMetadata<?> cm = getClassMetadata(f.getType(),
+                    ClassMetadata<?> cm = getClassMetadata(fieldType,
                             AccessType.FIELD);
                     metadata.addProperties(new PersistentPropertyMetadata(f
                             .getName(), cm, PropertyKind.EMBEDDED, f));
                 } else if (isReference(f)) {
-                    ClassMetadata<?> cm = getClassMetadata(f.getType(),
+                    ClassMetadata<?> cm = getClassMetadata(fieldType,
                             AccessType.FIELD);
                     metadata.addProperties(new PersistentPropertyMetadata(f
                             .getName(), cm, PropertyKind.MANY_TO_ONE, f));
                 } else if (isOneToOne(f)) {
-                    ClassMetadata<?> cm = getClassMetadata(f.getType(),
+                    ClassMetadata<?> cm = getClassMetadata(fieldType,
                             AccessType.FIELD);
                     metadata.addProperties(new PersistentPropertyMetadata(f
                             .getName(), cm, PropertyKind.ONE_TO_ONE, f));
                 } else if (isCollection(f)) {
                     metadata.addProperties(new PersistentPropertyMetadata(f
-                            .getName(), f.getType(), PropertyKind.ONE_TO_MANY, f));
+                            .getName(), fieldType, PropertyKind.ONE_TO_MANY, f));
                 } else if (isManyToMany(f)) {
                     metadata.addProperties(new PersistentPropertyMetadata(f
-                            .getName(), f.getType(), PropertyKind.MANY_TO_MANY,
-                            f));
+                            .getName(), fieldType, PropertyKind.MANY_TO_MANY, f));
                 } else {
                     metadata.addProperties(new PersistentPropertyMetadata(f
-                            .getName(), convertPrimitiveType(f.getType()),
+                            .getName(), convertPrimitiveType(fieldType),
                             PropertyKind.SIMPLE, f));
                 }
             }
@@ -294,6 +294,32 @@ public class MetadataFactory {
                 }
             }
         }
+    }
+
+    /**
+     * Finds the actual pointed-to type of the field. The concrete type may be
+     * other than the declared type if the targetEntity parameter is specified
+     * in certain annotations.
+     * 
+     * @param f
+     *            the field.
+     * @return the type of the field.
+     */
+    private Class<?> getFieldType(Field f) {
+        Class<?> targetEntity = void.class;
+        if (isReference(f)) {
+            targetEntity = f.getAnnotation(ManyToOne.class).targetEntity();
+        } else if (isOneToOne(f)) {
+            targetEntity = f.getAnnotation(OneToOne.class).targetEntity();
+        } else if (isCollection(f)) {
+            targetEntity = f.getAnnotation(OneToMany.class).targetEntity();
+        } else if (isManyToMany(f)) {
+            targetEntity = f.getAnnotation(ManyToMany.class).targetEntity();
+        }
+        if (targetEntity != void.class) {
+            return targetEntity;
+        }
+        return f.getType();
     }
 
     private Class<?> convertPrimitiveType(Class<?> type) {
