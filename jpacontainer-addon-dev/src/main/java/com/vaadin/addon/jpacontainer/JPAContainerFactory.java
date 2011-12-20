@@ -8,7 +8,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-import com.vaadin.addon.jpacontainer.provider.BatchableLocalEntityProvider;
+import com.vaadin.addon.jpacontainer.provider.CachingBatchableLocalEntityProvider;
 import com.vaadin.addon.jpacontainer.provider.CachingLocalEntityProvider;
 import com.vaadin.addon.jpacontainer.provider.CachingMutableLocalEntityProvider;
 import com.vaadin.addon.jpacontainer.provider.LocalEntityProvider;
@@ -149,7 +149,7 @@ public class JPAContainerFactory {
 
     /**
      * Creates a new instance of JPAContainer backed by a
-     * {@link BatchableLocalEntityProvider}. This method should be used if you
+     * {@link CachingBatchableLocalEntityProvider}. This method should be used if you
      * already know an instance of {@link EntityManager}.
      * 
      * @param <T>
@@ -163,12 +163,12 @@ public class JPAContainerFactory {
     public static <T> JPAContainer<T> makeBatchable(Class<T> entityClass,
             EntityManager entityManager) {
         return makeWithEntityProvider(entityClass,
-                new BatchableLocalEntityProvider<T>(entityClass, entityManager));
+                new CachingBatchableLocalEntityProvider<T>(entityClass, entityManager));
     }
 
     /**
      * Creates a new instance of JPAContainer backed by a
-     * {@link BatchableLocalEntityProvider}. This method can be used if you do
+     * {@link CachingBatchableLocalEntityProvider}. This method can be used if you do
      * not know and do not need/want to know the instance of
      * {@link EntityManager} that is used, which is the case in simplistic
      * instances.

@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.vaadin.addon.jpacontainer.provider.BatchableLocalEntityProvider;
+import com.vaadin.addon.jpacontainer.provider.CachingBatchableLocalEntityProvider;
 import com.vaadin.addon.jpacontainer.provider.CachingLocalEntityProvider;
 import com.vaadin.addon.jpacontainer.provider.CachingMutableLocalEntityProvider;
 import com.vaadin.addon.jpacontainer.provider.LocalEntityProvider;
@@ -96,7 +97,7 @@ public class JPAContainerFactoryTest {
     public void testCreateBatchableJPAContainer() {
         JPAContainer<Person> c = JPAContainerFactory.makeBatchable(
                 Person.class, entityManager);
-        assertEquals(BatchableLocalEntityProvider.class, c.getEntityProvider()
+        assertEquals(CachingBatchableLocalEntityProvider.class, c.getEntityProvider()
                 .getClass());
     }
 
@@ -104,7 +105,7 @@ public class JPAContainerFactoryTest {
     public void testCreateBatchableJPAContainerWithPersistenceUnitName() {
         JPAContainer<Person> c = JPAContainerFactory.makeBatchable(
                 Person.class, "eclipselink-in-memory");
-        assertEquals(BatchableLocalEntityProvider.class, c.getEntityProvider()
+        assertEquals(CachingBatchableLocalEntityProvider.class, c.getEntityProvider()
                 .getClass());
     }
 
