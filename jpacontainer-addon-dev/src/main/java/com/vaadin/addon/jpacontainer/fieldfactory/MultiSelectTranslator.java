@@ -61,18 +61,7 @@ public class MultiSelectTranslator extends PropertyTranslator {
         Collection value = (Collection) getPropertyDataSource().getValue();
 
         if (value == null) {
-            Class<?> type = getPropertyDataSource().getType();
-            if (type.isInterface()) {
-                if(type == Set.class) {
-                    value = new HashSet();
-                } else if (type == List.class) {
-                    value = new ArrayList();
-                } else {
-                    throw new RuntimeException("Couldn't instantiate a collection for property.");
-                }
-            } else {
-                value = (Collection) type.newInstance();
-            }
+            value = createNewCollectionForType(getPropertyDataSource().getType());
         }
 
         HashSet orphaned = new HashSet(value);
@@ -93,6 +82,21 @@ public class MultiSelectTranslator extends PropertyTranslator {
         }
 
         return value;
+    }
+
+    static Collection createNewCollectionForType(Class<?> type)
+            throws InstantiationException, IllegalAccessException {
+        if (type.isInterface()) {
+            if(type == Set.class) {
+                return new HashSet();
+            } else if (type == List.class) {
+                return new ArrayList();
+            } else {
+                throw new RuntimeException("Couldn't instantiate a collection for property.");
+            }
+        } else {
+            return (Collection) type.newInstance();
+        }
     }
 
 }

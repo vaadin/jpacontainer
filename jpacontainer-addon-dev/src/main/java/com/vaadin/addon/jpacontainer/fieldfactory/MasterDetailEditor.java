@@ -58,6 +58,8 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
         this.containerForProperty = containerForProperty;
         this.itemId = itemId;
         this.propertyId = propertyId;
+        masterEntity = containerForProperty.getItem(itemId).getEntity();
+
 
         boolean writeThrough = true;
         if (uiContext instanceof Form) {
@@ -80,10 +82,8 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
         container = fieldFactory.createJPAContainerFor(containerForProperty,
                 referencedType, !writeThrough);
         backReferencePropertyId = HibernateUtil.getMappedByProperty(
-                containerForProperty.getItem(itemId).getEntity(),
+                masterEntity,
                 propertyId.toString());
-        masterEntity = containerForProperty.getEntityProvider().getEntity(
-                itemId);
         Filter filter = new Compare.Equal(backReferencePropertyId, masterEntity);
         container.addContainerFilter(filter);
     }
@@ -181,13 +181,13 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
 
     private void remove(Object itemId) {
         if (itemId != null) {
-            Collection<?> collection = (Collection<?>) containerForProperty
-                    .getItem(this.itemId).getItemProperty(propertyId)
-                    .getValue();
+            Collection<?> collection = (Collection<?>) getPropertyDataSource().getValue();
             EntityItem item = container.getItem(itemId);
-            collection.remove(item.getEntity());
             item.getItemProperty(backReferencePropertyId).setValue(null);
             container.removeItem(itemId);
+            if(isWriteThrough()) {
+                collection.remove(item.getEntity());
+            }
         }
     }
 
@@ -199,8 +199,10 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
             BeanItem<?> beanItem = new BeanItem(newInstance);
             beanItem.getItemProperty(backReferencePropertyId).setValue(
                     masterEntity);
-            // TODO need to update the actual property also!?
             container.addEntity(newInstance);
+            if(isWriteThrough()) {
+                // TODO need to update the actual property also!?
+            }
         } catch (Exception e) {
             Logger.getLogger(getClass().getName()).warning(
                     "Could not instantiate detail instance "
@@ -212,21 +214,37 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
     @Override
     public void commit() throws SourceException, InvalidValueException {
         if (!isWriteThrough()) {
-            container.commit();
-            // Update the original container to contain up to date list of
+//            container.commit();
+            // Update the original collection to contain up to date list of
             // referenced entities
             Collection c = (Collection) getPropertyDataSource().getValue();
-            HashSet orphaned = new HashSet(c);
+            boolean isNew = c == null;
+            HashSet orphaned = !isNew ? new HashSet(c) : null;
             Collection itemIds = container.getItemIds();
             for (Object object : itemIds) {
                 EntityItem item = container.getItem(object);
                 Object entity = item.getEntity();
-                orphaned.remove(entity);
-                if(!c.contains(entity)) {
+                if(!isNew) {
+                    orphaned.remove(entity);
+                }
+                if(c == null) {
+                    try {
+                        c = MultiSelectTranslator.createNewCollectionForType(containerForProperty.getItem(itemId).getItemProperty(propertyId).getType());
+                    } catch (InstantiationException e) {
+                        throw new SourceException(container, e);
+                    } catch (IllegalAccessException e) {
+                        throw new SourceException(container, e);
+                    }
+                }
+                if(isNew || !c.contains(entity)) {
                     c.add(entity);
                 }
             }
-            c.removeAll(orphaned);
+            if(isNew) {
+                getPropertyDataSource().setValue(c);
+            } else {
+                c.removeAll(orphaned);
+            }
         } else {
             super.commit();
         }
