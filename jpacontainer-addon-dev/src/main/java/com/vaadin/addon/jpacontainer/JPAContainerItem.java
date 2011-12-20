@@ -111,15 +111,6 @@ public final class JPAContainerItem<T> implements EntityItem<T> {
                 } catch (Exception e) {
                     throw new ConversionException(e);
                 }
-                /*
-                 * If the observers are watching the cached item, there is no
-                 * need for a notification as the value will not have changed to
-                 * them. However, if they are wathing the backend entity a
-                 * notification is required.
-                 */
-                if (isReadThrough()) {
-                    fireValueChangeEvent();
-                }
             }
         }
 
@@ -134,17 +125,10 @@ public final class JPAContainerItem<T> implements EntityItem<T> {
             Object realValue = getRealValue();
             if (!nullSafeEquals(realValue, cachedValue)) {
                 cacheRealValue();
-                /*
-                 * No use notifying the listeners if they are wathing the
-                 * backend entity.
-                 */
-                if (!isReadThrough()) {
-                    fireValueChangeEvent();
-                }
+                fireValueChangeEvent();
             } else {
                 cacheRealValue();
             }
-
         }
 
         public EntityItem<?> getItem() {
@@ -156,7 +140,7 @@ public final class JPAContainerItem<T> implements EntityItem<T> {
         }
 
         public Object getValue() {
-            if (isReadThrough()) {
+            if (isReadThrough() && isWriteThrough()) {
                 return getRealValue();
             } else {
                 return cachedValue;
@@ -290,15 +274,7 @@ public final class JPAContainerItem<T> implements EntityItem<T> {
             } catch (Exception e) {
                 throw new ConversionException(e);
             }
-            // FIXME #
-            if (!isReadThrough() || isWriteThrough()) {
-                /*
-                 * We don't want to notify the listeners if we have only updated
-                 * the cached value and they are watching the real value.
-                 */
-                fireValueChangeEvent();
-            }
-
+            fireValueChangeEvent();
         }
 
         private List<ValueChangeListener> listeners;
@@ -561,14 +537,6 @@ public final class JPAContainerItem<T> implements EntityItem<T> {
                 throw new IllegalStateException(
                         "ReadThrough can only be turned off if WriteThrough is turned off");
             }
-            /*
-             * We can iterate directly over the map, as this operation only
-             * affects existing properties. Properties that are lazily created
-             * afterwards will work automatically.
-             */
-            for (ItemProperty prop : propertyMap.values()) {
-                prop.notifyListenersIfCacheAndRealValueDiffer();
-            }
             this.readThrough = readThrough;
         }
     }
@@ -599,11 +567,6 @@ public final class JPAContainerItem<T> implements EntityItem<T> {
                 }
             }
             this.writeThrough = writeThrough;
-            /*
-             * Normally, if writeThrough is changed, readThrough should also be
-             * changed.
-             */
-            setReadThrough(writeThrough);
         }
     }
 

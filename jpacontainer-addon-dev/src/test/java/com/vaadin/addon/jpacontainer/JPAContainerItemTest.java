@@ -403,7 +403,6 @@ public class JPAContainerItemTest {
     @Test
     public void testPropertyValue_Buffered_NoReadThrough_Commit() {
         item.setWriteThrough(false);
-        // item.setReadThrough(false);
 
         final Property prop = item.getItemProperty("firstName");
         final int[] listenerCalled = new int[1];
@@ -416,7 +415,7 @@ public class JPAContainerItemTest {
                     }
                 });
 
-        assertFalse(item.isReadThrough());
+        assertTrue(item.isReadThrough());
         assertFalse(item.isWriteThrough());
         assertFalse(item.isModified());
         assertFalse(item.isDirty());
@@ -426,7 +425,7 @@ public class JPAContainerItemTest {
 
         prop.setValue("Hello");
 
-        // Read through is false, so we should get the cached value
+        // Write through is false, so we should always get the cached value
         assertEquals("Hello", prop.getValue());
         assertEquals("Hello", prop.toString());
         assertNull(item.getEntity().getFirstName());
@@ -449,7 +448,6 @@ public class JPAContainerItemTest {
     @Test
     public void testNestedPropertyValue_Buffered_NoReadThrough_Commit() {
         item.setWriteThrough(false);
-        // item.setReadThrough(false);
 
         final Property prop = item.getItemProperty("address.street");
         final int[] listenerCalled = new int[1];
@@ -462,7 +460,7 @@ public class JPAContainerItemTest {
                     }
                 });
 
-        assertFalse(item.isReadThrough());
+        assertTrue(item.isReadThrough());
         assertFalse(item.isWriteThrough());
         assertFalse(item.isModified());
         assertFalse(item.isDirty());
@@ -495,7 +493,6 @@ public class JPAContainerItemTest {
     @Test
     public void testLocalNestedPropertyValue_Buffered_NoReadThrough_Commit() {
         item.setWriteThrough(false);
-        // item.setReadThrough(false);
 
         item.addNestedContainerProperty("address.postalCode");
         final Property prop = item.getItemProperty("address.postalCode");
@@ -509,7 +506,7 @@ public class JPAContainerItemTest {
                     }
                 });
 
-        assertFalse(item.isReadThrough());
+        assertTrue(item.isReadThrough());
         assertFalse(item.isWriteThrough());
         assertFalse(item.isModified());
         assertFalse(item.isDirty());
@@ -542,7 +539,6 @@ public class JPAContainerItemTest {
     @Test
     public void testPropertyValue_Buffered_NoReadThrough_Discard() {
         item.setWriteThrough(false);
-        // item.setReadThrough(false);
 
         final Property prop = item.getItemProperty("firstName");
         final int[] listenerCalled = new int[1];
@@ -555,7 +551,7 @@ public class JPAContainerItemTest {
                     }
                 });
 
-        assertFalse(item.isReadThrough());
+        assertTrue(item.isReadThrough());
         assertFalse(item.isWriteThrough());
         assertFalse(item.isModified());
         assertFalse(item.isDirty());
@@ -588,7 +584,6 @@ public class JPAContainerItemTest {
     @Test
     public void testNestedPropertyValue_Buffered_NoReadThrough_Discard() {
         item.setWriteThrough(false);
-        // item.setReadThrough(false);
 
         final Property prop = item.getItemProperty("address.street");
         final int[] listenerCalled = new int[1];
@@ -601,7 +596,7 @@ public class JPAContainerItemTest {
                     }
                 });
 
-        assertFalse(item.isReadThrough());
+        assertTrue(item.isReadThrough());
         assertFalse(item.isWriteThrough());
         assertFalse(item.isModified());
         assertFalse(item.isDirty());
@@ -635,7 +630,6 @@ public class JPAContainerItemTest {
     public void testLocalNestedPropertyValue_Buffered_NoReadThrough_Discard() {
         item.addNestedContainerProperty("address.postalCode");
         item.setWriteThrough(false);
-        // item.setReadThrough(false);
 
         final Property prop = item.getItemProperty("address.postalCode");
         final int[] listenerCalled = new int[1];
@@ -648,7 +642,7 @@ public class JPAContainerItemTest {
                     }
                 });
 
-        assertFalse(item.isReadThrough());
+        assertTrue(item.isReadThrough());
         assertFalse(item.isWriteThrough());
         assertFalse(item.isModified());
         assertFalse(item.isDirty());
@@ -704,14 +698,15 @@ public class JPAContainerItemTest {
 
         prop.setValue("Hello");
 
-        // Read through is true, so we should still get the real value
-        assertNull(prop.getValue());
-        assertNull(prop.toString());
+        // Write through is false, so we should get the buffered value
+        assertEquals("Hello", prop.getValue());
+        assertEquals("Hello", prop.toString());
         assertNull(item.getEntity().getFirstName());
         assertTrue(item.isModified());
         assertFalse(item.isDirty());
-        assertEquals(0, listenerCalled[0]); // To the observers, the value has
-                                            // not changed!
+        // ValueChanges should always be fired if the value is changed whether
+        // buffered or not.
+        assertEquals(1, listenerCalled[0]);
 
         // Now, we temporarily turn off read through
         item.setReadThrough(false);
@@ -719,17 +714,17 @@ public class JPAContainerItemTest {
         assertEquals("Hello", prop.getValue());
         assertEquals("Hello", prop.toString());
         assertNull(item.getEntity().getFirstName());
-        assertEquals(1, listenerCalled[0]); // Now the value has changed to the
-                                            // observers
+        assertEquals(1, listenerCalled[0]); // Should not have been triggered
+                                            // again.
 
         // Now, we turn on read through again
         item.setReadThrough(true);
 
-        assertNull(prop.getValue());
-        assertNull(prop.toString());
+        assertEquals("Hello", prop.getValue());
+        assertEquals("Hello", prop.toString());
         assertNull(item.getEntity().getFirstName());
-        assertEquals(2, listenerCalled[0]); // Now the value has changed back to
-                                            // null
+        assertEquals(1, listenerCalled[0]); // Should not have been triggered
+                                            // again
 
         item.commit();
 
@@ -738,8 +733,8 @@ public class JPAContainerItemTest {
         assertEquals("Hello", item.getEntity().getFirstName());
         assertFalse(item.isModified());
         assertTrue(item.isDirty());
-        assertEquals(3, listenerCalled[0]); // The value has changed yet another
-                                            // time
+        assertEquals(1, listenerCalled[0]); // Should not have been triggered
+                                            // again
         assertNull(modifiedPropertyId);
         assertSame(item, modifiedItem);
     }
@@ -771,13 +766,12 @@ public class JPAContainerItemTest {
         prop.setValue("Hello");
 
         // Read through is true, so we should still get the real value
-        assertNull(prop.getValue());
-        assertNull(prop.toString());
+        assertEquals("Hello", prop.getValue());
+        assertEquals("Hello", prop.toString());
         assertNull(item.getEntity().getFirstName());
         assertTrue(item.isModified());
         assertFalse(item.isDirty());
-        assertEquals(0, listenerCalled[0]); // To the observers, the value has
-                                            // not changed!
+        assertEquals(1, listenerCalled[0]);
 
         // Now, we temporarily turn off read through
         item.setReadThrough(false);
@@ -785,17 +779,15 @@ public class JPAContainerItemTest {
         assertEquals("Hello", prop.getValue());
         assertEquals("Hello", prop.toString());
         assertNull(item.getEntity().getFirstName());
-        assertEquals(1, listenerCalled[0]); // Now the value has changed to the
-                                            // observers
+        assertEquals(1, listenerCalled[0]); // Should not have been called again
 
         // Now, we turn on read through again
         item.setReadThrough(true);
 
-        assertNull(prop.getValue());
-        assertNull(prop.toString());
+        assertEquals("Hello", prop.getValue());
+        assertEquals("Hello", prop.toString());
         assertNull(item.getEntity().getFirstName());
-        assertEquals(2, listenerCalled[0]); // Now the value has changed back to
-                                            // null
+        assertEquals(1, listenerCalled[0]); // Should not have been called again
 
         item.discard();
 
@@ -804,8 +796,9 @@ public class JPAContainerItemTest {
         assertNull(item.getEntity().getFirstName());
         assertFalse(item.isModified());
         assertFalse(item.isDirty());
-        assertEquals(2, listenerCalled[0]); // The value has NOT changed to the
-                                            // observers
+        assertEquals(2, listenerCalled[0]); // The value changes back when
+                                            // changes are discarded
+
         assertNull(modifiedPropertyId);
         assertNull(modifiedItem);
     }
@@ -834,9 +827,10 @@ public class JPAContainerItemTest {
         assertEquals("Hello", item.getEntity().getAddress().getStreet());
         assertFalse(item.isModified());
         assertTrue(item.isDirty());
-        assertEquals(2, listenerCalled[0]);
+        assertEquals(1, listenerCalled[0]); // The value has not changed, only
+                                            // written to the entity
         assertTrue(item.isWriteThrough());
-        assertTrue(item.isReadThrough()); // Has also been changed
+        assertTrue(item.isReadThrough()); // Is the default
         assertNull(modifiedPropertyId);
         assertSame(item, modifiedItem);
     }
