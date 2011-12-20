@@ -175,6 +175,9 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
      * @return a new list with the added entry for the primary key.
      */
     protected List<SortBy> addPrimaryKeyToSortList(List<SortBy> original) {
+        if (sortByListContainsPrimaryKey(original)) {
+            return original;
+        }
         ArrayList<SortBy> newList = new ArrayList<SortBy>();
         newList.addAll(original);
         if (getEntityClassMetadata().hasEmbeddedIdentifier()) {
@@ -188,6 +191,30 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
                     .getIdentifierProperty().getName(), true));
         }
         return Collections.unmodifiableList(newList);
+    }
+
+    /**
+     * @param original
+     * @return
+     */
+    private boolean sortByListContainsPrimaryKey(List<SortBy> original) {
+        for (SortBy sb : original) {
+            EntityClassMetadata<T> metadata = getEntityClassMetadata();
+            if (metadata.hasEmbeddedIdentifier()) {
+                if (sb.getPropertyId()
+                        .equals(metadata.getIdentifierProperty()
+                                .getTypeMetadata().getPersistentPropertyNames()
+                                .iterator().next())) {
+                    return true;
+                }
+            } else {
+                if (sb.getPropertyId().equals(
+                        metadata.getIdentifierProperty().getName())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
