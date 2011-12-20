@@ -74,7 +74,6 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
     }
 
     private void buildContainer(boolean writeThrough) {
-        // FIXME buffered mode
         Class<?> masterEntityClass = containerForProperty.getEntityClass();
         referencedType = fieldFactory.detectReferencedType(
                 fieldFactory.getEntityManagerFactory(containerForProperty),
