@@ -239,11 +239,10 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
                     c.add(entity);
                 }
             }
-            if(isNew) {
-                getPropertyDataSource().setValue(c);
-            } else {
+            if(!isNew) {
                 c.removeAll(orphaned);
             }
+            getPropertyDataSource().setValue(c);
         } else {
             super.commit();
         }
