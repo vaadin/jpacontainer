@@ -27,6 +27,7 @@ import com.vaadin.addon.jpacontainer.testdata.Department;
 import com.vaadin.addon.jpacontainer.testdata.Person;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
+import com.vaadin.data.util.filter.Compare.Equal;
 import com.vaadin.terminal.PaintException;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
@@ -326,5 +327,13 @@ public abstract class AbstractComponentIntegrationTest extends
         property.setValue("foo");
 
         assertEquals(1, valueChangeCalls[0]);
+    }
+
+    @Test
+    public void testNullFilter() {
+        JPAContainer<Person> container = getPersonContainer();
+        container.addContainerFilter(new Equal("firstName", null));
+        Object firstItemId = container.firstItemId();
+        assertNull(firstItemId);
     }
 }
