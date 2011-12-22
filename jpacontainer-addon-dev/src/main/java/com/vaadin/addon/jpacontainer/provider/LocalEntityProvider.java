@@ -18,6 +18,7 @@ import javax.persistence.TransactionRequiredException;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
@@ -31,6 +32,7 @@ import com.vaadin.addon.jpacontainer.filter.util.AdvancedFilterableSupport;
 import com.vaadin.addon.jpacontainer.filter.util.FilterConverter;
 import com.vaadin.addon.jpacontainer.metadata.EntityClassMetadata;
 import com.vaadin.addon.jpacontainer.metadata.MetadataFactory;
+import com.vaadin.addon.jpacontainer.metadata.PropertyKind;
 import com.vaadin.addon.jpacontainer.util.CollectionUtil;
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.util.filter.And;
@@ -236,8 +238,23 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
             CriteriaBuilder cb, Root<T> root) {
         String sortedPropId = sortBy.getPropertyId().toString();
         // First split the id and build a Path.
-        Path<T> path = AdvancedFilterableSupport.getPropertyPathTyped(root,
-                sortedPropId);
+        String[] idStrings = sortedPropId.split("\\.");
+        Path<T> path = null;
+        if (idStrings.length > 1 && !isEmbedded(idStrings[0])) {
+            // This is a nested property, we need to LEFT JOIN
+            path = root.join(idStrings[0], JoinType.LEFT);
+            for (int i = 1; i < idStrings.length; i++) {
+                if (i < idStrings.length - 1) {
+                    path = ((Root<?>) path).join(idStrings[i], JoinType.LEFT);
+                } else {
+                    path = path.get(idStrings[i]);
+                }
+            }
+        } else {
+            // non-nested or embedded, we can select as usual
+            path = AdvancedFilterableSupport.getPropertyPathTyped(root,
+                    sortedPropId);
+        }
 
         // Make and return the Order instances.
         if (sortBy.isAscending() != swapSortOrder) {
@@ -245,6 +262,14 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         } else {
             return cb.desc(path);
         }
+    }
+
+    /**
+     * @param propertyId
+     * @return
+     */
+    private boolean isEmbedded(String propertyId) {
+        return entityClassMetadata.getProperty(propertyId).getPropertyKind() == PropertyKind.EMBEDDED;
     }
 
     /**

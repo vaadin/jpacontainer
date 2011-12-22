@@ -82,4 +82,43 @@
         </properties>
     </persistence-unit>
 	
+	<persistence-unit name="nestedsort">
+        <provider>org.hibernate.ejb.HibernatePersistence</provider>
+        <class>com.vaadin.addon.jpacontainer.itest.nestedsort.domain.Base</class>
+        <class>com.vaadin.addon.jpacontainer.itest.nestedsort.domain.Nested</class>
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+        <properties>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
+            <property name="hibernate.connection.driver_class" value="org.h2.Driver" />
+            <property name="hibernate.connection.url" value="jdbc:h2:mem:lazyhibernate" />
+            <property name="hibernate.connection.username" value="sa" />
+            <property name="hibernate.connection.password" value="" />
+            <property name="hibernate.connection.pool_size" value="1" />
+            <property name="hibernate.connection.autocommit" value="true" />
+            <property name="hibernate.cache.provider_class" value="org.hibernate.cache.HashtableCacheProvider" />
+            <property name="hibernate.hbm2ddl.auto" value="create" />
+            <property name="hibernate.show_sql" value="true" />
+        </properties>
+    </persistence-unit>
+<!-- 
+    <persistence-unit name="nestedsort">
+        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+        <class>com.vaadin.addon.jpacontainer.itest.nestedsort.domain.Base</class>
+        <class>com.vaadin.addon.jpacontainer.itest.nestedsort.domain.Nested</class>
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+        <properties>
+            <property name="eclipselink.jdbc.platform"
+                value="org.eclipse.persistence.platform.database.H2Platform" />
+            <property name="eclipselink.jdbc.driver" value="org.h2.Driver" />
+            <property name="eclipselink.jdbc.url" value="jdbc:h2:˜/jpacontaineraddressbookh2db" />
+            <property name="eclipselink.jdbc.user" value="sa" />
+            <property name="eclipselink.jdbc.password" value="sa" />
+            <property name="eclipselink.logging.level" value="FINE" />
+            <property name="eclipselink.ddl-generation" value="drop-and-create-tables" />
+            <property name="eclipselink.ddl-generation.output-mode"
+                value="database" />
+        </properties>
+    </persistence-unit>
+-->
+	
 </persistence>
