@@ -29,14 +29,110 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.DefaultFieldFactory;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.Form;
+import com.vaadin.ui.FormFieldFactory;
 import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.Table;
+import com.vaadin.ui.TableFieldFactory;
 
 /**
- * A helper class for JPAContainer users. E.g. automatically creates selects for
- * reference fields to another entity.
+ * A {@link FormFieldFactory} and {@link TableFieldFactory} implementation
+ * suitable for JPAContainer users.
+ * <p>
+ * As where the {@link DefaultFieldFactory} in Vaadin can only handle basic data
+ * types, this field factory can also automatically create proper fields for
+ * various referenced entities. This greatly speeds up construction of CRUD
+ * views. Below are field types supported by this FieldFactory:
+ * <p>
  * 
- * TODO collection types, open for extension
+ * <dl>
+ * <di><b>@ManyToOne</b></di>
+ * <dd>
+ * Creates a select backed up by a JPAContainer listing all entities of
+ * referenced type. A {@link SingleSelectTranslator} is used to automatically
+ * convert identifiers to actual referenced entity objects.
+ * <p>
+ * Example of a mapped property: @ManyToOne private Address address;<br>
+ * Default type: {@link NativeSelect}
+ * <p>
+ * Created by
+ * {@link #createManyToOneField(EntityContainer, Object, Object, Component)}
+ * method.
+ * <p>
+ * The method
+ * {@link #constructReferenceSelect(EntityContainer, Object, Object, Component, Class)}
+ * can be used to override the select type. The type can also be set per
+ * reference type with {@link #setMultiSelectType(Class, Class)}.
+ * <p></dd>
+ * <di><b>@ManyToMany</b></di>
+ * <dd>
+ * Creates a multiselect backed up by a JPAContainer listing all entities of the
+ * type in the collection. Selected entities will be reflected to the collection
+ * field in the entity using the {@link MultiSelectTranslator}.
+ * <p>
+ * Example of a mapped property: @ManyToMany private Set&lt;Address&gt;
+ * addresses;
+ * <p>
+ * Default type: {@link Table} (in multiselect mode)
+ * <p>
+ * Created by
+ * {@link #createManyToManyField(EntityContainer, Object, Object, Component)}
+ * method.
+ * <p>
+ * The method
+ * {@link #constructCollectionSelect(EntityContainer, Object, Object, Component, Class)}
+ * can be used to override the select type. Type can also be set per reference
+ * type with {@link #setMultiSelectType(Class, Class)}.
+ * <p></dd>
+ * <di><b>@OneToMany</b></di>
+ * <dd>
+ * Creates a custom field based on Table to edit referenced entities "owned" by
+ * the master entity. The table lists only entities which belong to entity being
+ * currently edited. Referenced entities are editable straight in the table and
+ * instances can be removed and added.
+ * <p>
+ * Example of a mapped property: @OneToMany(mappedBy="person",
+ * cascade=CascadeType.ALL, orphanRemoval = true) private Set&lt;Address&gt;
+ * addresses;
+ * <p>
+ * Default type: {@link MasterDetailEditor} (in multiselect mode)
+ * <p>
+ * Created by
+ * {@link #createOneToManyField(EntityContainer, Object, Object, Component)}
+ * method.
+ * <p>
+ * Some things to note:
+ * <ul>
+ * <li>Creation of new entities uses empty paramater constructor.</li>
+ * <li>The master detail editor expects the referenced entity to hava a
+ * "back reference" to the owner. It needs to be specified in with mappedBy
+ * parameter in the annotation or it to be "naturally named" (master type
+ * starting in lowercase).</li>
+ * </ul>
+ * <p></dd>
+ * <di><b>@OneToOne</b></di>
+ * <dd>
+ * Creates a sub form for the referenced type. If the value is initially null,
+ * the sub form tries to create one with empty parameter constructor.
+ * <p>
+ * Example of a mapped property: @OneToOne private Address addresses;
+ * <p>
+ * 
+ * Default type: {@link OneToOneForm}
+ * <p>
+ * Created by
+ * {@link #createOneToOneField(EntityContainer, Object, Object, Component)}
+ * method.
+ * <p>
+ * 
+ * </dd>
+ * </dl>
+ * 
+ * <p>
+ * FieldFactory works recursively. E.g. sub forms or {@link MasterDetailEditor}s
+ * it creates uses the same fieldfactory by default. When using the class in
+ * such conditions one often wants to use
+ * {@link #setVisibleProperties(Class, String...)} to configure created fields.
+ * 
  */
 @SuppressWarnings("rawtypes")
 public class FieldFactory extends DefaultFieldFactory {
@@ -47,8 +143,7 @@ public class FieldFactory extends DefaultFieldFactory {
     private HashMap<Class<?>, Class<? extends AbstractSelect>> singleselectTypes;
 
     /**
-     * Creates a new JPAContainerFieldFactory. For referece/collection types
-     * ComboBox or multiselects are created by default.
+     * Creates a new instance of a {@link FieldFactory}.
      */
     public FieldFactory() {
     }
@@ -118,7 +213,7 @@ public class FieldFactory extends DefaultFieldFactory {
         PropertyKind propertyKind = jpacontainer.getPropertyKind(propertyId);
         switch (propertyKind) {
         case MANY_TO_ONE:
-            field = createReferenceSelect(jpacontainer, itemId, propertyId,
+            field = createManyToOneField(jpacontainer, itemId, propertyId,
                     uiContext);
             break;
         case ONE_TO_ONE:
@@ -126,11 +221,11 @@ public class FieldFactory extends DefaultFieldFactory {
                     uiContext);
             break;
         case ONE_TO_MANY:
-            field = createMasterDetailEditor(jpacontainer, itemId, propertyId,
+            field = createOneToManyField(jpacontainer, itemId, propertyId,
                     uiContext);
             break;
         case MANY_TO_MANY:
-            field = createCollectionSelect(jpacontainer, itemId, propertyId,
+            field = createManyToManyField(jpacontainer, itemId, propertyId,
                     uiContext);
             break;
         default:
@@ -163,9 +258,8 @@ public class FieldFactory extends DefaultFieldFactory {
     }
 
     @SuppressWarnings({ "serial" })
-    protected Field createCollectionSelect(
-            EntityContainer containerForProperty, Object itemId,
-            Object propertyId, Component uiContext) {
+    protected Field createManyToManyField(EntityContainer containerForProperty,
+            Object itemId, Object propertyId, Component uiContext) {
         /*
          * Detect what kind of reference type we have
          */
@@ -207,9 +301,8 @@ public class FieldFactory extends DefaultFieldFactory {
         return select;
     }
 
-    protected Field createMasterDetailEditor(
-            EntityContainer containerForProperty, Object itemId,
-            Object propertyId, Component uiContext) {
+    protected Field createOneToManyField(EntityContainer containerForProperty,
+            Object itemId, Object propertyId, Component uiContext) {
         return new MasterDetailEditor(this, containerForProperty, itemId,
                 propertyId, uiContext);
     }
@@ -253,7 +346,7 @@ public class FieldFactory extends DefaultFieldFactory {
      * @param propertyId
      * @return
      */
-    protected Field createReferenceSelect(EntityContainer containerForProperty,
+    protected Field createManyToOneField(EntityContainer containerForProperty,
             Object itemId, Object propertyId, Component uiContext) {
         Class<?> type = containerForProperty.getType(propertyId);
         JPAContainer container = createJPAContainerFor(containerForProperty,
@@ -333,7 +426,7 @@ public class FieldFactory extends DefaultFieldFactory {
     /**
      * Configures visible properties and their order for fields created for
      * reference/collection types referencing to given entity type. This order
-     * is for example used by Table's created for OneToMany or ManyToMany
+     * is for example used by {@link Table}s created for OneToMany or ManyToMany
      * reference types.
      * 
      * @param containerType
