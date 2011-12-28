@@ -173,8 +173,22 @@ public class FieldFactory extends DefaultFieldFactory {
                 return field;
             }
         }
+        if ("id".equals(propertyId)) {
+            return createIdentifierField();
+        }
         return configureBasicFields(super.createField(item, propertyId,
                 uiContext));
+    }
+
+    /**
+     * This method creates field for identifier property. The default
+     * implementation does nothing. We expect identifiers to be assigned
+     * automatically. This method can be overridden to change the behavior.
+     * 
+     * @return the field for identifier property
+     */
+    protected Field createIdentifierField() {
+        return null;
     }
 
     /**
@@ -288,8 +302,10 @@ public class FieldFactory extends DefaultFieldFactory {
                 asList.remove("id");
                 // TODO this should be the true "back reference" field from the
                 // opposite direction, now we expect convention
-                final String backReferencePropertyId = masterEntityClass
-                        .getSimpleName().toLowerCase() + "s";
+                String simpleName = masterEntityClass.getSimpleName();
+                String backrefpropname = simpleName.substring(0, 1)
+                        .toLowerCase() + simpleName.substring(1);
+                final String backReferencePropertyId = backrefpropname + "s";
                 asList.remove(backReferencePropertyId);
                 visibleProperties = asList.toArray();
             }
