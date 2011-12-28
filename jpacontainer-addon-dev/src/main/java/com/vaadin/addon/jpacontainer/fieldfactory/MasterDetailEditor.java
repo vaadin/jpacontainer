@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 
 import com.vaadin.addon.jpacontainer.EntityContainer;
 import com.vaadin.addon.jpacontainer.EntityItem;
+import com.vaadin.addon.jpacontainer.EntityItemProperty;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.util.HibernateUtil;
 import com.vaadin.data.Container.Filter;
@@ -25,7 +26,6 @@ import com.vaadin.ui.DefaultFieldFactory;
 import com.vaadin.ui.Form;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TableFieldFactory;
-import com.vaadin.ui.VerticalLayout;
 
 public class MasterDetailEditor extends JPAContainerCustomField implements
         Action.Handler {
@@ -60,7 +60,6 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
         this.propertyId = propertyId;
         masterEntity = containerForProperty.getItem(itemId).getEntity();
 
-
         boolean writeThrough = true;
         if (uiContext instanceof Form) {
             Form f = (Form) uiContext;
@@ -81,14 +80,13 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
         container = fieldFactory.createJPAContainerFor(containerForProperty,
                 referencedType, !writeThrough);
         backReferencePropertyId = HibernateUtil.getMappedByProperty(
-                masterEntity,
-                propertyId.toString());
+                masterEntity, propertyId.toString());
         Filter filter = new Compare.Equal(backReferencePropertyId, masterEntity);
         container.addContainerFilter(filter);
     }
 
     private void buildLayout() {
-        VerticalLayout vl = new VerticalLayout();
+        CssLayout vl = new CssLayout();
         buildTable();
         vl.addComponent(getTable());
 
@@ -180,11 +178,12 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
 
     private void remove(Object itemId) {
         if (itemId != null) {
-            Collection<?> collection = (Collection<?>) getPropertyDataSource().getValue();
+            Collection<?> collection = (Collection<?>) getPropertyDataSource()
+                    .getValue();
             EntityItem item = container.getItem(itemId);
             item.getItemProperty(backReferencePropertyId).setValue(null);
             container.removeItem(itemId);
-            if(isWriteThrough()) {
+            if (isWriteThrough()) {
                 collection.remove(item.getEntity());
             }
         }
@@ -199,7 +198,7 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
             beanItem.getItemProperty(backReferencePropertyId).setValue(
                     masterEntity);
             container.addEntity(newInstance);
-            if(isWriteThrough()) {
+            if (isWriteThrough()) {
                 // TODO need to update the actual property also!?
             }
         } catch (Exception e) {
@@ -213,9 +212,9 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
     @Override
     public void commit() throws SourceException, InvalidValueException {
         if (!isWriteThrough()) {
-//            container.commit();
             // Update the original collection to contain up to date list of
             // referenced entities
+            ((EntityItemProperty) getPropertyDataSource()).getItem().refresh();
             Collection c = (Collection) getPropertyDataSource().getValue();
             boolean isNew = c == null;
             HashSet orphaned = !isNew ? new HashSet(c) : null;
@@ -223,23 +222,26 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
             for (Object object : itemIds) {
                 EntityItem item = container.getItem(object);
                 Object entity = item.getEntity();
-                if(!isNew) {
+                if (!isNew) {
                     orphaned.remove(entity);
                 }
-                if(c == null) {
+                if (c == null) {
                     try {
-                        c = MultiSelectTranslator.createNewCollectionForType(containerForProperty.getItem(itemId).getItemProperty(propertyId).getType());
+                        c = MultiSelectTranslator
+                                .createNewCollectionForType(containerForProperty
+                                        .getItem(itemId)
+                                        .getItemProperty(propertyId).getType());
                     } catch (InstantiationException e) {
                         throw new SourceException(container, e);
                     } catch (IllegalAccessException e) {
                         throw new SourceException(container, e);
                     }
                 }
-                if(isNew || !c.contains(entity)) {
+                if (isNew || !c.contains(entity)) {
                     c.add(entity);
                 }
             }
-            if(!isNew) {
+            if (!isNew) {
                 c.removeAll(orphaned);
             }
             getPropertyDataSource().setValue(c);
