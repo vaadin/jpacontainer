@@ -1,11 +1,17 @@
 package com.vaadin.addon.jpacontainer.itest;
 
+import java.sql.SQLException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.h2.tools.Server;
+
 import com.vaadin.Application;
+import com.vaadin.terminal.ExternalResource;
 import com.vaadin.terminal.gwt.server.HttpServletRequestListener;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Link;
 import com.vaadin.ui.Window;
 
 public class TestLauncherApplication extends Application implements
@@ -13,6 +19,7 @@ public class TestLauncherApplication extends Application implements
 
     public static final String PERSISTENCE_UNIT = "addressbook";
     private Window currentWindow;
+    private static Server server;
 
     @Override
     public void init() {
@@ -20,6 +27,17 @@ public class TestLauncherApplication extends Application implements
         window.addComponent(new Label(
                 "JPAContainer test and playground app, add the test class name to your url to start"));
         setMainWindow(window);
+        if(server == null) {
+            try {
+                server = org.h2.tools.Server.createWebServer();
+                server.start();
+            } catch (SQLException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        String url = server.getURL();
+        window.addComponent(new Link("H2DB admin condole", new ExternalResource(url)));
     }
 
     @Override
