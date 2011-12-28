@@ -2,17 +2,24 @@ package com.vaadin.addon.jpacontainer.itest.fieldfactory.domain;
 
 import java.util.Set;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 
 @Entity
 public class Customer {
-    
+
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+
+    @Column(unique = true)
     private String name;
-    
-    @ManyToMany
+
+    @ManyToMany(mappedBy = "customers")
     private Set<CustomerGroup> customerGroups;
 
     public String getName() {
@@ -34,6 +41,35 @@ public class Customer {
 
     public void setCustomerGroups(Set<CustomerGroup> groups) {
         this.customerGroups = groups;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Customer) {
+            Customer p = (Customer) obj;
+            if (this == p) {
+                return true;
+            }
+            if (this.id == null || p.id == null) {
+                return false;
+            }
+            return this.id.equals(p.id);
+        }
+
+        return super.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return id == null ? 0 : id.hashCode();
     }
 
 }

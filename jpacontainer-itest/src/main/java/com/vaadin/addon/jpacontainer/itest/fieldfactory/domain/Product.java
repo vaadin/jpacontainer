@@ -34,5 +34,27 @@ public class Product {
     public String toString() {
         return name;
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Product) {
+            Product p = (Product) obj;
+            if (this == p) {
+                return true;
+            }
+            if (this.id == null || p.id == null) {
+                return false;
+            }
+            return this.id.equals(p.id);
+        }
+
+        return super.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return id == null ? 0 : id.hashCode();
+    }
+
 
 }

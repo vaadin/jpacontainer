@@ -49,4 +49,26 @@ public class BillingAddress {
     public void setPostalCode(String postalCode) {
         this.postalCode = postalCode;
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof BillingAddress) {
+            BillingAddress p = (BillingAddress) obj;
+            if (this == p) {
+                return true;
+            }
+            if (this.id == null || p.id == null) {
+                return false;
+            }
+            return this.id.equals(p.id);
+        }
+
+        return super.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return id == null ? 0 : id.hashCode();
+    }
+
 }

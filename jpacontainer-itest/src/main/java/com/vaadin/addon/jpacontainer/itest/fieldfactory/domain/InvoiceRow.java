@@ -63,5 +63,27 @@ public class InvoiceRow {
     public void setProduct(Product product) {
         this.product = product;
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof InvoiceRow) {
+            InvoiceRow p = (InvoiceRow) obj;
+            if (this == p) {
+                return true;
+            }
+            if (this.id == null || p.id == null) {
+                return false;
+            }
+            return this.id.equals(p.id);
+        }
+
+        return super.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return id == null ? 0 : id.hashCode();
+    }
+
 
 }
