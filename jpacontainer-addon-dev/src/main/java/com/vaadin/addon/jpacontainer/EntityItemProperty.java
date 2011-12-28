@@ -20,6 +20,13 @@ public interface EntityItemProperty extends Property,
      * @return the item (never null).
      */
     public EntityItem<?> getItem();
+    
+    /**
+     * Gets the property id of this property.
+     * 
+     * @return the identifier of the property
+     */
+    public String getPropertyId();
 
     /**
      * Fires value change event for this property

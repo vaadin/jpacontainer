@@ -65,6 +65,10 @@ public final class JPAContainerItem<T> implements EntityItem<T> {
                 cacheRealValue();
             }
         }
+        
+        public String getPropertyId() {
+            return propertyId;
+        }
 
         /**
          * Like the name suggests, this method notifies the listeners if the

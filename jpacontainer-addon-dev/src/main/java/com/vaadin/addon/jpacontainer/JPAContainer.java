@@ -1638,7 +1638,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
         doGetEntityProvider().refresh();
         bufferingDelegate.discard();
         synchronized (itemRegistry) {
-            for (Object id : itemRegistry.keySet()) {
+            for (Object id : itemRegistry.keySet().toArray()) {
                 refreshItem(id);
             }
         }
