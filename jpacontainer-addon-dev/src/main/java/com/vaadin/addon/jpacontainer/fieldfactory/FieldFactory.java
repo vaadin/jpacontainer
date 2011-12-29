@@ -411,7 +411,9 @@ public class FieldFactory extends DefaultFieldFactory {
                         "Could not create select of type " + class1.getName());
             }
         }
-        return new Table();
+        Table table = new Table();
+        table.setPageLength(5);
+        return table;
     }
 
     protected EntityManager getEntityManagerFor(
