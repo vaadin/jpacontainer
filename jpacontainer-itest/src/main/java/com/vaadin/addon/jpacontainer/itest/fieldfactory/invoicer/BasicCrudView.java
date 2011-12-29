@@ -10,25 +10,26 @@ import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.event.Action;
+import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.Action.Handler;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.AbsoluteLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.Field;
 import com.vaadin.ui.Form;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.themes.Reindeer;
 
 /**
- * This is a rudimentary general purpose crud view built for testing
- * JPAContainer. Lists all entities in a table and puts the selected row into a
- * buffered form below it.
+ * This is a rudimentary general purpose CRUD view to list and edit JPA entities
+ * with JPAContainer. Lists all entities in a table and puts the selected row
+ * into a buffered form below it.
  */
-public class BasicCrudView<T> extends VerticalSplitPanel implements
+public class BasicCrudView<T> extends AbsoluteLayout implements
         Property.ValueChangeListener, Handler, ClickListener {
 
     private JPAContainer<T> container;
@@ -41,6 +42,7 @@ public class BasicCrudView<T> extends VerticalSplitPanel implements
     private Object[] formPropertyIds;
     private Button addButton;
     private Button deleteButton;
+    private Panel panel;
 
     public BasicCrudView(Class<T> entityClass) {
         this.entityClass = entityClass;
@@ -62,7 +64,7 @@ public class BasicCrudView<T> extends VerticalSplitPanel implements
         return table;
     }
 
-    public Form getForm() {
+    protected Form getForm() {
         return form;
     }
 
@@ -76,27 +78,33 @@ public class BasicCrudView<T> extends VerticalSplitPanel implements
     }
 
     protected void buildView() {
+        setSizeFull();
+        panel = new Panel(getCaption());
+        panel.setSizeFull();
+        addComponent(panel);
+
+        VerticalSplitPanel verticalSplitPanel = new VerticalSplitPanel();
+        verticalSplitPanel.setSizeFull();
+
         table.setSizeFull();
         table.setSelectable(true);
         table.addListener(this);
         table.setImmediate(true);
         table.addActionHandler(this);
-        AbsoluteLayout absoluteLayout = new AbsoluteLayout();
-        absoluteLayout.setSizeFull();
-        absoluteLayout.addComponent(table);
-        addComponent(absoluteLayout);
-        
+        verticalSplitPanel.addComponent(table);
+
         addButton = new Button("+", this);
         addButton.setDescription("Add new " + getEntityClass().getSimpleName());
         addButton.setStyleName(Reindeer.BUTTON_SMALL);
-        absoluteLayout.addComponent(addButton, "top:1px; right:40px;");
-        
+        addComponent(addButton, "top:0;right:40px;");
+
         deleteButton = new Button("-", this);
-        deleteButton.setDescription("Delete selected " + getEntityClass().getSimpleName());
+        deleteButton.setDescription("Delete selected "
+                + getEntityClass().getSimpleName());
         deleteButton.setStyleName(Reindeer.BUTTON_SMALL);
         deleteButton.setEnabled(false);
-        absoluteLayout.addComponent(deleteButton, "top:1px; right:5px;");
-        
+        addComponent(deleteButton, "top:0;right:5px;");
+
         form = new Form();
         form.setVisible(false);
         form.setWriteThrough(false);
@@ -109,7 +117,7 @@ public class BasicCrudView<T> extends VerticalSplitPanel implements
             }
         });
         commit.setStyleName(Reindeer.BUTTON_DEFAULT);
-        
+
         discard = new Button("Cancel", new Button.ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
@@ -121,11 +129,15 @@ public class BasicCrudView<T> extends VerticalSplitPanel implements
         form.getLayout().setMargin(true);
         form.getFooter().setMargin(false, true, false, true);
         ((HorizontalLayout) form.getFooter()).setSpacing(true);
-        addComponent(form);
-        setSplitPosition(30);
-        
+        verticalSplitPanel.addComponent(form);
+        verticalSplitPanel.setSplitPosition(30);
+
+        panel.setContent(verticalSplitPanel);
+
+        // register action handler (enter and ctrl-n)
+        panel.addActionHandler(this);
     }
-    
+
     public Class<T> getEntityClass() {
         return entityClass;
     }
@@ -145,13 +157,14 @@ public class BasicCrudView<T> extends VerticalSplitPanel implements
         Object itemId = event.getProperty().getValue();
         Item item = table.getItem(itemId);
         boolean entitySelected = item != null;
+        // modify visibility of form and delete button if an item is selected
         form.setVisible(entitySelected);
         deleteButton.setEnabled(entitySelected);
-        if(entitySelected) {
-            form.setItemDataSource(
-                    item,
-                    formPropertyIds != null ? Arrays.asList(formPropertyIds) : item
-                            .getItemPropertyIds());
+        if (entitySelected) {
+            // set entity item to form and focus it
+            form.setItemDataSource(item,
+                    formPropertyIds != null ? Arrays.asList(formPropertyIds)
+                            : item.getItemPropertyIds());
             form.focus();
         }
     }
@@ -161,13 +174,23 @@ public class BasicCrudView<T> extends VerticalSplitPanel implements
         return getEntityClass().getSimpleName() + "s";
     }
 
-    private static final Action NEW = new Action("New");
+    private static final ShortcutAction SAVE = new ShortcutAction("Save",
+            KeyCode.ENTER, null);
+    private static final ShortcutAction SAVE2 = new ShortcutAction("^Save");
+    private static final ShortcutAction NEW = new ShortcutAction("^New");
     private static final Action DELETE = new Action("Delete");
+
     private static final Action[] ACTIONS = new Action[] { NEW, DELETE };
+    private static final Action[] SHORTCUT_ACTIONS = new Action[] { SAVE,
+            SAVE2, NEW };
 
     @Override
     public Action[] getActions(Object target, Object sender) {
-        return ACTIONS;
+        if (sender == table) {
+            return ACTIONS;
+        } else {
+            return SHORTCUT_ACTIONS;
+        }
     }
 
     @Override
@@ -176,6 +199,10 @@ public class BasicCrudView<T> extends VerticalSplitPanel implements
             addItem();
         } else if (action == DELETE) {
             deleteItem(target);
+        } else if (action == SAVE || action == SAVE2) {
+            if (form.isVisible()) {
+                form.commit();
+            }
         }
 
     }
@@ -226,10 +253,16 @@ public class BasicCrudView<T> extends VerticalSplitPanel implements
 
     @Override
     public void buttonClick(ClickEvent event) {
-        if(event.getButton() == addButton) {
+        if (event.getButton() == addButton) {
             addItem();
-        } else if(event.getButton() == deleteButton) {
+        } else if (event.getButton() == deleteButton) {
             deleteItem(table.getValue());
         }
+    }
+
+    @Override
+    public void attach() {
+        super.attach();
+        panel.focus();
     }
 }

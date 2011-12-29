@@ -5,36 +5,39 @@ import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.CustomerGroup;
 import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.Invoice;
 import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.InvoiceRow;
 import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.Product;
-import com.vaadin.event.Action;
-import com.vaadin.event.Action.Handler;
-import com.vaadin.event.ShortcutAction;
-import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.data.Property;
+import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.TabSheet;
-import com.vaadin.ui.TabSheet.SelectedTabChangeEvent;
-import com.vaadin.ui.TabSheet.SelectedTabChangeListener;
+import com.vaadin.ui.HorizontalSplitPanel;
+import com.vaadin.ui.Tree;
 import com.vaadin.ui.Window;
 
-public class InvoicerTestApp extends Window implements Handler {
+public class InvoicerTestApp extends Window implements
+        Property.ValueChangeListener {
 
-    private TabSheet tabSheet;
+    private Tree navTree = new Tree("Views");
+    private HorizontalSplitPanel horizontalSplitPanel = new HorizontalSplitPanel();
 
     public InvoicerTestApp() {
-        tabSheet = new TabSheet();
+        navTree.addListener(this);
 
-        tabSheet.addTab(new WelcomeView());
+        horizontalSplitPanel.setSplitPosition(200, UNITS_PIXELS);
+        horizontalSplitPanel.addComponent(navTree);
+        setContent(horizontalSplitPanel);
 
-        tabSheet.addTab(new BasicCrudView<Product>(Product.class));
+        addView(new WelcomeView());
+
+        addView(new BasicCrudView<Product>(Product.class));
 
         BasicCrudView<Customer> customerCrudView = new BasicCrudView<Customer>(
                 Customer.class);
         customerCrudView.setVisibleTableProperties("name");
-        tabSheet.addTab(customerCrudView);
+        addView(customerCrudView);
 
         BasicCrudView<CustomerGroup> groupCrudView = new BasicCrudView<CustomerGroup>(
                 CustomerGroup.class);
         groupCrudView.setVisibleTableProperties("name");
-        tabSheet.addTab(groupCrudView);
+        addView(groupCrudView);
 
         BasicCrudView<Invoice> invoiceCrudView = new BasicCrudView<Invoice>(
                 Invoice.class);
@@ -45,56 +48,32 @@ public class InvoicerTestApp extends Window implements Handler {
         invoiceCrudView.getFieldFactory().setVisibleProperties(
                 InvoiceRow.class, "product", "description", "amount", "unit",
                 "unitPrice");
-        tabSheet.addTab(invoiceCrudView);
+        addView(invoiceCrudView);
 
-        tabSheet.setSizeFull();
-
-        tabSheet.addListener(new SelectedTabChangeListener() {
-            @SuppressWarnings("rawtypes")
-            @Override
-            public void selectedTabChange(SelectedTabChangeEvent event) {
-                Component selectedTab = event.getTabSheet().getSelectedTab();
-                if (selectedTab instanceof BasicCrudView) {
-                    BasicCrudView cv = (BasicCrudView) selectedTab;
-                    cv.refreshContainer();
-                }
-            }
-        });
-        setContent(tabSheet);
-
-        // due to an inconvenience with std Vaadin tabsheet, form and actions, we
-        // catch enter (saving form) and CTRL + N (new entity) shortcuts here on
-        // top level and pass the action to the active view.
-        addActionHandler(this);
+        navTree.setSelectable(true);
+        navTree.setNullSelectionAllowed(false);
+        navTree.setImmediate(true);
+        navTree.setValue(navTree.getItemIds().iterator().next());
 
     }
 
-    private static final ShortcutAction SAVE = new ShortcutAction("Save", KeyCode.ENTER, null);
-    private static final ShortcutAction SAVE2 = new ShortcutAction("^Save");
-    private static final ShortcutAction NEW = new ShortcutAction("^New");
-    private static final Action[] ACTIONS = new Action[] {SAVE, SAVE2, NEW};
-
-    @Override
-    public Action[] getActions(Object target, Object sender) {
-        return ACTIONS;
+    private void addView(Component view) {
+        navTree.addItem(view);
+        if (view.getCaption() != null) {
+            navTree.setItemCaption(view, view.getCaption());
+        }
+        navTree.setChildrenAllowed(view, false);
     }
 
     @SuppressWarnings("rawtypes")
     @Override
-    public void handleAction(Action action, Object sender, Object target) {
-        Component selectedTab = tabSheet.getSelectedTab();
-        if (selectedTab instanceof BasicCrudView) {
-            BasicCrudView cv = (BasicCrudView) selectedTab;
-            if(action == NEW) {
-                cv.addItem();
-            } else if (action== SAVE) {
-                if(cv.getForm().isVisible()) {
-                    cv.getForm().commit();
-                }
-            }
-            
+    public void valueChange(ValueChangeEvent event) {
+        Component value = (Component) event.getProperty().getValue();
+        if (value instanceof BasicCrudView) {
+            BasicCrudView cv = (BasicCrudView) value;
+            cv.refreshContainer();
         }
-
+        horizontalSplitPanel.setSecondComponent(value);
     }
 
 }
