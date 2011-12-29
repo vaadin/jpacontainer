@@ -36,7 +36,7 @@ public class Invoice {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @Temporal(TemporalType.TIMESTAMP)
-    private Date date;
+    private Date date = new Date();
     @ManyToOne
     private Customer customer;
     @OneToMany(mappedBy = "invoice", cascade=CascadeType.ALL, orphanRemoval=true)

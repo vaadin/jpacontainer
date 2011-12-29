@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<h1>Hello Vaadin user!</h1>
+
+	<p>This is an example app using simple JPA annotated datamodel,
+		JPAContainer and its FieldFactory to create a basic invoicing app. The
+		application uses a generic BasicCrudView helper class to display
+		editable views for the domain model. The view lists all entities in a
+		Table and connects the selected item into a form below it.</p>
+
+	<p>Forms are build automatically using FieldFactory bundled with
+		the JPAContainer. Only visible properties and property order is
+		configured per entity type. The FieldFactory excels when if faces
+		properties that wrap a reference to another entity type. As where the
+		standard Vaadin field factory could only display a dummy text field,
+		the JPA specific FieldFactory can make reasonable job creating e.g. a
+		select of the referenced type.</p>
+
+	<p>Without FieldFactory writing this kind of small DB based
+		software would require lots of boilerplate code. Now it supa simple as
+		is its maintenance.</p>
+
+	<p>Below you can see a summary of the magic that JPAContainer FieldFactory does.</p>
+
+	<dl>
+		<di> <b>@ManyToOne</b></di>
+		<dd>
+			Creates a select backed up by a JPAContainer listing all entities of
+			referenced type. A SingleSelectTranslator is used to automatically
+			convert identifiers to actual referenced entity objects.
+			<p>
+				Example of a mapped property: @ManyToOne private Address address;<br>
+				Default type: NativeSelect
+			<p>Example in this demo app: link to Product from InvoiceRow
+			<p>Created by #createManyToOneField(EntityContainer, Object,
+				Object, Component) method.
+			<p>The method #constructReferenceSelect(EntityContainer, Object,
+				Object, Component, Class) can be used to override the select type.
+				The type can also be set per reference type with
+				#setMultiSelectType(Class, Class).
+			<p>
+		</dd>
+		<di> <b>@ManyToMany</b></di>
+		<dd>
+			Creates a multiselect backed up by a JPAContainer listing all
+			entities of the type in the collection. Selected entities will be
+			reflected to the collection field in the entity using the
+			MultiSelectTranslator.
+			<p>Example of a mapped property: @ManyToMany private
+				Set&lt;Address&gt; addresses;
+			<p>Default type: Table (in multiselect mode)
+			<p>Example in this demo app: customers groups and groups
+				customers (bidirectional)
+			<p>Created by #createManyToManyField(EntityContainer, Object,
+				Object, Component) method.
+			<p>The method #constructCollectionSelect(EntityContainer, Object,
+				Object, Component, Class) can be used to override the select type.
+				Type can also be set per reference type with
+				#setMultiSelectType(Class, Class).
+			<p>
+		</dd>
+		<di> <b>@OneToMany</b></di>
+		<dd>
+			Creates a custom field based on Table to edit referenced entities
+			"owned" by the master entity. The table lists only entities which
+			belong to entity being currently edited. Referenced entities are
+			editable straight in the table and instances can be removed and
+			added.
+			<p>Example of a mapped property: @OneToMany(mappedBy="person",
+				cascade=CascadeType.ALL, orphanRemoval = true) private
+				Set&lt;Address&gt; addresses;
+			<p>Default type: MasterDetailEditor (in multiselect mode)
+			<p>Example in this demo app: InvoiceRows in Invoice
+			<p>Created by #createOneToManyField(EntityContainer, Object,
+				Object, Component) method.
+			<p>Some things to note:
+			<ul>
+				<li>Creation of new entities uses empty paramater constructor.</li>
+				<li>The master detail editor expects the referenced entity to
+					hava a "back reference" to the owner. It needs to be specified in
+					with mappedBy parameter in the annotation or it to be "naturally
+					named" (master type starting in lowercase).</li>
+			</ul>
+			<p>
+		</dd>
+		<di> <b>@OneToOne</b></di>
+		<dd>
+			Creates a sub form for the referenced type. If the value is initially
+			null, the sub form tries to create one with empty parameter
+			constructor.
+			<p>Example of a mapped property: @OneToOne private Address
+				addresses;
+			<p>Default type: OneToOneForm
+			<p>ShippingAddress in Invoice
+			<p>Created by #createOneToOneField(EntityContainer, Object,
+				Object, Component) method.
+			<p>
+		</dd>
+	</dl>
+
+</body>
+</html>

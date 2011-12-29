@@ -1,5 +1,6 @@
 package com.vaadin.addon.jpacontainer.itest.fieldfactory.invoicer;
 
+import java.io.IOException;
 import java.util.HashSet;
 
 import javax.persistence.EntityManager;
@@ -11,7 +12,7 @@ import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.CustomerGroup;
 import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.Product;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Label;
+import com.vaadin.ui.CustomLayout;
 import com.vaadin.ui.VerticalLayout;
 
 public class WelcomeView extends VerticalLayout {
@@ -20,8 +21,12 @@ public class WelcomeView extends VerticalLayout {
         setMargin(true);
         setSpacing(true);
         setCaption("Welcome");
-        addComponent(new Label(
-                "Hello Vaadin user. This is an example app using simple JPA annotated datamodel, JPAContainer and its FieldFactory to create a basic invoicing app."));
+        try {
+            addComponent(new CustomLayout(getClass().getClassLoader().getResourceAsStream("welcome.html")));
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
         addComponent(new Button("Generate test data",
                 new Button.ClickListener() {
