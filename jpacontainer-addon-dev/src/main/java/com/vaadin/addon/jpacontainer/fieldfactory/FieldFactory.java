@@ -242,10 +242,22 @@ public class FieldFactory extends DefaultFieldFactory {
             field = createManyToManyField(jpacontainer, itemId, propertyId,
                     uiContext);
             break;
+        case EMBEDDED: 
+            field  = createEmbeddedField(jpacontainer, itemId, propertyId, uiContext);
+            break;
         default:
             break;
         }
         return field;
+    }
+
+    protected Field createEmbeddedField(EntityContainer jpacontainer,
+            Object itemId, Object propertyId, Component uiContext) {
+        // embedded fields are displayed in a sub form
+        EmbeddedForm embeddedForm = new EmbeddedForm(this);
+        embeddedForm.setCaption(DefaultFieldFactory
+                .createCaptionByPropertyId(propertyId));
+        return embeddedForm;
     }
 
     protected OneToOneForm createOneToOneField(EntityContainer<?> jpacontainer,
