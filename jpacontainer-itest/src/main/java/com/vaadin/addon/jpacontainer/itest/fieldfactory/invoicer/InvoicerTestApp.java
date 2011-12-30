@@ -1,9 +1,12 @@
 package com.vaadin.addon.jpacontainer.itest.fieldfactory.invoicer;
 
+import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.BillingAddress2;
 import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.Customer;
 import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.CustomerGroup;
 import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.Invoice;
+import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.Invoice2;
 import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.InvoiceRow;
+import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.InvoiceRow2;
 import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.Product;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -49,6 +52,28 @@ public class InvoicerTestApp extends Window implements
                 InvoiceRow.class, "product", "description", "amount", "unit",
                 "unitPrice");
         addView(invoiceCrudView);
+
+        BasicCrudView<Invoice2> invoice2CrudView = new BasicCrudView<Invoice2>(
+                Invoice2.class) {
+            @Override
+            public String getCaption() {
+                return "Invoice2 (@Embedded and @ElementCollection)";
+            }
+        };
+        invoice2CrudView.setVisibleTableProperties("date", "customer");
+        invoice2CrudView.setVisibleFormProperties("customer", "date",
+                "billingAddress"
+        // TODO enable me to test (still unimplemented) ElementCollection
+        // ,"rows",
+                // "tags"
+                );
+        // configure the order of properties in invoicerow master-detail editor
+        invoice2CrudView.getFieldFactory().setVisibleProperties(
+                InvoiceRow2.class, "product", "description", "amount", "unit",
+                "unitPrice");
+        invoice2CrudView.getFieldFactory().setVisibleProperties(
+                BillingAddress2.class, "street", "postalCode", "city");
+        addView(invoice2CrudView);
 
         navTree.setSelectable(true);
         navTree.setNullSelectionAllowed(false);
