@@ -1,5 +1,7 @@
 package com.vaadin.addon.jpacontainer.metadata;
 
+import javax.persistence.Embeddable;
+
 /**
  * Enumeration defining the property kind.
  * 
@@ -39,6 +41,12 @@ public enum PropertyKind {
      * @see javax.persistence.ManyToMany
      */
     MANY_TO_MANY,
+    /**
+     * The property is a collection {@link Embeddable}s or basic data types.
+     * 
+     * @see javax.persistence.ElementCollection
+     */
+    ELEMENT_COLLECTION,
     /**
      * The property is of a simple datatype.
      */

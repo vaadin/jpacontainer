@@ -54,7 +54,7 @@ public class PersistentPropertyMetadata extends PropertyMetadata {
      *            the type of the property (must not be null).
      * @param propertyKind
      *            the kind of the property, must be either
-     *            {@link PropertyKind#ONE_TO_MANY}, {@link PropertyKind#MANY_TO_MANY} or {@link PropertyKind#SIMPLE}
+     *            {@link PropertyKind#ONE_TO_MANY}, {@link PropertyKind#MANY_TO_MANY}, {@link PropertyKind#ELEMENT_COLLECTION} or {@link PropertyKind#SIMPLE}
      *            .
      * @param field
      *            the field that can be used to access the property (must not be
@@ -63,7 +63,7 @@ public class PersistentPropertyMetadata extends PropertyMetadata {
     PersistentPropertyMetadata(String name, Class<?> type,
             PropertyKind propertyKind, Field field) {
         super(name, type, null, null);
-        assert propertyKind == PropertyKind.ONE_TO_MANY || propertyKind == PropertyKind.MANY_TO_MANY
+        assert propertyKind == PropertyKind.ONE_TO_MANY || propertyKind == PropertyKind.MANY_TO_MANY || propertyKind == PropertyKind.ELEMENT_COLLECTION
                 || propertyKind == PropertyKind.SIMPLE : "propertyKind must be ONE_TO_MANY or SIMPLE";
         assert field != null : "field must not be null";
         this.propertyKind = propertyKind;
@@ -82,7 +82,7 @@ public class PersistentPropertyMetadata extends PropertyMetadata {
      *            type type of the property (must not be null).
      * @param propertyKind
      *            the kind of the property, must be either
-     *            {@link PropertyKind#ONE_TO_MANY}, {@link PropertyKind#MANY_TO_MANY} or {@link PropertyKind#SIMPLE}
+     *            {@link PropertyKind#ONE_TO_MANY}, {@link PropertyKind#MANY_TO_MANY}, {@link PropertyKind#ELEMENT_COLLECTION} or {@link PropertyKind#SIMPLE}
      *            .
      * @param getter
      *            the getter method that can be used to read the property value
@@ -94,7 +94,7 @@ public class PersistentPropertyMetadata extends PropertyMetadata {
     PersistentPropertyMetadata(String name, Class<?> type,
             PropertyKind propertyKind, Method getter, Method setter) {
         super(name, type, getter, setter);
-        assert propertyKind == PropertyKind.ONE_TO_MANY || propertyKind == PropertyKind.MANY_TO_MANY
+        assert propertyKind == PropertyKind.ONE_TO_MANY || propertyKind == PropertyKind.MANY_TO_MANY || propertyKind == PropertyKind.ELEMENT_COLLECTION
                 || propertyKind == PropertyKind.SIMPLE : "propertyKind must be ONE_TO_MANY or SIMPLE";
         assert getter != null : "getter must not be null";
         assert setter != null : "setter must not be null";

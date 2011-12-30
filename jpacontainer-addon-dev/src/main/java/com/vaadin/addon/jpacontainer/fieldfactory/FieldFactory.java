@@ -242,6 +242,10 @@ public class FieldFactory extends DefaultFieldFactory {
             field = createManyToManyField(jpacontainer, itemId, propertyId,
                     uiContext);
             break;
+        case ELEMENT_COLLECTION:
+            field = createElementCollectionField(jpacontainer, itemId, propertyId,
+                    uiContext);
+            break;
         case EMBEDDED: 
             field  = createEmbeddedField(jpacontainer, itemId, propertyId, uiContext);
             break;
@@ -335,6 +339,12 @@ public class FieldFactory extends DefaultFieldFactory {
                 propertyId, uiContext);
     }
 
+    protected Field createElementCollectionField(EntityContainer containerForProperty,
+            Object itemId, Object propertyId, Component uiContext) {
+        return new ElementCollectionEditor(this, containerForProperty, itemId,
+                propertyId, uiContext);
+    }
+    
     /**
      * Detects the type entities in "collection types" (oneToMany, ManyToMany).
      * 

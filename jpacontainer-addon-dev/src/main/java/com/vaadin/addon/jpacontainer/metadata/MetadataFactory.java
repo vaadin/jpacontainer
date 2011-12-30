@@ -11,6 +11,7 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.persistence.ElementCollection;
 import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
 import javax.persistence.EmbeddedId;
@@ -261,6 +262,10 @@ public class MetadataFactory {
                 } else if (isManyToMany(f)) {
                     metadata.addProperties(new PersistentPropertyMetadata(f
                             .getName(), fieldType, PropertyKind.MANY_TO_MANY, f));
+                } else if (isElementCollection(f)) {
+                    metadata.addProperties(new PersistentPropertyMetadata(f
+                            .getName(), fieldType,
+                            PropertyKind.ELEMENT_COLLECTION, f));
                 } else {
                     metadata.addProperties(new PersistentPropertyMetadata(f
                             .getName(), convertPrimitiveType(fieldType),
@@ -294,6 +299,10 @@ public class MetadataFactory {
                 }
             }
         }
+    }
+
+    protected boolean isElementCollection(AccessibleObject ab) {
+        return (ab.getAnnotation(ElementCollection.class) != null);
     }
 
     /**
@@ -397,6 +406,10 @@ public class MetadataFactory {
                         metadata.addProperties(new PersistentPropertyMetadata(
                                 name, m.getReturnType(),
                                 PropertyKind.MANY_TO_MANY, m, setter));
+                    } else if (isElementCollection(m)) {
+                        metadata.addProperties(new PersistentPropertyMetadata(
+                                name, m.getReturnType(),
+                                PropertyKind.ELEMENT_COLLECTION, m, setter));
                     } else {
                         metadata.addProperties(new PersistentPropertyMetadata(
                                 name, m.getReturnType(), PropertyKind.SIMPLE,
