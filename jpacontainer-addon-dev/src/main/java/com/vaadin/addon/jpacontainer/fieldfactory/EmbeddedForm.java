@@ -9,15 +9,16 @@ import com.vaadin.data.util.BeanItem;
 import com.vaadin.ui.Form;
 
 /**
- * TODO ensure this works with and without write buffering properly.
- * 
+ * TODO ensure this works without write buffering properly. There might be an
+ * issue getting things updated if only field in this embedded form are updated.
  */
 @SuppressWarnings("rawtypes")
 public class EmbeddedForm extends Form implements EmbeddableEditor {
     private FieldFactory ff;
     private EntityContainer masterEntityContainer;
 
-    public EmbeddedForm(FieldFactory fieldFactory, EntityContainer masterEntityContainer) {
+    public EmbeddedForm(FieldFactory fieldFactory,
+            EntityContainer masterEntityContainer) {
         setFormFieldFactory(fieldFactory);
         this.ff = fieldFactory;
         this.masterEntityContainer = masterEntityContainer;
@@ -30,9 +31,13 @@ public class EmbeddedForm extends Form implements EmbeddableEditor {
         Object embeddedObject = newDataSource.getValue();
         if (embeddedObject == null) {
             embeddedObject = createInstance(newDataSource.getType());
+            if (isWriteThrough()) {
+                newDataSource.setValue(embeddedObject);
+            }
         }
         BeanItem beanItem = new BeanItem(embeddedObject);
-        Object[] visibleProperties = ff.getVisibleProperties(newDataSource.getType());
+        Object[] visibleProperties = ff.getVisibleProperties(newDataSource
+                .getType());
         if (visibleProperties == null) {
             visibleProperties = beanItem.getItemPropertyIds().toArray();
         }
@@ -53,7 +58,8 @@ public class EmbeddedForm extends Form implements EmbeddableEditor {
         super.commit();
         // notify JPA Property so that things get saved propertly is detached
         // entities are used.
-        getPropertyDataSource().setValue(getPropertyDataSource().getValue());
+        getPropertyDataSource().setValue(
+                ((BeanItem) getItemDataSource()).getBean());
     }
 
     public EntityContainer getMasterEntityContainer() {
