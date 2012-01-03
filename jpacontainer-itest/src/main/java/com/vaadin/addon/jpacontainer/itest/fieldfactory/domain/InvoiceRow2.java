@@ -6,8 +6,6 @@ import javax.persistence.ManyToOne;
 @Embeddable
 public class InvoiceRow2 {
 
-    @ManyToOne
-    private Invoice invoice;
     private String description;
     private Double amount;
     private Double unitPrice;
@@ -38,12 +36,6 @@ public class InvoiceRow2 {
     }
     public void setUnit(String unit) {
         this.unit = unit;
-    }
-    public Invoice getInvoice() {
-        return invoice;
-    }
-    public void setInvoice(Invoice invoice) {
-        this.invoice = invoice;
     }
     public Product getProduct() {
         return product;
