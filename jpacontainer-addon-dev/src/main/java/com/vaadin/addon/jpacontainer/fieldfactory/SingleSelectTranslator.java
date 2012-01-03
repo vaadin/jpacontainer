@@ -7,6 +7,7 @@ import com.vaadin.ui.AbstractSelect;
  * Wrapper property that translates entities to identifiers and visa versa.
  * Expects that the translator is used in a select backed by a jpacontainer.
  */
+@SuppressWarnings("unchecked")
 public class SingleSelectTranslator extends PropertyTranslator {
 
     private final AbstractSelect select;
@@ -15,6 +16,7 @@ public class SingleSelectTranslator extends PropertyTranslator {
         this.select = select;
     }
 
+    @SuppressWarnings("rawtypes")
     private EntityContainer getContainer() {
         return (EntityContainer) select.getContainerDataSource();
     }

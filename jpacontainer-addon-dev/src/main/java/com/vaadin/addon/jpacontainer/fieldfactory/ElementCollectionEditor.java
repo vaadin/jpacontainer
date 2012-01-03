@@ -29,7 +29,7 @@ import com.vaadin.ui.TableFieldFactory;
  *
  */
 public class ElementCollectionEditor extends JPAContainerCustomField implements
-        Action.Handler {
+        Action.Handler, EmbeddableEditor {
 
     private final FieldFactory fieldFactory;
     private Class<?> referencedType;
@@ -238,6 +238,15 @@ public class ElementCollectionEditor extends JPAContainerCustomField implements
         } else {
             super.commit();
         }
+    }
+
+    @SuppressWarnings("rawtypes")
+    public EntityContainer getMasterEntityContainer() {
+        return containerForProperty;
+    }
+
+    public Class<?> getEmbeddedClassType() {
+        return referencedType;
     }
 
 }

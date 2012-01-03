@@ -7,8 +7,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import javax.persistence.Embedded;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
@@ -163,12 +166,19 @@ public class FieldFactory extends DefaultFieldFactory {
 
     @Override
     public Field createField(Item item, Object propertyId, Component uiContext) {
+        Field field;
         if (item instanceof JPAContainerItem) {
             JPAContainerItem jpaitem = (JPAContainerItem) item;
             EntityContainer container = jpaitem.getContainer();
 
-            Field field = createJPAContainerBackedField(jpaitem.getItemId(),
+            field = createJPAContainerBackedField(jpaitem.getItemId(),
                     propertyId, container, uiContext);
+            if (field != null) {
+                return field;
+            }
+        } else {
+            field = createRelationFieldForEmbeddableEditor(item, propertyId,
+                    uiContext);
             if (field != null) {
                 return field;
             }
@@ -178,6 +188,72 @@ public class FieldFactory extends DefaultFieldFactory {
         }
         return configureBasicFields(super.createField(item, propertyId,
                 uiContext));
+    }
+
+    private Field createRelationFieldForEmbeddableEditor(Item item,
+            Object propertyId, Component uiContext) {
+        EmbeddableEditor embeddableEditor = getEmbeddableEditor(uiContext);
+        if (embeddableEditor == null) {
+            return null;
+        }
+        Class<?> embeddedClassType = embeddableEditor.getEmbeddedClassType();
+
+        PropertyKind propertyKind = detectPropertyKind(embeddedClassType,
+                propertyId);
+
+        switch (propertyKind) {
+        case MANY_TO_ONE:
+            JPAContainer container = createJPAContainerFor(
+                    embeddableEditor.getMasterEntityContainer(), item
+                            .getItemProperty(propertyId).getType(), false);
+
+            AbstractSelect select = constructReferenceSelect(
+                    embeddableEditor.getMasterEntityContainer(), null,
+                    propertyId, uiContext, embeddedClassType);
+            select.setMultiSelect(false);
+            select.setCaption(DefaultFieldFactory
+                    .createCaptionByPropertyId(propertyId));
+            select.setItemCaptionMode(NativeSelect.ITEM_CAPTION_MODE_ITEM);
+            select.setContainerDataSource(container);
+            select.setPropertyDataSource(new SingleSelectTranslator(select));
+            return select;
+
+        default:
+            break;
+        }
+
+        return null;
+    }
+
+    private PropertyKind detectPropertyKind(Class<?> embeddedClassType,
+            Object propertyId) {
+        java.lang.reflect.Field[] declaredFields = embeddedClassType
+                .getDeclaredFields();
+        for (java.lang.reflect.Field field : declaredFields) {
+            if (field.getName().equals(propertyId)) {
+                if (field.getAnnotation(ManyToOne.class) != null) {
+                    return PropertyKind.MANY_TO_ONE;
+                } else if (field.getAnnotation(Embedded.class) != null) {
+                    // TODO embedded in embedded ?
+                } else if (field.getAnnotation(ManyToMany.class) != null) {
+                    // TODO unidirectional multiselect is a possible use case
+                    // also?
+                }
+                break;
+            }
+        }
+        return PropertyKind.SIMPLE;
+    }
+
+    private EmbeddableEditor getEmbeddableEditor(Component uiContext) {
+        if (uiContext == null) {
+            return null;
+        }
+        if (uiContext instanceof EmbeddableEditor) {
+            return (EmbeddableEditor) uiContext;
+
+        }
+        return getEmbeddableEditor(uiContext.getParent());
     }
 
     /**
@@ -209,13 +285,21 @@ public class FieldFactory extends DefaultFieldFactory {
     @Override
     public Field createField(Container container, Object itemId,
             Object propertyId, Component uiContext) {
+        Field field;
         if (container instanceof EntityContainer) {
             EntityContainer jpacontainer = (EntityContainer) container;
-            Field field = createJPAContainerBackedField(itemId, propertyId,
+            field = createJPAContainerBackedField(itemId, propertyId,
                     jpacontainer, uiContext);
             if (field != null) {
                 return field;
             }
+        } else {
+            field = createRelationFieldForEmbeddableEditor(
+                    container.getItem(itemId), propertyId, uiContext);
+            if (field != null) {
+                return field;
+            }
+
         }
         return configureBasicFields(super.createField(container, itemId,
                 propertyId, uiContext));
@@ -243,11 +327,12 @@ public class FieldFactory extends DefaultFieldFactory {
                     uiContext);
             break;
         case ELEMENT_COLLECTION:
-            field = createElementCollectionField(jpacontainer, itemId, propertyId,
-                    uiContext);
+            field = createElementCollectionField(jpacontainer, itemId,
+                    propertyId, uiContext);
             break;
-        case EMBEDDED: 
-            field  = createEmbeddedField(jpacontainer, itemId, propertyId, uiContext);
+        case EMBEDDED:
+            field = createEmbeddedField(jpacontainer, itemId, propertyId,
+                    uiContext);
             break;
         default:
             break;
@@ -258,7 +343,7 @@ public class FieldFactory extends DefaultFieldFactory {
     protected Field createEmbeddedField(EntityContainer jpacontainer,
             Object itemId, Object propertyId, Component uiContext) {
         // embedded fields are displayed in a sub form
-        EmbeddedForm embeddedForm = new EmbeddedForm(this);
+        EmbeddedForm embeddedForm = new EmbeddedForm(this, jpacontainer);
         embeddedForm.setCaption(DefaultFieldFactory
                 .createCaptionByPropertyId(propertyId));
         return embeddedForm;
@@ -339,12 +424,13 @@ public class FieldFactory extends DefaultFieldFactory {
                 propertyId, uiContext);
     }
 
-    protected Field createElementCollectionField(EntityContainer containerForProperty,
-            Object itemId, Object propertyId, Component uiContext) {
+    protected Field createElementCollectionField(
+            EntityContainer containerForProperty, Object itemId,
+            Object propertyId, Component uiContext) {
         return new ElementCollectionEditor(this, containerForProperty, itemId,
                 propertyId, uiContext);
     }
-    
+
     /**
      * Detects the type entities in "collection types" (oneToMany, ManyToMany).
      * 
