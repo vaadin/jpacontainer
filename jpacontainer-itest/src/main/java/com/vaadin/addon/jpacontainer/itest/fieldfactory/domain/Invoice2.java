@@ -18,18 +18,9 @@ import javax.persistence.TemporalType;
  * Example entity using @Embedded for BillingAddress and @ElementCollection for
  * InvoiceRow. It also has Set<String> tags to test elementcollection with basic
  * data types.
- * 
- * When bound to a Form with FieldFactory from JPAContainer add-on:
- * 
- * - customer will be edited a select of customers backed by JPAContainer
- * listing Customer entities
- * 
- * - rows will be edited with a Table based "master-detail editor" backed up
- * JPAContainer listing InvoiceRows related to this entity
- * 
- * - billingAddress will be edited with a sub form
- * 
- * See related screenshot for the result
+ * <p>
+ * The uppercaseText field in this pojo tests that value modifications and
+ * possible validations at domain model level are used.
  * 
  */
 @Entity
@@ -40,13 +31,15 @@ public class Invoice2 {
     private Long id;
     @Temporal(TemporalType.TIMESTAMP)
     private Date date = new Date();
+
+    private String uppercaseText;
     @ManyToOne
     private Customer customer;
     @ElementCollection
     private List<InvoiceRow2> rows;
     @Embedded
     private BillingAddress2 billingAddress = new BillingAddress2();
-    
+
     @ElementCollection
     private Set<String> tags;
 
@@ -117,6 +110,19 @@ public class Invoice2 {
 
     public void setTags(Set<String> tags) {
         this.tags = tags;
+    }
+
+    public String getUppercaseText() {
+        return uppercaseText;
+    }
+
+    public void setUppercaseText(String uppercaseText) {
+        if(uppercaseText == null || uppercaseText.isEmpty()) {
+            uppercaseText = "EMPTY";
+        } else {
+            uppercaseText = uppercaseText.toUpperCase();
+        }
+        this.uppercaseText = uppercaseText;
     }
 
 }

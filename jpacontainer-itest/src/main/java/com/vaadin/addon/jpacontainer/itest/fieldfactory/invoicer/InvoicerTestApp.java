@@ -61,12 +61,8 @@ public class InvoicerTestApp extends Window implements
             }
         };
         invoice2CrudView.setVisibleTableProperties("date", "customer");
-        invoice2CrudView.setVisibleFormProperties("customer", "date",
-                "billingAddress"
-        // TODO enable me to test (still unimplemented) ElementCollection
-        // ,"rows",
-                // "tags"
-                );
+        invoice2CrudView.setVisibleFormProperties("customer", "uppercaseText",
+                "date", "billingAddress", "rows", "tags");
         // configure the order of properties in invoicerow master-detail editor
         invoice2CrudView.getFieldFactory().setVisibleProperties(
                 InvoiceRow2.class, "product", "description", "amount", "unit",
