@@ -186,8 +186,36 @@ public class FieldFactory extends DefaultFieldFactory {
         if ("id".equals(propertyId)) {
             return createIdentifierField();
         }
-        return configureBasicFields(super.createField(item, propertyId,
-                uiContext));
+        field = createEnumSelect(item.getItemProperty(propertyId).getType(),
+                propertyId);
+        if (field == null) {
+            field = super.createField(item, propertyId, uiContext);
+        }
+        return configureBasicFields(field);
+    }
+
+    /**
+     * @param type
+     * @param propertyId
+     * @return
+     */
+    protected Field createEnumSelect(Class<?> type, Object propertyId) {
+        if (type.isEnum()) {
+            AbstractSelect select = constructCollectionSelect(null, null,
+                    propertyId, null, type);
+            populateEnums(type, select);
+            select.setCaption(DefaultFieldFactory
+                    .createCaptionByPropertyId(propertyId));
+            return select;
+        }
+        return null;
+    }
+
+    private void populateEnums(Class<?> type, AbstractSelect select) {
+        List<?> asList = Arrays.asList(type.getEnumConstants());
+        for (Object object : asList) {
+            select.addItem(object);
+        }
     }
 
     private Field createRelationFieldForEmbeddableEditor(Item item,
@@ -301,8 +329,11 @@ public class FieldFactory extends DefaultFieldFactory {
             }
 
         }
-        return configureBasicFields(super.createField(container, itemId,
-                propertyId, uiContext));
+        field = createEnumSelect(container.getType(propertyId), propertyId);
+        if (field == null) {
+            field = super.createField(container, itemId, propertyId, uiContext);
+        }
+        return configureBasicFields(field);
     }
 
     private Field createJPAContainerBackedField(Object itemId,
@@ -427,8 +458,31 @@ public class FieldFactory extends DefaultFieldFactory {
     protected Field createElementCollectionField(
             EntityContainer containerForProperty, Object itemId,
             Object propertyId, Component uiContext) {
-        return new ElementCollectionEditor(this, containerForProperty, itemId,
-                propertyId, uiContext);
+
+        Class referencedType = detectReferencedType(containerForProperty.getEntityProvider()
+                .getEntityManager().getEntityManagerFactory(), propertyId,
+                containerForProperty.getEntityClass());
+        if(referencedType.isEnum()) {
+            AbstractSelect collectionSelect = constructCollectionSelect(null, itemId, propertyId, uiContext, referencedType);
+            collectionSelect.setCaption(DefaultFieldFactory.createCaptionByPropertyId(propertyId));
+            populateEnums(referencedType, collectionSelect);
+            collectionSelect.setMultiSelect(true);
+            if(List.class.isAssignableFrom(containerForProperty.getType(propertyId))) {
+                collectionSelect.setPropertyDataSource(new ListTranslator(collectionSelect));
+            }
+            
+            if (collectionSelect instanceof Table) {
+                Table t = (Table) collectionSelect;
+                t.setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
+                t.setSelectable(true);
+                t.setRowHeaderMode(Table.ROW_HEADER_MODE_ID);
+            }
+            return collectionSelect;
+        } else {
+            return new ElementCollectionEditor(this, containerForProperty, itemId,
+                    propertyId, uiContext);
+        }
+
     }
 
     /**
