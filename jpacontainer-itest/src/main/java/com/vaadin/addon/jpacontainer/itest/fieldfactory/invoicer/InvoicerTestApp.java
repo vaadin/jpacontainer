@@ -5,6 +5,7 @@ import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.Customer;
 import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.CustomerGroup;
 import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.Invoice;
 import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.Invoice2;
+import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.Invoice2.TestEnumTags;
 import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.InvoiceRow;
 import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.InvoiceRow2;
 import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.Product;
@@ -12,6 +13,7 @@ import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalSplitPanel;
+import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.Window;
 
@@ -44,8 +46,8 @@ public class InvoicerTestApp extends Window implements
 
         BasicCrudView<Invoice> invoiceCrudView = new BasicCrudView<Invoice>(
                 Invoice.class);
-        invoiceCrudView.setVisibleTableProperties("date", "customer");
-        invoiceCrudView.setVisibleFormProperties("customer", "date",
+        invoiceCrudView.setVisibleTableProperties("date", "customer", "state");
+        invoiceCrudView.setVisibleFormProperties("customer", "state", "date",
                 "billingAddress", "rows");
         // configure the order of properties in invoicerow master-detail editor
         invoiceCrudView.getFieldFactory().setVisibleProperties(
@@ -62,13 +64,14 @@ public class InvoicerTestApp extends Window implements
         };
         invoice2CrudView.setVisibleTableProperties("date", "customer");
         invoice2CrudView.setVisibleFormProperties("customer", "uppercaseText",
-                "date", "billingAddress", "rows", "tags");
+                "date", "billingAddress", "rows", "tags", "enumTags");
         // configure the order of properties in invoicerow master-detail editor
         invoice2CrudView.getFieldFactory().setVisibleProperties(
                 InvoiceRow2.class, "product", "description", "amount", "unit",
                 "unitPrice");
         invoice2CrudView.getFieldFactory().setVisibleProperties(
                 BillingAddress2.class, "street", "postalCode", "city");
+        invoice2CrudView.getFieldFactory().setMultiSelectType(TestEnumTags.class, OptionGroup.class);
         addView(invoice2CrudView);
 
         navTree.setSelectable(true);

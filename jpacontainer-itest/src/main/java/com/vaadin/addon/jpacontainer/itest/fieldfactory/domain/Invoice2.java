@@ -11,6 +11,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OrderColumn;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
@@ -25,6 +26,10 @@ import javax.persistence.TemporalType;
  */
 @Entity
 public class Invoice2 {
+
+    public enum TestEnumTags {
+        ZERO, ONE, TWO, THREE, FOUR
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -42,6 +47,14 @@ public class Invoice2 {
 
     @ElementCollection
     private Set<String> tags;
+
+    /*
+     * Most commonly one would use Set here, but using List to ensure
+     * ListTranslator works properly
+     */
+    @ElementCollection
+    @OrderColumn
+    private List<TestEnumTags> enumTags;
 
     public Long getId() {
         return id;
@@ -117,12 +130,20 @@ public class Invoice2 {
     }
 
     public void setUppercaseText(String uppercaseText) {
-        if(uppercaseText == null || uppercaseText.isEmpty()) {
+        if (uppercaseText == null || uppercaseText.isEmpty()) {
             uppercaseText = "EMPTY";
         } else {
             uppercaseText = uppercaseText.toUpperCase();
         }
         this.uppercaseText = uppercaseText;
+    }
+
+    public List<TestEnumTags> getEnumTags() {
+        return enumTags;
+    }
+
+    public void setEnumTags(List<TestEnumTags> enumTags) {
+        this.enumTags = enumTags;
     }
 
 }

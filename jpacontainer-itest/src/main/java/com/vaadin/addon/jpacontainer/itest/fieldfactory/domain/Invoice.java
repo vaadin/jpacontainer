@@ -31,7 +31,13 @@ import javax.persistence.TemporalType;
  */
 @Entity
 public class Invoice {
-
+    
+    public enum State {
+        DRAFT,
+        SENT,
+        PAYED
+    }
+    
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -43,6 +49,8 @@ public class Invoice {
     private List<InvoiceRow> rows;
     @OneToOne
     private BillingAddress billingAddress;
+    
+    private State state;
 
     public Long getId() {
         return id;
@@ -103,6 +111,14 @@ public class Invoice {
     @Override
     public int hashCode() {
         return id == null ? 0 : id.hashCode();
+    }
+
+    public State getState() {
+        return state;
+    }
+
+    public void setState(State state) {
+        this.state = state;
     }
 
 
