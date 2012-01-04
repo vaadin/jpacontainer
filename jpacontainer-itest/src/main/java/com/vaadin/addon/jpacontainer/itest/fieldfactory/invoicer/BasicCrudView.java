@@ -247,7 +247,11 @@ public class BasicCrudView<T> extends AbsoluteLayout implements
         container.refresh();
         if (table.getValue() != null) {
             // reset form as e.g. referenced containers may have changed
-            form.setItemDataSource(table.getItem(table.getValue()));
+            Item item = table.getItem(table.getValue());
+            form.setItemDataSource(item ,
+                    formPropertyIds != null ? Arrays.asList(formPropertyIds)
+                            : item.getItemPropertyIds());
+            form.focus();
         }
     }
 
