@@ -22,6 +22,7 @@ import com.vaadin.addon.jpacontainer.JPAContainerFactory;
 import com.vaadin.addon.jpacontainer.fieldfactory.MultiSelectTranslator;
 import com.vaadin.addon.jpacontainer.fieldfactory.SingleSelectTranslator;
 import com.vaadin.addon.jpacontainer.provider.LocalEntityProvider;
+import com.vaadin.addon.jpacontainer.testdata.BeanWithLogic;
 import com.vaadin.addon.jpacontainer.testdata.DataGenerator;
 import com.vaadin.addon.jpacontainer.testdata.Department;
 import com.vaadin.addon.jpacontainer.testdata.Person;
@@ -337,4 +338,28 @@ public abstract class AbstractComponentIntegrationTest extends
         Object firstItemId = container.firstItemId();
         assertNull(firstItemId);
     }
+
+    @Test
+    public void ensureSetterLogicIsUsed() throws IOException {
+        JPAContainer<BeanWithLogic> container = JPAContainerFactory.make(
+                BeanWithLogic.class, getEntityManager());
+        BeanWithLogic beanWithLogic = new BeanWithLogic();
+        Object id = container.addEntity(beanWithLogic);
+
+        EntityItem<BeanWithLogic> item = container.getItem(id);
+
+        EntityItemProperty itemProperty = item.getItemProperty("name");
+
+        itemProperty.setValue("fin"); // setter method should uppercase the
+                                      // string
+
+        Object valueFromProperty = itemProperty.getValue();
+        assertEquals("FIN", valueFromProperty);
+
+        BeanWithLogic beanFromEntityManager = getEntityManager().find(
+                BeanWithLogic.class, id);
+        assertEquals("FIN", beanFromEntityManager.getName());
+
+    }
+
 }

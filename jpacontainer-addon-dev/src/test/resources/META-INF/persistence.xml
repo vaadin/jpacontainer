@@ -21,6 +21,7 @@
 		<class>com.vaadin.addon.jpacontainer.testdata.PersonSkill</class>
 		<class>com.vaadin.addon.jpacontainer.testdata.Skill</class>
 		<class>com.vaadin.addon.jpacontainer.testdata.Department</class>
+		<class>com.vaadin.addon.jpacontainer.testdata.BeanWithLogic</class>
 		<exclude-unlisted-classes>true</exclude-unlisted-classes>
 	</persistence-unit>
 
