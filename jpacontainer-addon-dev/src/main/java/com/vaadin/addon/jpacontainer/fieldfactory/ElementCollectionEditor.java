@@ -45,15 +45,10 @@ public class ElementCollectionEditor extends JPAContainerCustomField implements
     final private Action add = new Action(getMasterDetailAddItemCaption());
     final private Action remove = new Action(getMasterDetailRemoveItemCaption());
     final private Action[] actions = new Action[] { add, remove };
-    @SuppressWarnings("rawtypes")
     private BeanItemContainer container;
     private Table table;
     private String backReferencePropertyId;
-    private Object masterEntity;
-    private final Object propertyId;
     private final EntityContainer<?> containerForProperty;
-    private final Object itemId;
-
     private Strategy strategy;
 
     /**
@@ -69,9 +64,7 @@ public class ElementCollectionEditor extends JPAContainerCustomField implements
             Object propertyId, Component uiContext) {
         this.fieldFactory = fieldFactory;
         this.containerForProperty = containerForProperty;
-        this.itemId = itemId;
-        this.propertyId = propertyId;
-        masterEntity = containerForProperty.getItem(itemId).getEntity();
+        containerForProperty.getItem(itemId).getEntity();
         Class<?> masterEntityClass = containerForProperty.getEntityClass();
         referencedType = fieldFactory.detectReferencedType(
                 fieldFactory.getEntityManagerFactory(containerForProperty),
@@ -79,11 +72,14 @@ public class ElementCollectionEditor extends JPAContainerCustomField implements
 
         detectStrategy();
 
-        boolean writeThrough = true;
         if (uiContext instanceof Form) {
+            // copy write buffering eagerly from parent if Form, form sets
+            // buffering mode for fields too late
             Form f = (Form) uiContext;
-            writeThrough = f.isWriteThrough();
+            boolean writeThrough = f.isWriteThrough();
+            setWriteThrough(writeThrough);
         }
+
         buildContainer();
 
         buildLayout();
@@ -208,7 +204,6 @@ public class ElementCollectionEditor extends JPAContainerCustomField implements
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void addNew() {
         try {
             strategy.addNew();
@@ -219,7 +214,6 @@ public class ElementCollectionEditor extends JPAContainerCustomField implements
         }
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
     public void commit() throws SourceException, InvalidValueException {
         if (!isWriteThrough()) {
@@ -229,7 +223,6 @@ public class ElementCollectionEditor extends JPAContainerCustomField implements
         }
     }
 
-    @SuppressWarnings("rawtypes")
     public EntityContainer getMasterEntityContainer() {
         return containerForProperty;
     }
@@ -247,7 +240,7 @@ public class ElementCollectionEditor extends JPAContainerCustomField implements
         // property has changed. Needed to make property "dirty".
         getPropertyDataSource().setValue(getElements());
     }
-    
+
     private interface Strategy {
 
         BeanItemContainer buildContainer();
@@ -334,15 +327,15 @@ public class ElementCollectionEditor extends JPAContainerCustomField implements
 
     public class ValueHolder {
         private Object value;
-        
+
         public ValueHolder(Object o) {
             value = o;
         }
-        
+
         public Object getValue() {
             return value;
         }
-        
+
         public void setValue(Object newValue) {
             if (this.value != newValue) {
                 if (newValue == null) {
@@ -359,9 +352,8 @@ public class ElementCollectionEditor extends JPAContainerCustomField implements
             this.value = newValue;
         }
     }
-    
-    private class ImmutableStrategy implements Strategy {
 
+    private class ImmutableStrategy implements Strategy {
 
         public BeanItemContainer buildContainer() {
             return new BeanItemContainer<ValueHolder>(ValueHolder.class);
@@ -385,7 +377,6 @@ public class ElementCollectionEditor extends JPAContainerCustomField implements
                 notifyPropertyOfChangedList();
             }
         }
-
 
         public void remove(Object itemId) {
             BeanItem item = container.getItem(itemId);

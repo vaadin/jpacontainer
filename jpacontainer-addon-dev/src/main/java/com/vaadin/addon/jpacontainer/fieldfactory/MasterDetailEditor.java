@@ -27,6 +27,7 @@ import com.vaadin.ui.Form;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TableFieldFactory;
 
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class MasterDetailEditor extends JPAContainerCustomField implements
         Action.Handler {
 
@@ -36,7 +37,6 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
     final private Action add = new Action(getMasterDetailAddItemCaption());
     final private Action remove = new Action(getMasterDetailRemoveItemCaption());
     final private Action[] actions = new Action[] { add, remove };
-    @SuppressWarnings("rawtypes")
     private JPAContainer container;
     private Table table;
     private String backReferencePropertyId;
@@ -97,8 +97,6 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
                         addNew();
                     }
                 }));
-        // TODO replace with a (-) button in a generated column? Table currently
-        // not selectable.
         buttons.addComponent(new Button(getMasterDetailRemoveItemCaption(),
                 new ClickListener() {
                     public void buttonClick(ClickEvent event) {
@@ -189,11 +187,9 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void addNew() {
         try {
             Object newInstance = container.getEntityClass().newInstance();
-            @SuppressWarnings("rawtypes")
             BeanItem<?> beanItem = new BeanItem(newInstance);
             beanItem.getItemProperty(backReferencePropertyId).setValue(
                     masterEntity);
@@ -208,7 +204,6 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
         }
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
     public void commit() throws SourceException, InvalidValueException {
         if (!isWriteThrough()) {

@@ -115,6 +115,7 @@ public abstract class PropertyTranslator extends AbstractProperty implements
     }
 
     /* Documented in the interface */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Class getType() {
         return String.class;
     }

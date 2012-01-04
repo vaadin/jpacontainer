@@ -21,6 +21,7 @@ import com.vaadin.ui.AbstractSelect;
  * identifiers and visa versa. Expects that the translator is used in a select
  * backed by a jpacontainer.
  */
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class MultiSelectTranslator extends PropertyTranslator {
 
     private final AbstractSelect select;
@@ -31,12 +32,10 @@ public class MultiSelectTranslator extends PropertyTranslator {
         this.select = select;
     }
 
-    @SuppressWarnings({ "rawtypes" })
     private EntityContainer getContainer() {
         return (EntityContainer) select.getContainerDataSource();
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Object translateFromDatasource(Object value) {
         // Value here is a collection of entities, should be transformed to a
@@ -52,7 +51,6 @@ public class MultiSelectTranslator extends PropertyTranslator {
         return identifiers;
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public Object translateToDatasource(Object formattedValue) throws Exception {
         
@@ -102,7 +100,6 @@ public class MultiSelectTranslator extends PropertyTranslator {
         return value;
     }
 
-    @SuppressWarnings({ "rawtypes" })
     private void removeBackReference(Object entity) {
         if (!isOwningSide()) {
             EntityItemProperty itemProperty = getBackReferenceItemProperty(entity);
@@ -112,7 +109,6 @@ public class MultiSelectTranslator extends PropertyTranslator {
         }
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     private EntityItemProperty getBackReferenceItemProperty(Object entity) {
         EntityItem item = getContainer().getItem(
                 getContainer().getEntityProvider().getIdentifier(entity));
@@ -120,7 +116,6 @@ public class MultiSelectTranslator extends PropertyTranslator {
         return itemProperty;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     private void addBackReference(Object entity) {
         if (!isOwningSide()) {
             EntityItemProperty itemProperty = getBackReferenceItemProperty(entity);
