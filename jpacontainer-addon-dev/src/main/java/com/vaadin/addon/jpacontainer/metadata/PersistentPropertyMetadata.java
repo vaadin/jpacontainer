@@ -54,16 +54,20 @@ public class PersistentPropertyMetadata extends PropertyMetadata {
      *            the type of the property (must not be null).
      * @param propertyKind
      *            the kind of the property, must be either
-     *            {@link PropertyKind#ONE_TO_MANY}, {@link PropertyKind#MANY_TO_MANY}, {@link PropertyKind#ELEMENT_COLLECTION} or {@link PropertyKind#SIMPLE}
-     *            .
+     *            {@link PropertyKind#ONE_TO_MANY},
+     *            {@link PropertyKind#MANY_TO_MANY},
+     *            {@link PropertyKind#ELEMENT_COLLECTION} or
+     *            {@link PropertyKind#SIMPLE} .
      * @param field
      *            the field that can be used to access the property (must not be
      *            null).
      */
     PersistentPropertyMetadata(String name, Class<?> type,
-            PropertyKind propertyKind, Field field) {
-        super(name, type, null, null);
-        assert propertyKind == PropertyKind.ONE_TO_MANY || propertyKind == PropertyKind.MANY_TO_MANY || propertyKind == PropertyKind.ELEMENT_COLLECTION
+            PropertyKind propertyKind, Field field, Method setter) {
+        super(name, type, null, setter);
+        assert propertyKind == PropertyKind.ONE_TO_MANY
+                || propertyKind == PropertyKind.MANY_TO_MANY
+                || propertyKind == PropertyKind.ELEMENT_COLLECTION
                 || propertyKind == PropertyKind.SIMPLE : "propertyKind must be ONE_TO_MANY or SIMPLE";
         assert field != null : "field must not be null";
         this.propertyKind = propertyKind;
@@ -82,8 +86,10 @@ public class PersistentPropertyMetadata extends PropertyMetadata {
      *            type type of the property (must not be null).
      * @param propertyKind
      *            the kind of the property, must be either
-     *            {@link PropertyKind#ONE_TO_MANY}, {@link PropertyKind#MANY_TO_MANY}, {@link PropertyKind#ELEMENT_COLLECTION} or {@link PropertyKind#SIMPLE}
-     *            .
+     *            {@link PropertyKind#ONE_TO_MANY},
+     *            {@link PropertyKind#MANY_TO_MANY},
+     *            {@link PropertyKind#ELEMENT_COLLECTION} or
+     *            {@link PropertyKind#SIMPLE} .
      * @param getter
      *            the getter method that can be used to read the property value
      *            (must not be null).
@@ -94,7 +100,9 @@ public class PersistentPropertyMetadata extends PropertyMetadata {
     PersistentPropertyMetadata(String name, Class<?> type,
             PropertyKind propertyKind, Method getter, Method setter) {
         super(name, type, getter, setter);
-        assert propertyKind == PropertyKind.ONE_TO_MANY || propertyKind == PropertyKind.MANY_TO_MANY || propertyKind == PropertyKind.ELEMENT_COLLECTION
+        assert propertyKind == PropertyKind.ONE_TO_MANY
+                || propertyKind == PropertyKind.MANY_TO_MANY
+                || propertyKind == PropertyKind.ELEMENT_COLLECTION
                 || propertyKind == PropertyKind.SIMPLE : "propertyKind must be ONE_TO_MANY or SIMPLE";
         assert getter != null : "getter must not be null";
         assert setter != null : "setter must not be null";
@@ -114,17 +122,19 @@ public class PersistentPropertyMetadata extends PropertyMetadata {
      *            the type metadata of the property (must not be null).
      * @param propertyKind
      *            the kind of the property, must be either
-     *            {@link PropertyKind#MANY_TO_ONE}, {@link PropertyKind#ONE_TO_ONE} or
+     *            {@link PropertyKind#MANY_TO_ONE},
+     *            {@link PropertyKind#ONE_TO_ONE} or
      *            {@link PropertyKind#EMBEDDED}.
      * @param field
      *            the field that can be used to access the property (must not be
      *            null).
      */
     PersistentPropertyMetadata(String name, ClassMetadata<?> type,
-            PropertyKind propertyKind, Field field) {
-        super(name, type.getMappedClass(), null, null);
+            PropertyKind propertyKind, Field field, Method setter) {
+        super(name, type.getMappedClass(), null, setter);
         assert type != null : "type must not be null";
-        assert propertyKind == PropertyKind.MANY_TO_ONE || propertyKind == PropertyKind.ONE_TO_ONE
+        assert propertyKind == PropertyKind.MANY_TO_ONE
+                || propertyKind == PropertyKind.ONE_TO_ONE
                 || propertyKind == PropertyKind.EMBEDDED : "propertyKind must be MANY_TO_ONE or EMBEDDED";
         assert field != null : "field must not be null";
         this.propertyKind = propertyKind;
@@ -143,7 +153,8 @@ public class PersistentPropertyMetadata extends PropertyMetadata {
      *            the type metadata of the property (must not be null).
      * @param propertyKind
      *            the kind of the property, must be either
-     *            {@link PropertyKind#MANY_TO_ONE},{@link PropertyKind#ONE_TO_ONE}  or
+     *            {@link PropertyKind#MANY_TO_ONE},
+     *            {@link PropertyKind#ONE_TO_ONE} or
      *            {@link PropertyKind#EMBEDDED}.
      * @param getter
      *            the getter method that can be used to read the property value
@@ -156,7 +167,8 @@ public class PersistentPropertyMetadata extends PropertyMetadata {
             PropertyKind propertyKind, Method getter, Method setter) {
         super(name, type.getMappedClass(), getter, setter);
         assert type != null : "type must not be null";
-        assert propertyKind == PropertyKind.MANY_TO_ONE || propertyKind == PropertyKind.ONE_TO_ONE
+        assert propertyKind == PropertyKind.MANY_TO_ONE
+                || propertyKind == PropertyKind.ONE_TO_ONE
                 || propertyKind == PropertyKind.EMBEDDED : "propertyKind must be MANY_TO_ONE or EMBEDDED";
         assert getter != null : "getter must not be null";
         assert setter != null : "setter must not be null";
@@ -245,8 +257,12 @@ public class PersistentPropertyMetadata extends PropertyMetadata {
             }
             Method setterM = null;
             if (setterName != null) {
+                // use the type from field if possible. type is Vaadin property
+                // type, which means that for primitive types we convert it to
+                // wrapper type
+                Class<?> setterType = (f == null) ? getType() : f.getType();
                 setterM = setterDeclaringClass.getDeclaredMethod(setterName,
-                        getType());
+                        setterType);
             }
             return new PersistentPropertyMetadata(getName(), typeMetadata,
                     getType(), propertyKind, getterM, setterM, f);

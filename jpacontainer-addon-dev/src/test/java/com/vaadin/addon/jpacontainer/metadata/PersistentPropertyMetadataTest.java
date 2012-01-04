@@ -34,7 +34,7 @@ public class PersistentPropertyMetadataTest {
 		Field field = getClass().getDeclaredField("dummyField");
 		PersistentPropertyMetadata prop = new PersistentPropertyMetadata(
 				"dummy", Integer.class,
-				PropertyKind.SIMPLE, field);
+				PropertyKind.SIMPLE, field, null);
 		assertEquals("dummy", prop.getName());
 		assertSame(Integer.class, prop.getType());
 		assertNull(prop.getTypeMetadata());
@@ -82,7 +82,7 @@ public class PersistentPropertyMetadataTest {
 		// will work anyway
 		PersistentPropertyMetadata prop = new PersistentPropertyMetadata(
 				"dummy", cmd,
-				PropertyKind.MANY_TO_ONE, field);
+				PropertyKind.MANY_TO_ONE, field, null);
 		assertEquals("dummy", prop.getName());
 		assertSame(Integer.class, prop.getType());
 		assertSame(cmd, prop.getTypeMetadata());

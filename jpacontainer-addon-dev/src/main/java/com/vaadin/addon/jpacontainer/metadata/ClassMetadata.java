@@ -212,7 +212,10 @@ public class ClassMetadata<T> implements Serializable {
         assert property != null : "property must not be null";
         if (property != null && property.isWritable()) {
             try {
-                if (property instanceof PersistentPropertyMetadata) {
+                if (property.setter == null
+                        && property instanceof PersistentPropertyMetadata) {
+                    // use direct field access of PersistentPropertyMetadata iff
+                    // the setter method does not exist
                     PersistentPropertyMetadata ppmd = (PersistentPropertyMetadata) property;
                     if (ppmd.field != null) {
                         try {

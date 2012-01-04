@@ -29,7 +29,7 @@ public class EntityClassMetadataTest {
 		PersistentPropertyMetadata idProp = new PersistentPropertyMetadata(
 				"id", Integer.class,
 				PropertyKind.SIMPLE,
-				BaseEntity_F.class.getDeclaredField("id"));
+				BaseEntity_F.class.getDeclaredField("id"), null);
 		metadata.addProperties(idProp);
 
 		assertFalse(metadata.hasIdentifierProperty());
@@ -54,7 +54,7 @@ public class EntityClassMetadataTest {
 		PersistentPropertyMetadata idProp = new PersistentPropertyMetadata(
 				"id", new ClassMetadata<Integer>(Integer.class),
 				PropertyKind.EMBEDDED,
-				BaseEntity_F.class.getDeclaredField("id"));
+				BaseEntity_F.class.getDeclaredField("id"), null);
 		metadata.addProperties(idProp);
 
 		assertFalse(metadata.hasIdentifierProperty());
@@ -108,7 +108,7 @@ public class EntityClassMetadataTest {
 				Person_F.class, "entityName");
 		metadata.addProperties(new PersistentPropertyMetadata("id",
 				Integer.class, PropertyKind.SIMPLE,
-				BaseEntity_F.class.getDeclaredField("id")));
+				BaseEntity_F.class.getDeclaredField("id"), null));
 		metadata.setIdentifierPropertyName("id");
 		assertNotNull(metadata.getIdentifierProperty());
 
@@ -126,7 +126,7 @@ public class EntityClassMetadataTest {
 		PersistentPropertyMetadata verProp = new PersistentPropertyMetadata(
 				"version", Integer.class,
 				PropertyKind.SIMPLE,
-				BaseEntity_F.class.getDeclaredField("version"));
+				BaseEntity_F.class.getDeclaredField("version"), null);
 		metadata.addProperties(verProp);
 
 		assertFalse(metadata.hasVersionProperty());
@@ -176,7 +176,7 @@ public class EntityClassMetadataTest {
 				Person_F.class, "entityName");
 		metadata.addProperties(new PersistentPropertyMetadata("version",
 				Integer.class, PropertyKind.SIMPLE,
-				BaseEntity_F.class.getDeclaredField("version")));
+				BaseEntity_F.class.getDeclaredField("version"), null));
 		metadata.setVersionPropertyName("version");
 		assertNotNull(metadata.getVersionProperty());
 

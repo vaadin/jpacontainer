@@ -241,35 +241,52 @@ public class MetadataFactory {
                     && !Modifier.isTransient(mod)
                     && f.getAnnotation(Transient.class) == null) {
                 Class<?> fieldType = getFieldType(f);
+                Method setterMethod = null;
+                try {
+                    final String assumedSetterName = "set"
+                            + f.getName().substring(0, 1).toUpperCase()
+                            + f.getName().substring(1);
+                    Method method = type
+                            .getMethod(assumedSetterName, fieldType);
+                    setterMethod = method;
+                } catch (Exception e) {
+                    // Setter does not exist or is not accessible
+                }
+
                 if (isEmbedded(f)) {
                     ClassMetadata<?> cm = getClassMetadata(fieldType,
                             AccessType.FIELD);
                     metadata.addProperties(new PersistentPropertyMetadata(f
-                            .getName(), cm, PropertyKind.EMBEDDED, f));
+                            .getName(), cm, PropertyKind.EMBEDDED, f,
+                            setterMethod));
                 } else if (isReference(f)) {
                     ClassMetadata<?> cm = getClassMetadata(fieldType,
                             AccessType.FIELD);
                     metadata.addProperties(new PersistentPropertyMetadata(f
-                            .getName(), cm, PropertyKind.MANY_TO_ONE, f));
+                            .getName(), cm, PropertyKind.MANY_TO_ONE, f,
+                            setterMethod));
                 } else if (isOneToOne(f)) {
                     ClassMetadata<?> cm = getClassMetadata(fieldType,
                             AccessType.FIELD);
                     metadata.addProperties(new PersistentPropertyMetadata(f
-                            .getName(), cm, PropertyKind.ONE_TO_ONE, f));
+                            .getName(), cm, PropertyKind.ONE_TO_ONE, f,
+                            setterMethod));
                 } else if (isCollection(f)) {
                     metadata.addProperties(new PersistentPropertyMetadata(f
-                            .getName(), fieldType, PropertyKind.ONE_TO_MANY, f));
+                            .getName(), fieldType, PropertyKind.ONE_TO_MANY, f,
+                            setterMethod));
                 } else if (isManyToMany(f)) {
                     metadata.addProperties(new PersistentPropertyMetadata(f
-                            .getName(), fieldType, PropertyKind.MANY_TO_MANY, f));
+                            .getName(), fieldType, PropertyKind.MANY_TO_MANY,
+                            f, setterMethod));
                 } else if (isElementCollection(f)) {
                     metadata.addProperties(new PersistentPropertyMetadata(f
                             .getName(), fieldType,
-                            PropertyKind.ELEMENT_COLLECTION, f));
+                            PropertyKind.ELEMENT_COLLECTION, f, setterMethod));
                 } else {
                     metadata.addProperties(new PersistentPropertyMetadata(f
                             .getName(), convertPrimitiveType(fieldType),
-                            PropertyKind.SIMPLE, f));
+                            PropertyKind.SIMPLE, f, setterMethod));
                 }
             }
         }

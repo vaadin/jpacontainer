@@ -127,7 +127,7 @@ public class ClassMetadataTest {
 		PersistentPropertyMetadata prop = new PersistentPropertyMetadata(
 				"firstName", String.class,
 				PropertyKind.SIMPLE, Person_F.class
-						.getDeclaredField("firstName"));
+						.getDeclaredField("firstName"), null);
 		metadata.addProperties(prop);
 
 		Person_F person = new Person_F();
@@ -142,14 +142,14 @@ public class ClassMetadataTest {
 				Address_F.class);
 		addressMetadata.addProperties(new PersistentPropertyMetadata("street",
 				String.class, PropertyKind.SIMPLE,
-				Address_F.class.getDeclaredField("street")));
+				Address_F.class.getDeclaredField("street"), null));
 
 		ClassMetadata<Person_F> metadata = new ClassMetadata<Person_F>(
 				Person_F.class);
 		metadata.addProperties(new PersistentPropertyMetadata("address",
 				addressMetadata,
 				PropertyKind.EMBEDDED,
-				Person_F.class.getDeclaredField("address")));
+				Person_F.class.getDeclaredField("address"), null));
 
 		Person_F person = new Person_F();
 
@@ -169,7 +169,7 @@ public class ClassMetadataTest {
 		PersistentPropertyMetadata prop = new PersistentPropertyMetadata(
 				"firstName", String.class,
 				PropertyKind.SIMPLE, Person_F.class
-						.getDeclaredField("firstName"));
+						.getDeclaredField("firstName"), null);
 		metadata.addProperties(prop);
 
 		Person_F person = new Person_F();
@@ -184,14 +184,14 @@ public class ClassMetadataTest {
 				Address_F.class);
 		addressMetadata.addProperties(new PersistentPropertyMetadata("street",
 				String.class, PropertyKind.SIMPLE,
-				Address_F.class.getDeclaredField("street")));
+				Address_F.class.getDeclaredField("street"), null));
 
 		ClassMetadata<Person_F> metadata = new ClassMetadata<Person_F>(
 				Person_F.class);
 		metadata.addProperties(new PersistentPropertyMetadata("address",
 				addressMetadata,
 				PropertyKind.EMBEDDED,
-				Person_F.class.getDeclaredField("address")));
+				Person_F.class.getDeclaredField("address"), null));
 
 		Person_F person = new Person_F();
 		person.address = new Address_F();
