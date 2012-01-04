@@ -337,10 +337,6 @@ public class MetadataFactory {
             targetEntity = f.getAnnotation(ManyToOne.class).targetEntity();
         } else if (isOneToOne(f)) {
             targetEntity = f.getAnnotation(OneToOne.class).targetEntity();
-        } else if (isCollection(f)) {
-            targetEntity = f.getAnnotation(OneToMany.class).targetEntity();
-        } else if (isManyToMany(f)) {
-            targetEntity = f.getAnnotation(ManyToMany.class).targetEntity();
         }
         if (targetEntity != void.class) {
             return targetEntity;
