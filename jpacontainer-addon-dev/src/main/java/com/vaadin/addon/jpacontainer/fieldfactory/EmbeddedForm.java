@@ -55,11 +55,16 @@ public class EmbeddedForm extends Form implements EmbeddableEditor {
 
     @Override
     public void commit() throws SourceException, InvalidValueException {
-        super.commit();
-        // notify JPA Property so that things get saved propertly is detached
-        // entities are used.
-        getPropertyDataSource().setValue(
-                ((BeanItem) getItemDataSource()).getBean());
+        if (isModified()) {
+
+            super.commit();
+            // notify JPA Property so that things get saved properly if detached
+            // entities are used.
+
+            Object bean = ((BeanItem) getItemDataSource()).getBean();
+
+            getPropertyDataSource().setValue(bean);
+        }
     }
 
     public EntityContainer getMasterEntityContainer() {
