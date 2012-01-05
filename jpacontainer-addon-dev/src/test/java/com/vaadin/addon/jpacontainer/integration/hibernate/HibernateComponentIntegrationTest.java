@@ -10,6 +10,7 @@ import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
 import com.vaadin.addon.jpacontainer.integration.AbstractComponentIntegrationTest;
 import com.vaadin.addon.jpacontainer.testdata.Address;
+import com.vaadin.addon.jpacontainer.testdata.BeanWithLogic;
 import com.vaadin.addon.jpacontainer.testdata.Department;
 import com.vaadin.addon.jpacontainer.testdata.EmbeddedIdPerson;
 import com.vaadin.addon.jpacontainer.testdata.Name;
@@ -47,7 +48,8 @@ public class HibernateComponentIntegrationTest extends
                 .addAnnotatedClass(Name.class)
                 .addAnnotatedClass(PersonSkill.class)
                 .addAnnotatedClass(Skill.class)
-                .addAnnotatedClass(Department.class);
+                .addAnnotatedClass(Department.class)
+                .addAnnotatedClass(BeanWithLogic.class);
         EntityManagerFactory emf = cfg.buildEntityManagerFactory();
         return emf;
     }
