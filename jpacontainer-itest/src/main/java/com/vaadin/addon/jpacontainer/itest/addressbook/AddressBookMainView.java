@@ -27,6 +27,7 @@ import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 
 public class AddressBookMainView extends HorizontalSplitPanel implements
         ComponentContainer {
@@ -49,7 +50,8 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
 
     public AddressBookMainView() {
         departments = new HierarchicalDepartmentContainer();
-        persons = JPAContainerFactory.make(Person.class, TestLauncherApplication.PERSISTENCE_UNIT);
+        persons = JPAContainerFactory.make(Person.class,
+                TestLauncherApplication.PERSISTENCE_UNIT);
         buildTree();
         buildMainArea();
 
@@ -105,7 +107,7 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
                         persons.commit();
                     }
                 });
-                getApplication().getMainWindow().addWindow(personEditor);
+                addSubWindow(personEditor);
             }
         });
 
@@ -124,9 +126,8 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
 
             @Override
             public void buttonClick(ClickEvent event) {
-                getApplication().getMainWindow().addWindow(
-                        new PersonEditor(personTable.getItem(personTable
-                                .getValue())));
+                addSubWindow(new PersonEditor(personTable.getItem(personTable
+                        .getValue())));
             }
         });
         editButton.setEnabled(false);
@@ -163,6 +164,10 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
         verticalLayout.setExpandRatio(personTable, 1);
         verticalLayout.setSizeFull();
 
+    }
+
+    private void addSubWindow(Window w) {
+        ((Window) AddressBookMainView.this.getParent()).addWindow(w);
     }
 
     private void buildTree() {
