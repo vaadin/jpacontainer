@@ -569,7 +569,8 @@ public class JPAContainer<T> implements EntityContainer<T>,
                 || !bufferingDelegate.isAdded(itemId)) {
             Object id = doGetEntityProvider().getNextEntityIdentifier(itemId,
                     getAppliedFiltersAsConjunction(), getSortByList());
-            if(id != null && !isWriteThrough() && bufferingDelegate.isDeleted(id)) {
+            if (id != null && !isWriteThrough()
+                    && bufferingDelegate.isDeleted(id)) {
                 id = nextItemId(id);
             }
             return id;
@@ -578,7 +579,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
             if (ix == bufferingDelegate.getAddedItemIds().size() - 1) {
                 Object id = doGetEntityProvider().getFirstEntityIdentifier(
                         getAppliedFiltersAsConjunction(), getSortByList());
-                if(id != null && bufferingDelegate.isDeleted(id)) {
+                if (id != null && bufferingDelegate.isDeleted(id)) {
                     id = nextItemId(id);
                 }
                 return id;
@@ -592,9 +593,10 @@ public class JPAContainer<T> implements EntityContainer<T>,
         // Note, we do not check if given itemId is deleted as we use this
         // method recursively to get itemId that is not deleted
         if (isWriteThrough() || bufferingDelegate.getAddedItemIds().isEmpty()) {
-            Object id = doGetEntityProvider().getPreviousEntityIdentifier(itemId,
-                    getAppliedFiltersAsConjunction(), getSortByList());
-            if(id != null && !isWriteThrough() && bufferingDelegate.isDeleted(id)) {
+            Object id = doGetEntityProvider().getPreviousEntityIdentifier(
+                    itemId, getAppliedFiltersAsConjunction(), getSortByList());
+            if (id != null && !isWriteThrough()
+                    && bufferingDelegate.isDeleted(id)) {
                 id = prevItemId(id);
             }
             return id;
@@ -615,7 +617,8 @@ public class JPAContainer<T> implements EntityContainer<T>,
                     return bufferingDelegate.getAddedItemIds().get(
                             bufferingDelegate.getAddedItemIds().size() - 1);
                 } else {
-                    if(!isWriteThrough() && bufferingDelegate.isDeleted(prevId)) {
+                    if (!isWriteThrough()
+                            && bufferingDelegate.isDeleted(prevId)) {
                         prevId = prevItemId(prevId);
                     }
                     return prevId;
@@ -715,8 +718,9 @@ public class JPAContainer<T> implements EntityContainer<T>,
                     getAppliedFiltersAsConjunction());
         } else {
             return bufferingDelegate.isAdded(itemId)
-                    || (!bufferingDelegate.isDeleted(itemId) && doGetEntityProvider().containsEntity(itemId,
-                            getAppliedFiltersAsConjunction()));
+                    || (!bufferingDelegate.isDeleted(itemId) && doGetEntityProvider()
+                            .containsEntity(itemId,
+                                    getAppliedFiltersAsConjunction()));
         }
     }
 
@@ -949,6 +953,18 @@ public class JPAContainer<T> implements EntityContainer<T>,
         applyFilters();
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * <p>
+     * <strong>Note</strong> that JPAContainer don't support custom
+     * {@link Filter}s as filtering is done on DB level. Only basic Filter
+     * implementations are supported. If more complex filtering is needed,
+     * developers should tend to {@link QueryModifierDelegate} that allows
+     * developers to use JPA Criteria API to modify queries.
+     * 
+     * @see com.vaadin.data.Container.Filterable#addContainerFilter(com.vaadin.data.Container.Filter)
+     */
     public void addContainerFilter(Filter filter)
             throws UnsupportedFilterException {
         filterSupport.addFilter(filter);
@@ -1012,14 +1028,16 @@ public class JPAContainer<T> implements EntityContainer<T>,
          */
         int size = size();
         if (size > 100) {
-            Logger.getLogger(getClass().getName()).warning("(JPAContainer) WARNING! Invoking indexOfId() when size > 100 is not recommended!");
+            Logger.getLogger(getClass().getName())
+                    .warning(
+                            "(JPAContainer) WARNING! Invoking indexOfId() when size > 100 is not recommended!");
         }
         for (int i = 0; i < size; i++) {
             Object id = getIdByIndex(i);
             if (id == null) {
                 return -1;
             } else if (id.equals(itemId)) {
-                if(!isWriteThrough() && bufferingDelegate.isDeleted(id)) {
+                if (!isWriteThrough() && bufferingDelegate.isDeleted(id)) {
                     return -1;
                 }
                 return i;
