@@ -48,7 +48,7 @@ import com.vaadin.ui.TableFieldFactory;
  * <p>
  * 
  * <dl>
- * <di><b>@ManyToOne</b></di>
+ * <dt><b>@ManyToOne</b></dt>
  * <dd>
  * Creates a select backed up by a JPAContainer listing all entities of
  * referenced type. A {@link SingleSelectTranslator} is used to automatically
@@ -66,7 +66,7 @@ import com.vaadin.ui.TableFieldFactory;
  * can be used to override the select type. The type can also be set per
  * reference type with {@link #setMultiSelectType(Class, Class)}.
  * <p></dd>
- * <di><b>@ManyToMany</b></di>
+ * <dt><b>@ManyToMany</b></dt>
  * <dd>
  * Creates a multiselect backed up by a JPAContainer listing all entities of the
  * type in the collection. Selected entities will be reflected to the collection
@@ -86,7 +86,7 @@ import com.vaadin.ui.TableFieldFactory;
  * can be used to override the select type. Type can also be set per reference
  * type with {@link #setMultiSelectType(Class, Class)}.
  * <p></dd>
- * <di><b>@OneToMany</b></di>
+ * <dt><b>@OneToMany</b></dt>
  * <dd>
  * Creates a custom field based on Table to edit referenced entities "owned" by
  * the master entity. The table lists only entities which belong to entity being
@@ -105,19 +105,20 @@ import com.vaadin.ui.TableFieldFactory;
  * <p>
  * Some things to note:
  * <ul>
- * <li>Creation of new entities uses empty paramater constructor.</li>
- * <li>The master detail editor expects the referenced entity to hava a
+ * <li>Creation of new entities uses empty parameter constructor.</li>
+ * <li>The master detail editor expects the referenced entity to have a
  * "back reference" to the owner. It needs to be specified in with mappedBy
  * parameter in the annotation or it to be "naturally named" (master type
- * starting in lowercase).</li>
+ * starting in lower case).</li>
+ * <li>Map type is not currently supported by the {@link MasterDetailEditor}.</li>
  * </ul>
  * <p></dd>
- * <di><b>@OneToOne</b></di>
+ * <dt><b>@OneToOne</b></dt>
  * <dd>
  * Creates a sub form for the referenced type. If the value is initially null,
  * the sub form tries to create one with empty parameter constructor.
  * <p>
- * Example of a mapped property: @OneToOne private Address addresses;
+ * Example of a mapped property: @OneToOne private Address address;
  * <p>
  * 
  * Default type: {@link OneToOneForm}
@@ -128,6 +129,42 @@ import com.vaadin.ui.TableFieldFactory;
  * <p>
  * 
  * </dd>
+ * <dt><b>@Embedded</b></dt>
+ * <dd>
+ * Creates a sub form for the referenced embedded type. This is closely related
+ * to @OneToOne reference. If the value is initially null, the sub form tries to
+ * create one with empty parameter constructor.
+ * <p>
+ * Example of a mapped property: @Embedded private Address address;
+ * <p>
+ * 
+ * Default type: {@link EmbeddedForm}
+ * <p>
+ * Created by
+ * {@link #createEmbeddedField(EntityContainer, Object, Object, Component)}
+ * method.</dd>
+ * 
+ * <dt><b>@ElementCollection</b></dt>
+ * <dd>
+ * Creates a custom field based on Table to edit referenced embeddables "owned"
+ * by the master entity. Embeddables can be basic datatypes or types annotated
+ * with @Embeddable annotation. This is closely related to the master detail
+ * editor created for OneToMany relations. The table lists embeddables in
+ * element collection. Referenced entities are editable straight in the table
+ * and instances can be removed and added.
+ * <p>
+ * Example of a mapped property: @ElementCollection private Set&lt;Address&gt;
+ * addresses;
+ * <p>
+ * Default type: {@link ElementCollectionEditor}
+ * <p>
+ * Created by
+ * {@link #createElementCollectionField(EntityContainer, Object, Object, Component)}
+ * method.
+ * <p>
+ * Note that creation of new elements uses empty paramater constructor. Also the
+ * {@link ElementCollectionEditor} does not currently support Map type element
+ * collection.</dd>
  * </dl>
  * 
  * <p>
@@ -459,18 +496,23 @@ public class FieldFactory extends DefaultFieldFactory {
             EntityContainer containerForProperty, Object itemId,
             Object propertyId, Component uiContext) {
 
-        Class referencedType = detectReferencedType(containerForProperty.getEntityProvider()
-                .getEntityManager().getEntityManagerFactory(), propertyId,
+        Class referencedType = detectReferencedType(containerForProperty
+                .getEntityProvider().getEntityManager()
+                .getEntityManagerFactory(), propertyId,
                 containerForProperty.getEntityClass());
-        if(referencedType.isEnum()) {
-            AbstractSelect collectionSelect = constructCollectionSelect(null, itemId, propertyId, uiContext, referencedType);
-            collectionSelect.setCaption(DefaultFieldFactory.createCaptionByPropertyId(propertyId));
+        if (referencedType.isEnum()) {
+            AbstractSelect collectionSelect = constructCollectionSelect(null,
+                    itemId, propertyId, uiContext, referencedType);
+            collectionSelect.setCaption(DefaultFieldFactory
+                    .createCaptionByPropertyId(propertyId));
             populateEnums(referencedType, collectionSelect);
             collectionSelect.setMultiSelect(true);
-            if(List.class.isAssignableFrom(containerForProperty.getType(propertyId))) {
-                collectionSelect.setPropertyDataSource(new ListTranslator(collectionSelect));
+            if (List.class.isAssignableFrom(containerForProperty
+                    .getType(propertyId))) {
+                collectionSelect.setPropertyDataSource(new ListTranslator(
+                        collectionSelect));
             }
-            
+
             if (collectionSelect instanceof Table) {
                 Table t = (Table) collectionSelect;
                 t.setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
@@ -479,8 +521,8 @@ public class FieldFactory extends DefaultFieldFactory {
             }
             return collectionSelect;
         } else {
-            return new ElementCollectionEditor(this, containerForProperty, itemId,
-                    propertyId, uiContext);
+            return new ElementCollectionEditor(this, containerForProperty,
+                    itemId, propertyId, uiContext);
         }
 
     }
