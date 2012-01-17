@@ -9,7 +9,7 @@
 	<name>Simple Vaadin JPAContainer example app</name>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<vaadin.version>6.7-SNAPSHOT</vaadin.version>
+		<vaadin.version>6.7.4</vaadin.version>
 	</properties>
 	<repositories>
 		<repository>
