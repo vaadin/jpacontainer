@@ -92,6 +92,12 @@ public class FilterConverter {
             Compare compare = (Compare) filter;
             Expression propertyExpr = AdvancedFilterableSupport
                     .getPropertyPath(root, compare.getPropertyId());
+            if (Compare.Operation.EQUAL == compare.getOperation()
+                    && compare.getValue() == null) {
+                // Make an IS NULL instead if "= null" is passed
+                return convertFilter(new IsNull(compare.getPropertyId()), cb,
+                        root);
+            }
             Expression valueExpr = cb.literal(compare.getValue());
             switch (compare.getOperation()) {
             case EQUAL:

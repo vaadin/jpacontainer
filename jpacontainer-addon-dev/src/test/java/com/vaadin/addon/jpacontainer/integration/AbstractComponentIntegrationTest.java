@@ -330,7 +330,6 @@ public abstract class AbstractComponentIntegrationTest extends
         assertEquals(1, valueChangeCalls[0]);
     }
 
-    @Ignore
     @Test
     public void testNullFilter() {
         JPAContainer<Person> container = getPersonContainer();
