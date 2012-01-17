@@ -2,6 +2,21 @@
 Vaadin JPAContainer
 ===================
 
+This is package contains Vaadin JPAContainer add-on. It helps developers
+to bind JPA entities to Vaadin UI components like Table, Tree, Form and
+to various Selects.
+
+To get quickly started with JPAContainer the package contains a tutorial
+how to build a simple addressbook with JPAContainer.
+
+-----------------------------------
+Manual
+-----------------------------------
+
+The manual for the add-on is included in the Book of Vaadin. The latest 
+version can be read online or downloaded from:
+https://vaadin.com/book
+
 ------------------------------------
 Contents of the Installation Package
 ------------------------------------
@@ -12,7 +27,7 @@ ${project.build.finalName}.jar
   in your project or use the Maven dependency declaration
   given in Vaadin Directory.
 
-apidocs
+${project.build.finalName}-javadoc.jar
 
   The JavaDoc API documentation of JPAContainer.
 
@@ -31,11 +46,6 @@ jpacontainer-addressbook-demo
   can compile the demo project with "mvn package" or run in
   Jetty with "mvn jetty:run". You can also import it in Eclipse as
   a project (requires the m2e plugin).
-
-jpacontainer-demo-${jpacontainer.version}.war
-
-  A deployable demo WAR. This is a different demo than the
-  AddressBook demo.
 
 licensing.txt
 
