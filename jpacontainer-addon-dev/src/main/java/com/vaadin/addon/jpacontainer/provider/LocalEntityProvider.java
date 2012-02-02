@@ -831,19 +831,21 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
     }
 
     private T findAndRefresh(T entity) {
-        try {
-            entity = getEntityManager().find(
-                    getEntityClassMetadata().getMappedClass(),
-                    getIdentifier(entity));
-            if (entity != null) {
+        entity = getEntityManager().find(
+                getEntityClassMetadata().getMappedClass(),
+                getIdentifier(entity));
+        if (entity != null) {
+            try {
                 // now try to refresh the attached entity
                 getEntityManager().refresh(entity);
                 entity = detachEntity(entity);
+            } catch (TransactionRequiredException e) {
+                // NOP
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
-            return entity;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
+        return entity;
     }
 
     /*
