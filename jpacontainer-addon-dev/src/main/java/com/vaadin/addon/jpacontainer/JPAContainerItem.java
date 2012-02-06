@@ -3,6 +3,7 @@ ${license.header.text}
  */
 package com.vaadin.addon.jpacontainer;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.Collection;
 import java.util.EventObject;
@@ -65,7 +66,7 @@ public final class JPAContainerItem<T> implements EntityItem<T> {
                 cacheRealValue();
             }
         }
-        
+
         public String getPropertyId() {
             return propertyId;
         }
@@ -625,5 +626,11 @@ public final class JPAContainerItem<T> implements EntityItem<T> {
                 getItemProperty(string).fireValueChangeEvent();
             }
         }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws IOException,
+            ClassNotFoundException {
+        in.defaultReadObject();
+        container.registerItem(this);
     }
 }

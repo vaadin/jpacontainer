@@ -133,8 +133,9 @@ public class JPAContainer<T> implements EntityContainer<T>,
     private BufferedContainerDelegate<T> bufferingDelegate;
     private boolean readOnly = false;
     private boolean writeThrough = false;
-    private HashMap<Object, LinkedList<WeakReference<JPAContainerItem<T>>>> itemRegistry = new HashMap<Object, LinkedList<WeakReference<JPAContainerItem<T>>>>();
-
+    
+    transient private HashMap<Object, LinkedList<WeakReference<JPAContainerItem<T>>>> itemRegistry = new HashMap<Object, LinkedList<WeakReference<JPAContainerItem<T>>>>();
+    
     /**
      * Creates a new <code>JPAContainer</code> instance for entities of class
      * <code>entityClass</code>. An entity provider must be provided using the
