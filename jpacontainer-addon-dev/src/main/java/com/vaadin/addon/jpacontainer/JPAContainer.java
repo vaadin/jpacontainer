@@ -89,18 +89,14 @@ import com.vaadin.data.util.filter.UnsupportedFilterException;
  * only the add operation will be recorded.</li>
  * <li>If an item is updated and then removed later within the same transaction,
  * only the remove operation will be recorded.</li>
- * <li>In the case of an update or edit, a clone of the affected entity is
- * recorded together with the operation if the entity class implements the
- * {@link Cloneable} interface. Otherwise, the entity instance is recorded.</li>
+ * <li>In the case of an update or edit all changes are applied at once.</li>
  * <li>When the changes are committed, all recorded operations are carried out
  * on the {@link BatchableEntityProvider} in the same order that they were
  * recorded.</li>
  * </ul>
  * <p>
- * Please note, that if an entity is not cloneable and it is modified twice,
- * both update records will point to the same entity instance. Thus, the changes
- * of the second modification will be present in the record of the first
- * modification. This is something that implementations of
+ * Please note, that if an entity is modified twice or more, updates are
+ * "merged". This is something that implementations of
  * {@link BatchableEntityProvider} need to be aware of.
  * <p>
  * Also note, that it is possible to use buffered mode even if the entities
@@ -133,9 +129,9 @@ public class JPAContainer<T> implements EntityContainer<T>,
     private BufferedContainerDelegate<T> bufferingDelegate;
     private boolean readOnly = false;
     private boolean writeThrough = false;
-    
+
     transient private HashMap<Object, LinkedList<WeakReference<JPAContainerItem<T>>>> itemRegistry = new HashMap<Object, LinkedList<WeakReference<JPAContainerItem<T>>>>();
-    
+
     /**
      * Creates a new <code>JPAContainer</code> instance for entities of class
      * <code>entityClass</code>. An entity provider must be provided using the
