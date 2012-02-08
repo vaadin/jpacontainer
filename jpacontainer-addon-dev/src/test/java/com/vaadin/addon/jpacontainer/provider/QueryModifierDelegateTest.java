@@ -20,14 +20,23 @@ import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.vaadin.addon.jpacontainer.EntityContainer;
 import com.vaadin.addon.jpacontainer.QueryModifierDelegate;
 import com.vaadin.addon.jpacontainer.testdata.Person;
 import com.vaadin.addon.jpacontainer.util.DefaultQueryModifierDelegate;
 
+@SuppressWarnings({"rawtypes","unchecked"})
 public class QueryModifierDelegateTest {
+    
+    static EntityContainer container = EasyMock.createNiceMock(EntityContainer.class);
+    static {
+        EasyMock.replay(container);
+    }
+
 
     private static EntityManagerFactory emf = Persistence
             .createEntityManagerFactory("eclipselink-in-memory");
@@ -59,7 +68,6 @@ public class QueryModifierDelegateTest {
         entityProvider = new LocalEntityProvider<Person>(Person.class, em);
     }
 
-    @SuppressWarnings("unchecked")
     private QueryModifierDelegate createMockDelegate() {
         QueryModifierDelegate delegate = createMock(QueryModifierDelegate.class);
         delegate.queryWillBeBuilt(isA(CriteriaBuilder.class),
@@ -111,7 +119,6 @@ public class QueryModifierDelegateTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void testQueryModifierDelegateCalledBeforeAddingFilters() {
         QueryModifierDelegate delegate = createMockDelegate();
         delegate.orderByWillBeAdded(isA(CriteriaBuilder.class),
@@ -120,7 +127,7 @@ public class QueryModifierDelegateTest {
                 isA(CriteriaQuery.class));
         replay(delegate);
         entityProvider.setQueryModifierDelegate(delegate);
-        entityProvider.getFirstEntityIdentifier(null, null);
+        entityProvider.getFirstEntityIdentifier(container, null, null);
         entityProvider.setQueryModifierDelegate(null);
         verify(delegate);
     }
@@ -130,7 +137,7 @@ public class QueryModifierDelegateTest {
         QueryModifierDelegate delegate = createMockDelegate();
         replay(delegate);
         entityProvider.setQueryModifierDelegate(delegate);
-        entityProvider.getEntityCount(null);
+        entityProvider.getEntityCount(container, null);
         entityProvider.setQueryModifierDelegate(null);
         verify(delegate);
     }
@@ -140,7 +147,7 @@ public class QueryModifierDelegateTest {
         QueryModifierDelegate delegate = createMockDelegate();
         replay(delegate);
         entityProvider.setQueryModifierDelegate(delegate);
-        entityProvider.containsEntity(0L, null);
+        entityProvider.containsEntity(container, 0L, null);
         entityProvider.setQueryModifierDelegate(null);
         verify(delegate);
     }
@@ -149,36 +156,36 @@ public class QueryModifierDelegateTest {
     public void testCanAddPredicateThroughQueryModifierDelegate_count() {
         QueryModifierDelegate delegate = createDelegateAddingFirstNameEqualFilter("firstName9");
         entityProvider.setQueryModifierDelegate(delegate);
-        assertEquals(1, entityProvider.getEntityCount(null));
+        assertEquals(1, entityProvider.getEntityCount(container, null));
         entityProvider.setQueryModifierDelegate(null);
     }
 
     @Test
     public void testCanAddPredicateThroughQueryModifierDelegate_firstEntityId() {
-        Object entityId = entityProvider.getFirstEntityIdentifier(null, null);
-        entityId = entityProvider.getNextEntityIdentifier(entityId, null, null);
-        entityId = entityProvider.getNextEntityIdentifier(entityId, null, null);
-        entityId = entityProvider.getNextEntityIdentifier(entityId, null, null);
-        Object actualId = entityProvider.getNextEntityIdentifier(entityId,
+        Object entityId = entityProvider.getFirstEntityIdentifier(container, null, null);
+        entityId = entityProvider.getNextEntityIdentifier(container, entityId, null, null);
+        entityId = entityProvider.getNextEntityIdentifier(container, entityId, null, null);
+        entityId = entityProvider.getNextEntityIdentifier(container, entityId, null, null);
+        Object actualId = entityProvider.getNextEntityIdentifier(container, entityId,
                 null, null);
-        Person actualPerson = entityProvider.getEntity(actualId);
+        Person actualPerson = entityProvider.getEntity(container, actualId);
 
         QueryModifierDelegate delegate = createDelegateAddingFirstNameEqualFilter(actualPerson
                 .getFirstName());
         entityProvider.setQueryModifierDelegate(delegate);
-        Object id = entityProvider.getFirstEntityIdentifier(null, null);
+        Object id = entityProvider.getFirstEntityIdentifier(container, null, null);
         assertEquals(actualId, id);
         entityProvider.setQueryModifierDelegate(null);
     }
 
     @Test
     public void testCanAddPredicateThroughQueryModifierDelegate_containsEntity() {
-        final Object entityId = entityProvider.getFirstEntityIdentifier(null,
+        final Object entityId = entityProvider.getFirstEntityIdentifier(container, null,
                 null);
 
         QueryModifierDelegate delegate = createDelegateAddingFirstNameEqualFilter("this does not exist");
         entityProvider.setQueryModifierDelegate(delegate);
-        assertFalse(entityProvider.containsEntity(entityId, null));
+        assertFalse(entityProvider.containsEntity(container, entityId, null));
         entityProvider.setQueryModifierDelegate(null);
     }
 
@@ -186,8 +193,8 @@ public class QueryModifierDelegateTest {
     public void testCanAddOrderByThroughQueryModifierDelegate() {
         QueryModifierDelegate delegate = createDelegateReplacingOrderByWithFirstNameDesc();
         entityProvider.setQueryModifierDelegate(delegate);
-        Object firstId = entityProvider.getFirstEntityIdentifier(null, null);
-        Person person = entityProvider.getEntity(firstId);
+        Object firstId = entityProvider.getFirstEntityIdentifier(container, null, null);
+        Person person = entityProvider.getEntity(container, firstId);
         assertEquals("firstName9", person.getFirstName());
         entityProvider.setQueryModifierDelegate(null);
     }

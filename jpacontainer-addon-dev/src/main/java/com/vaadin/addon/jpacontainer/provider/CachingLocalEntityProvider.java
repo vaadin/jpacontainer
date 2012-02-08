@@ -8,6 +8,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 
 import com.vaadin.addon.jpacontainer.CachingEntityProvider;
+import com.vaadin.addon.jpacontainer.EntityContainer;
 import com.vaadin.addon.jpacontainer.SortBy;
 import com.vaadin.data.Container.Filter;
 
@@ -78,7 +79,7 @@ public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T>
     }
 
     public boolean usesCache() {
-        return cachingSupport.usesCache();
+        return cachingSupport.usesCache(null);
     }
 
     public void setEntityCacheMaxSize(int maxSize) {
@@ -86,19 +87,19 @@ public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T>
     }
 
     @Override
-    public boolean containsEntity(Object entityId, Filter filter) {
-        return cachingSupport.containsEntity(entityId, filter);
+    public boolean containsEntity(EntityContainer<T> container, Object entityId, Filter filter) {
+        return cachingSupport.containsEntity(container, entityId, filter);
     }
 
     @Override
-    public List<Object> getAllEntityIdentifiers(Filter filter,
+    public List<Object> getAllEntityIdentifiers(EntityContainer<T> container, Filter filter,
             List<SortBy> sortBy) {
-        return cachingSupport.getAllEntityIdentifiers(filter, sortBy);
+        return cachingSupport.getAllEntityIdentifiers(container, filter, sortBy);
     }
 
     @Override
-    public synchronized T getEntity(Object entityId) {
-        return cachingSupport.getEntity(entityId);
+    public synchronized T getEntity(EntityContainer<T> container, Object entityId) {
+        return cachingSupport.getEntity(container, entityId);
     }
 
     @Override
@@ -116,36 +117,36 @@ public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T>
     }
 
     @Override
-    public int getEntityCount(Filter filter) {
-        return cachingSupport.getEntityCount(filter);
+    public int getEntityCount(EntityContainer<T> container, Filter filter) {
+        return cachingSupport.getEntityCount(container, filter);
     }
 
     @Override
-    public Object getEntityIdentifierAt(Filter filter, List<SortBy> sortBy,
+    public Object getEntityIdentifierAt(EntityContainer<T> container, Filter filter, List<SortBy> sortBy,
             int index) {
-        return cachingSupport.getEntityIdentifierAt(filter, sortBy, index);
+        return cachingSupport.getEntityIdentifierAt(container, filter, sortBy, index);
     }
 
     @Override
-    public Object getFirstEntityIdentifier(Filter filter, List<SortBy> sortBy) {
-        return cachingSupport.getFirstEntityIdentifier(filter, sortBy);
+    public Object getFirstEntityIdentifier(EntityContainer<T> container, Filter filter, List<SortBy> sortBy) {
+        return cachingSupport.getFirstEntityIdentifier(container, filter, sortBy);
     }
 
     @Override
-    public Object getLastEntityIdentifier(Filter filter, List<SortBy> sortBy) {
-        return cachingSupport.getLastEntityIdentifier(filter, sortBy);
+    public Object getLastEntityIdentifier(EntityContainer<T> container, Filter filter, List<SortBy> sortBy) {
+        return cachingSupport.getLastEntityIdentifier(container, filter, sortBy);
     }
 
     @Override
-    public Object getNextEntityIdentifier(Object entityId, Filter filter,
+    public Object getNextEntityIdentifier(EntityContainer<T> container, Object entityId, Filter filter,
             List<SortBy> sortBy) {
-        return cachingSupport.getNextEntityIdentifier(entityId, filter, sortBy);
+        return cachingSupport.getNextEntityIdentifier(container, entityId, filter, sortBy);
     }
 
     @Override
-    public Object getPreviousEntityIdentifier(Object entityId, Filter filter,
+    public Object getPreviousEntityIdentifier(EntityContainer<T> container, Object entityId, Filter filter,
             List<SortBy> sortBy) {
-        return cachingSupport.getPreviousEntityIdentifier(entityId, filter,
+        return cachingSupport.getPreviousEntityIdentifier(container, entityId, filter,
                 sortBy);
     }
 

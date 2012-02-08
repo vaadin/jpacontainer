@@ -105,7 +105,7 @@ public class MutableEntityProviderEclipseLinkTest extends
         // Now try out the filter
         for (final Skill s : DataGenerator.getSkills()) {
             Collection<Object> returnedIds = entityProvider
-                    .getAllEntityIdentifiers(new Equal("skills.skill", s), null);
+                    .getAllEntityIdentifiers(container, new Equal("skills.skill", s), null);
             assertTrue(skillPersonMap.get(s).containsAll(returnedIds));
             assertEquals(skillPersonMap.get(s).size(), returnedIds.size());
         }

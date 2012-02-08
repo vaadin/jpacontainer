@@ -4,7 +4,6 @@ ${license.header.text}
 package com.vaadin.addon.jpacontainer;
 
 import java.io.Serializable;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -275,7 +274,7 @@ final class BufferedContainerDelegate<T> implements Serializable {
             removeUpdateDelta(itemId);
             deltaList.add(new Delta(DeltaType.DELETE, itemId, null));
             List<Object> allDbEntityIdentifiers = container.getEntityProvider()
-                    .getAllEntityIdentifiers(
+                    .getAllEntityIdentifiers(container,
                             container.getAppliedFiltersAsConjunction(),
                             container.getSortByList());
             int dbIndexOfDeletedItem = allDbEntityIdentifiers.indexOf(itemId);

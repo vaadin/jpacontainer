@@ -24,6 +24,7 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import com.vaadin.addon.jpacontainer.EntityContainer;
 import com.vaadin.addon.jpacontainer.EntityProvider;
 import com.vaadin.addon.jpacontainer.LazyLoadingDelegate;
 import com.vaadin.addon.jpacontainer.QueryModifierDelegate;
@@ -287,8 +288,10 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
      * @return the query (never null).
      */
     protected TypedQuery<Object> createUnsortedFilteredQuery(
-            List<String> fieldsToSelect, Filter filter) {
-        return createFilteredQuery(fieldsToSelect, filter, null, false);
+            EntityContainer<T> container, List<String> fieldsToSelect,
+            Filter filter) {
+        return createFilteredQuery(container, fieldsToSelect, filter, null,
+                false);
     }
 
     /**
@@ -315,8 +318,8 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
      * @return the query (never null).
      */
     protected TypedQuery<Object> createFilteredQuery(
-            List<String> fieldsToSelect, Filter filter, List<SortBy> sortBy,
-            boolean swapSortOrder) {
+            EntityContainer<T> container, List<String> fieldsToSelect,
+            Filter filter, List<SortBy> sortBy, boolean swapSortOrder) {
         assert fieldsToSelect != null : "fieldsToSelect must not be null";
         assert sortBy == null || !sortBy.isEmpty() : "sortBy must be either null or non-empty";
 
@@ -324,17 +327,17 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         CriteriaQuery<Object> query = cb.createQuery();
         Root<T> root = query.from(entityClassMetadata.getMappedClass());
 
-        tellDelegateQueryWillBeBuilt(cb, query);
+        tellDelegateQueryWillBeBuilt(container, cb, query);
 
         List<Predicate> predicates = new ArrayList<Predicate>();
         if (filter != null) {
             predicates.add(FilterConverter.convertFilter(filter, cb, root));
         }
-        tellDelegateFiltersWillBeAdded(cb, query, predicates);
+        tellDelegateFiltersWillBeAdded(container, cb, query, predicates);
         if (!predicates.isEmpty()) {
             query.where(CollectionUtil.toArray(Predicate.class, predicates));
         }
-        tellDelegateFiltersWereAdded(cb, query);
+        tellDelegateFiltersWereAdded(container, cb, query);
 
         List<Order> orderBy = new ArrayList<Order>();
         if (sortBy != null && sortBy.size() > 0) {
@@ -343,9 +346,9 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
                         root));
             }
         }
-        tellDelegateOrderByWillBeAdded(cb, query, orderBy);
+        tellDelegateOrderByWillBeAdded(container, cb, query, orderBy);
         query.orderBy(orderBy);
-        tellDelegateOrderByWereAdded(cb, query);
+        tellDelegateOrderByWereAdded(container, cb, query);
 
         if (fieldsToSelect.size() > 1
                 || getEntityClassMetadata().hasEmbeddedIdentifier()) {
@@ -359,11 +362,12 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
             query.select(AdvancedFilterableSupport.getPropertyPathTyped(root,
                     fieldsToSelect.get(0)));
         }
-        tellDelegateQueryHasBeenBuilt(cb, query);
+        tellDelegateQueryHasBeenBuilt(container, cb, query);
         return doGetEntityManager().createQuery(query);
     }
 
-    protected boolean doContainsEntity(Object entityId, Filter filter) {
+    protected boolean doContainsEntity(EntityContainer<T> container,
+            Object entityId, Filter filter) {
         assert entityId != null : "entityId must not be null";
         String entityIdPropertyName = getEntityClassMetadata()
                 .getIdentifierProperty().getName();
@@ -372,7 +376,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<T> root = query.from(getEntityClassMetadata().getMappedClass());
 
-        tellDelegateQueryWillBeBuilt(cb, query);
+        tellDelegateQueryWillBeBuilt(container, cb, query);
 
         List<Predicate> predicates = new ArrayList<Predicate>();
         predicates.add(cb.equal(root.get(entityIdPropertyName),
@@ -380,11 +384,11 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         if (filter != null) {
             predicates.add(FilterConverter.convertFilter(filter, cb, root));
         }
-        tellDelegateFiltersWillBeAdded(cb, query, predicates);
+        tellDelegateFiltersWillBeAdded(container, cb, query, predicates);
         if (!predicates.isEmpty()) {
             query.where(CollectionUtil.toArray(Predicate.class, predicates));
         }
-        tellDelegateFiltersWereAdded(cb, query);
+        tellDelegateFiltersWereAdded(container, cb, query);
 
         if (getEntityClassMetadata().hasEmbeddedIdentifier()) {
             /*
@@ -401,13 +405,14 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 
             query.select(cb.count(root.get(entityIdPropertyName)));
         }
-        tellDelegateQueryHasBeenBuilt(cb, query);
+        tellDelegateQueryHasBeenBuilt(container, cb, query);
         TypedQuery<Long> tq = doGetEntityManager().createQuery(query);
         return tq.getSingleResult() == 1;
     }
 
-    public boolean containsEntity(Object entityId, Filter filter) {
-        return doContainsEntity(entityId, filter);
+    public boolean containsEntity(EntityContainer<T> container,
+            Object entityId, Filter filter) {
+        return doContainsEntity(container, entityId, filter);
     }
 
     protected T doGetEntity(Object entityId) {
@@ -417,16 +422,16 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         return detachEntity(entity);
     }
 
-    public T getEntity(Object entityId) {
+    public T getEntity(EntityContainer<T> container, Object entityId) {
         return doGetEntity(entityId);
     }
 
-    protected Object doGetEntityIdentifierAt(Filter filter,
-            List<SortBy> sortBy, int index) {
+    protected Object doGetEntityIdentifierAt(EntityContainer<T> container,
+            Filter filter, List<SortBy> sortBy, int index) {
         if (sortBy == null) {
             sortBy = Collections.emptyList();
         }
-        TypedQuery<Object> query = createFilteredQuery(
+        TypedQuery<Object> query = createFilteredQuery(container,
                 Arrays.asList(getEntityClassMetadata().getIdentifierProperty()
                         .getName()), filter, addPrimaryKeyToSortList(sortBy),
                 false);
@@ -440,12 +445,12 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         }
     }
 
-    public Object getEntityIdentifierAt(Filter filter, List<SortBy> sortBy,
-            int index) {
-        return doGetEntityIdentifierAt(filter, sortBy, index);
+    public Object getEntityIdentifierAt(EntityContainer<T> container,
+            Filter filter, List<SortBy> sortBy, int index) {
+        return doGetEntityIdentifierAt(container, filter, sortBy, index);
     }
 
-    protected int doGetEntityCount(Filter filter) {
+    protected int doGetEntityCount(EntityContainer<T> container, Filter filter) {
         String entityIdPropertyName = getEntityClassMetadata()
                 .getIdentifierProperty().getName();
 
@@ -453,17 +458,17 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<T> root = query.from(getEntityClassMetadata().getMappedClass());
 
-        tellDelegateQueryWillBeBuilt(cb, query);
+        tellDelegateQueryWillBeBuilt(container, cb, query);
 
         List<Predicate> predicates = new ArrayList<Predicate>();
         if (filter != null) {
             predicates.add(FilterConverter.convertFilter(filter, cb, root));
         }
-        tellDelegateFiltersWillBeAdded(cb, query, predicates);
+        tellDelegateFiltersWillBeAdded(container, cb, query, predicates);
         if (!predicates.isEmpty()) {
             query.where(CollectionUtil.toArray(Predicate.class, predicates));
         }
-        tellDelegateFiltersWereAdded(cb, query);
+        tellDelegateFiltersWereAdded(container, cb, query);
 
         if (getEntityClassMetadata().hasEmbeddedIdentifier()) {
             /*
@@ -480,17 +485,17 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         } else {
             query.select(cb.count(root.get(entityIdPropertyName)));
         }
-        tellDelegateQueryHasBeenBuilt(cb, query);
+        tellDelegateQueryHasBeenBuilt(container, cb, query);
         TypedQuery<Long> tq = doGetEntityManager().createQuery(query);
         return tq.getSingleResult().intValue();
     }
 
-    public int getEntityCount(Filter filter) {
-        return doGetEntityCount(filter);
+    public int getEntityCount(EntityContainer<T> container, Filter filter) {
+        return doGetEntityCount(container, filter);
     }
 
-    protected Object doGetFirstEntityIdentifier(Filter filter,
-            List<SortBy> sortBy) {
+    protected Object doGetFirstEntityIdentifier(EntityContainer<T> container,
+            Filter filter, List<SortBy> sortBy) {
         if (sortBy == null) {
             sortBy = Collections.emptyList();
         }
@@ -505,8 +510,8 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         // .getName() + "." + p);
         // }
         // }
-        TypedQuery<Object> query = createFilteredQuery(keyFields, filter,
-                addPrimaryKeyToSortList(sortBy), false);
+        TypedQuery<Object> query = createFilteredQuery(container, keyFields,
+                filter, addPrimaryKeyToSortList(sortBy), false);
         query.setMaxResults(1);
         List<?> result = query.getResultList();
         if (result.isEmpty()) {
@@ -516,18 +521,19 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         }
     }
 
-    public Object getFirstEntityIdentifier(Filter filter, List<SortBy> sortBy) {
-        return doGetFirstEntityIdentifier(filter, sortBy);
+    public Object getFirstEntityIdentifier(EntityContainer<T> container,
+            Filter filter, List<SortBy> sortBy) {
+        return doGetFirstEntityIdentifier(container, filter, sortBy);
     }
 
-    protected Object doGetLastEntityIdentifier(Filter filter,
-            List<SortBy> sortBy) {
+    protected Object doGetLastEntityIdentifier(EntityContainer<T> container,
+            Filter filter, List<SortBy> sortBy) {
         if (sortBy == null) {
             sortBy = Collections.emptyList();
         }
         // The last 'true' parameter switches the sort order -> the last row is
         // the first result.
-        TypedQuery<Object> query = createFilteredQuery(
+        TypedQuery<Object> query = createFilteredQuery(container,
                 Arrays.asList(getEntityClassMetadata().getIdentifierProperty()
                         .getName()), filter, addPrimaryKeyToSortList(sortBy),
                 true);
@@ -540,8 +546,9 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         }
     }
 
-    public Object getLastEntityIdentifier(Filter filter, List<SortBy> sortBy) {
-        return doGetLastEntityIdentifier(filter, sortBy);
+    public Object getLastEntityIdentifier(EntityContainer<T> container,
+            Filter filter, List<SortBy> sortBy) {
+        return doGetLastEntityIdentifier(container, filter, sortBy);
     }
 
     /**
@@ -565,10 +572,10 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
      *            sibling.
      * @return the identifier of the "sibling".
      */
-    protected Object getSibling(Object entityId, Filter filter,
-            List<SortBy> sortBy, boolean backwards) {
-        TypedQuery<Object> query = createSiblingQuery(entityId, filter, sortBy,
-                backwards);
+    protected Object getSibling(EntityContainer<T> container, Object entityId,
+            Filter filter, List<SortBy> sortBy, boolean backwards) {
+        TypedQuery<Object> query = createSiblingQuery(container, entityId,
+                filter, sortBy, backwards);
         query.setMaxResults(1);
         List<?> result = query.getResultList();
         if (result.size() != 1) {
@@ -599,8 +606,9 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
      * @return the query that will return the sibling and all the subsequent
      *         entities unless limited.
      */
-    protected TypedQuery<Object> createSiblingQuery(Object entityId,
-            Filter filter, List<SortBy> sortBy, boolean backwards) {
+    protected TypedQuery<Object> createSiblingQuery(
+            EntityContainer<T> container, Object entityId, Filter filter,
+            List<SortBy> sortBy, boolean backwards) {
         assert entityId != null : "entityId must not be null";
         assert sortBy != null : "sortBy must not be null";
         Filter limitingFilter;
@@ -616,7 +624,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
             }
         } else {
             // We have to fetch the values of the sorted fields
-            T currentEntity = getEntity(entityId);
+            T currentEntity = getEntity(container, entityId);
             if (currentEntity == null) {
                 throw new EntityNotFoundException(
                         "No entity found with the ID " + entityId);
@@ -663,36 +671,38 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         } else {
             queryFilter = new And(filter, limitingFilter);
         }
-        TypedQuery<Object> query = createFilteredQuery(
+        TypedQuery<Object> query = createFilteredQuery(container,
                 Arrays.asList(getEntityClassMetadata().getIdentifierProperty()
                         .getName()), queryFilter, sortBy, backwards);
         return query;
     }
 
-    protected Object doGetNextEntityIdentifier(Object entityId, Filter filter,
+    protected Object doGetNextEntityIdentifier(EntityContainer<T> container,
+            Object entityId, Filter filter, List<SortBy> sortBy) {
+        if (sortBy == null) {
+            sortBy = Collections.emptyList();
+        }
+        return getSibling(container, entityId, filter, sortBy, false);
+    }
+
+    public Object getNextEntityIdentifier(EntityContainer<T> container,
+            Object entityId, Filter filter, List<SortBy> sortBy) {
+        return doGetNextEntityIdentifier(container, entityId, filter, sortBy);
+    }
+
+    protected Object doGetPreviousEntityIdentifier(
+            EntityContainer<T> container, Object entityId, Filter filter,
             List<SortBy> sortBy) {
         if (sortBy == null) {
             sortBy = Collections.emptyList();
         }
-        return getSibling(entityId, filter, sortBy, false);
+        return getSibling(container, entityId, filter, sortBy, true);
     }
 
-    public Object getNextEntityIdentifier(Object entityId, Filter filter,
-            List<SortBy> sortBy) {
-        return doGetNextEntityIdentifier(entityId, filter, sortBy);
-    }
-
-    protected Object doGetPreviousEntityIdentifier(Object entityId,
-            Filter filter, List<SortBy> sortBy) {
-        if (sortBy == null) {
-            sortBy = Collections.emptyList();
-        }
-        return getSibling(entityId, filter, sortBy, true);
-    }
-
-    public Object getPreviousEntityIdentifier(Object entityId, Filter filter,
-            List<SortBy> sortBy) {
-        return doGetPreviousEntityIdentifier(entityId, filter, sortBy);
+    public Object getPreviousEntityIdentifier(EntityContainer<T> container,
+            Object entityId, Filter filter, List<SortBy> sortBy) {
+        return doGetPreviousEntityIdentifier(container, entityId, filter,
+                sortBy);
     }
 
     /**
@@ -724,21 +734,21 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         this.entitiesDetached = detached;
     }
 
-    protected List<Object> doGetAllEntityIdentifiers(Filter filter,
-            List<SortBy> sortBy) {
+    protected List<Object> doGetAllEntityIdentifiers(
+            EntityContainer<T> container, Filter filter, List<SortBy> sortBy) {
         if (sortBy == null) {
             sortBy = Collections.emptyList();
         }
         sortBy = addPrimaryKeyToSortList(sortBy);
-        TypedQuery<Object> query = createFilteredQuery(
+        TypedQuery<Object> query = createFilteredQuery(container,
                 Arrays.asList(getEntityClassMetadata().getIdentifierProperty()
                         .getName()), filter, sortBy, false);
         return Collections.unmodifiableList(query.getResultList());
     }
 
-    public List<Object> getAllEntityIdentifiers(Filter filter,
-            List<SortBy> sortBy) {
-        return doGetAllEntityIdentifiers(filter, sortBy);
+    public List<Object> getAllEntityIdentifiers(EntityContainer<T> container,
+            Filter filter, List<SortBy> sortBy) {
+        return doGetAllEntityIdentifiers(container, filter, sortBy);
     }
 
     /*
@@ -764,45 +774,60 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 
     // QueryModifierDelegate helper methods
 
-    private void tellDelegateQueryWillBeBuilt(CriteriaBuilder cb,
-            CriteriaQuery<?> query) {
+    private void tellDelegateQueryWillBeBuilt(EntityContainer<T> container,
+            CriteriaBuilder cb, CriteriaQuery<?> query) {
         if (queryModifierDelegate != null) {
             queryModifierDelegate.queryWillBeBuilt(cb, query);
+        } else if (container.getQueryModifierDelegate() != null) {
+            container.getQueryModifierDelegate().queryWillBeBuilt(cb, query);
         }
     }
 
-    private void tellDelegateQueryHasBeenBuilt(CriteriaBuilder cb,
-            CriteriaQuery<?> query) {
+    private void tellDelegateQueryHasBeenBuilt(EntityContainer<T> container,
+            CriteriaBuilder cb, CriteriaQuery<?> query) {
         if (queryModifierDelegate != null) {
             queryModifierDelegate.queryHasBeenBuilt(cb, query);
+        } else if (container.getQueryModifierDelegate() != null) {
+            container.getQueryModifierDelegate().queryHasBeenBuilt(cb, query);
         }
     }
 
-    private void tellDelegateFiltersWillBeAdded(CriteriaBuilder cb,
-            CriteriaQuery<?> query, List<Predicate> predicates) {
+    private void tellDelegateFiltersWillBeAdded(EntityContainer<T> container,
+            CriteriaBuilder cb, CriteriaQuery<?> query,
+            List<Predicate> predicates) {
         if (queryModifierDelegate != null) {
             queryModifierDelegate.filtersWillBeAdded(cb, query, predicates);
+        } else if (container.getQueryModifierDelegate() != null) {
+            container.getQueryModifierDelegate().filtersWillBeAdded(cb, query,
+                    predicates);
         }
     }
 
-    private void tellDelegateFiltersWereAdded(CriteriaBuilder cb,
-            CriteriaQuery<?> query) {
+    private void tellDelegateFiltersWereAdded(EntityContainer<T> container,
+            CriteriaBuilder cb, CriteriaQuery<?> query) {
         if (queryModifierDelegate != null) {
             queryModifierDelegate.filtersWereAdded(cb, query);
+        } else if (container.getQueryModifierDelegate() != null) {
+            container.getQueryModifierDelegate().filtersWereAdded(cb, query);
         }
     }
 
-    private void tellDelegateOrderByWillBeAdded(CriteriaBuilder cb,
-            CriteriaQuery<?> query, List<Order> orderBy) {
+    private void tellDelegateOrderByWillBeAdded(EntityContainer<T> container,
+            CriteriaBuilder cb, CriteriaQuery<?> query, List<Order> orderBy) {
         if (queryModifierDelegate != null) {
             queryModifierDelegate.orderByWillBeAdded(cb, query, orderBy);
+        } else if (container.getQueryModifierDelegate() != null) {
+            container.getQueryModifierDelegate().orderByWillBeAdded(cb, query,
+                    orderBy);
         }
     }
 
-    private void tellDelegateOrderByWereAdded(CriteriaBuilder cb,
-            CriteriaQuery<?> query) {
+    private void tellDelegateOrderByWereAdded(EntityContainer<T> container,
+            CriteriaBuilder cb, CriteriaQuery<?> query) {
         if (queryModifierDelegate != null) {
             queryModifierDelegate.orderByWasAdded(cb, query);
+        } else if (container.getQueryModifierDelegate() != null) {
+            container.getQueryModifierDelegate().orderByWasAdded(cb, query);
         }
     }
 

@@ -47,7 +47,7 @@ public interface EntityProvider<T> extends Serializable {
      *            the entity identifier (must not be null).
      * @return the entity, or null if not found.
      */
-    public T getEntity(Object entityId);
+    public T getEntity(EntityContainer<T> entityContainer, Object entityId);
 
     /**
      * If this method returns true, all entities returned from this entity
@@ -95,8 +95,8 @@ public interface EntityProvider<T> extends Serializable {
      *            the index of the entity to fetch.
      * @return the entity identifier, or null if not found.
      */
-    public Object getEntityIdentifierAt(Filter filter, List<SortBy> sortBy,
-            int index);
+    public Object getEntityIdentifierAt(EntityContainer<T> entityContainer,
+            Filter filter, List<SortBy> sortBy, int index);
 
     /**
      * Gets the identifier of the first item in the list of entities determined
@@ -110,7 +110,8 @@ public interface EntityProvider<T> extends Serializable {
      * @return the identifier of the first entity, or null if there are no
      *         entities matching <code>filter</code>.
      */
-    public Object getFirstEntityIdentifier(Filter filter, List<SortBy> sortBy);
+    public Object getFirstEntityIdentifier(EntityContainer<T> entityContainer,
+            Filter filter, List<SortBy> sortBy);
 
     /**
      * Gets the identifier of the last item in the list of entities determined
@@ -124,7 +125,8 @@ public interface EntityProvider<T> extends Serializable {
      * @return the identifier of the last entity, or null if there are no
      *         entities matching <code>filter</code>.
      */
-    public Object getLastEntityIdentifier(Filter filter, List<SortBy> sortBy);
+    public Object getLastEntityIdentifier(EntityContainer<T> entityContainer,
+            Filter filter, List<SortBy> sortBy);
 
     /**
      * Gets the identifier of the item next to the item identified by
@@ -140,8 +142,8 @@ public interface EntityProvider<T> extends Serializable {
      *         entities matching <code>filter</code> or <code>entityId</code> is
      *         the last item.
      */
-    public Object getNextEntityIdentifier(Object entityId, Filter filter,
-            List<SortBy> sortBy);
+    public Object getNextEntityIdentifier(EntityContainer<T> entityContainer,
+            Object entityId, Filter filter, List<SortBy> sortBy);
 
     /**
      * Gets the identifier of the item previous to the item identified by
@@ -157,7 +159,8 @@ public interface EntityProvider<T> extends Serializable {
      *         entities matching <code>filter</code> or <code>entityId</code> is
      *         the first item.
      */
-    public Object getPreviousEntityIdentifier(Object entityId, Filter filter,
+    public Object getPreviousEntityIdentifier(
+            EntityContainer<T> entityContainer, Object entityId, Filter filter,
             List<SortBy> sortBy);
 
     /**
@@ -174,7 +177,8 @@ public interface EntityProvider<T> extends Serializable {
      *            the properties to sort by, if any (may be null).
      * @return an unmodifiable list of entity identifiers (never null).
      */
-    public List<Object> getAllEntityIdentifiers(Filter filter,
+    public List<Object> getAllEntityIdentifiers(
+            EntityContainer<T> entityContainer, Filter filter,
             List<SortBy> sortBy);
 
     /**
@@ -187,7 +191,8 @@ public interface EntityProvider<T> extends Serializable {
      *            the filter that the entity should match (may be null).
      * @return true if the entity exists, false if not.
      */
-    public boolean containsEntity(Object entityId, Filter filter);
+    public boolean containsEntity(EntityContainer<T> entityContainer,
+            Object entityId, Filter filter);
 
     /**
      * Gets the number of entities that are matched by <code>filter</code>. If
@@ -198,7 +203,7 @@ public interface EntityProvider<T> extends Serializable {
      *            null).
      * @return the number of matches.
      */
-    public int getEntityCount(Filter filter);
+    public int getEntityCount(EntityContainer<T> entityContainer, Filter filter);
 
     /**
      * Sets the {@link QueryModifierDelegate}, which is called in the different

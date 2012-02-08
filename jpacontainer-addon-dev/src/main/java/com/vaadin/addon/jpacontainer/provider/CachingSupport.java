@@ -17,6 +17,7 @@ import java.util.Set;
 
 import javax.persistence.TypedQuery;
 
+import com.vaadin.addon.jpacontainer.EntityContainer;
 import com.vaadin.addon.jpacontainer.EntityProvider;
 import com.vaadin.addon.jpacontainer.QueryModifierDelegate;
 import com.vaadin.addon.jpacontainer.SortBy;
@@ -135,9 +136,12 @@ class CachingSupport<T> implements Serializable {
          * 
          * @return the number of entities.
          */
-        public synchronized int getEntityCount() {
+        public synchronized int getEntityCount(EntityContainer<T> container) {
+            if(!isCachingPossible(container)) {
+                return entityProvider.doGetEntityCount(container, getFilter());
+            }
             if (entityCount == null) {
-                entityCount = entityProvider.doGetEntityCount(getFilter());
+                entityCount = entityProvider.doGetEntityCount(container, getFilter());
             }
             return entityCount;
         }
@@ -146,9 +150,11 @@ class CachingSupport<T> implements Serializable {
          * @see EntityProvider#containsEntity(java.lang.Object,
          *      com.vaadin.addons.jpacontainer.Filter)
          */
-        public synchronized boolean containsId(Object entityId) {
+        public synchronized boolean containsId(EntityContainer<T> container,
+                Object entityId) {
             if (!idSet.contains(entityId)) {
-                if (entityProvider.doContainsEntity(entityId, getFilter())) {
+                if (entityProvider.doContainsEntity(container, entityId,
+                        getFilter())) {
                     idSet.add(entityId);
                     return true;
                 } else {
@@ -163,16 +169,17 @@ class CachingSupport<T> implements Serializable {
          * @see EntityProvider#getFirstEntityIdentifier(com.vaadin.addons.jpacontainer.Filter,
          *      java.util.List)
          */
-        public Object getFirstId(List<SortBy> sortBy) {
-            return getIdAt(sortBy, 0);
+        public Object getFirstId(EntityContainer<T> container,
+                List<SortBy> sortBy) {
+            return getIdAt(container, sortBy, 0);
         }
 
         /**
          * @see EntityProvider#getNextEntityIdentifier(java.lang.Object,
          *      com.vaadin.addons.jpacontainer.Filter, java.util.List)
          */
-        public synchronized Object getNextId(Object entityId,
-                List<SortBy> sortBy) {
+        public synchronized Object getNextId(EntityContainer<T> container,
+                Object entityId, List<SortBy> sortBy) {
             IdListEntry entry = idListMap.get(sortBy);
             if (entry == null) {
                 entry = new IdListEntry();
@@ -182,8 +189,8 @@ class CachingSupport<T> implements Serializable {
             }
             int index = entry.idList.indexOf(entityId);
             if (index == -1) {
-                entry.idList = new ArrayList<Object>(getNextIds(getFilter(),
-                        sortBy, entityId, CHUNK_SIZE));
+                entry.idList = new ArrayList<Object>(getNextIds(container,
+                        getFilter(), sortBy, entityId, CHUNK_SIZE));
                 if (entry.idList.isEmpty()) {
                     return null;
                 } else {
@@ -202,8 +209,8 @@ class CachingSupport<T> implements Serializable {
                             index -= CHUNK_SIZE;
                         }
                     }
-                    entry.idList.addAll(getNextIds(getFilter(), sortBy,
-                            entityId, CHUNK_SIZE));
+                    entry.idList.addAll(getNextIds(container, getFilter(),
+                            sortBy, entityId, CHUNK_SIZE));
                 }
                 if (index + 1 == entry.idList.size()) {
                     return null;
@@ -217,8 +224,8 @@ class CachingSupport<T> implements Serializable {
          * @see EntityProvider#getPreviousEntityIdentifier(java.lang.Object,
          *      com.vaadin.addons.jpacontainer.Filter, java.util.List)
          */
-        public synchronized Object getPreviousId(Object entityId,
-                List<SortBy> sortBy) {
+        public synchronized Object getPreviousId(EntityContainer<T> container,
+                Object entityId, List<SortBy> sortBy) {
             IdListEntry entry = idListMap.get(sortBy);
             if (entry == null) {
                 entry = new IdListEntry();
@@ -228,8 +235,8 @@ class CachingSupport<T> implements Serializable {
             }
             int index = entry.idList.indexOf(entityId);
             if (index == -1) {
-                List<Object> objects = getPreviousIds(getFilter(), sortBy,
-                        entityId, CHUNK_SIZE);
+                List<Object> objects = getPreviousIds(container, getFilter(),
+                        sortBy, entityId, CHUNK_SIZE);
                 // We have to reverse the list
                 entry.idList = new ArrayList<Object>(objects.size());
                 for (int i = objects.size() - 1; i >= 0; i--) {
@@ -242,8 +249,8 @@ class CachingSupport<T> implements Serializable {
                 }
             } else {
                 if (index == 0) {
-                    List<Object> objects = getPreviousIds(getFilter(), sortBy,
-                            entityId, CHUNK_SIZE);
+                    List<Object> objects = getPreviousIds(container,
+                            getFilter(), sortBy, entityId, CHUNK_SIZE);
                     if (objects.isEmpty()) {
                         return null;
                     }
@@ -276,8 +283,9 @@ class CachingSupport<T> implements Serializable {
          * @see EntityProvider#getLastEntityIdentifier(com.vaadin.addons.jpacontainer.Filter,
          *      java.util.List)
          */
-        public Object getLastId(List<SortBy> sortBy) {
-            return getIdAt(sortBy, getEntityCount() - 1);
+        public Object getLastId(EntityContainer<T> container,
+                List<SortBy> sortBy) {
+            return getIdAt(container, sortBy, getEntityCount(container) - 1);
         }
 
         /**
@@ -290,21 +298,20 @@ class CachingSupport<T> implements Serializable {
          *            the entityId to invalidate.
          */
         public synchronized void invalidate(Object entityId) {
-            if (containsId(entityId)) {
-                // Clear the caches to force the data to be re-fetched from the
-                // database
-                // in case the ordering has changed
-                idListMap.clear();
-                // Removing the entity Id from the Id cache should be enough
-                idSet.remove(entityId);
-            }
+            // Clear the caches to force the data to be re-fetched from the
+            // database
+            // in case the ordering has changed
+            idListMap.clear();
+            // Removing the entity Id from the Id cache should be enough
+            idSet.remove(entityId);
         }
 
         /**
          * @see EntityProvider#getEntityIdentifierAt(com.vaadin.addons.jpacontainer.Filter,
          *      java.util.List, int)
          */
-        public synchronized Object getIdAt(List<SortBy> sortBy, int index) {
+        public synchronized Object getIdAt(EntityContainer<T> container,
+                List<SortBy> sortBy, int index) {
             IdListEntry entry = idListMap.get(sortBy);
             if (entry == null) {
                 entry = new IdListEntry();
@@ -337,7 +344,7 @@ class CachingSupport<T> implements Serializable {
                     if (startFrom < 0) {
                         startFrom = 0;
                     }
-                    l.addAll(getIds(getFilter(), sortBy, startFrom, index
+                    l.addAll(getIds(container, getFilter(), sortBy, startFrom, index
                             - startFrom + 1));
                     l.addAll(entry.idList);
                     entry.idList = l;
@@ -358,11 +365,11 @@ class CachingSupport<T> implements Serializable {
                             entry.listOffset += CHUNK_SIZE;
                         }
                     }
-                    entry.idList.addAll(getIds(getFilter(), sortBy, index,
+                    entry.idList.addAll(getIds(container, getFilter(), sortBy, index,
                             CHUNK_SIZE));
                 } else {
                     entry.idList.clear();
-                    entry.idList.addAll(getIds(getFilter(), sortBy, index,
+                    entry.idList.addAll(getIds(container, getFilter(), sortBy, index,
                             CHUNK_SIZE));
                     entry.listOffset = index;
                 }
@@ -378,14 +385,14 @@ class CachingSupport<T> implements Serializable {
          * @see EntityProvider#getAllEntityIdentifiers(com.vaadin.addons.jpacontainer.Filter,
          *      java.util.List)
          */
-        public synchronized List<Object> getAllIds(List<SortBy> sortBy) {
+        public synchronized List<Object> getAllIds(EntityContainer<T> container, List<SortBy> sortBy) {
             IdListEntry entry = idListMap.get(sortBy);
             if (entry == null) {
                 entry = new IdListEntry();
                 idListMap.put(sortBy, entry);
             }
             if (!entry.containsAll) {
-                entry.idList = new ArrayList<Object>(getIds(getFilter(),
+                entry.idList = new ArrayList<Object>(getIds(container, getFilter(),
                         sortBy, 0, -1));
                 entry.listOffset = 0;
                 entry.containsAll = true;
@@ -452,9 +459,10 @@ class CachingSupport<T> implements Serializable {
      *            retrieve all.
      * @return a list of identifiers.
      */
-    protected List<Object> getIds(Filter filter, List<SortBy> sortBy,
-            int startFrom, int fetchMax) {
+    protected List<Object> getIds(EntityContainer<T> container, Filter filter,
+            List<SortBy> sortBy, int startFrom, int fetchMax) {
         TypedQuery<Object> query = entityProvider.createFilteredQuery(
+                container,
                 Arrays.asList(entityProvider.getEntityClassMetadata()
                         .getIdentifierProperty().getName()), filter,
                 entityProvider.addPrimaryKeyToSortList(sortBy), false);
@@ -484,10 +492,10 @@ class CachingSupport<T> implements Serializable {
      *            retrieve all.
      * @return a list of identifiers.
      */
-    protected List<Object> getNextIds(Filter filter, List<SortBy> sortBy,
-            Object startFrom, int fetchMax) {
-        TypedQuery<Object> query = entityProvider.createSiblingQuery(startFrom,
-                filter, sortBy, false);
+    protected List<Object> getNextIds(EntityContainer<T> container,
+            Filter filter, List<SortBy> sortBy, Object startFrom, int fetchMax) {
+        TypedQuery<Object> query = entityProvider.createSiblingQuery(container,
+                startFrom, filter, sortBy, false);
         if (fetchMax > 0) {
             query.setMaxResults(fetchMax);
         }
@@ -513,10 +521,10 @@ class CachingSupport<T> implements Serializable {
      *            retrieve all.
      * @return a list of identifiers.
      */
-    protected List<Object> getPreviousIds(Filter filter, List<SortBy> sortBy,
-            Object startFrom, int fetchMax) {
-        TypedQuery<Object> query = entityProvider.createSiblingQuery(startFrom,
-                filter, sortBy, true);
+    protected List<Object> getPreviousIds(EntityContainer<T> container,
+            Filter filter, List<SortBy> sortBy, Object startFrom, int fetchMax) {
+        TypedQuery<Object> query = entityProvider.createSiblingQuery(container,
+                startFrom, filter, sortBy, true);
         if (fetchMax > 0) {
             query.setMaxResults(fetchMax);
         }
@@ -651,7 +659,10 @@ class CachingSupport<T> implements Serializable {
      * 
      * @return true if caching is possible
      */
-    public boolean isCachingPossible() {
+    public boolean isCachingPossible(EntityContainer<T> container) {
+        if (container != null && container.getQueryModifierDelegate() != null) {
+            return false;
+        }
         QueryModifierDelegate d = entityProvider.getQueryModifierDelegate();
         if (d != null) {
             // Try to tell the delegate that filters will be added and pass in
@@ -674,8 +685,8 @@ class CachingSupport<T> implements Serializable {
      * 
      * @return true if the caching mechanism is actually used.
      */
-    public boolean usesCache() {
-        return isCacheEnabled() && isCachingPossible();
+    public boolean usesCache(EntityContainer<T> container) {
+        return isCacheEnabled() && isCachingPossible(container);
     }
 
     public boolean isCacheEnabled() {
@@ -708,28 +719,31 @@ class CachingSupport<T> implements Serializable {
         filterCache = null;
     }
 
-    public boolean containsEntity(Object entityId, Filter filter) {
-        if (usesCache()) {
-            return getFilterCacheEntry(filter).containsId(entityId);
+    public boolean containsEntity(EntityContainer<T> container,
+            Object entityId, Filter filter) {
+        if (usesCache(container)) {
+            return getFilterCacheEntry(filter).containsId(container, entityId);
         } else {
-            return entityProvider.doContainsEntity(entityId, filter);
+            return entityProvider.doContainsEntity(container, entityId, filter);
         }
     }
 
-    public List<Object> getAllEntityIdentifiers(Filter filter,
-            List<SortBy> sortBy) {
+    public List<Object> getAllEntityIdentifiers(EntityContainer<T> container,
+            Filter filter, List<SortBy> sortBy) {
         if (sortBy == null) {
             sortBy = Collections.emptyList();
         }
-        if (usesCache()) {
-            return getFilterCacheEntry(filter).getAllIds(sortBy);
+        if (usesCache(container)) {
+            return getFilterCacheEntry(filter).getAllIds(container, sortBy);
         } else {
-            return entityProvider.doGetAllEntityIdentifiers(filter, sortBy);
+            return entityProvider.doGetAllEntityIdentifiers(container, filter,
+                    sortBy);
         }
     }
 
-    public synchronized T getEntity(Object entityId) {
-        if (usesCache()) {
+    public synchronized T getEntity(EntityContainer<T> container,
+            Object entityId) {
+        if (usesCache(container)) {
             T entity = getEntityCache().get(entityId);
             if (entity == null) {
                 // TODO Should we fetch several entities at once?
@@ -772,7 +786,7 @@ class CachingSupport<T> implements Serializable {
     }
 
     public boolean isEntitiesDetached() {
-        return usesCache() || entityProvider.isEntitiesDetached();
+        return usesCache(null) || entityProvider.isEntitiesDetached();
     }
 
     public boolean isCloneCachedEntities() {
@@ -794,72 +808,78 @@ class CachingSupport<T> implements Serializable {
         }
     }
 
-    public int getEntityCount(Filter filter) {
-        if (usesCache()) {
-            return getFilterCacheEntry(filter).getEntityCount();
+    public int getEntityCount(EntityContainer<T> container, Filter filter) {
+        if (usesCache(container)) {
+            return getFilterCacheEntry(filter).getEntityCount(container);
         } else {
-            return entityProvider.doGetEntityCount(filter);
+            return entityProvider.doGetEntityCount(container, filter);
         }
     }
 
-    public Object getEntityIdentifierAt(Filter filter, List<SortBy> sortBy,
-            int index) {
+    public Object getEntityIdentifierAt(EntityContainer<T> container,
+            Filter filter, List<SortBy> sortBy, int index) {
         if (sortBy == null) {
             sortBy = Collections.emptyList();
         }
-        if (usesCache()) {
-            return getFilterCacheEntry(filter).getIdAt(sortBy, index);
+        if (usesCache(container)) {
+            return getFilterCacheEntry(filter).getIdAt(container, sortBy, index);
         } else {
-            return entityProvider
-                    .doGetEntityIdentifierAt(filter, sortBy, index);
+            return entityProvider.doGetEntityIdentifierAt(container, filter,
+                    sortBy, index);
         }
     }
 
-    public Object getFirstEntityIdentifier(Filter filter, List<SortBy> sortBy) {
+    public Object getFirstEntityIdentifier(EntityContainer<T> container,
+            Filter filter, List<SortBy> sortBy) {
         if (sortBy == null) {
             sortBy = Collections.emptyList();
         }
-        if (usesCache()) {
-            return getFilterCacheEntry(filter).getFirstId(sortBy);
+        if (usesCache(container)) {
+            return getFilterCacheEntry(filter).getFirstId(container, sortBy);
         } else {
-            return entityProvider.doGetFirstEntityIdentifier(filter, sortBy);
-        }
-    }
-
-    public Object getLastEntityIdentifier(Filter filter, List<SortBy> sortBy) {
-        if (sortBy == null) {
-            sortBy = Collections.emptyList();
-        }
-        if (usesCache()) {
-            return getFilterCacheEntry(filter).getLastId(sortBy);
-        } else {
-            return entityProvider.doGetLastEntityIdentifier(filter, sortBy);
-        }
-    }
-
-    public Object getNextEntityIdentifier(Object entityId, Filter filter,
-            List<SortBy> sortBy) {
-        if (sortBy == null) {
-            sortBy = Collections.emptyList();
-        }
-        if (usesCache()) {
-            return getFilterCacheEntry(filter).getNextId(entityId, sortBy);
-        } else {
-            return entityProvider.doGetNextEntityIdentifier(entityId, filter,
+            return entityProvider.doGetFirstEntityIdentifier(container, filter,
                     sortBy);
         }
     }
 
-    public Object getPreviousEntityIdentifier(Object entityId, Filter filter,
-            List<SortBy> sortBy) {
+    public Object getLastEntityIdentifier(EntityContainer<T> container,
+            Filter filter, List<SortBy> sortBy) {
         if (sortBy == null) {
             sortBy = Collections.emptyList();
         }
-        if (usesCache()) {
-            return getFilterCacheEntry(filter).getPreviousId(entityId, sortBy);
+        if (usesCache(container)) {
+            return getFilterCacheEntry(filter).getLastId(container, sortBy);
         } else {
-            return entityProvider.doGetPreviousEntityIdentifier(entityId,
-                    filter, sortBy);
+            return entityProvider.doGetLastEntityIdentifier(container, filter,
+                    sortBy);
+        }
+    }
+
+    public Object getNextEntityIdentifier(EntityContainer<T> container,
+            Object entityId, Filter filter, List<SortBy> sortBy) {
+        if (sortBy == null) {
+            sortBy = Collections.emptyList();
+        }
+        if (usesCache(container)) {
+            return getFilterCacheEntry(filter).getNextId(container, entityId,
+                    sortBy);
+        } else {
+            return entityProvider.doGetNextEntityIdentifier(container,
+                    entityId, filter, sortBy);
+        }
+    }
+
+    public Object getPreviousEntityIdentifier(EntityContainer<T> container,
+            Object entityId, Filter filter, List<SortBy> sortBy) {
+        if (sortBy == null) {
+            sortBy = Collections.emptyList();
+        }
+        if (usesCache(container)) {
+            return getFilterCacheEntry(filter).getPreviousId(container,
+                    entityId, sortBy);
+        } else {
+            return entityProvider.doGetPreviousEntityIdentifier(container,
+                    entityId, filter, sortBy);
         }
     }
 
@@ -886,10 +906,10 @@ class CachingSupport<T> implements Serializable {
      * Clears the cache.
      */
     public void clear() {
-        if(entityCache != null) {
+        if (entityCache != null) {
             entityCache.clear();
         }
-        if(filterCache != null) {
+        if (filterCache != null) {
             filterCache.clear();
         }
     }

@@ -77,7 +77,7 @@ public class MultiSelectTranslator extends PropertyTranslator {
         // Add those that did not exist do not exist already + remove them from
         // orphaned collection
         for (Object id : idset) {
-            Object entity = getContainer().getEntityProvider().getEntity(id);
+            Object entity = getContainer().getEntityProvider().getEntity(getContainer(),id);
             if (!value.contains(entity)) {
                 value.add(entity);
                 addBackReference(entity);

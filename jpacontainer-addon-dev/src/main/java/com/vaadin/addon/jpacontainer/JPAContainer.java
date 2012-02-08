@@ -132,6 +132,8 @@ public class JPAContainer<T> implements EntityContainer<T>,
 
     transient private HashMap<Object, LinkedList<WeakReference<JPAContainerItem<T>>>> itemRegistry = new HashMap<Object, LinkedList<WeakReference<JPAContainerItem<T>>>>();
 
+    private QueryModifierDelegate queryModifierDelegate;
+
     /**
      * Creates a new <code>JPAContainer</code> instance for entities of class
      * <code>entityClass</code>. An entity provider must be provided using the
@@ -523,7 +525,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
     public Object firstItemId() {
         if (isWriteThrough() || bufferingDelegate.getAddedItemIds().isEmpty()) {
             Object itemId = doGetEntityProvider().getFirstEntityIdentifier(
-                    getAppliedFiltersAsConjunction(), getSortByList());
+                    this, getAppliedFiltersAsConjunction(), getSortByList());
             if (itemId != null && !isWriteThrough()
                     && bufferingDelegate.getDeletedItemIds().contains(itemId)) {
                 itemId = nextItemId(itemId);
@@ -545,7 +547,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
     }
 
     public Object lastItemId() {
-        Object itemId = doGetEntityProvider().getLastEntityIdentifier(
+        Object itemId = doGetEntityProvider().getLastEntityIdentifier(this,
                 getAppliedFiltersAsConjunction(), getSortByList());
         if (isWriteThrough() || bufferingDelegate.getAddedItemIds().isEmpty()) {
             return itemId;
@@ -564,8 +566,8 @@ public class JPAContainer<T> implements EntityContainer<T>,
         // method recursively to get itemId that is not deleted
         if (isWriteThrough() || bufferingDelegate.getAddedItemIds().isEmpty()
                 || !bufferingDelegate.isAdded(itemId)) {
-            Object id = doGetEntityProvider().getNextEntityIdentifier(itemId,
-                    getAppliedFiltersAsConjunction(), getSortByList());
+            Object id = doGetEntityProvider().getNextEntityIdentifier(this,
+                    itemId, getAppliedFiltersAsConjunction(), getSortByList());
             if (id != null && !isWriteThrough()
                     && bufferingDelegate.isDeleted(id)) {
                 id = nextItemId(id);
@@ -574,8 +576,10 @@ public class JPAContainer<T> implements EntityContainer<T>,
         } else {
             int ix = bufferingDelegate.getAddedItemIds().indexOf(itemId);
             if (ix == bufferingDelegate.getAddedItemIds().size() - 1) {
-                Object id = doGetEntityProvider().getFirstEntityIdentifier(
-                        getAppliedFiltersAsConjunction(), getSortByList());
+                Object id = doGetEntityProvider()
+                        .getFirstEntityIdentifier(this,
+                                getAppliedFiltersAsConjunction(),
+                                getSortByList());
                 if (id != null && bufferingDelegate.isDeleted(id)) {
                     id = nextItemId(id);
                 }
@@ -590,7 +594,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
         // Note, we do not check if given itemId is deleted as we use this
         // method recursively to get itemId that is not deleted
         if (isWriteThrough() || bufferingDelegate.getAddedItemIds().isEmpty()) {
-            Object id = doGetEntityProvider().getPreviousEntityIdentifier(
+            Object id = doGetEntityProvider().getPreviousEntityIdentifier(this,
                     itemId, getAppliedFiltersAsConjunction(), getSortByList());
             if (id != null && !isWriteThrough()
                     && bufferingDelegate.isDeleted(id)) {
@@ -607,7 +611,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
                 }
             } else {
                 Object prevId = doGetEntityProvider()
-                        .getPreviousEntityIdentifier(itemId,
+                        .getPreviousEntityIdentifier(this, itemId,
                                 getAppliedFiltersAsConjunction(),
                                 getSortByList());
                 if (prevId == null) {
@@ -711,12 +715,12 @@ public class JPAContainer<T> implements EntityContainer<T>,
      */
     protected boolean doContainsId(Object itemId) {
         if (isWriteThrough()) {
-            return doGetEntityProvider().containsEntity(itemId,
+            return doGetEntityProvider().containsEntity(this, itemId,
                     getAppliedFiltersAsConjunction());
         } else {
             return bufferingDelegate.isAdded(itemId)
                     || (!bufferingDelegate.isDeleted(itemId) && doGetEntityProvider()
-                            .containsEntity(itemId,
+                            .containsEntity(this, itemId,
                                     getAppliedFiltersAsConjunction()));
         }
     }
@@ -756,7 +760,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
             return null;
         }
         if (isWriteThrough() || !bufferingDelegate.isModified()) {
-            T entity = doGetEntityProvider().getEntity(itemId);
+            T entity = doGetEntityProvider().getEntity(this, itemId);
             return entity != null ? new JPAContainerItem<T>(this, entity)
                     : null;
         } else {
@@ -770,7 +774,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
                 item.setDirty(true);
                 return item;
             } else if (bufferingDelegate.isDeleted(itemId)) {
-                T entity = doGetEntityProvider().getEntity(itemId);
+                T entity = doGetEntityProvider().getEntity(this, itemId);
                 if (entity != null) {
                     JPAContainerItem<T> item = new JPAContainerItem<T>(this,
                             entity);
@@ -780,7 +784,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
                     return null;
                 }
             } else {
-                T entity = doGetEntityProvider().getEntity(itemId);
+                T entity = doGetEntityProvider().getEntity(this, itemId);
                 return entity != null ? new JPAContainerItem<T>(this, entity)
                         : null;
             }
@@ -840,7 +844,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
      */
     public Collection<Object> getItemIds() {
         Collection<Object> ids = getEntityProvider().getAllEntityIdentifiers(
-                getAppliedFiltersAsConjunction(), getSortByList());
+                this, getAppliedFiltersAsConjunction(), getSortByList());
         if (isWriteThrough() || !bufferingDelegate.isModified()) {
             return ids;
         } else {
@@ -870,7 +874,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
     }
 
     public int size() {
-        int origSize = doGetEntityProvider().getEntityCount(
+        int origSize = doGetEntityProvider().getEntityCount(this,
                 getAppliedFiltersAsConjunction());
         if (isWriteThrough()) {
             return origSize;
@@ -994,7 +998,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 
     public Object getIdByIndex(int index) {
         if (isWriteThrough()) {
-            return doGetEntityProvider().getEntityIdentifierAt(
+            return doGetEntityProvider().getEntityIdentifierAt(this,
                     getAppliedFiltersAsConjunction(), getSortByList(), index);
         } else {
             int addedItems = bufferingDelegate.getAddedItemIds().size();
@@ -1004,8 +1008,8 @@ public class JPAContainer<T> implements EntityContainer<T>,
                 index -= addedItems;
                 index = bufferingDelegate.fixDbIndexWithDeletedItems(index);
                 Object itemId = doGetEntityProvider().getEntityIdentifierAt(
-                        getAppliedFiltersAsConjunction(), getSortByList(),
-                        index);
+                        this, getAppliedFiltersAsConjunction(),
+                        getSortByList(), index);
                 return itemId;
             }
         }
@@ -1105,7 +1109,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
         requireWritableContainer();
 
         if (isWriteThrough()) {
-            if (getEntityProvider().containsEntity(itemId, null)) {
+            if (getEntityProvider().containsEntity(this, itemId, null)) {
                 ((MutableEntityProvider<T>) getEntityProvider())
                         .removeEntity(itemId);
                 setFireItemSetChangeOnProviderChange(false);
@@ -1120,7 +1124,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
             }
         } else {
             if (bufferingDelegate.isAdded(itemId)
-                    || getEntityProvider().containsEntity(itemId, null)) {
+                    || getEntityProvider().containsEntity(this, itemId, null)) {
                 bufferingDelegate.deleteItem(itemId);
                 setFireItemSetChangeOnProviderChange(false);
                 try {
@@ -1352,7 +1356,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
                 return Collections.emptyList();
             }
         } else {
-            return doGetEntityProvider().getAllEntityIdentifiers(
+            return doGetEntityProvider().getAllEntityIdentifiers(this,
                     getChildrenFilter(itemId), getSortByList());
         }
     }
@@ -1658,5 +1662,21 @@ public class JPAContainer<T> implements EntityContainer<T>,
             }
         }
         fireContainerItemSetChange(new AllItemsRefreshedEvent());
+    }
+
+    public QueryModifierDelegate getQueryModifierDelegate() {
+        return queryModifierDelegate;
+    }
+
+    /**
+     * Sets the {@link QueryModifierDelegate}, which is called in the different
+     * stages that the EntityProvider builds a criteria query.
+     * 
+     * @param delegate
+     *            the delegate.
+     */
+    public void setQueryModifierDelegate(
+            QueryModifierDelegate queryModifierDelegate) {
+        this.queryModifierDelegate = queryModifierDelegate;
     }
 }

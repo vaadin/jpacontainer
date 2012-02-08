@@ -1,5 +1,6 @@
 package com.vaadin.addon.jpacontainer;
 
+import java.io.Serializable;
 import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -19,7 +20,7 @@ import com.vaadin.data.Container.Filter;
  * 
  * @since 2.0
  */
-public interface QueryModifierDelegate {
+public interface QueryModifierDelegate extends Serializable {
     /**
      * This method is called after the {@link CriteriaQuery} instance (
      * <code>query</code>) has been instantiated, but before any state has been

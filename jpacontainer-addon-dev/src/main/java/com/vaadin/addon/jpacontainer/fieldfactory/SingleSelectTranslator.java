@@ -30,7 +30,7 @@ public class SingleSelectTranslator extends PropertyTranslator {
     @Override
     public Object translateToDatasource(Object formattedValue) throws Exception {
         // formattedValue here is identifier, to be formatted to entity
-        return getContainer().getEntityProvider().getEntity(formattedValue);
+        return getContainer().getEntityProvider().getEntity(getContainer(), formattedValue);
     }
 
 }

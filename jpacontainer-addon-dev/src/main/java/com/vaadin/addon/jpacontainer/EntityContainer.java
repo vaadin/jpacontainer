@@ -195,4 +195,13 @@ public interface EntityContainer<T> extends Container, Container.Sortable,
      * be lost.
      */
     public void refresh();
+
+    /**
+     * Gets the QueryModifierDelegate set for this container. EntityProviders
+     * will the delegate returned by this method in their queries.
+     * 
+     * @return QueryModifierDelegate to control queries built by this container
+     */
+    public QueryModifierDelegate getQueryModifierDelegate();
+
 }
