@@ -206,7 +206,8 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
         }
     }
 
-    private LinkedList<WeakReference<EntityProviderChangeListener<T>>> listeners = new LinkedList<WeakReference<EntityProviderChangeListener<T>>>();
+    // TODO support serialization somehow
+    transient private LinkedList<WeakReference<EntityProviderChangeListener<T>>> listeners = new LinkedList<WeakReference<EntityProviderChangeListener<T>>>();
 
     public void addListener(EntityProviderChangeListener<T> listener) {
         synchronized (listeners) {
