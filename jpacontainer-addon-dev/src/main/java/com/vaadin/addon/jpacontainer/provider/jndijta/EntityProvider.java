@@ -5,7 +5,7 @@ import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.transaction.UserTransaction;
 
-import com.vaadin.addon.jpacontainer.provider.CachingBatchableLocalEntityProvider;
+import com.vaadin.addon.jpacontainer.provider.LocalEntityProvider;
 
 /**
  * An entity provider implementation that uses JTA transactions and JPA context
@@ -15,37 +15,23 @@ import com.vaadin.addon.jpacontainer.provider.CachingBatchableLocalEntityProvide
  * 
  * @param <T>
  */
-public class CachingBatchableEntityProvider<T> extends
-        CachingBatchableLocalEntityProvider<T> implements JndiJtaProvider<T> {
+public class EntityProvider<T> extends
+        LocalEntityProvider<T> implements JndiJtaProvider<T> {
 
     private JndiAddresses jndiAddresses;
 
-    public CachingBatchableEntityProvider(Class<T> entityClass) {
+    public EntityProvider(Class<T> entityClass) {
         super(entityClass);
-        setTransactionsHandledByProvider(false);
     }
-    
-    public CachingBatchableEntityProvider(Class<T> entityClass, JndiAddresses addresses) {
+
+    public EntityProvider(Class<T> entityClass, JndiAddresses jndiAddresses) {
         this(entityClass);
-        setJndiAddresses(addresses);
+        setJndiAddresses(jndiAddresses);
     }
 
     @Override
     public boolean isEntitiesDetached() {
         return false;
-    }
-
-    @Override
-    protected void runInTransaction(Runnable operation) {
-        try {
-            UserTransaction utx = (UserTransaction) (new InitialContext())
-                    .lookup(getJndiAddresses().getUserTransactionName());
-            utx.begin();
-            super.runInTransaction(operation);
-            utx.commit();
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
     }
 
     @Override
@@ -70,4 +56,5 @@ public class CachingBatchableEntityProvider<T> extends
         }
         return jndiAddresses;
     }
+
 }

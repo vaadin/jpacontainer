@@ -18,12 +18,17 @@ import com.vaadin.addon.jpacontainer.provider.CachingMutableLocalEntityProvider;
 public class CachingMutableEntityProvider<T> extends
         CachingMutableLocalEntityProvider<T> implements JndiJtaProvider<T> {
 
-    private String userTransactionName = "java:comp/UserTransaction";
-    private String entityManagerName = "java:comp/env/persistence/em";
+    private JndiAddresses jndiAddresses;
 
     public CachingMutableEntityProvider(Class<T> entityClass) {
         super(entityClass);
         setTransactionsHandledByProvider(false);
+    }
+
+    public CachingMutableEntityProvider(Class<T> entityClass,
+            JndiAddresses jndiAddresses) {
+        this(entityClass);
+        setJndiAddresses(jndiAddresses);
     }
 
     @Override
@@ -35,7 +40,7 @@ public class CachingMutableEntityProvider<T> extends
     protected void runInTransaction(Runnable operation) {
         try {
             UserTransaction utx = (UserTransaction) (new InitialContext())
-                    .lookup(userTransactionName);
+                    .lookup(getJndiAddresses().getUserTransactionName());
             utx.begin();
             super.runInTransaction(operation);
             utx.commit();
@@ -49,39 +54,22 @@ public class CachingMutableEntityProvider<T> extends
         try {
             InitialContext initialContext = new InitialContext();
             EntityManager lookup = (EntityManager) initialContext
-                    .lookup(entityManagerName);
+                    .lookup(getJndiAddresses().getEntityManagerName());
             return lookup;
         } catch (NamingException ex) {
             throw new RuntimeException(ex);
         }
     }
 
-    /* (non-Javadoc)
-     * @see com.vaadin.addon.jpacontainer.provider.jndijta.JndiJtaProvider#getUserTransactionName()
-     */
-    public String getUserTransactionName() {
-        return userTransactionName;
+    public void setJndiAddresses(JndiAddresses addresses) {
+        this.jndiAddresses = addresses;
     }
 
-    /* (non-Javadoc)
-     * @see com.vaadin.addon.jpacontainer.provider.jndijta.JndiJtaProvider#setUserTransactionName(java.lang.String)
-     */
-    public void setUserTransactionName(String userTransactionName) {
-        this.userTransactionName = userTransactionName;
-    }
-
-    /* (non-Javadoc)
-     * @see com.vaadin.addon.jpacontainer.provider.jndijta.JndiJtaProvider#getEntityManagerName()
-     */
-    public String getEntityManagerName() {
-        return entityManagerName;
-    }
-
-    /* (non-Javadoc)
-     * @see com.vaadin.addon.jpacontainer.provider.jndijta.JndiJtaProvider#setEntityManagerName(java.lang.String)
-     */
-    public void setEntityManagerName(String entityManagerName) {
-        this.entityManagerName = entityManagerName;
+    public JndiAddresses getJndiAddresses() {
+        if (jndiAddresses == null) {
+            return JndiAddresses.DEFAULTS;
+        }
+        return jndiAddresses;
     }
 
 }

@@ -5,7 +5,7 @@ import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.transaction.UserTransaction;
 
-import com.vaadin.addon.jpacontainer.provider.CachingBatchableLocalEntityProvider;
+import com.vaadin.addon.jpacontainer.provider.MutableLocalEntityProvider;
 
 /**
  * An entity provider implementation that uses JTA transactions and JPA context
@@ -15,19 +15,20 @@ import com.vaadin.addon.jpacontainer.provider.CachingBatchableLocalEntityProvide
  * 
  * @param <T>
  */
-public class CachingBatchableEntityProvider<T> extends
-        CachingBatchableLocalEntityProvider<T> implements JndiJtaProvider<T> {
+public class MutableEntityProvider<T> extends
+        MutableLocalEntityProvider<T> implements JndiJtaProvider<T> {
 
     private JndiAddresses jndiAddresses;
 
-    public CachingBatchableEntityProvider(Class<T> entityClass) {
+    public MutableEntityProvider(Class<T> entityClass) {
         super(entityClass);
         setTransactionsHandledByProvider(false);
     }
-    
-    public CachingBatchableEntityProvider(Class<T> entityClass, JndiAddresses addresses) {
+
+    public MutableEntityProvider(Class<T> entityClass,
+            JndiAddresses jndiAddresses) {
         this(entityClass);
-        setJndiAddresses(addresses);
+        setJndiAddresses(jndiAddresses);
     }
 
     @Override
@@ -70,4 +71,5 @@ public class CachingBatchableEntityProvider<T> extends
         }
         return jndiAddresses;
     }
+
 }

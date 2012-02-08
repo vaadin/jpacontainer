@@ -1,5 +1,8 @@
 package com.vaadin.addon.jpacontainer.provider.jndijta;
 
+import javax.persistence.EntityManager;
+import javax.transaction.UserTransaction;
+
 import com.vaadin.addon.jpacontainer.EntityProvider;
 
 /**
@@ -12,17 +15,16 @@ import com.vaadin.addon.jpacontainer.EntityProvider;
 public interface JndiJtaProvider<T> extends EntityProvider<T> {
 
     /**
-     * @return the JNDI name used to fetch transaction implementation
+     * @return settings that are used for JNDI lookups for
+     *         {@link UserTransaction} and {@link EntityManager}
      */
-    public abstract String getUserTransactionName();
-
-    public abstract void setUserTransactionName(String userTransactionName);
+    public abstract JndiAddresses getJndiAddresses();
 
     /**
-     * @return the JNDI name used to fetch entity manager
+     * @param addresses
+     *            JNDI addresses that the provider should uses to lookup
+     *            {@link UserTransaction} and {@link EntityManager}
      */
-    public abstract String getEntityManagerName();
-
-    public abstract void setEntityManagerName(String entityManagerName);
+    public abstract void setJndiAddresses(JndiAddresses addresses);
 
 }

@@ -7,12 +7,15 @@ import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.transaction.UserTransaction;
 
 import com.vaadin.addon.jpacontainer.provider.CachingBatchableLocalEntityProvider;
 import com.vaadin.addon.jpacontainer.provider.CachingLocalEntityProvider;
 import com.vaadin.addon.jpacontainer.provider.CachingMutableLocalEntityProvider;
 import com.vaadin.addon.jpacontainer.provider.LocalEntityProvider;
 import com.vaadin.addon.jpacontainer.provider.MutableLocalEntityProvider;
+import com.vaadin.addon.jpacontainer.provider.jndijta.JndiAddresses;
+import com.vaadin.addon.jpacontainer.provider.jndijta.JndiAddressesImpl;
 
 /**
  * A factory for creating instances of JPAContainers backed by different default
@@ -26,7 +29,8 @@ public class JPAContainerFactory {
      * Cache of entity manager factories. These are cached, since the creation
      * of an EntityManagerFactory can be quite resource intensive.
      */
-    private static Map<String, EntityManagerFactory> puToEmfMap = Collections.synchronizedMap(new HashMap<String, EntityManagerFactory>());
+    private static Map<String, EntityManagerFactory> puToEmfMap = Collections
+            .synchronizedMap(new HashMap<String, EntityManagerFactory>());
 
     /**
      * Creates a new instance of JPAContainer backed by a
@@ -98,7 +102,8 @@ public class JPAContainerFactory {
      *            the name of the persistence unit.
      * @return an entity manager for the persistence unit.
      */
-    public synchronized static EntityManager createEntityManagerForPersistenceUnit(String name) {
+    public synchronized static EntityManager createEntityManagerForPersistenceUnit(
+            String name) {
         if (!puToEmfMap.containsKey(name)) {
             puToEmfMap.put(name, Persistence.createEntityManagerFactory(name));
         }
@@ -149,8 +154,8 @@ public class JPAContainerFactory {
 
     /**
      * Creates a new instance of JPAContainer backed by a
-     * {@link CachingBatchableLocalEntityProvider}. This method should be used if you
-     * already know an instance of {@link EntityManager}.
+     * {@link CachingBatchableLocalEntityProvider}. This method should be used
+     * if you already know an instance of {@link EntityManager}.
      * 
      * @param <T>
      *            the type of entity to be contained in the JPAContainer
@@ -163,13 +168,14 @@ public class JPAContainerFactory {
     public static <T> JPAContainer<T> makeBatchable(Class<T> entityClass,
             EntityManager entityManager) {
         return makeWithEntityProvider(entityClass,
-                new CachingBatchableLocalEntityProvider<T>(entityClass, entityManager));
+                new CachingBatchableLocalEntityProvider<T>(entityClass,
+                        entityManager));
     }
 
     /**
      * Creates a new instance of JPAContainer backed by a
-     * {@link CachingBatchableLocalEntityProvider}. This method can be used if you do
-     * not know and do not need/want to know the instance of
+     * {@link CachingBatchableLocalEntityProvider}. This method can be used if
+     * you do not know and do not need/want to know the instance of
      * {@link EntityManager} that is used, which is the case in simplistic
      * instances.
      * 
@@ -272,6 +278,182 @@ public class JPAContainerFactory {
             Class<T> entityClass, String persistenceUnitName) {
         return makeNonCachedReadOnly(entityClass,
                 createEntityManagerForPersistenceUnit(persistenceUnitName));
+    }
+
+    /**
+     * Creates a JPAContainer that uses JNDI lookups to fetch entity manager
+     * from "java:comp/env/persistence/em". Container also uses JTA
+     * transactions. This type of container commonly
+     * suits for JEE6 environment.
+     * 
+     * @param <T>
+     *            the type of entity to be contained in the JPAContainer
+     * @param entityClass
+     *            the class of the entity
+     * @return a fully configured JPAContainer instance
+     */
+    public static <T> JPAContainer<T> makeNonCachedReadOnlyJndi(
+            Class<T> entityClass) {
+        return makeWithEntityProvider(
+                entityClass,
+                new com.vaadin.addon.jpacontainer.provider.jndijta.EntityProvider<T>(
+                        entityClass));
+    }
+
+    /**
+     * Creates a JPAContainer that uses JNDI lookups to fetch entity manager
+     * from "java:comp/env/persistence/em". Container also uses JTA
+     * transactions. This type of container commonly
+     * suits for JEE6 environment.
+     * 
+     * @param <T>
+     *            the type of entity to be contained in the JPAContainer
+     * @param entityClass
+     *            the class of the entity
+     * @param jndiAddresses
+     *            to be used to get references to {@link EntityManager} and
+     *            {@link UserTransaction}
+     * @return a fully configured JPAContainer instance
+     * @return
+     */
+    public static <T> JPAContainer<T> makeNonCachedReadOnlyJndi(
+            Class<T> entityClass, JndiAddresses jndiAddresses) {
+        return makeWithEntityProvider(
+                entityClass,
+                new com.vaadin.addon.jpacontainer.provider.jndijta.EntityProvider<T>(
+                        entityClass, jndiAddresses));
+    }
+    
+    /**
+     * Creates a JPAContainer that uses JNDI lookups to fetch entity manager
+     * from "java:comp/env/persistence/em". Container also uses JTA
+     * transactions. This type of container commonly
+     * suits for JEE6 environment.
+     * 
+     * @param <T>
+     *            the type of entity to be contained in the JPAContainer
+     * @param entityClass
+     *            the class of the entity
+     * @return a fully configured JPAContainer instance
+     */
+    public static <T> JPAContainer<T> makeNonCachedJndi(
+            Class<T> entityClass) {
+        return makeWithEntityProvider(
+                entityClass,
+                new com.vaadin.addon.jpacontainer.provider.jndijta.MutableEntityProvider<T>(
+                        entityClass));
+    }
+
+    /**
+     * Creates a JPAContainer that uses JNDI lookups to fetch entity manager
+     * from "java:comp/env/persistence/em". Container also uses JTA
+     * transactions. This type of container commonly
+     * suits for JEE6 environment.
+     * 
+     * @param <T>
+     *            the type of entity to be contained in the JPAContainer
+     * @param entityClass
+     *            the class of the entity
+     * @param jndiAddresses
+     *            to be used to get references to {@link EntityManager} and
+     *            {@link UserTransaction}
+     * @return a fully configured JPAContainer instance
+     * @return
+     */
+    public static <T> JPAContainer<T> makeNonCachedJndi(
+            Class<T> entityClass, JndiAddresses jndiAddresses) {
+        return makeWithEntityProvider(
+                entityClass,
+                new com.vaadin.addon.jpacontainer.provider.jndijta.MutableEntityProvider<T>(
+                        entityClass, jndiAddresses));
+    }
+    
+    /**
+     * Creates a JPAContainer that uses JNDI lookups to fetch entity manager
+     * from "java:comp/env/persistence/em". Container also uses JTA
+     * transactions. This type of container commonly
+     * suits for JEE6 environment.
+     * 
+     * @param <T>
+     *            the type of entity to be contained in the JPAContainer
+     * @param entityClass
+     *            the class of the entity
+     * @return a fully configured JPAContainer instance
+     */
+    public static <T> JPAContainer<T> makeJndi(
+            Class<T> entityClass) {
+        return makeWithEntityProvider(
+                entityClass,
+                new com.vaadin.addon.jpacontainer.provider.jndijta.CachingMutableEntityProvider<T>(
+                        entityClass));
+    }
+
+    /**
+     * Creates a JPAContainer that uses JNDI lookups to fetch entity manager
+     * from "java:comp/env/persistence/em". Container also uses JTA
+     * transactions. This type of container commonly
+     * suits for JEE6 environment.
+     * 
+     * @param <T>
+     *            the type of entity to be contained in the JPAContainer
+     * @param entityClass
+     *            the class of the entity
+     * @param jndiAddresses
+     *            to be used to get references to {@link EntityManager} and
+     *            {@link UserTransaction}
+     * @return a fully configured JPAContainer instance
+     * @return
+     */
+    public static <T> JPAContainer<T> makeJndi(
+            Class<T> entityClass, JndiAddresses jndiAddresses) {
+        return makeWithEntityProvider(
+                entityClass,
+                new com.vaadin.addon.jpacontainer.provider.jndijta.CachingMutableEntityProvider<T>(
+                        entityClass, jndiAddresses));
+    }
+
+    /**
+     * Creates a JPAContainer that uses JNDI lookups to fetch entity manager
+     * from "java:comp/env/persistence/em". Container also uses JTA
+     * transactions. This type of container commonly
+     * suits for JEE6 environment.
+     * 
+     * @param <T>
+     *            the type of entity to be contained in the JPAContainer
+     * @param entityClass
+     *            the class of the entity
+     * @return a fully configured JPAContainer instance
+     */
+    public static <T> JPAContainer<T> makeBatchableJndi(
+            Class<T> entityClass) {
+        return makeWithEntityProvider(
+                entityClass,
+                new com.vaadin.addon.jpacontainer.provider.jndijta.CachingBatchableEntityProvider<T>(
+                        entityClass));
+    }
+
+    /**
+     * Creates a JPAContainer that uses JNDI lookups to fetch entity manager
+     * from "java:comp/env/persistence/em". Container also uses JTA
+     * transactions. This type of container commonly
+     * suits for JEE6 environment.
+     * 
+     * @param <T>
+     *            the type of entity to be contained in the JPAContainer
+     * @param entityClass
+     *            the class of the entity
+     * @param jndiAddresses
+     *            to be used to get references to {@link EntityManager} and
+     *            {@link UserTransaction}
+     * @return a fully configured JPAContainer instance
+     * @return
+     */
+    public static <T> JPAContainer<T> makeBatchableJndi(
+            Class<T> entityClass, JndiAddresses jndiAddresses) {
+        return makeWithEntityProvider(
+                entityClass,
+                new com.vaadin.addon.jpacontainer.provider.jndijta.CachingBatchableEntityProvider<T>(
+                        entityClass, jndiAddresses));
     }
 
 }

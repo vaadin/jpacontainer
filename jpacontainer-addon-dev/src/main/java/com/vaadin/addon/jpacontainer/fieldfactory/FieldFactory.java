@@ -664,8 +664,7 @@ public class FieldFactory extends DefaultFieldFactory {
                 entityProvider = new CachingMutableEntityProvider(type);
             }
             // copy settings from parent provider
-            entityProvider.setUserTransactionName(jndiProvider.getUserTransactionName());
-            entityProvider.setEntityManagerName(jndiProvider.getEntityManagerName());
+            entityProvider.setJndiAddresses(jndiProvider.getJndiAddresses());
             
             container.setEntityProvider(entityProvider);
         } else {
