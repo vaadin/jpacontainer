@@ -206,22 +206,31 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
         }
     }
 
-    // TODO support serialization somehow
-    transient private LinkedList<WeakReference<EntityProviderChangeListener<T>>> listeners = new LinkedList<WeakReference<EntityProviderChangeListener<T>>>();
+    /*
+     * Transient note: Listeners (read: JPAContainers) should re attach themselves when deserialized 
+     */
+    transient private LinkedList<WeakReference<EntityProviderChangeListener<T>>> listeners;
+    
+    private LinkedList<WeakReference<EntityProviderChangeListener<T>>> getListeners() {
+        if(listeners == null) {
+            listeners = new LinkedList<WeakReference<EntityProviderChangeListener<T>>>();
+        }
+        return listeners;
+    }
 
     public void addListener(EntityProviderChangeListener<T> listener) {
-        synchronized (listeners) {
+        synchronized (getListeners()) {
             assert listener != null : "listener must not be null";
-            listeners.add(new WeakReference<EntityProviderChangeListener<T>>(
+            getListeners().add(new WeakReference<EntityProviderChangeListener<T>>(
                     listener));
         }
     }
 
     public void removeListener(EntityProviderChangeListener<T> listener) {
-        synchronized (listeners) {
+        synchronized (getListeners()) {
             assert listener != null : "listener must not be null";
 
-            Iterator<WeakReference<EntityProviderChangeListener<T>>> it = listeners
+            Iterator<WeakReference<EntityProviderChangeListener<T>>> it = getListeners()
                     .iterator();
             while (it.hasNext()) {
                 EntityProviderChangeListener<T> l = it.next().get();
@@ -262,13 +271,13 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
     protected void fireEntityProviderChangeEvent(
             final EntityProviderChangeEvent<T> event) {
         LinkedList<WeakReference<EntityProviderChangeListener<T>>> list;
-        synchronized (listeners) {
+        synchronized (getListeners()) {
             assert event != null : "event must not be null";
-            if (listeners.isEmpty() && !isFireEntityProviderChangeEvent()) {
+            if (getListeners().isEmpty() && !isFireEntityProviderChangeEvent()) {
                 return;
             }
             // cleanup
-            Iterator<WeakReference<EntityProviderChangeListener<T>>> it = listeners
+            Iterator<WeakReference<EntityProviderChangeListener<T>>> it = getListeners()
                     .iterator();
             while (it.hasNext()) {
                 if (null == it.next().get()) {
@@ -276,7 +285,7 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
                 }
             }
             // copy list to use outside the synchronized block
-            list = (LinkedList<WeakReference<EntityProviderChangeListener<T>>>) listeners
+            list = (LinkedList<WeakReference<EntityProviderChangeListener<T>>>) getListeners()
                     .clone();
         }
         for (WeakReference<EntityProviderChangeListener<T>> ref : list) {
