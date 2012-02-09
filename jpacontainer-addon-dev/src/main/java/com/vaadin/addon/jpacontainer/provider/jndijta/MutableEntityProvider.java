@@ -1,7 +1,7 @@
 package com.vaadin.addon.jpacontainer.provider.jndijta;
 
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
+import java.util.logging.Logger;
+
 import javax.persistence.EntityManager;
 import javax.transaction.UserTransaction;
 
@@ -15,8 +15,8 @@ import com.vaadin.addon.jpacontainer.provider.MutableLocalEntityProvider;
  * 
  * @param <T>
  */
-public class MutableEntityProvider<T> extends
-        MutableLocalEntityProvider<T> implements JndiJtaProvider<T> {
+public class MutableEntityProvider<T> extends MutableLocalEntityProvider<T>
+        implements JndiJtaProvider<T> {
 
     private JndiAddresses jndiAddresses;
 
@@ -38,27 +38,12 @@ public class MutableEntityProvider<T> extends
 
     @Override
     protected void runInTransaction(Runnable operation) {
-        try {
-            UserTransaction utx = (UserTransaction) (new InitialContext())
-                    .lookup(getJndiAddresses().getUserTransactionName());
-            utx.begin();
-            super.runInTransaction(operation);
-            utx.commit();
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
+        Util.runInJTATransaction(getJndiAddresses(), operation);
     }
 
     @Override
     public EntityManager getEntityManager() {
-        try {
-            InitialContext initialContext = new InitialContext();
-            EntityManager lookup = (EntityManager) initialContext
-                    .lookup(getJndiAddresses().getEntityManagerName());
-            return lookup;
-        } catch (NamingException ex) {
-            throw new RuntimeException(ex);
-        }
+        return Util.getEntityManager(getJndiAddresses());
     }
 
     public void setJndiAddresses(JndiAddresses addresses) {
