@@ -37,27 +37,12 @@ public class CachingBatchableEntityProvider<T> extends
 
     @Override
     protected void runInTransaction(Runnable operation) {
-        try {
-            UserTransaction utx = (UserTransaction) (new InitialContext())
-                    .lookup(getJndiAddresses().getUserTransactionName());
-            utx.begin();
-            super.runInTransaction(operation);
-            utx.commit();
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
+        Util.runInJTATransaction(getJndiAddresses(), operation);
     }
 
     @Override
     public EntityManager getEntityManager() {
-        try {
-            InitialContext initialContext = new InitialContext();
-            EntityManager lookup = (EntityManager) initialContext
-                    .lookup(getJndiAddresses().getEntityManagerName());
-            return lookup;
-        } catch (NamingException ex) {
-            throw new RuntimeException(ex);
-        }
+        return Util.getEntityManager(getJndiAddresses());
     }
 
     public void setJndiAddresses(JndiAddresses addresses) {

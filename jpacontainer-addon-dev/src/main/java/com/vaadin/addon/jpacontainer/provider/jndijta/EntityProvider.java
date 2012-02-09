@@ -33,17 +33,10 @@ public class EntityProvider<T> extends
     public boolean isEntitiesDetached() {
         return false;
     }
-
+    
     @Override
     public EntityManager getEntityManager() {
-        try {
-            InitialContext initialContext = new InitialContext();
-            EntityManager lookup = (EntityManager) initialContext
-                    .lookup(getJndiAddresses().getEntityManagerName());
-            return lookup;
-        } catch (NamingException ex) {
-            throw new RuntimeException(ex);
-        }
+        return Util.getEntityManager(getJndiAddresses());
     }
 
     public void setJndiAddresses(JndiAddresses addresses) {
