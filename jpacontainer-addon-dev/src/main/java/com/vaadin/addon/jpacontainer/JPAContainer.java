@@ -3,6 +3,7 @@ ${license.header.text}
  */
 package com.vaadin.addon.jpacontainer;
 
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.Collection;
@@ -130,7 +131,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
     private boolean readOnly = false;
     private boolean writeThrough = false;
 
-    transient private HashMap<Object, LinkedList<WeakReference<JPAContainerItem<T>>>> itemRegistry = new HashMap<Object, LinkedList<WeakReference<JPAContainerItem<T>>>>();
+    transient private HashMap<Object, LinkedList<WeakReference<JPAContainerItem<T>>>> itemRegistry;
 
     private QueryModifierDelegate queryModifierDelegate;
 
@@ -316,10 +317,22 @@ public class JPAContainer<T> implements EntityContainer<T>,
         }
         this.entityProvider = entityProvider;
         // Register listener with new provider
+        registerProvider();
+    }
+
+    @SuppressWarnings("unchecked")
+    private void registerProvider() {
         if (this.entityProvider instanceof EntityProviderChangeNotifier) {
             ((EntityProviderChangeNotifier<T>) this.entityProvider)
                     .addListener(this);
         }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws IOException,
+            ClassNotFoundException {
+        in.defaultReadObject();
+        // reattach to weak listener list of provider
+        registerProvider();
     }
 
     private boolean fireItemSetChangeOnProviderChange = true;
@@ -380,8 +393,8 @@ public class JPAContainer<T> implements EntityContainer<T>,
     @SuppressWarnings("unchecked")
     private void firePropertyValueChangeEvent(Object itemId, String propertyId) {
         LinkedList<WeakReference<JPAContainerItem<T>>> linkedList;
-        synchronized (itemRegistry) {
-            LinkedList<WeakReference<JPAContainerItem<T>>> origList = itemRegistry
+        synchronized (getItemRegistry()) {
+            LinkedList<WeakReference<JPAContainerItem<T>>> origList = getItemRegistry()
                     .get(itemId);
             if (origList != null) {
                 linkedList = (LinkedList<WeakReference<JPAContainerItem<T>>>) origList
@@ -800,22 +813,30 @@ public class JPAContainer<T> implements EntityContainer<T>,
      */
     void registerItem(JPAContainerItem<T> item) {
         // TODO write tests to ensure the registry gets cleaned up properly
-        synchronized (itemRegistry) {
+        synchronized (getItemRegistry()) {
             doItemRegistryCleanup();
             LinkedList<WeakReference<JPAContainerItem<T>>> listOfItemsForEntity = itemRegistry
                     .get(item.getItemId());
             if (listOfItemsForEntity == null) {
                 listOfItemsForEntity = new LinkedList<WeakReference<JPAContainerItem<T>>>();
-                itemRegistry.put(item.getItemId(), listOfItemsForEntity);
+                getItemRegistry().put(item.getItemId(), listOfItemsForEntity);
             }
             listOfItemsForEntity.add(new WeakReference<JPAContainerItem<T>>(
                     item));
         }
     }
 
+    private HashMap<Object, LinkedList<WeakReference<JPAContainerItem<T>>>> getItemRegistry() {
+        if (itemRegistry == null) {
+            itemRegistry = new HashMap<Object, LinkedList<WeakReference<JPAContainerItem<T>>>>();
+        }
+        return itemRegistry;
+    }
+
     private void doItemRegistryCleanup() {
         final boolean cleanup = (cleanupCount++) % CLEANUPRATE == 0;
         if (cleanup) {
+            HashMap<Object, LinkedList<WeakReference<JPAContainerItem<T>>>> itemRegistry = getItemRegistry();
             for (Iterator<Object> idIterator = itemRegistry.keySet().iterator(); idIterator
                     .hasNext();) {
                 Object id = idIterator.next();
@@ -1636,8 +1657,8 @@ public class JPAContainer<T> implements EntityContainer<T>,
     @SuppressWarnings("unchecked")
     public void refreshItem(Object itemId) {
         LinkedList<WeakReference<JPAContainerItem<T>>> linkedList;
-        synchronized (itemRegistry) {
-            linkedList = (LinkedList<WeakReference<JPAContainerItem<T>>>) itemRegistry
+        synchronized (getItemRegistry()) {
+            linkedList = (LinkedList<WeakReference<JPAContainerItem<T>>>) getItemRegistry()
                     .get(itemId).clone();
         }
         for (WeakReference<JPAContainerItem<T>> weakReference : linkedList) {
@@ -1656,8 +1677,8 @@ public class JPAContainer<T> implements EntityContainer<T>,
     public void refresh() {
         doGetEntityProvider().refresh();
         bufferingDelegate.discard();
-        synchronized (itemRegistry) {
-            for (Object id : itemRegistry.keySet().toArray()) {
+        synchronized (getItemRegistry()) {
+            for (Object id : getItemRegistry().keySet().toArray()) {
                 refreshItem(id);
             }
         }
