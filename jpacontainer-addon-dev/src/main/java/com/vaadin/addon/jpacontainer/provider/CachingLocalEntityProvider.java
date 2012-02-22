@@ -159,4 +159,9 @@ public class CachingLocalEntityProvider<T> extends LocalEntityProvider<T>
     public void refresh() {
         cachingSupport.clear();
     }
+    
+    public T refreshEntity(T entity) {
+        cachingSupport.clear();
+        return super.refreshEntity(entity);
+    };
 }

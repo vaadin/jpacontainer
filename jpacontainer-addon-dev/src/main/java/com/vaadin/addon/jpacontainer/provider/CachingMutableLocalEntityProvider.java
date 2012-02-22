@@ -186,4 +186,10 @@ public class CachingMutableLocalEntityProvider<T> extends
     public void refresh() {
         cachingSupport.clear();
     }
+    
+    public T refreshEntity(T entity) {
+        cachingSupport.clear();
+        return super.refreshEntity(entity);
+    };
+
 }

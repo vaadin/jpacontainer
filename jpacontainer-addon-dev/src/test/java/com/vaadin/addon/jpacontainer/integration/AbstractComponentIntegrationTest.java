@@ -361,4 +361,52 @@ public abstract class AbstractComponentIntegrationTest extends
 
     }
 
+    @Test
+    public void testRefreshEntityWithCachingProvider() {
+
+        JPAContainer<Person> personContainer = getPersonContainer();
+        Object itemId = personContainer.firstItemId();
+        EntityItem<Person> item = personContainer.getItem(itemId);
+
+        EntityManager entityManager = personContainer.getEntityProvider()
+                .getEntityManager();
+
+        Person p = entityManager.find(Person.class, itemId);
+
+        final String firstNameChangedValue = "Foo1";
+        p.setFirstName(firstNameChangedValue);
+        entityManager.getTransaction().begin();
+        entityManager.persist(p);
+        entityManager.getTransaction().commit();
+
+        Object fn = item.getItemProperty("firstName").getValue();
+
+        boolean same = fn.equals(firstNameChangedValue);
+        assertFalse("New value although should still have cached", same);
+
+        EntityItem<Person> item2 = personContainer.getItem(itemId);
+
+        fn = item2.getItemProperty("firstName").getValue();
+        boolean same2 = fn.equals(firstNameChangedValue);
+        // This is still fine due to caching. If somebody caching logig further
+        // it is ok to remove or invert this test.
+        assertFalse("New value although should still have cached", same2);
+
+        personContainer.refreshItem(itemId);
+
+        // now get a new item, should not hit chache. This used to be broken
+        EntityItem<Person> item3 = personContainer.getItem(itemId);
+
+
+        Object value = item.getItemProperty("firstName").getValue();
+        Object value2 = item2.getItemProperty("firstName").getValue();
+        Object value3 = item3.getItemProperty("firstName").getValue();
+        
+        // now all should have the new value
+        assertEquals(firstNameChangedValue, value);
+        assertEquals(firstNameChangedValue, value2);
+        assertEquals(firstNameChangedValue, value3);
+
+    }
+
 }
