@@ -1115,13 +1115,24 @@ public class JPAContainer<T> implements EntityContainer<T>,
     }
 
     /**
-     * <strong>This functionality is not supported by this
-     * implementation.</strong>
+     * <strong>This feature is not well optimized. Using direct access to db is
+     * much faster.</strong>
      * <p>
      * {@inheritDoc }
      */
-    public boolean removeAllItems() throws UnsupportedOperationException {
-        throw new UnsupportedOperationException();
+    public boolean removeAllItems() {
+        try {
+            Collection<Object> itemIds = getItemIds();
+            for (Object id : itemIds) {
+                removeItem(id);
+            }
+            if(!isWriteThrough()) {
+                commit();
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
     }
 
     public boolean removeItem(Object itemId)
