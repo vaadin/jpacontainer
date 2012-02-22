@@ -390,7 +390,8 @@ public abstract class AbstractComponentIntegrationTest extends
         boolean same2 = fn.equals(firstNameChangedValue);
         // This is still fine due to caching. If somebody caching logig further
         // it is ok to remove or invert this test.
-        assertFalse("New value although should still have cached", same2);
+        // commented out as Hbn actually returns new value here
+        // assertFalse("New value although should still have cached", same2);
 
         personContainer.refreshItem(itemId);
 
