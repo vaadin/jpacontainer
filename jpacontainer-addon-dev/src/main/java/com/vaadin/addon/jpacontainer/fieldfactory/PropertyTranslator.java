@@ -82,7 +82,7 @@ public abstract class PropertyTranslator extends AbstractProperty implements
                 ((Property.ValueChangeNotifier) dataSource)
                         .removeListener(this);
             }
-            if (dataSource instanceof Property.ReadOnlyStatusChangeListener) {
+            if (dataSource instanceof Property.ReadOnlyStatusChangeNotifier) {
                 ((Property.ReadOnlyStatusChangeNotifier) dataSource)
                         .removeListener(this);
             }
@@ -96,7 +96,7 @@ public abstract class PropertyTranslator extends AbstractProperty implements
             if (dataSource instanceof Property.ValueChangeNotifier) {
                 ((Property.ValueChangeNotifier) dataSource).addListener(this);
             }
-            if (dataSource instanceof Property.ReadOnlyStatusChangeListener) {
+            if (dataSource instanceof Property.ReadOnlyStatusChangeNotifier) {
                 ((Property.ReadOnlyStatusChangeNotifier) dataSource)
                         .addListener(this);
             }
