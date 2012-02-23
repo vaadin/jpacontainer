@@ -605,18 +605,21 @@ public final class JPAContainerItem<T> implements EntityItem<T> {
     @SuppressWarnings("serial")
     public void refresh() {
         if (isPersistent()) {
-            entity = getContainer().getEntityProvider().refreshEntity(entity);
-            if (entity == null) {
+            T refreshedEntity = getContainer().getEntityProvider().refreshEntity(entity);
+            if (refreshedEntity == null) {
                 /*
                  * Entity has been removed, fire item set change for the
                  * container
                  */
+                setPersistent(false);
                 container.fireContainerItemSetChange(new ItemSetChangeEvent() {
                     public Container getContainer() {
                         return container;
                     }
                 });
                 return;
+            } else {
+                entity = refreshedEntity;
             }
             if (isDirty()) {
                 discard();

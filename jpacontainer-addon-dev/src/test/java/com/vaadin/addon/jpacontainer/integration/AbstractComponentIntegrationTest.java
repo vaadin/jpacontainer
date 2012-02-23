@@ -398,15 +398,28 @@ public abstract class AbstractComponentIntegrationTest extends
         // now get a new item, should not hit chache. This used to be broken
         EntityItem<Person> item3 = personContainer.getItem(itemId);
 
-
         Object value = item.getItemProperty("firstName").getValue();
         Object value2 = item2.getItemProperty("firstName").getValue();
         Object value3 = item3.getItemProperty("firstName").getValue();
-        
+
         // now all should have the new value
         assertEquals(firstNameChangedValue, value);
         assertEquals(firstNameChangedValue, value2);
         assertEquals(firstNameChangedValue, value3);
+
+    }
+
+    @Test
+    public void testRemoveWithTwoRefreshCalls() {
+        JPAContainer<Person> personContainer = getPersonContainer();
+
+        Object firstItemId = personContainer.firstItemId();
+        EntityItem<Person> item = personContainer.getItem(firstItemId);
+
+        personContainer.removeItem(firstItemId);
+
+        personContainer.refresh();
+        personContainer.refresh();
 
     }
 
