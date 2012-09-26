@@ -27,6 +27,9 @@ public class SingleSelectConverter<T> implements Converter<Object, T> {
 
     public Object convertToPresentation(T value, Locale locale)
             throws com.vaadin.data.util.converter.Converter.ConversionException {
+        if(value == null) {
+            return null;
+        }
         return getContainer().getEntityProvider().getIdentifier(value);
     }
 
