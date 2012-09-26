@@ -1127,7 +1127,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
             for (Object id : itemIds) {
                 removeItem(id);
             }
-            if(!isWriteThrough()) {
+            if (!isWriteThrough()) {
                 commit();
             }
         } catch (Exception e) {
@@ -1732,8 +1732,8 @@ public class JPAContainer<T> implements EntityContainer<T>,
 
     public List<?> getItemIds(int startIndex, int numberOfItems) {
         // FIXME this should be optimized
-        ArrayList ids = new ArrayList();
-        for(int i = 0; i < numberOfItems; i++) {
+        ArrayList<Object> ids = new ArrayList<Object>();
+        for (int i = 0; i < numberOfItems; i++) {
             ids.add(getIdByIndex(startIndex + i));
         }
         return ids;

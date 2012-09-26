@@ -1,7 +1,5 @@
 package com.vaadin.addon.jpacontainer.provider.jndijta;
 
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.transaction.UserTransaction;
 
@@ -24,8 +22,9 @@ public class CachingBatchableEntityProvider<T> extends
         super(entityClass);
         setTransactionsHandledByProvider(false);
     }
-    
-    public CachingBatchableEntityProvider(Class<T> entityClass, JndiAddresses addresses) {
+
+    public CachingBatchableEntityProvider(Class<T> entityClass,
+            JndiAddresses addresses) {
         this(entityClass);
         setJndiAddresses(addresses);
     }

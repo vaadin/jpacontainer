@@ -167,7 +167,7 @@ public class ClassMetadata<T> implements Serializable {
             IllegalArgumentException, InvocationTargetException {
         // First we try to find a getter for the field in order to
         // make getter-based lazy loading work.
-        Class clazz = ppmd.field.getDeclaringClass();
+        Class<?> clazz = ppmd.field.getDeclaringClass();
         Method getter = null;
         try {
             getter = clazz.getMethod("get" + capitalize(ppmd.fieldName));

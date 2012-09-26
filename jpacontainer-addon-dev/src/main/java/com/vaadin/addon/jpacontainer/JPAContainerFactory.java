@@ -15,7 +15,6 @@ import com.vaadin.addon.jpacontainer.provider.CachingMutableLocalEntityProvider;
 import com.vaadin.addon.jpacontainer.provider.LocalEntityProvider;
 import com.vaadin.addon.jpacontainer.provider.MutableLocalEntityProvider;
 import com.vaadin.addon.jpacontainer.provider.jndijta.JndiAddresses;
-import com.vaadin.addon.jpacontainer.provider.jndijta.JndiAddressesImpl;
 
 /**
  * A factory for creating instances of JPAContainers backed by different default
@@ -283,8 +282,7 @@ public class JPAContainerFactory {
     /**
      * Creates a JPAContainer that uses JNDI lookups to fetch entity manager
      * from "java:comp/env/persistence/em". Container also uses JTA
-     * transactions. This type of container commonly
-     * suits for JEE6 environment.
+     * transactions. This type of container commonly suits for JEE6 environment.
      * 
      * @param <T>
      *            the type of entity to be contained in the JPAContainer
@@ -303,8 +301,7 @@ public class JPAContainerFactory {
     /**
      * Creates a JPAContainer that uses JNDI lookups to fetch entity manager
      * from "java:comp/env/persistence/em". Container also uses JTA
-     * transactions. This type of container commonly
-     * suits for JEE6 environment.
+     * transactions. This type of container commonly suits for JEE6 environment.
      * 
      * @param <T>
      *            the type of entity to be contained in the JPAContainer
@@ -323,12 +320,11 @@ public class JPAContainerFactory {
                 new com.vaadin.addon.jpacontainer.provider.jndijta.EntityProvider<T>(
                         entityClass, jndiAddresses));
     }
-    
+
     /**
      * Creates a JPAContainer that uses JNDI lookups to fetch entity manager
      * from "java:comp/env/persistence/em". Container also uses JTA
-     * transactions. This type of container commonly
-     * suits for JEE6 environment.
+     * transactions. This type of container commonly suits for JEE6 environment.
      * 
      * @param <T>
      *            the type of entity to be contained in the JPAContainer
@@ -336,8 +332,7 @@ public class JPAContainerFactory {
      *            the class of the entity
      * @return a fully configured JPAContainer instance
      */
-    public static <T> JPAContainer<T> makeNonCachedJndi(
-            Class<T> entityClass) {
+    public static <T> JPAContainer<T> makeNonCachedJndi(Class<T> entityClass) {
         return makeWithEntityProvider(
                 entityClass,
                 new com.vaadin.addon.jpacontainer.provider.jndijta.MutableEntityProvider<T>(
@@ -347,8 +342,7 @@ public class JPAContainerFactory {
     /**
      * Creates a JPAContainer that uses JNDI lookups to fetch entity manager
      * from "java:comp/env/persistence/em". Container also uses JTA
-     * transactions. This type of container commonly
-     * suits for JEE6 environment.
+     * transactions. This type of container commonly suits for JEE6 environment.
      * 
      * @param <T>
      *            the type of entity to be contained in the JPAContainer
@@ -360,19 +354,18 @@ public class JPAContainerFactory {
      * @return a fully configured JPAContainer instance
      * @return
      */
-    public static <T> JPAContainer<T> makeNonCachedJndi(
-            Class<T> entityClass, JndiAddresses jndiAddresses) {
+    public static <T> JPAContainer<T> makeNonCachedJndi(Class<T> entityClass,
+            JndiAddresses jndiAddresses) {
         return makeWithEntityProvider(
                 entityClass,
                 new com.vaadin.addon.jpacontainer.provider.jndijta.MutableEntityProvider<T>(
                         entityClass, jndiAddresses));
     }
-    
+
     /**
      * Creates a JPAContainer that uses JNDI lookups to fetch entity manager
      * from "java:comp/env/persistence/em". Container also uses JTA
-     * transactions. This type of container commonly
-     * suits for JEE6 environment.
+     * transactions. This type of container commonly suits for JEE6 environment.
      * 
      * @param <T>
      *            the type of entity to be contained in the JPAContainer
@@ -380,8 +373,7 @@ public class JPAContainerFactory {
      *            the class of the entity
      * @return a fully configured JPAContainer instance
      */
-    public static <T> JPAContainer<T> makeJndi(
-            Class<T> entityClass) {
+    public static <T> JPAContainer<T> makeJndi(Class<T> entityClass) {
         return makeWithEntityProvider(
                 entityClass,
                 new com.vaadin.addon.jpacontainer.provider.jndijta.CachingMutableEntityProvider<T>(
@@ -391,8 +383,7 @@ public class JPAContainerFactory {
     /**
      * Creates a JPAContainer that uses JNDI lookups to fetch entity manager
      * from "java:comp/env/persistence/em". Container also uses JTA
-     * transactions. This type of container commonly
-     * suits for JEE6 environment.
+     * transactions. This type of container commonly suits for JEE6 environment.
      * 
      * @param <T>
      *            the type of entity to be contained in the JPAContainer
@@ -404,8 +395,8 @@ public class JPAContainerFactory {
      * @return a fully configured JPAContainer instance
      * @return
      */
-    public static <T> JPAContainer<T> makeJndi(
-            Class<T> entityClass, JndiAddresses jndiAddresses) {
+    public static <T> JPAContainer<T> makeJndi(Class<T> entityClass,
+            JndiAddresses jndiAddresses) {
         return makeWithEntityProvider(
                 entityClass,
                 new com.vaadin.addon.jpacontainer.provider.jndijta.CachingMutableEntityProvider<T>(
@@ -415,8 +406,7 @@ public class JPAContainerFactory {
     /**
      * Creates a JPAContainer that uses JNDI lookups to fetch entity manager
      * from "java:comp/env/persistence/em". Container also uses JTA
-     * transactions. This type of container commonly
-     * suits for JEE6 environment.
+     * transactions. This type of container commonly suits for JEE6 environment.
      * 
      * @param <T>
      *            the type of entity to be contained in the JPAContainer
@@ -424,8 +414,7 @@ public class JPAContainerFactory {
      *            the class of the entity
      * @return a fully configured JPAContainer instance
      */
-    public static <T> JPAContainer<T> makeBatchableJndi(
-            Class<T> entityClass) {
+    public static <T> JPAContainer<T> makeBatchableJndi(Class<T> entityClass) {
         return makeWithEntityProvider(
                 entityClass,
                 new com.vaadin.addon.jpacontainer.provider.jndijta.CachingBatchableEntityProvider<T>(
@@ -435,8 +424,7 @@ public class JPAContainerFactory {
     /**
      * Creates a JPAContainer that uses JNDI lookups to fetch entity manager
      * from "java:comp/env/persistence/em". Container also uses JTA
-     * transactions. This type of container commonly
-     * suits for JEE6 environment.
+     * transactions. This type of container commonly suits for JEE6 environment.
      * 
      * @param <T>
      *            the type of entity to be contained in the JPAContainer
@@ -448,8 +436,8 @@ public class JPAContainerFactory {
      * @return a fully configured JPAContainer instance
      * @return
      */
-    public static <T> JPAContainer<T> makeBatchableJndi(
-            Class<T> entityClass, JndiAddresses jndiAddresses) {
+    public static <T> JPAContainer<T> makeBatchableJndi(Class<T> entityClass,
+            JndiAddresses jndiAddresses) {
         return makeWithEntityProvider(
                 entityClass,
                 new com.vaadin.addon.jpacontainer.provider.jndijta.CachingBatchableEntityProvider<T>(

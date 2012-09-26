@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.persistence.EntityManager;
-import javax.transaction.Status;
 import javax.transaction.UserTransaction;
 
 class Util {
@@ -35,7 +34,8 @@ class Util {
                 try {
                     utx.rollback();
                 } catch (Exception e2) {
-                    Logger.getLogger(Util.class.getName()).log(Level.WARNING, "Rollback failed", e2);
+                    Logger.getLogger(Util.class.getName()).log(Level.WARNING,
+                            "Rollback failed", e2);
                 }
                 throw e;
             }

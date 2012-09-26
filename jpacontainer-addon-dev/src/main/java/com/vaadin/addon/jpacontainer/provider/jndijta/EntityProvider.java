@@ -1,7 +1,5 @@
 package com.vaadin.addon.jpacontainer.provider.jndijta;
 
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.transaction.UserTransaction;
 
@@ -15,8 +13,8 @@ import com.vaadin.addon.jpacontainer.provider.LocalEntityProvider;
  * 
  * @param <T>
  */
-public class EntityProvider<T> extends
-        LocalEntityProvider<T> implements JndiJtaProvider<T> {
+public class EntityProvider<T> extends LocalEntityProvider<T> implements
+        JndiJtaProvider<T> {
 
     private JndiAddresses jndiAddresses;
 
@@ -33,7 +31,7 @@ public class EntityProvider<T> extends
     public boolean isEntitiesDetached() {
         return false;
     }
-    
+
     @Override
     public EntityManager getEntityManager() {
         return Util.getEntityManager(getJndiAddresses());

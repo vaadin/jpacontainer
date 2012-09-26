@@ -1,7 +1,5 @@
 package com.vaadin.addon.jpacontainer.provider.jndijta;
 
-import java.util.logging.Logger;
-
 import javax.persistence.EntityManager;
 import javax.transaction.UserTransaction;
 

@@ -589,7 +589,7 @@ public final class JPAContainerItem<T> implements EntityItem<T> {
          */
         for (String propertyId : getItemPropertyIds()) {
             ((Property.ValueChangeNotifier) getItemProperty(propertyId))
-                    .addListener(listener);
+                    .addValueChangeListener(listener);
         }
     }
 
@@ -600,8 +600,16 @@ public final class JPAContainerItem<T> implements EntityItem<T> {
          */
         for (String propertyId : getItemPropertyIds()) {
             ((Property.ValueChangeNotifier) getItemProperty(propertyId))
-                    .removeListener(listener);
+                    .removeValueChangeListener(listener);
         }
+    }
+
+    public void addValueChangeListener(ValueChangeListener listener) {
+        addListener(listener);
+    }
+
+    public void removeValueChangeListener(ValueChangeListener listener) {
+        removeListener(listener);
     }
 
     @Override
@@ -612,7 +620,8 @@ public final class JPAContainerItem<T> implements EntityItem<T> {
     @SuppressWarnings("serial")
     public void refresh() {
         if (isPersistent()) {
-            T refreshedEntity = getContainer().getEntityProvider().refreshEntity(entity);
+            T refreshedEntity = getContainer().getEntityProvider()
+                    .refreshEntity(entity);
             if (refreshedEntity == null) {
                 /*
                  * Entity has been removed, fire item set change for the
@@ -651,13 +660,5 @@ public final class JPAContainerItem<T> implements EntityItem<T> {
 
     public boolean isBuffered() {
         return !isReadThrough() && !isWriteThrough();
-    }
-
-    public void addValueChangeListener(ValueChangeListener listener) {
-        addListener(listener);
-    }
-
-    public void removeValueChangeListener(ValueChangeListener listener) {
-        removeListener(listener);
     }
 }
