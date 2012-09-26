@@ -1,17 +1,9 @@
 package com.vaadin.addon.jpacontainer.integration;
 
-import static org.easymock.EasyMock.createNiceMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.isA;
-import static org.easymock.EasyMock.replay;
-
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Properties;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -19,18 +11,14 @@ import javax.persistence.EntityManagerFactory;
 import org.junit.After;
 import org.junit.Before;
 
-import com.vaadin.Application;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
 import com.vaadin.addon.jpacontainer.testdata.DataGenerator;
 import com.vaadin.addon.jpacontainer.testdata.Person;
-import com.vaadin.service.ApplicationContext;
-import com.vaadin.terminal.PaintException;
-import com.vaadin.terminal.PaintTarget;
-import com.vaadin.terminal.Paintable;
+import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Layout;
-import com.vaadin.ui.Window;
+import com.vaadin.ui.UI;
 
 /**
  * Helper class to test JPAContainer in components that are connected to a
@@ -110,34 +98,32 @@ public abstract class AbstractIntegrationTest {
 
         public TestLayout() {
 
-            Application application = new Application() {
+            UI application = new UI() {
                 @Override
-                public void init() {
-                    Window window = new Window();
-                    setMainWindow(window);
-                    window.setContent(TestLayout.this);
+                public void init(VaadinRequest req) {
+                    setContent(TestLayout.this);
                 }
             };
 
-            try {
-                application.start(new URL("http://localhost/test"),
-                        new Properties(), mockApplicationContext());
-            } catch (MalformedURLException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            // try {
+            // application.start(new URL("http://localhost/test"),
+            // new Properties(), mockApplicationContext());
+            // } catch (MalformedURLException e) {
+            // // TODO Auto-generated catch block
+            // e.printStackTrace();
+            // }
 
         }
 
-        private ApplicationContext mockApplicationContext() {
-            return createNiceMock(ApplicationContext.class);
-        }
+        // private ApplicationContext mockApplicationContext() {
+        // return createNiceMock(ApplicationContext.class);
+        // }
     }
 
-    protected PaintTarget getFakePaintTarget() throws PaintException {
-        PaintTarget mockTarget = createNiceMock(PaintTarget.class);
-        expect(mockTarget.getTag(isA(Paintable.class))).andStubReturn("tag");
-        replay(mockTarget);
-        return mockTarget;
-    }
+    // protected PaintTarget getFakePaintTarget() throws PaintException {
+    // PaintTarget mockTarget = createNiceMock(PaintTarget.class);
+    // expect(mockTarget.getTag(isA(Paintable.class))).andStubReturn("tag");
+    // replay(mockTarget);
+    // return mockTarget;
+    // }
 }

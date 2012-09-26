@@ -25,6 +25,7 @@ import com.vaadin.addon.jpacontainer.testdata.Person;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ReadOnlyException;
 import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.util.converter.StringToDoubleConverter;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.TextField;
 
@@ -101,6 +102,7 @@ public class JPAContainerItemTest {
 
         CheckBox checkBox = new CheckBox();
         TextField textField = new TextField();
+        textField.setConverter(new StringToDoubleConverter());
 
         EntityItemProperty maleProperty = item.getItemProperty("male");
         EntityItemProperty doubleProperty = item

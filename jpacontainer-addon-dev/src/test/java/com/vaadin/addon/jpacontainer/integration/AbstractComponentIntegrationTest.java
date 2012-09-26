@@ -19,8 +19,8 @@ import com.vaadin.addon.jpacontainer.EntityItem;
 import com.vaadin.addon.jpacontainer.EntityItemProperty;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
-import com.vaadin.addon.jpacontainer.fieldfactory.MultiSelectTranslator;
-import com.vaadin.addon.jpacontainer.fieldfactory.SingleSelectTranslator;
+import com.vaadin.addon.jpacontainer.fieldfactory.MultiSelectConverter;
+import com.vaadin.addon.jpacontainer.fieldfactory.SingleSelectConverter;
 import com.vaadin.addon.jpacontainer.provider.LocalEntityProvider;
 import com.vaadin.addon.jpacontainer.testdata.BeanWithLogic;
 import com.vaadin.addon.jpacontainer.testdata.DataGenerator;
@@ -29,7 +29,7 @@ import com.vaadin.addon.jpacontainer.testdata.Person;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.filter.Compare.Equal;
-import com.vaadin.terminal.PaintException;
+import com.vaadin.server.PaintException;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.DefaultFieldFactory;
@@ -74,7 +74,7 @@ public abstract class AbstractComponentIntegrationTest extends
 
         Layout dl = createDummyLayout();
         dl.addComponent(table);
-        dl.getWindow().paint(getFakePaintTarget());
+        // dl.getWindow().paint(getFakePaintTarget());
 
         Item item = table.getItem(table.firstItemId());
         Property fnp = item.getItemProperty("firstName");
@@ -97,7 +97,8 @@ public abstract class AbstractComponentIntegrationTest extends
         final ComboBox comboBox = new ComboBox();
         comboBox.setContainerDataSource(personContainer);
         comboBox.setCaption("Manager");
-        comboBox.setPropertyDataSource(new SingleSelectTranslator(comboBox));
+        comboBox.setConverter(new SingleSelectConverter<Person>(comboBox));
+        // comboBox.setPropertyDataSource(new SingleSelectTranslator(comboBox));
 
         Form form = new Form();
 
@@ -180,10 +181,8 @@ public abstract class AbstractComponentIntegrationTest extends
 
         ListSelect listSelect = new ListSelect("foo", personContainer);
         listSelect.setMultiSelect(true);
-        MultiSelectTranslator wrapperProperty = new MultiSelectTranslator(
-                listSelect);
-        wrapperProperty.setPropertyDataSource(item.getItemProperty("persons"));
-        listSelect.setPropertyDataSource(wrapperProperty);
+        listSelect.setPropertyDataSource(item.getItemProperty("persons"));
+        listSelect.setConverter(new MultiSelectConverter(listSelect));
 
         Set<Object> value = (Set<Object>) listSelect.getValue();
         boolean containsPersonId = value.contains(personId);
@@ -212,7 +211,7 @@ public abstract class AbstractComponentIntegrationTest extends
         EntityItem<Department> item2 = departmentContainer.getItem(nextItemId);
 
         Department department2 = item2.getEntity();
-        wrapperProperty.setPropertyDataSource(item2.getItemProperty("persons"));
+        listSelect.setPropertyDataSource(item2.getItemProperty("persons"));
 
         listSelect.select(personId);
 

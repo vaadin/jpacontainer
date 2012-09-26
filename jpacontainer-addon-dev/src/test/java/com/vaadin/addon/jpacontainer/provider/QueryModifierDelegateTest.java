@@ -4,6 +4,7 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.isA;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
+import static org.easymock.EasyMock.expectLastCall;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -134,7 +135,16 @@ public class QueryModifierDelegateTest {
 
     @Test
     public void testQueryModifierDelegateCalledWhenCounting() {
-        QueryModifierDelegate delegate = createMockDelegate();
+        QueryModifierDelegate delegate = createMock(QueryModifierDelegate.class);
+        delegate.queryWillBeBuilt(isA(CriteriaBuilder.class),
+                isA(CriteriaQuery.class));
+        expectLastCall().times(2);
+        delegate.filtersWillBeAdded(isA(CriteriaBuilder.class),
+                isA(CriteriaQuery.class), isA(List.class));
+        delegate.filtersWereAdded(isA(CriteriaBuilder.class),
+                isA(CriteriaQuery.class));
+        delegate.queryHasBeenBuilt(isA(CriteriaBuilder.class),
+                isA(CriteriaQuery.class));
         replay(delegate);
         entityProvider.setQueryModifierDelegate(delegate);
         entityProvider.getEntityCount(container, null);
