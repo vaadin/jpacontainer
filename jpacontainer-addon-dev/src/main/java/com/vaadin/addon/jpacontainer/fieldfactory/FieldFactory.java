@@ -260,6 +260,7 @@ public class FieldFactory extends DefaultFieldFactory {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private Field createRelationFieldForEmbeddableEditor(Item item,
             Object propertyId, Component uiContext) {
         EmbeddableEditor embeddableEditor = getEmbeddableEditor(uiContext);
@@ -285,7 +286,7 @@ public class FieldFactory extends DefaultFieldFactory {
                     .createCaptionByPropertyId(propertyId));
             select.setItemCaptionMode(NativeSelect.ITEM_CAPTION_MODE_ITEM);
             select.setContainerDataSource(container);
-            select.setPropertyDataSource(new SingleSelectTranslator(select));
+            select.setConverter(new SingleSelectConverter(select));
             return select;
 
         default:
@@ -464,7 +465,7 @@ public class FieldFactory extends DefaultFieldFactory {
                 .createCaptionByPropertyId(propertyId));
         select.setContainerDataSource(container);
         // many to many, selectable from table listing all existing pojos
-        select.setPropertyDataSource(new MultiSelectTranslator(select));
+        select.setConverter(new MultiSelectConverter(select));
         select.setMultiSelect(true);
         if (select instanceof Table) {
             Table t = (Table) select;
@@ -584,8 +585,7 @@ public class FieldFactory extends DefaultFieldFactory {
                 .createCaptionByPropertyId(propertyId));
         nativeSelect.setItemCaptionMode(NativeSelect.ITEM_CAPTION_MODE_ITEM);
         nativeSelect.setContainerDataSource(container);
-        nativeSelect.setPropertyDataSource(new SingleSelectTranslator(
-                nativeSelect));
+        nativeSelect.setConverter(new SingleSelectConverter(nativeSelect));
         return nativeSelect;
     }
 
@@ -653,7 +653,8 @@ public class FieldFactory extends DefaultFieldFactory {
             EntityContainer<?> referenceContainer, Class<?> type,
             boolean buffered) {
         JPAContainer<?> container = null;
-        EntityProvider<?> referenceEntityProvider = referenceContainer.getEntityProvider();
+        EntityProvider<?> referenceEntityProvider = referenceContainer
+                .getEntityProvider();
         if (referenceEntityProvider instanceof JndiJtaProvider) {
             JndiJtaProvider jndiProvider = (JndiJtaProvider) referenceEntityProvider;
             container = new JPAContainer(type);
@@ -665,7 +666,7 @@ public class FieldFactory extends DefaultFieldFactory {
             }
             // copy settings from parent provider
             entityProvider.setJndiAddresses(jndiProvider.getJndiAddresses());
-            
+
             container.setEntityProvider(entityProvider);
         } else {
             EntityManager em = referenceEntityProvider.getEntityManager();

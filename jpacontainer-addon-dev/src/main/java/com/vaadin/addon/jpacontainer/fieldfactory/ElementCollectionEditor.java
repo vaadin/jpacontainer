@@ -98,7 +98,7 @@ public class ElementCollectionEditor extends CustomField implements
     private void buildContainer() {
         container = strategy.buildContainer();
     }
-    
+
     @Override
     public void setPropertyDataSource(Property newDataSource) {
         super.setPropertyDataSource(newDataSource);
@@ -274,7 +274,7 @@ public class ElementCollectionEditor extends CustomField implements
                 }
                 if (c == null) {
                     try {
-                        c = MultiSelectTranslator
+                        c = MultiSelectConverter
                                 .createNewCollectionForType(referencedType);
                     } catch (InstantiationException e) {
                         throw new SourceException(ElementCollectionEditor.this,
@@ -374,7 +374,7 @@ public class ElementCollectionEditor extends CustomField implements
                 }
                 if (c == null) {
                     try {
-                        c = MultiSelectTranslator
+                        c = MultiSelectConverter
                                 .createNewCollectionForType(referencedType);
                     } catch (InstantiationException e) {
                         throw new SourceException(ElementCollectionEditor.this,

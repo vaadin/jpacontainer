@@ -29,8 +29,7 @@ import com.vaadin.ui.Table;
 import com.vaadin.ui.TableFieldFactory;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class MasterDetailEditor extends CustomField implements
-        Action.Handler {
+public class MasterDetailEditor extends CustomField implements Action.Handler {
 
     private final FieldFactory fieldFactory;
     private Class<?> referencedType;
@@ -198,7 +197,7 @@ public class MasterDetailEditor extends CustomField implements
                 }
                 if (c == null) {
                     try {
-                        c = MultiSelectTranslator
+                        c = MultiSelectConverter
                                 .createNewCollectionForType(containerForProperty
                                         .getItem(itemId)
                                         .getItemProperty(propertyId).getType());
