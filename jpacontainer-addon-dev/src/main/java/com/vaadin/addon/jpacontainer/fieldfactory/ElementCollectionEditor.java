@@ -20,6 +20,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
+import com.vaadin.ui.CustomField;
 import com.vaadin.ui.DefaultFieldFactory;
 import com.vaadin.ui.Form;
 import com.vaadin.ui.Table;
@@ -31,7 +32,7 @@ import com.vaadin.ui.TableFieldFactory;
  * 
  */
 @SuppressWarnings({ "unchecked", "rawtypes" })
-public class ElementCollectionEditor extends JPAContainerCustomField implements
+public class ElementCollectionEditor extends CustomField implements
         Action.Handler, EmbeddableEditor {
 
     private static final Set<Class<?>> BASIC_DATA_TYPES = new HashSet<Class<?>>(
@@ -76,13 +77,11 @@ public class ElementCollectionEditor extends JPAContainerCustomField implements
             // copy write buffering eagerly from parent if Form, form sets
             // buffering mode for fields too late
             Form f = (Form) uiContext;
-            boolean writeThrough = f.isWriteThrough();
-            setWriteThrough(writeThrough);
+            boolean writeThrough = f.isBuffered();
+            setBuffered(writeThrough);
         }
 
         buildContainer();
-
-        buildLayout();
 
         setCaption(DefaultFieldFactory.createCaptionByPropertyId(propertyId));
     }
@@ -99,36 +98,11 @@ public class ElementCollectionEditor extends JPAContainerCustomField implements
     private void buildContainer() {
         container = strategy.buildContainer();
     }
-
+    
     @Override
     public void setPropertyDataSource(Property newDataSource) {
         super.setPropertyDataSource(newDataSource);
         strategy.populateContainer();
-    }
-
-    private void buildLayout() {
-        CssLayout vl = new CssLayout();
-        buildTable();
-        vl.addComponent(getTable());
-
-        CssLayout buttons = new CssLayout();
-        buttons.addComponent(new Button(getMasterDetailAddItemCaption(),
-                new ClickListener() {
-                    public void buttonClick(ClickEvent event) {
-                        addNew();
-                    }
-                }));
-        // TODO replace with a (-) button in a generated column? Table currently
-        // not selectable.
-        buttons.addComponent(new Button(getMasterDetailRemoveItemCaption(),
-                new ClickListener() {
-                    public void buttonClick(ClickEvent event) {
-                        remove(getTable().getValue());
-                    }
-                }));
-        vl.addComponent(buttons);
-
-        setCompositionRoot(vl);
     }
 
     private void buildTable() {
@@ -216,7 +190,7 @@ public class ElementCollectionEditor extends JPAContainerCustomField implements
 
     @Override
     public void commit() throws SourceException, InvalidValueException {
-        if (!isWriteThrough()) {
+        if (!isBuffered()) {
             strategy.commit();
         } else {
             super.commit();
@@ -272,7 +246,7 @@ public class ElementCollectionEditor extends JPAContainerCustomField implements
                 IllegalAccessException {
             Object newInstance = container.getBeanType().newInstance();
             container.addBean(newInstance);
-            if (isWriteThrough()) {
+            if (isBuffered()) {
                 getElements().add(newInstance);
                 notifyPropertyOfChangedList();
             }
@@ -281,7 +255,7 @@ public class ElementCollectionEditor extends JPAContainerCustomField implements
         public void remove(Object itemId) {
             BeanItem item = container.getItem(itemId);
             container.removeItem(itemId);
-            if (isWriteThrough()) {
+            if (isBuffered()) {
                 Collection collection = getElements();
                 collection.remove(item.getBean());
                 notifyPropertyOfChangedList();
@@ -339,11 +313,11 @@ public class ElementCollectionEditor extends JPAContainerCustomField implements
         public void setValue(Object newValue) {
             if (this.value != newValue) {
                 if (newValue == null) {
-                    if (isWriteThrough()) {
+                    if (isBuffered()) {
                         getElements().remove(value);
                         notifyPropertyOfChangedList();
                     }
-                } else if (!newValue.equals(value) && isWriteThrough()) {
+                } else if (!newValue.equals(value) && isBuffered()) {
                     getElements().remove(value);
                     getElements().add(newValue);
                     notifyPropertyOfChangedList();
@@ -372,7 +346,7 @@ public class ElementCollectionEditor extends JPAContainerCustomField implements
                 IllegalAccessException {
             Object newInstance = referencedType.newInstance();
             container.addBean(new ValueHolder(newInstance));
-            if (isWriteThrough()) {
+            if (isBuffered()) {
                 getElements().add(newInstance);
                 notifyPropertyOfChangedList();
             }
@@ -381,7 +355,7 @@ public class ElementCollectionEditor extends JPAContainerCustomField implements
         public void remove(Object itemId) {
             BeanItem item = container.getItem(itemId);
             container.removeItem(itemId);
-            if (isWriteThrough()) {
+            if (isBuffered()) {
                 Collection collection = getElements();
                 collection.remove(((ValueHolder) item.getBean()).getValue());
                 notifyPropertyOfChangedList();
@@ -425,6 +399,31 @@ public class ElementCollectionEditor extends JPAContainerCustomField implements
             getTable().setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
         }
 
+    }
+
+    @Override
+    protected Component initContent() {
+        CssLayout vl = new CssLayout();
+        buildTable();
+        vl.addComponent(getTable());
+
+        CssLayout buttons = new CssLayout();
+        buttons.addComponent(new Button(getMasterDetailAddItemCaption(),
+                new ClickListener() {
+                    public void buttonClick(ClickEvent event) {
+                        addNew();
+                    }
+                }));
+        // TODO replace with a (-) button in a generated column? Table currently
+        // not selectable.
+        buttons.addComponent(new Button(getMasterDetailRemoveItemCaption(),
+                new ClickListener() {
+                    public void buttonClick(ClickEvent event) {
+                        remove(getTable().getValue());
+                    }
+                }));
+        vl.addComponent(buttons);
+        return vl;
     }
 
 }

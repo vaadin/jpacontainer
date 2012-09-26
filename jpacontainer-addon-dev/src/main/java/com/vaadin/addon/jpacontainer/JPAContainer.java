@@ -5,6 +5,7 @@ package com.vaadin.addon.jpacontainer;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -1710,5 +1711,31 @@ public class JPAContainer<T> implements EntityContainer<T>,
     public void setQueryModifierDelegate(
             QueryModifierDelegate queryModifierDelegate) {
         this.queryModifierDelegate = queryModifierDelegate;
+    }
+
+    public void setBuffered(boolean buffered) {
+        setReadThrough(!buffered);
+        setWriteThrough(!buffered);
+    }
+
+    public boolean isBuffered() {
+        return !isReadThrough() && isWriteThrough();
+    }
+
+    public void addItemSetChangeListener(ItemSetChangeListener listener) {
+        addListener(listener);
+    }
+
+    public void removeItemSetChangeListener(ItemSetChangeListener listener) {
+        removeListener(listener);
+    }
+
+    public List<?> getItemIds(int startIndex, int numberOfItems) {
+        // FIXME this should be optimized
+        ArrayList ids = new ArrayList();
+        for(int i = 0; i < numberOfItems; i++) {
+            ids.add(getIdByIndex(startIndex + i));
+        }
+        return ids;
     }
 }

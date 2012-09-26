@@ -18,6 +18,7 @@ package com.vaadin.addon.jpacontainer.fieldfactory;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.AbstractProperty;
 import com.vaadin.data.util.PropertyFormatter;
+import com.vaadin.data.util.converter.Converter.ConversionException;
 
 /**
  * PropertyTranslator is bit like the {@link PropertyFormatter}, but works also

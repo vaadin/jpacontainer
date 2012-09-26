@@ -22,13 +22,14 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
+import com.vaadin.ui.CustomField;
 import com.vaadin.ui.DefaultFieldFactory;
 import com.vaadin.ui.Form;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TableFieldFactory;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class MasterDetailEditor extends JPAContainerCustomField implements
+public class MasterDetailEditor extends CustomField implements
         Action.Handler {
 
     private final FieldFactory fieldFactory;
@@ -63,11 +64,9 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
         boolean writeThrough = true;
         if (uiContext instanceof Form) {
             Form f = (Form) uiContext;
-            writeThrough = f.isWriteThrough();
+            writeThrough = f.isBuffered();
         }
         buildContainer(writeThrough);
-
-        buildLayout();
 
         setCaption(DefaultFieldFactory.createCaptionByPropertyId(propertyId));
     }
@@ -83,29 +82,6 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
                 masterEntity, propertyId.toString());
         Filter filter = new Compare.Equal(backReferencePropertyId, masterEntity);
         container.addContainerFilter(filter);
-    }
-
-    private void buildLayout() {
-        CssLayout vl = new CssLayout();
-        buildTable();
-        vl.addComponent(getTable());
-
-        CssLayout buttons = new CssLayout();
-        buttons.addComponent(new Button(getMasterDetailAddItemCaption(),
-                new ClickListener() {
-                    public void buttonClick(ClickEvent event) {
-                        addNew();
-                    }
-                }));
-        buttons.addComponent(new Button(getMasterDetailRemoveItemCaption(),
-                new ClickListener() {
-                    public void buttonClick(ClickEvent event) {
-                        remove(getTable().getValue());
-                    }
-                }));
-        vl.addComponent(buttons);
-
-        setCompositionRoot(vl);
     }
 
     private void buildTable() {
@@ -181,7 +157,7 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
             EntityItem item = container.getItem(itemId);
             item.getItemProperty(backReferencePropertyId).setValue(null);
             container.removeItem(itemId);
-            if (isWriteThrough()) {
+            if (isBuffered()) {
                 collection.remove(item.getEntity());
             }
         }
@@ -194,7 +170,7 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
             beanItem.getItemProperty(backReferencePropertyId).setValue(
                     masterEntity);
             container.addEntity(newInstance);
-            if (isWriteThrough()) {
+            if (isBuffered()) {
                 // TODO need to update the actual property also!?
             }
         } catch (Exception e) {
@@ -206,7 +182,7 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
 
     @Override
     public void commit() throws SourceException, InvalidValueException {
-        if (!isWriteThrough()) {
+        if (!isBuffered()) {
             // Update the original collection to contain up to date list of
             // referenced entities
             ((EntityItemProperty) getPropertyDataSource()).getItem().refresh();
@@ -243,6 +219,29 @@ public class MasterDetailEditor extends JPAContainerCustomField implements
         } else {
             super.commit();
         }
+    }
+
+    @Override
+    protected Component initContent() {
+        CssLayout vl = new CssLayout();
+        buildTable();
+        vl.addComponent(getTable());
+
+        CssLayout buttons = new CssLayout();
+        buttons.addComponent(new Button(getMasterDetailAddItemCaption(),
+                new ClickListener() {
+                    public void buttonClick(ClickEvent event) {
+                        addNew();
+                    }
+                }));
+        buttons.addComponent(new Button(getMasterDetailRemoveItemCaption(),
+                new ClickListener() {
+                    public void buttonClick(ClickEvent event) {
+                        remove(getTable().getValue());
+                    }
+                }));
+        vl.addComponent(buttons);
+        return vl;
     }
 
 }

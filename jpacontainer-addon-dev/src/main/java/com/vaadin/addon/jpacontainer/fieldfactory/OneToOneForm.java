@@ -34,12 +34,12 @@ public class OneToOneForm extends Form {
         if (newDataSource.getValue() == null) {
             try {
                 createdInstance = newDataSource.getType().newInstance();
-                if (isWriteThrough()) {
+                if (isBuffered()) {
                     tryToSetBackReference();
                 }
                 editedEntityItem = createItemForInstance(createdInstance);
                 setItemDataSource(editedEntityItem, getVisiblePropertyIds());
-                if (isWriteThrough()) {
+                if (isBuffered()) {
                     newDataSource.setValue(editedEntityItem.getEntity());
                     createdInstance = null;
                 }
@@ -86,7 +86,7 @@ public class OneToOneForm extends Form {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private EntityItem createItemForInstance(Object createdInstance) {
         JPAContainer jpaContainer = getContainer(createdInstance);
-        if (!isWriteThrough()) {
+        if (!isBuffered()) {
             // don't actually insert the new item, just create an item around
             // it, expect cascades are set in the "owning" entity.
             jpaContainer.setWriteThrough(false);
@@ -99,7 +99,7 @@ public class OneToOneForm extends Form {
         FieldFactory formFieldFactory = getJPAContainerFieldFactory();
         JPAContainer<?> jpaContainer = formFieldFactory.createJPAContainerFor(
                 property.getItem().getContainer(), createdInstance.getClass(),
-                !isWriteThrough());
+                !isBuffered());
         return jpaContainer;
     }
 

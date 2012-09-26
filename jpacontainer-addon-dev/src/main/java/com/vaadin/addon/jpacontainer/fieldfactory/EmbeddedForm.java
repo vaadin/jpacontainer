@@ -31,7 +31,7 @@ public class EmbeddedForm extends Form implements EmbeddableEditor {
         Object embeddedObject = newDataSource.getValue();
         if (embeddedObject == null) {
             embeddedObject = createInstance(newDataSource.getType());
-            if (isWriteThrough()) {
+            if (isBuffered()) {
                 newDataSource.setValue(embeddedObject);
             }
         }

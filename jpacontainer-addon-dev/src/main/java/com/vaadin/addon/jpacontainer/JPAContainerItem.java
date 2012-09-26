@@ -18,6 +18,7 @@ import com.vaadin.data.Container.ItemSetChangeEvent;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.Validator.InvalidValueException;
+import com.vaadin.data.util.converter.Converter.ConversionException;
 
 /**
  * {@link EntityItem}-implementation that is used by {@link JPAContainer}.
@@ -330,6 +331,14 @@ public final class JPAContainerItem<T> implements EntityItem<T> {
                 }
             }
         }
+
+        public void addValueChangeListener(ValueChangeListener listener) {
+            addListener(listener);
+        }
+
+        public void removeValueChangeListener(ValueChangeListener listener) {
+            addListener(listener);
+        }
     }
 
     private T entity;
@@ -476,7 +485,7 @@ public final class JPAContainerItem<T> implements EntityItem<T> {
     }
 
     public boolean isDeleted() {
-        return isPersistent() && !getContainer().isWriteThrough() && deleted;
+        return isPersistent() && !getContainer().isBuffered() && deleted;
     }
 
     /**
@@ -511,8 +520,6 @@ public final class JPAContainerItem<T> implements EntityItem<T> {
                 }
                 modified = false;
                 container.containerItemModified(this);
-            } catch (Property.ConversionException e) {
-                throw new InvalidValueException(e.getMessage());
             } catch (Property.ReadOnlyException e) {
                 throw new SourceException(this, e);
             }
@@ -635,5 +642,22 @@ public final class JPAContainerItem<T> implements EntityItem<T> {
             ClassNotFoundException {
         in.defaultReadObject();
         container.registerItem(this);
+    }
+
+    public void setBuffered(boolean buffered) {
+        setReadThrough(!buffered);
+        setWriteThrough(!buffered);
+    }
+
+    public boolean isBuffered() {
+        return !isReadThrough() && !isWriteThrough();
+    }
+
+    public void addValueChangeListener(ValueChangeListener listener) {
+        addListener(listener);
+    }
+
+    public void removeValueChangeListener(ValueChangeListener listener) {
+        removeListener(listener);
     }
 }

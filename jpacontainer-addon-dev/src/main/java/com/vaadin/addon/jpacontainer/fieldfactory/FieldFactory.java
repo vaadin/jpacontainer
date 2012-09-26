@@ -440,7 +440,7 @@ public class FieldFactory extends DefaultFieldFactory {
             // (otherwise the original master entity will be modified once the
             // form is opened).
             Form f = (Form) uiContext;
-            oneToOneForm.setWriteThrough(f.isWriteThrough());
+            oneToOneForm.setBuffered(f.isBuffered());
         }
         return oneToOneForm;
     }

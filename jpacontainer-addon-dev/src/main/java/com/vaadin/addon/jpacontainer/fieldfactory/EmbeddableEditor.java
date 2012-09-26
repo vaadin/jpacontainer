@@ -5,7 +5,6 @@ import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
 
 import com.vaadin.addon.jpacontainer.EntityContainer;
-import com.vaadin.ui.Field;
 
 /**
  * A field that edits {@link Embeddable} or {@link ElementCollection} should
@@ -13,7 +12,7 @@ import com.vaadin.ui.Field;
  * support for relations from the {@link Embedded} object.
  * 
  */
-public interface EmbeddableEditor extends Field {
+public interface EmbeddableEditor {
     
     @SuppressWarnings("rawtypes")
     EntityContainer getMasterEntityContainer();
