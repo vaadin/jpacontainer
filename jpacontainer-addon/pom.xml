@@ -99,11 +99,11 @@
     </distributionManagement>
 
     <dependencies>
-        <dependency>
-            <groupId>com.vaadin</groupId>
-            <artifactId>vaadin</artifactId>
-            <version>${vaadin.version.maven}</version>
-        </dependency>
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-server</artifactId>
+			<version>${vaadin.version.maven}</version>
+		</dependency>
         <dependency>
         	<groupId>javax.transaction</groupId>
         	<artifactId>transaction-api</artifactId>
