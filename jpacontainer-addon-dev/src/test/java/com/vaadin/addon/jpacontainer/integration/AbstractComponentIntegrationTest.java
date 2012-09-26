@@ -139,7 +139,6 @@ public abstract class AbstractComponentIntegrationTest extends
     }
 
     @Test
-    @Ignore("Temporarily ignored until fixed")
     public void testCollectionTypeInListSelectWithMultiSelectTranslator()
             throws IOException {
         JPAContainer<Person> personContainer = getPersonContainer();
@@ -157,6 +156,7 @@ public abstract class AbstractComponentIntegrationTest extends
         }
         if (department == null) {
             entityManager.getTransaction().begin();
+
             department = new Department();
             department.setName("FOO");
 
@@ -174,8 +174,7 @@ public abstract class AbstractComponentIntegrationTest extends
             entityManager.getTransaction().commit();
 
         }
-        JPAContainer<Department> departmentContainer = JPAContainerFactory
-                .make(Department.class, entityManager);
+        JPAContainer<Department> departmentContainer = getDepartmentContainer();
 
         Object firstItemId = departmentContainer.firstItemId();
         EntityItem<Department> item = departmentContainer.getItem(firstItemId);
@@ -221,6 +220,11 @@ public abstract class AbstractComponentIntegrationTest extends
         assertEquals(1, department2.getPersons().size());
         assertFalse(!department.getPersons().contains(person));
 
+    }
+
+    protected JPAContainer<Department> getDepartmentContainer()
+            throws IOException {
+        return JPAContainerFactory.make(Department.class, getEntityManager());
     }
 
     @Test

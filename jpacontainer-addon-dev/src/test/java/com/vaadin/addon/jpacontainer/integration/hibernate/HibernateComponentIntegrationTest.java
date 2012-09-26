@@ -71,4 +71,15 @@ public class HibernateComponentIntegrationTest extends
         }
         return container;
     }
+
+    @Override
+    protected JPAContainer<Department> getDepartmentContainer()
+            throws IOException {
+        JPAContainer<Department> departmentContainer = JPAContainerFactory
+                .make(Department.class, getEntityManager());
+
+        departmentContainer.getEntityProvider().setLazyLoadingDelegate(
+                new HibernateLazyLoadingDelegate());
+        return departmentContainer;
+    }
 }

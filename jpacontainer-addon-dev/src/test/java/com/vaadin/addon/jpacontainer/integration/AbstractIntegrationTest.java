@@ -35,6 +35,7 @@ public abstract class AbstractIntegrationTest {
     public void setUp() throws Exception {
         if (!testdataReady) {
             DataGenerator.removeTestData(getEntityManager());
+            DataGenerator.createTestData();
             DataGenerator.persistTestData(getEntityManager());
             testdataReady = true;
         }
