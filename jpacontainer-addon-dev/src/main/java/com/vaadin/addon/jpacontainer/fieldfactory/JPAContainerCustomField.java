@@ -11,10 +11,9 @@ import com.vaadin.data.Property;
 import com.vaadin.data.Validatable;
 import com.vaadin.data.Validator;
 import com.vaadin.data.Validator.InvalidValueException;
-import com.vaadin.terminal.CompositeErrorMessage;
-import com.vaadin.terminal.ErrorMessage;
-import com.vaadin.terminal.PaintException;
-import com.vaadin.terminal.PaintTarget;
+import com.vaadin.server.CompositeErrorMessage;
+import com.vaadin.server.ErrorMessage;
+import com.vaadin.server.UserError;
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Field;
@@ -40,20 +39,20 @@ import com.vaadin.ui.Field;
  * @author Matti Tahvonen
  * @author Henri Sara
  */
-public abstract class JPAContainerCustomField extends CustomComponent implements
-        Field {
+public abstract class JPAContainerCustomField<T> extends CustomComponent
+        implements Field<T> {
 
     private static final long serialVersionUID = 5457282096887625533L;
 
     /**
      * Value of the abstract field.
      */
-    private Object value;
+    private T value;
 
     /**
      * Connected data-source.
      */
-    private Property dataSource = null;
+    private Property<T> dataSource = null;
 
     /**
      * The list of validators.
@@ -111,33 +110,33 @@ public abstract class JPAContainerCustomField extends CustomComponent implements
      */
     private boolean validationVisible = true;
 
-    @Override
-    public void paintContent(PaintTarget target) throws PaintException {
+    // @Override
+    // public void paintContent(PaintTarget target) throws PaintException {
+    //
+    // // The tab ordering number
+    // if (tabIndex != 0) {
+    // target.addAttribute("tabindex", tabIndex);
+    // }
+    //
+    // // If the field is modified, but not committed, set modified attribute
+    // if (isModified()) {
+    // target.addAttribute("modified", true);
+    // }
+    //
+    // // Adds the required attribute
+    // if (!isReadOnly() && isRequired()) {
+    // target.addAttribute("required", true);
+    // }
+    //
+    // // Hide the error indicator if needed
+    // if (isRequired() && isEmpty() && getComponentError() == null
+    // && getErrorMessage() != null) {
+    // target.addAttribute("hideErrors", true);
+    // }
+    // super.paintContent(target);
+    // }
 
-        // The tab ordering number
-        if (tabIndex != 0) {
-            target.addAttribute("tabindex", tabIndex);
-        }
-
-        // If the field is modified, but not committed, set modified attribute
-        if (isModified()) {
-            target.addAttribute("modified", true);
-        }
-
-        // Adds the required attribute
-        if (!isReadOnly() && isRequired()) {
-            target.addAttribute("required", true);
-        }
-
-        // Hide the error indicator if needed
-        if (isRequired() && isEmpty() && getComponentError() == null
-                && getErrorMessage() != null) {
-            target.addAttribute("hideErrors", true);
-        }
-        super.paintContent(target);
-    }
-
-    public abstract Class<?> getType();
+    public abstract Class<T> getType();
 
     /*
      * (non-Javadoc)
@@ -187,7 +186,7 @@ public abstract class JPAContainerCustomField extends CustomComponent implements
                     // Sets the buffering state.
                     currentBufferedSourceException = new Buffered.SourceException(
                             this, e);
-                    requestRepaint();
+                    markAsDirty();
 
                     // Throws the source exception.
                     throw currentBufferedSourceException;
@@ -198,22 +197,22 @@ public abstract class JPAContainerCustomField extends CustomComponent implements
             }
         }
 
-        boolean repaintNeeded = false;
+        boolean dirty = false;
 
         // The abstract field is not modified anymore
         if (modified) {
             modified = false;
-            repaintNeeded = true;
+            dirty = true;
         }
 
         // If successful, remove set the buffering state to be ok
         if (currentBufferedSourceException != null) {
             currentBufferedSourceException = null;
-            repaintNeeded = true;
+            dirty = true;
         }
 
-        if (repaintNeeded) {
-            requestRepaint();
+        if (dirty) {
+            markAsDirty();
         }
     }
 
@@ -226,24 +225,23 @@ public abstract class JPAContainerCustomField extends CustomComponent implements
         if (dataSource != null) {
 
             // Gets the correct value from datasource
-            Object newValue;
+            T newValue;
             try {
 
                 // Discards buffer by overwriting from datasource
-                newValue = String.class == getType() ? dataSource.toString()
-                        : dataSource.getValue();
+                newValue = dataSource.getValue();
 
                 // If successful, remove set the buffering state to be ok
                 if (currentBufferedSourceException != null) {
                     currentBufferedSourceException = null;
-                    requestRepaint();
+                    markAsDirty();
                 }
             } catch (final Throwable e) {
 
                 // Sets the buffering state
                 currentBufferedSourceException = new Buffered.SourceException(
                         this, e);
-                requestRepaint();
+                markAsDirty();
 
                 // Throws the source exception
                 throw currentBufferedSourceException;
@@ -261,7 +259,7 @@ public abstract class JPAContainerCustomField extends CustomComponent implements
 
             // If the value did not change, but the modification status did
             else if (wasModified) {
-                requestRepaint();
+                markAsDirty();
             }
         }
     }
@@ -321,8 +319,7 @@ public abstract class JPAContainerCustomField extends CustomComponent implements
         }
         readTroughMode = readTrough;
         if (!isModified() && readTroughMode && dataSource != null) {
-            setInternalValue(String.class == getType() ? dataSource.toString()
-                    : dataSource.getValue());
+            setInternalValue(dataSource.getValue());
             fireValueChange(false);
         }
     }
@@ -366,15 +363,14 @@ public abstract class JPAContainerCustomField extends CustomComponent implements
      * 
      * @return the current value of the field.
      */
-    public Object getValue() {
+    public T getValue() {
 
         // Give the value from abstract buffers if the field if possible
         if (dataSource == null || !isReadThrough() || isModified()) {
             return value;
         }
 
-        Object newValue = String.class == getType() ? dataSource.toString()
-                : dataSource.getValue();
+        T newValue = dataSource.getValue();
         if ((newValue == null && value != null)
                 || (newValue != null && !newValue.equals(value))) {
             setInternalValue(newValue);
@@ -389,8 +385,7 @@ public abstract class JPAContainerCustomField extends CustomComponent implements
      * 
      * @see com.vaadin.data.Property#setValue(java.lang.Object)
      */
-    public void setValue(Object newValue) throws Property.ReadOnlyException,
-            Property.ConversionException {
+    public void setValue(Object newValue) throws Property.ReadOnlyException {
         setValue(newValue, false);
     }
 
@@ -405,7 +400,7 @@ public abstract class JPAContainerCustomField extends CustomComponent implements
      * @throws Property.ConversionException
      */
     protected void setValue(Object newValue, boolean repaintIsNotNeeded)
-            throws Property.ReadOnlyException, Property.ConversionException {
+            throws Property.ReadOnlyException {
 
         if ((newValue == null && value != null)
                 || (newValue != null && !newValue.equals(value))) {
@@ -432,7 +427,7 @@ public abstract class JPAContainerCustomField extends CustomComponent implements
             }
 
             // Changes the value
-            setInternalValue(newValue);
+            setInternalValue((T) newValue);
             modified = dataSource != null;
 
             // In write trough mode , try to commit
@@ -451,7 +446,7 @@ public abstract class JPAContainerCustomField extends CustomComponent implements
                     // Sets the buffering state
                     currentBufferedSourceException = new Buffered.SourceException(
                             this, e);
-                    requestRepaint();
+                    markAsDirty();
 
                     // Throws the source exception
                     throw currentBufferedSourceException;
@@ -461,7 +456,7 @@ public abstract class JPAContainerCustomField extends CustomComponent implements
             // If successful, remove set the buffering state to be ok
             if (currentBufferedSourceException != null) {
                 currentBufferedSourceException = null;
-                requestRepaint();
+                markAsDirty();
             }
 
             // Fires the value change
@@ -469,7 +464,7 @@ public abstract class JPAContainerCustomField extends CustomComponent implements
         }
     }
 
-    public Property getPropertyDataSource() {
+    public Property<T> getPropertyDataSource() {
         return dataSource;
     }
 
@@ -495,7 +490,7 @@ public abstract class JPAContainerCustomField extends CustomComponent implements
     public void setPropertyDataSource(Property newDataSource) {
 
         // Saves the old value
-        final Object oldValue = value;
+        final T oldValue = value;
 
         // Discards all changes to old datasource
         try {
@@ -507,7 +502,8 @@ public abstract class JPAContainerCustomField extends CustomComponent implements
         if (dataSource != null
                 && Property.ValueChangeNotifier.class
                         .isAssignableFrom(dataSource.getClass())) {
-            ((Property.ValueChangeNotifier) dataSource).removeListener(this);
+            ((Property.ValueChangeNotifier) dataSource)
+                    .removeValueChangeListener(this);
         }
 
         // Sets the new data source
@@ -516,8 +512,7 @@ public abstract class JPAContainerCustomField extends CustomComponent implements
         // Gets the value from source
         try {
             if (dataSource != null) {
-                setInternalValue(String.class == getType() ? dataSource
-                        .toString() : dataSource.getValue());
+                setInternalValue(dataSource.getValue());
             }
             modified = false;
         } catch (final Throwable e) {
@@ -528,7 +523,8 @@ public abstract class JPAContainerCustomField extends CustomComponent implements
 
         // Listens the new data source if possible
         if (dataSource instanceof Property.ValueChangeNotifier) {
-            ((Property.ValueChangeNotifier) dataSource).addListener(this);
+            ((Property.ValueChangeNotifier) dataSource)
+                    .addValueChangeListener(this);
         }
 
         // Copy the validators from the data source
@@ -560,7 +556,7 @@ public abstract class JPAContainerCustomField extends CustomComponent implements
             validators = new LinkedList<Validator>();
         }
         validators.add(validator);
-        requestRepaint();
+        markAsDirty();
     }
 
     /**
@@ -586,7 +582,7 @@ public abstract class JPAContainerCustomField extends CustomComponent implements
         if (validators != null) {
             validators.remove(validator);
         }
-        requestRepaint();
+        markAsDirty();
     }
 
     /**
@@ -610,10 +606,13 @@ public abstract class JPAContainerCustomField extends CustomComponent implements
         }
 
         final Object value = getValue();
-        for (final Iterator<Validator> i = validators.iterator(); i.hasNext();) {
-            if (!(i.next()).isValid(value)) {
-                return false;
+        try {
+            for (final Iterator<Validator> i = validators.iterator(); i
+                    .hasNext();) {
+                (i.next()).validate(value);
             }
+        } catch (Validator.InvalidValueException e) {
+            return false;
         }
 
         return true;
@@ -739,7 +738,7 @@ public abstract class JPAContainerCustomField extends CustomComponent implements
                 validate();
             } catch (Validator.InvalidValueException e) {
                 if (!e.isInvisible()) {
-                    validationError = e;
+                    validationError = new UserError(e.getMessage());
                 }
             }
         }
@@ -755,7 +754,8 @@ public abstract class JPAContainerCustomField extends CustomComponent implements
 
         // Throw combination of the error types
         return new CompositeErrorMessage(new ErrorMessage[] { superError,
-                validationError, currentBufferedSourceException });
+                validationError,
+                new UserError(currentBufferedSourceException.getMessage()) });
 
     }
 
@@ -779,8 +779,13 @@ public abstract class JPAContainerCustomField extends CustomComponent implements
      * Adds a value change listener for the field. Don't add a JavaDoc comment
      * here, we use the default documentation from the implemented interface.
      */
+    @Deprecated
     public void addListener(Property.ValueChangeListener listener) {
-        addListener(AbstractField.ValueChangeEvent.class, listener,
+        this.addValueChangeListener(listener);
+    }
+
+    public void addValueChangeListener(Property.ValueChangeListener listener) {
+        addListener(Property.ValueChangeEvent.class, listener,
                 VALUE_CHANGE_METHOD);
     }
 
@@ -789,8 +794,13 @@ public abstract class JPAContainerCustomField extends CustomComponent implements
      * comment here, we use the default documentation from the implemented
      * interface.
      */
+    @Deprecated
     public void removeListener(Property.ValueChangeListener listener) {
-        removeListener(AbstractField.ValueChangeEvent.class, listener,
+        this.removeValueChangeListener(listener);
+    }
+
+    public void removeValueChangeListener(Property.ValueChangeListener listener) {
+        removeListener(Property.ValueChangeEvent.class, listener,
                 VALUE_CHANGE_METHOD);
     }
 
@@ -801,7 +811,7 @@ public abstract class JPAContainerCustomField extends CustomComponent implements
     protected void fireValueChange(boolean repaintIsNotNeeded) {
         fireEvent(new AbstractField.ValueChangeEvent(this));
         if (!repaintIsNotNeeded) {
-            requestRepaint();
+            markAsDirty();
         }
     }
 
@@ -858,10 +868,10 @@ public abstract class JPAContainerCustomField extends CustomComponent implements
      * @param newValue
      *            the new value to be set.
      */
-    protected void setInternalValue(Object newValue) {
+    protected void setInternalValue(T newValue) {
         value = newValue;
         if (validators != null && !validators.isEmpty()) {
-            requestRepaint();
+            markAsDirty();
         }
     }
 
@@ -902,7 +912,7 @@ public abstract class JPAContainerCustomField extends CustomComponent implements
      */
     public void setRequired(boolean required) {
         this.required = required;
-        requestRepaint();
+        markAsDirty();
     }
 
     /**
@@ -916,7 +926,7 @@ public abstract class JPAContainerCustomField extends CustomComponent implements
      */
     public void setRequiredError(String requiredMessage) {
         requiredError = requiredMessage;
-        requestRepaint();
+        markAsDirty();
     }
 
     /*
@@ -966,7 +976,7 @@ public abstract class JPAContainerCustomField extends CustomComponent implements
      */
     public void setValidationVisible(boolean validateAutomatically) {
         if (validationVisible != validateAutomatically) {
-            requestRepaint();
+            markAsDirty();
             validationVisible = validateAutomatically;
         }
     }
@@ -974,6 +984,6 @@ public abstract class JPAContainerCustomField extends CustomComponent implements
     public void setCurrentBufferedSourceException(
             Buffered.SourceException currentBufferedSourceException) {
         this.currentBufferedSourceException = currentBufferedSourceException;
-        requestRepaint();
+        markAsDirty();
     }
 }
