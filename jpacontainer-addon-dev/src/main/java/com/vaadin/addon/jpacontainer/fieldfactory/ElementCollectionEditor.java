@@ -24,6 +24,7 @@ import com.vaadin.ui.CustomField;
 import com.vaadin.ui.DefaultFieldFactory;
 import com.vaadin.ui.Form;
 import com.vaadin.ui.Table;
+import com.vaadin.ui.Table.ColumnHeaderMode;
 import com.vaadin.ui.TableFieldFactory;
 
 /**
@@ -396,7 +397,7 @@ public class ElementCollectionEditor extends CustomField implements
         }
 
         public void configureTable() {
-            getTable().setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
+            getTable().setColumnHeaderMode(ColumnHeaderMode.HIDDEN);
         }
 
     }

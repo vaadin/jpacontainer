@@ -27,7 +27,7 @@ import com.vaadin.ui.UI;
 public abstract class AbstractIntegrationTest {
 
     public static final String INTEGRATION_TEST_PERSISTENCE_UNIT = "jpacontainer-itest";
-    private static EntityManagerFactory emf;
+    private EntityManagerFactory emf;
     private List<EntityManager> managers = new LinkedList<EntityManager>();
     private boolean testdataReady = false;
 

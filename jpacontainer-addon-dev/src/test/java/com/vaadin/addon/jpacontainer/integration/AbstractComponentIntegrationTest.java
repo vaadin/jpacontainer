@@ -2,6 +2,7 @@ package com.vaadin.addon.jpacontainer.integration;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
@@ -172,7 +173,6 @@ public abstract class AbstractComponentIntegrationTest extends
             entityManager.getTransaction().commit();
 
         }
-
         JPAContainer<Department> departmentContainer = JPAContainerFactory
                 .make(Department.class, entityManager);
 
@@ -215,6 +215,8 @@ public abstract class AbstractComponentIntegrationTest extends
 
         listSelect.select(personId);
 
+        assertNotNull(department2);
+        assertNotNull(department2.getPersons());
         assertEquals(1, department2.getPersons().size());
         assertFalse(!department.getPersons().contains(person));
 
