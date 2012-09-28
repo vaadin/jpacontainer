@@ -2,7 +2,7 @@ package com.vaadin.addon.jpacontainer.itest.addressbook;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
-import com.vaadin.addon.jpacontainer.itest.TestLauncherApplication;
+import com.vaadin.addon.jpacontainer.itest.TestLauncherUI;
 import com.vaadin.addon.jpacontainer.itest.domain.Department;
 import com.vaadin.addon.jpacontainer.provider.CachingLocalEntityProvider;
 
@@ -13,7 +13,7 @@ public class HierarchicalDepartmentContainer extends JPAContainer<Department> {
         setEntityProvider(new CachingLocalEntityProvider<Department>(
                 Department.class,
                 JPAContainerFactory
-                        .createEntityManagerForPersistenceUnit(TestLauncherApplication.PERSISTENCE_UNIT)));
+                        .createEntityManagerForPersistenceUnit(TestLauncherUI.PERSISTENCE_UNIT)));
         setParentProperty("parent");
     }
 

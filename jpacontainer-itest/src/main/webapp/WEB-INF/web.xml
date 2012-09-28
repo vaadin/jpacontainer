@@ -3,11 +3,16 @@
     <display-name>JPAContainer Demo Application</display-name>
     <servlet>
         <servlet-name>demo</servlet-name>
-        <servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet</servlet-class>
+        <servlet-class>com.vaadin.server.VaadinServlet</servlet-class>
         <init-param>
-            <param-name>application</param-name>
-            <param-value>com.vaadin.addon.jpacontainer.itest.TestLauncherApplication</param-value>
+            <param-name>UI</param-name>
+            <param-value>com.vaadin.addon.jpacontainer.itest.TestLauncherUI</param-value>
         </init-param>
+		<init-param>
+            <param-name>UIProvider</param-name>
+            <param-value>com.vaadin.addon.jpacontainer.itest.TestUIProvider</param-value>
+        </init-param>
+                
     </servlet>
     <servlet-mapping>
         <servlet-name>demo</servlet-name>

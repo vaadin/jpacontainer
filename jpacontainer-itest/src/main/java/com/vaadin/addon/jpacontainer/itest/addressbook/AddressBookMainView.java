@@ -2,7 +2,7 @@ package com.vaadin.addon.jpacontainer.itest.addressbook;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
-import com.vaadin.addon.jpacontainer.itest.TestLauncherApplication;
+import com.vaadin.addon.jpacontainer.itest.TestLauncherUI;
 import com.vaadin.addon.jpacontainer.itest.addressbook.PersonEditor.EditorSavedEvent;
 import com.vaadin.addon.jpacontainer.itest.addressbook.PersonEditor.EditorSavedListener;
 import com.vaadin.addon.jpacontainer.itest.domain.Department;
@@ -26,6 +26,7 @@ import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
@@ -51,7 +52,7 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
     public AddressBookMainView() {
         departments = new HierarchicalDepartmentContainer();
         persons = JPAContainerFactory.make(Person.class,
-                TestLauncherApplication.PERSISTENCE_UNIT);
+                TestLauncherUI.PERSISTENCE_UNIT);
         buildTree();
         buildMainArea();
 
@@ -65,7 +66,7 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
         personTable = new Table(null, persons);
         personTable.setSelectable(true);
         personTable.setImmediate(true);
-        personTable.addListener(new Property.ValueChangeListener() {
+        personTable.addValueChangeListener(new Property.ValueChangeListener() {
             @Override
             public void valueChange(ValueChangeEvent event) {
                 setModificationsEnabled(event.getProperty().getValue() != null);
@@ -79,7 +80,7 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
 
         personTable.setSizeFull();
         // personTable.setSelectable(true);
-        personTable.addListener(new ItemClickListener() {
+        personTable.addItemClickListener(new ItemClickListener() {
             @Override
             public void itemClick(ItemClickEvent event) {
                 if (event.isDoubleClick()) {
@@ -93,7 +94,7 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
 
         HorizontalLayout toolbar = new HorizontalLayout();
         newButton = new Button("Add");
-        newButton.addListener(new Button.ClickListener() {
+        newButton.addClickListener(new Button.ClickListener() {
 
             @Override
             public void buttonClick(ClickEvent event) {
@@ -112,7 +113,7 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
         });
 
         deleteButton = new Button("Delete");
-        deleteButton.addListener(new Button.ClickListener() {
+        deleteButton.addClickListener(new Button.ClickListener() {
 
             @Override
             public void buttonClick(ClickEvent event) {
@@ -122,7 +123,7 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
         deleteButton.setEnabled(false);
 
         editButton = new Button("Edit");
-        editButton.addListener(new Button.ClickListener() {
+        editButton.addClickListener(new Button.ClickListener() {
 
             @Override
             public void buttonClick(ClickEvent event) {
@@ -134,7 +135,7 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
 
         searchField = new TextField();
         searchField.setInputPrompt("Search by name");
-        searchField.addListener(new TextChangeListener() {
+        searchField.addTextChangeListener(new TextChangeListener() {
 
             @Override
             public void textChange(TextChangeEvent event) {
@@ -167,7 +168,7 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
     }
 
     private void addSubWindow(Window w) {
-        ((Window) AddressBookMainView.this.getParent()).addWindow(w);
+        UI.getCurrent().addWindow(w);
     }
 
     private void buildTree() {
@@ -176,7 +177,7 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
 
         groupTree.setImmediate(true);
         groupTree.setSelectable(true);
-        groupTree.addListener(new Property.ValueChangeListener() {
+        groupTree.addValueChangeListener(new Property.ValueChangeListener() {
 
             @Override
             public void valueChange(ValueChangeEvent event) {

@@ -19,7 +19,7 @@ public abstract class AbstractData {
     @ManyToOne(targetEntity = AbstractEconomicObject.class)
     @JoinColumn(name = "EconomicObject_ID")
     private EconomicObject economicObject;
-    
+
     @ManyToMany(targetEntity = AbstractEconomicObject.class)
     private Set manyToMany;
 

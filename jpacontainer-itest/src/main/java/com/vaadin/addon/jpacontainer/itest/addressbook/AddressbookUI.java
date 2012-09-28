@@ -1,19 +1,16 @@
 package com.vaadin.addon.jpacontainer.itest.addressbook;
 
-import com.vaadin.ui.Window;
+import com.vaadin.server.VaadinRequest;
+import com.vaadin.ui.UI;
 
-public class AddressbookWindow extends Window {
-    
+public class AddressbookUI extends UI {
+
     static {
         DemoDataGenerator.create();
     }
-    
-    public AddressbookWindow() {
-    }
-    
+
     @Override
-    public void attach() {
-        super.attach();
+    protected void init(VaadinRequest request) {
         setContent(new AddressBookMainView());
     }
 

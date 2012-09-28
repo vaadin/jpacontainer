@@ -4,10 +4,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.vaadin.addon.jpacontainer.util.EntityManagerPerRequestHelper;
+import com.vaadin.server.VaadinRequest;
 import com.vaadin.terminal.gwt.server.HttpServletRequestListener;
-import com.vaadin.ui.Window;
+import com.vaadin.ui.UI;
 
-public class LazyHibernate extends Window implements HttpServletRequestListener {
+public class LazyHibernate extends UI implements HttpServletRequestListener {
     EntityManagerPerRequestHelper emprHelper;
 
     static {
@@ -16,12 +17,6 @@ public class LazyHibernate extends Window implements HttpServletRequestListener 
 
     public LazyHibernate() {
         emprHelper = new EntityManagerPerRequestHelper();
-    }
-
-    @Override
-    public void attach() {
-        super.attach();
-        setContent(new LazyHibernateMainView(this));
     }
 
     @Override
@@ -36,5 +31,10 @@ public class LazyHibernate extends Window implements HttpServletRequestListener 
             HttpServletResponse response) {
         System.out.println("End");
         emprHelper.requestEnd();
+    }
+
+    @Override
+    protected void init(VaadinRequest request) {
+        setContent(new LazyHibernateMainView(this));
     }
 }

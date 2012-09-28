@@ -6,10 +6,11 @@ import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
 import com.vaadin.addon.jpacontainer.itest.nestedsort.domain.Base;
 import com.vaadin.addon.jpacontainer.itest.nestedsort.domain.Nested;
+import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Table;
-import com.vaadin.ui.Window;
+import com.vaadin.ui.UI;
 
-public class NestedSort extends Window {
+public class NestedSort extends UI {
     static {
         generateData();
     }
@@ -37,7 +38,8 @@ public class NestedSort extends Window {
         em.persist(b);
     }
 
-    public NestedSort() {
+    @Override
+    protected void init(VaadinRequest request) {
         JPAContainer<Base> baseContainer = JPAContainerFactory.make(Base.class,
                 "nestedsort");
         baseContainer.addNestedContainerProperty("nested.name");

@@ -5,9 +5,10 @@ import org.vaadin.addon.customfield.CustomField;
 import com.vaadin.addon.jpacontainer.EntityItem;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
-import com.vaadin.addon.jpacontainer.itest.TestLauncherApplication;
+import com.vaadin.addon.jpacontainer.itest.TestLauncherUI;
 import com.vaadin.addon.jpacontainer.itest.domain.Department;
 import com.vaadin.data.Property;
+import com.vaadin.data.util.converter.Converter.ConversionException;
 import com.vaadin.data.util.filter.Compare.Equal;
 import com.vaadin.data.util.filter.IsNull;
 import com.vaadin.ui.ComboBox;
@@ -25,9 +26,9 @@ public class DepartmentSelector extends CustomField {
 
     public DepartmentSelector() {
         container = JPAContainerFactory.make(Department.class,
-                TestLauncherApplication.PERSISTENCE_UNIT);
+                TestLauncherUI.PERSISTENCE_UNIT);
         geoContainer = JPAContainerFactory.make(Department.class,
-                TestLauncherApplication.PERSISTENCE_UNIT);
+                TestLauncherUI.PERSISTENCE_UNIT);
         setCaption("Department");
         // Only list "roots" which are in our example geographical super
         // departments
@@ -41,20 +42,21 @@ public class DepartmentSelector extends CustomField {
         department.setContainerDataSource(container);
         department.setItemCaptionPropertyId("name");
 
-        geographicalDepartment.addListener(new Property.ValueChangeListener() {
-            @Override
-            public void valueChange(
-                    com.vaadin.data.Property.ValueChangeEvent event) {
-                /*
-                 * Modify filtering of the department combobox
-                 */
-                EntityItem<Department> item = geoContainer
-                        .getItem(geographicalDepartment.getValue());
-                Department entity = item.getEntity();
-                filterDepartments(entity);
-            }
-        });
-        department.addListener(new Property.ValueChangeListener() {
+        geographicalDepartment
+                .addValueChangeListener(new Property.ValueChangeListener() {
+                    @Override
+                    public void valueChange(
+                            com.vaadin.data.Property.ValueChangeEvent event) {
+                        /*
+                         * Modify filtering of the department combobox
+                         */
+                        EntityItem<Department> item = geoContainer
+                                .getItem(geographicalDepartment.getValue());
+                        Department entity = item.getEntity();
+                        filterDepartments(entity);
+                    }
+                });
+        department.addValueChangeListener(new Property.ValueChangeListener() {
             @Override
             public void valueChange(
                     com.vaadin.data.Property.ValueChangeEvent event) {
@@ -118,6 +120,36 @@ public class DepartmentSelector extends CustomField {
     @Override
     public Class<?> getType() {
         return Department.class;
+    }
+
+    @Override
+    public void setBuffered(boolean buffered) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public boolean isBuffered() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public void removeAllValidators() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void addValueChangeListener(ValueChangeListener listener) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void removeValueChangeListener(ValueChangeListener listener) {
+        // TODO Auto-generated method stub
+
     }
 
 }

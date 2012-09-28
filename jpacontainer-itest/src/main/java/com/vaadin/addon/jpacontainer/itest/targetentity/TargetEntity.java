@@ -1,11 +1,10 @@
 package com.vaadin.addon.jpacontainer.itest.targetentity;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.Set;
 
 import javax.persistence.EntityManager;
-
 
 import org.junit.Test;
 
@@ -14,10 +13,12 @@ import com.vaadin.addon.jpacontainer.JPAContainerFactory;
 import com.vaadin.addon.jpacontainer.itest.targetentity.domain.AbstractEconomicObject;
 import com.vaadin.addon.jpacontainer.itest.targetentity.domain.Data;
 import com.vaadin.addon.jpacontainer.itest.targetentity.domain.EconomicObject;
+import com.vaadin.addon.jpacontainer.util.HibernateLazyLoadingDelegate;
+import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Table;
-import com.vaadin.ui.Window;
+import com.vaadin.ui.UI;
 
-public class TargetEntity extends Window {
+public class TargetEntity extends UI {
 
     static {
         EntityManager em = JPAContainerFactory
@@ -33,22 +34,24 @@ public class TargetEntity extends Window {
         em.getTransaction().commit();
     }
 
-    public TargetEntity() {
-        super();
+    @Override
+    protected void init(VaadinRequest request) {
         JPAContainer<Data> container = JPAContainerFactory.make(Data.class,
                 "targetentity");
+        container.getEntityProvider().setLazyLoadingDelegate(
+                new HibernateLazyLoadingDelegate());
         Table t = new Table(null, container);
         addComponent(t);
     }
-    
+
     @Test
     public void testCollectionType() {
         JPAContainer<Data> container = JPAContainerFactory.make(Data.class,
                 "targetentity");
         Class<?> type = container.getType("manyToMany");
-        
+
         assertEquals(Set.class, type);
-        
+
     }
 
 }

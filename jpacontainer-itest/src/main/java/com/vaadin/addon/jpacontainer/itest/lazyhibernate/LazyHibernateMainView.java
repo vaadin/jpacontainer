@@ -55,9 +55,8 @@ public class LazyHibernateMainView extends VerticalLayout implements
         addComponent(table);
 
         final Form form = new Form();
-        form.setWriteThrough(false);
-        form.setFormFieldFactory(new FieldFactory(
-                mainWindow.emprHelper));
+        // form.setWriteThrough(false);
+        form.setFormFieldFactory(new FieldFactory(mainWindow.emprHelper));
         addComponent(form);
         addComponent(new Button("Save", new ClickListener() {
             @Override

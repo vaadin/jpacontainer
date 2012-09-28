@@ -5,13 +5,13 @@ import java.util.Arrays;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
 import com.vaadin.addon.jpacontainer.fieldfactory.FieldFactory;
-import com.vaadin.addon.jpacontainer.itest.TestLauncherApplication;
+import com.vaadin.addon.jpacontainer.itest.TestLauncherUI;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.event.Action;
-import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.Action.Handler;
+import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.ui.AbsoluteLayout;
 import com.vaadin.ui.Button;
@@ -107,7 +107,7 @@ public class BasicCrudView<T> extends AbsoluteLayout implements
 
         form = new Form();
         form.setVisible(false);
-        form.setWriteThrough(false);
+        // form.setWriteThrough(false);
         form.setCaption(getEntityClass().getSimpleName());
         form.setFormFieldFactory(fieldFactory);
         commit = new Button("Save", new Button.ClickListener() {
@@ -126,8 +126,8 @@ public class BasicCrudView<T> extends AbsoluteLayout implements
         });
         form.getFooter().addComponent(commit);
         form.getFooter().addComponent(discard);
-        form.getLayout().setMargin(true);
-        form.getFooter().setMargin(false, true, false, true);
+        // form.getLayout().setMargin(true);
+        // form.getFooter().setMargin(false, true, false, true);
         ((HorizontalLayout) form.getFooter()).setSpacing(true);
         verticalSplitPanel.addComponent(form);
         verticalSplitPanel.setSplitPosition(30);
@@ -144,7 +144,7 @@ public class BasicCrudView<T> extends AbsoluteLayout implements
 
     protected void initContainer() {
         container = JPAContainerFactory.make(getEntityClass(),
-                TestLauncherApplication.PERSISTENCE_UNIT);
+                TestLauncherUI.PERSISTENCE_UNIT);
         table = new Table(null, container);
     }
 
@@ -248,7 +248,7 @@ public class BasicCrudView<T> extends AbsoluteLayout implements
         if (table.getValue() != null) {
             // reset form as e.g. referenced containers may have changed
             Item item = table.getItem(table.getValue());
-            form.setItemDataSource(item ,
+            form.setItemDataSource(item,
                     formPropertyIds != null ? Arrays.asList(formPropertyIds)
                             : item.getItemPropertyIds());
             form.focus();
