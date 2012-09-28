@@ -60,6 +60,9 @@ public class MasterDetailEditor extends CustomField implements Action.Handler {
         this.propertyId = propertyId;
         masterEntity = containerForProperty.getItem(itemId).getEntity();
 
+        // this.setConverter(new MasterDetailConverter(containerForProperty,
+        // itemId, propertyId));
+
         boolean writeThrough = true;
         if (uiContext instanceof Form) {
             Form f = (Form) uiContext;
@@ -134,7 +137,8 @@ public class MasterDetailEditor extends CustomField implements Action.Handler {
      */
     @Override
     public Class<?> getType() {
-        return referencedType;
+        return containerForProperty.getItem(itemId).getItemProperty(propertyId)
+                .getType();
     }
 
     public void handleAction(Action action, Object sender, Object target) {

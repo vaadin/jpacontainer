@@ -21,16 +21,20 @@ public class SingleSelectConverter<T> implements Converter<Object, T> {
 
     public T convertToModel(Object value, Locale locale)
             throws com.vaadin.data.util.converter.Converter.ConversionException {
-        return getContainer().getEntityProvider().getEntity(getContainer(),
-                value);
+        if (value != select.getNullSelectionItemId()) {
+            return getContainer().getEntityProvider().getEntity(getContainer(),
+                    value);
+        } else {
+            return null;
+        }
     }
 
     public Object convertToPresentation(T value, Locale locale)
             throws com.vaadin.data.util.converter.Converter.ConversionException {
-        if(value == null) {
-            return null;
+        if (value != null) {
+            return getContainer().getEntityProvider().getIdentifier(value);
         }
-        return getContainer().getEntityProvider().getIdentifier(value);
+        return select.getNullSelectionItemId();
     }
 
     public Class<T> getModelType() {

@@ -40,6 +40,16 @@ public class MultiSelectConverter<T> implements
         // Value here is a collection of entities, should be transformed to a
         // collection (set) of identifier
         // TODO, consider creating a cached value
+
+        if (value == null || value.isEmpty()) {
+            try {
+                return createNewCollectionForType(getPropertyDataSource()
+                        .getType());
+            } catch (Exception e) {
+                throw new ConversionException(e);
+            }
+        }
+
         HashSet<Object> identifiers = new HashSet<Object>();
         for (T entity : value) {
             Object identifier = getContainer().getEntityProvider()
@@ -75,13 +85,18 @@ public class MultiSelectConverter<T> implements
             }
         }
 
+        if (idset == null || idset.isEmpty()) {
+            modelValue.clear();
+            return modelValue;
+        }
+
         HashSet<T> orphaned = new HashSet<T>(modelValue);
 
         // Add those that did not exist do not exist already + remove them from
         // orphaned collection
         for (Object id : idset) {
-            T entity = getContainer().getEntityProvider().getEntity(
-                    getContainer(), id);
+            EntityItem<T> item = getContainer().getItem(id);
+            T entity = item.getEntity();
             if (!modelValue.contains(entity)) {
                 modelValue.add(entity);
                 addBackReference(entity);
@@ -99,7 +114,12 @@ public class MultiSelectConverter<T> implements
             // refresh the item as modifying back references may also have
             // changed the collections, without this we'd get concurrent
             // modification exception.
-            getPropertyDataSource().getItem().refresh();
+
+            // FIXME: when verifying a field using this converter this following
+            // line causes a value change event on that field, which causes all
+            // kinds of shit which ultimately causes an exception causing the
+            // validation to fail with a validation error message.
+            // getPropertyDataSource().getItem().refresh();
         }
         return modelValue;
     }
