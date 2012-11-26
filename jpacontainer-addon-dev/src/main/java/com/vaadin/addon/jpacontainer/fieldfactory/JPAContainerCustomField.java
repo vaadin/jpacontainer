@@ -179,7 +179,7 @@ public abstract class JPAContainerCustomField<T> extends CustomComponent
                 try {
 
                     // Commits the value to datasource.
-                    dataSource.setValue(newValue);
+                    dataSource.setValue((T) newValue);
 
                 } catch (final Throwable e) {
 
@@ -436,7 +436,7 @@ public abstract class JPAContainerCustomField<T> extends CustomComponent
                 try {
 
                     // Commits the value to datasource
-                    dataSource.setValue(newValue);
+                    dataSource.setValue((T) newValue);
 
                     // The buffer is now unmodified
                     modified = false;
