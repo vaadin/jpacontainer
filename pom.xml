@@ -63,7 +63,7 @@
         <Implementation-Title>Vaadin JPAContainer</Implementation-Title>
         <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
         
-        <vaadin.version.maven>7.0-SNAPSHOT</vaadin.version.maven>
+        <vaadin.version.maven>7.0.0.beta11</vaadin.version.maven>
         <snapshot.repository.url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</snapshot.repository.url>
     </properties>
 
