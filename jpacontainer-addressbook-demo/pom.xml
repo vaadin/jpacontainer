@@ -10,6 +10,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <vaadin.version>7.0.0</vaadin.version>
+        <jpacontainer.version>3.0.0-SNAPSHOT</jpacontainer.version>
     </properties>
     <repositories>
         <repository>
@@ -51,7 +52,7 @@
         <dependency>
             <groupId>com.vaadin.addon</groupId>
             <artifactId>jpacontainer-addon-agpl-3.0</artifactId>
-            <version>2.1.0</version>
+            <version>${jpacontainer.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.persistence</groupId>
