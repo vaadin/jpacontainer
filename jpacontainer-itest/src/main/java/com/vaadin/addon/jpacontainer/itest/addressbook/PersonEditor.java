@@ -4,9 +4,9 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-import com.vaadin.addon.beanvalidation.BeanValidationForm;
 import com.vaadin.addon.jpacontainer.itest.domain.Person;
 import com.vaadin.data.Item;
+import com.vaadin.data.validator.BeanValidator;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
@@ -28,7 +28,7 @@ public class PersonEditor extends Window implements Button.ClickListener,
 
     public PersonEditor(Item personItem) {
         this.personItem = personItem;
-        editorForm = new BeanValidationForm<Person>(Person.class);
+        editorForm = new Form();
         editorForm.setFormFieldFactory(this);
         editorForm.setBuffered(true);
         editorForm.setImmediate(true);
@@ -79,15 +79,17 @@ public class PersonEditor extends Window implements Button.ClickListener,
      */
     @Override
     public Field createField(Item item, Object propertyId, Component uiContext) {
-        if ("department".equals(propertyId)) {
-            return new DepartmentSelector();
-        }
-
         Field field = DefaultFieldFactory.get().createField(item, propertyId,
                 uiContext);
-        if (field instanceof TextField) {
+        if ("department".equals(propertyId)) {
+            field = new DepartmentSelector();
+        } else if (field instanceof TextField) {
             ((TextField) field).setNullRepresentation("");
         }
+
+        field.addValidator(new BeanValidator(Person.class, propertyId
+                .toString()));
+
         return field;
     }
 
