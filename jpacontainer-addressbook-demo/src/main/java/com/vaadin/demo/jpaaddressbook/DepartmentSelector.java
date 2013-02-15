@@ -1,21 +1,22 @@
 package com.vaadin.demo.jpaaddressbook;
 
-import org.vaadin.addon.customfield.CustomField;
-
 import com.vaadin.addon.jpacontainer.EntityItem;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
 import com.vaadin.data.Property;
+import com.vaadin.data.util.converter.Converter;
 import com.vaadin.data.util.filter.Compare.Equal;
 import com.vaadin.data.util.filter.IsNull;
 import com.vaadin.demo.jpaaddressbook.domain.Department;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
+import com.vaadin.ui.CustomField;
 
 /**
  * A custom field that allows selection of a department.
  */
-public class DepartmentSelector extends CustomField {
+public class DepartmentSelector extends CustomField<Department> {
     private ComboBox geographicalDepartment = new ComboBox();
     private ComboBox department = new ComboBox();
 
@@ -24,9 +25,9 @@ public class DepartmentSelector extends CustomField {
 
     public DepartmentSelector() {
         container = JPAContainerFactory.make(Department.class,
-                JpaAddressbookApplication.PERSISTENCE_UNIT);
+                JpaAddressbookUI.PERSISTENCE_UNIT);
         geoContainer = JPAContainerFactory.make(Department.class,
-                JpaAddressbookApplication.PERSISTENCE_UNIT);
+                JpaAddressbookUI.PERSISTENCE_UNIT);
         setCaption("Department");
         // Only list "roots" which are in our example geographical super
         // departments
@@ -69,15 +70,18 @@ public class DepartmentSelector extends CustomField {
                 }
             }
         });
+    }
 
+    @Override
+    protected Component initContent() {
         CssLayout cssLayout = new CssLayout();
         cssLayout.addComponent(geographicalDepartment);
         cssLayout.addComponent(department);
-        setCompositionRoot(cssLayout);
+        return cssLayout;
     }
 
     /**
-     * Modify available options based on the "geo deparment" select.
+     * Modify available options based on the "geo department" select.
      * 
      * @param currentGeoDepartment
      */
@@ -98,24 +102,25 @@ public class DepartmentSelector extends CustomField {
     @Override
     public void setPropertyDataSource(Property newDataSource) {
         super.setPropertyDataSource(newDataSource);
-        setDepartment(newDataSource.getValue());
+        setDepartment((Department) newDataSource.getValue());
     }
 
     @Override
-    public void setValue(Object newValue) throws ReadOnlyException,
-            ConversionException {
+    public void setValue(Department newValue) throws ReadOnlyException,
+            Converter.ConversionException {
+        super.setValue(newValue);
         setDepartment(newValue);
     }
 
-    private void setDepartment(Object newValue) {
-        Department value = (Department) newValue;
-        geographicalDepartment.setValue(value != null ? value.getParent()
-                .getId() : null);
-        department.setValue(value != null ? value.getId() : null);
+    private void setDepartment(Department department) {
+        geographicalDepartment.setValue(department != null ? department
+                .getParent().getId() : null);
+        this.department
+                .setValue(department != null ? department.getId() : null);
     }
 
     @Override
-    public Class<?> getType() {
+    public Class<? extends Department> getType() {
         return Department.class;
     }
 

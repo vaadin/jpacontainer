@@ -12,7 +12,7 @@ public class HierarchicalDepartmentContainer extends JPAContainer<Department> {
         setEntityProvider(new CachingLocalEntityProvider<Department>(
                 Department.class,
                 JPAContainerFactory
-                        .createEntityManagerForPersistenceUnit(JpaAddressbookApplication.PERSISTENCE_UNIT)));
+                        .createEntityManagerForPersistenceUnit(JpaAddressbookUI.PERSISTENCE_UNIT)));
         setParentProperty("parent");
     }
 
@@ -21,5 +21,4 @@ public class HierarchicalDepartmentContainer extends JPAContainer<Department> {
         return super.areChildrenAllowed(itemId)
                 && getItem(itemId).getEntity().isSuperDepartment();
     }
-
 }

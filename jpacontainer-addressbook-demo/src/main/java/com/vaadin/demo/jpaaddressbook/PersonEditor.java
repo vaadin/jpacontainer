@@ -30,7 +30,7 @@ public class PersonEditor extends Window implements Button.ClickListener,
         this.personItem = personItem;
         editorForm = new BeanValidationForm<Person>(Person.class);
         editorForm.setFormFieldFactory(this);
-        editorForm.setWriteThrough(false);
+        editorForm.setBuffered(true);
         editorForm.setImmediate(true);
         editorForm.setItemDataSource(personItem, Arrays.asList("firstName",
                 "lastName", "phoneNumber", "street", "city", "zipCode",
@@ -41,8 +41,8 @@ public class PersonEditor extends Window implements Button.ClickListener,
 
         editorForm.getFooter().addComponent(saveButton);
         editorForm.getFooter().addComponent(cancelButton);
-        getContent().setSizeUndefined();
-        addComponent(editorForm);
+        setSizeUndefined();
+        setContent(editorForm);
         setCaption(buildCaption());
     }
 
@@ -108,7 +108,7 @@ public class PersonEditor extends Window implements Button.ClickListener,
     }
 
     public static class EditorSavedEvent extends Component.Event {
-        
+
         private Item savedItem;
 
         public EditorSavedEvent(Component source, Item savedItem) {

@@ -1,5 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.vaadin.addon</groupId>
@@ -62,9 +62,10 @@
         <!-- Must not change this because of the Directory -->
         <Implementation-Title>Vaadin JPAContainer</Implementation-Title>
         <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
-        
-        <vaadin.version.maven>7.0.0.beta11</vaadin.version.maven>
-        <snapshot.repository.url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</snapshot.repository.url>
+
+        <vaadin.version.maven>7.0.0</vaadin.version.maven>
+        <snapshot.repository.url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/
+        </snapshot.repository.url>
     </properties>
 
     <repositories>
@@ -80,22 +81,22 @@
         </repository>
     </repositories>
 
-<!--     <distributionManagement> -->
-<!--         <repository> -->
-<!--             <id>vaadin-staging</id> -->
-<!--             <name>Vaadin release staging repository</name> -->
-<!--             <url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url> -->
-<!--         </repository> -->
-<!--         <snapshotRepository> -->
-<!--             <id>vaadin-snapshots</id> -->
-<!--             <name>Vaadin snapshot repository</name> -->
-<!--             <url>${snapshot.repository.url}</url> -->
-<!--         </snapshotRepository> -->
-<!--     </distributionManagement> -->
+    <!--     <distributionManagement> -->
+    <!--         <repository> -->
+    <!--             <id>vaadin-staging</id> -->
+    <!--             <name>Vaadin release staging repository</name> -->
+    <!--             <url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url> -->
+    <!--         </repository> -->
+    <!--         <snapshotRepository> -->
+    <!--             <id>vaadin-snapshots</id> -->
+    <!--             <name>Vaadin snapshot repository</name> -->
+    <!--             <url>${snapshot.repository.url}</url> -->
+    <!--         </snapshotRepository> -->
+    <!--     </distributionManagement> -->
 
     <modules>
         <module>docs</module>
-<!--        <module>jpacontainer-demo</module> -->
+        <!--        <module>jpacontainer-demo</module> -->
         <module>jpacontainer-addon</module>
     </modules>
 
@@ -128,7 +129,7 @@
             </plugins>
         </pluginManagement>
         <plugins>
-	        <plugin>
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>properties-maven-plugin</artifactId>
                 <version>1.0-alpha-2</version>

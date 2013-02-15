@@ -32,12 +32,15 @@ import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TwinColSelect;
 import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
 
 public class FieldFactoryTest extends UI {
 
     static {
         createSomeTestData();
     }
+
+    private VerticalLayout contentLayout;
 
     private static void createSomeTestData() {
         EntityManager em = Persistence.createEntityManagerFactory(
@@ -91,9 +94,11 @@ public class FieldFactoryTest extends UI {
 
     @Override
     protected void init(VaadinRequest request) {
+        contentLayout = new VerticalLayout();
+        setContent(contentLayout);
         bufferedInvoiceFormCheckbox = new CheckBox("Buffered Invoice form");
 
-        addComponent(bufferedInvoiceFormCheckbox);
+        contentLayout.addComponent(bufferedInvoiceFormCheckbox);
         customerSelect = new ComboBox("Select (or create) customer");
         customers = JPAContainerFactory.make(Customer.class,
                 TestLauncherUI.PERSISTENCE_UNIT);
@@ -126,7 +131,7 @@ public class FieldFactoryTest extends UI {
                     }
                 });
 
-        addComponent(customerSelect);
+        contentLayout.addComponent(customerSelect);
 
         invoices = JPAContainerFactory.make(Invoice.class,
                 TestLauncherUI.PERSISTENCE_UNIT);
@@ -143,7 +148,7 @@ public class FieldFactoryTest extends UI {
             }
         });
 
-        addComponent(invoiceTable);
+        contentLayout.addComponent(invoiceTable);
         Button button = new Button("New invoice");
         button.addClickListener(new ClickListener() {
             @Override
@@ -151,7 +156,7 @@ public class FieldFactoryTest extends UI {
                 addInvoice();
             }
         });
-        addComponent(button);
+        contentLayout.addComponent(button);
 
     }
 
@@ -163,7 +168,7 @@ public class FieldFactoryTest extends UI {
             jpaContainerFieldFactory.setMultiSelectType(CustomerGroup.class,
                     TwinColSelect.class);
             customerForm.setFormFieldFactory(jpaContainerFieldFactory);
-            addComponent(customerForm);
+            contentLayout.addComponent(customerForm);
         }
         customerForm.setItemDataSource(entityItem);
         customerForm
@@ -183,17 +188,18 @@ public class FieldFactoryTest extends UI {
             jpaContainerFieldFactory.setSingleSelectType(Customer.class,
                     ListSelect.class);
             form.setFormFieldFactory(jpaContainerFieldFactory);
-            addComponent(form);
+            contentLayout.addComponent(form);
             commitButton = new Button("Commit", new Button.ClickListener() {
                 @Override
                 public void buttonClick(ClickEvent event) {
                     form.commit();
                 }
             });
-            form.getFooter().addComponent(commitButton);
+            // form.getFooter().addComponent(commitButton);
+            contentLayout.addComponent(commitButton);
         }
 
-        form.getFooter().setVisible(bufferedInvoiceFormCheckbox.booleanValue());
+        form.getFooter().setVisible(bufferedInvoiceFormCheckbox.getValue());
         // form.setWriteThrough(!bufferedInvoiceFormCheckbox.booleanValue());
         EntityItem<Invoice> item = invoices.getItem(value);
         form.setItemDataSource(item,
@@ -204,7 +210,6 @@ public class FieldFactoryTest extends UI {
     private static final Action[] invoiceTableActions = new Action[] { NEW };
 
     private void addInvoice() {
-
         Invoice invoice = new Invoice();
         invoice.setCustomer(customers.getEntityProvider().getEntity(customers,
                 customerSelect.getValue()));

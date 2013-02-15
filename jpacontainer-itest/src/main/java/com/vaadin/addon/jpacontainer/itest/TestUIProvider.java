@@ -12,7 +12,7 @@ public class TestUIProvider extends DefaultUIProvider {
         VaadinRequest request = event.getRequest();
 
         // Only use UI from web.xml for requests to the root
-        String pathInfo = request.getRequestPathInfo();
+        String pathInfo = request.getPathInfo();
         if (pathInfo != null && !"/".equals(pathInfo)) {
             if (pathInfo.startsWith("/")) {
                 pathInfo = pathInfo.substring(1);

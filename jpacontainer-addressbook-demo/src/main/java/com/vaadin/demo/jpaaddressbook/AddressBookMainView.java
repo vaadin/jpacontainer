@@ -25,6 +25,7 @@ import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 public class AddressBookMainView extends HorizontalSplitPanel implements
@@ -49,7 +50,7 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
     public AddressBookMainView() {
         departments = new HierarchicalDepartmentContainer();
         persons = JPAContainerFactory.make(Person.class,
-                JpaAddressbookApplication.PERSISTENCE_UNIT);
+                JpaAddressbookUI.PERSISTENCE_UNIT);
         buildTree();
         buildMainArea();
 
@@ -91,7 +92,7 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
 
         HorizontalLayout toolbar = new HorizontalLayout();
         newButton = new Button("Add");
-        newButton.addListener(new Button.ClickListener() {
+        newButton.addClickListener(new Button.ClickListener() {
 
             @Override
             public void buttonClick(ClickEvent event) {
@@ -104,12 +105,12 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
                         persons.addEntity(newPersonItem.getBean());
                     }
                 });
-                getApplication().getMainWindow().addWindow(personEditor);
+                UI.getCurrent().addWindow(personEditor);
             }
         });
 
         deleteButton = new Button("Delete");
-        deleteButton.addListener(new Button.ClickListener() {
+        deleteButton.addClickListener(new Button.ClickListener() {
 
             @Override
             public void buttonClick(ClickEvent event) {
@@ -119,11 +120,11 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
         deleteButton.setEnabled(false);
 
         editButton = new Button("Edit");
-        editButton.addListener(new Button.ClickListener() {
+        editButton.addClickListener(new Button.ClickListener() {
 
             @Override
             public void buttonClick(ClickEvent event) {
-                getApplication().getMainWindow().addWindow(
+                UI.getCurrent().addWindow(
                         new PersonEditor(personTable.getItem(personTable
                                 .getValue())));
             }
@@ -132,7 +133,7 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
 
         searchField = new TextField();
         searchField.setInputPrompt("Search by name");
-        searchField.addListener(new TextChangeListener() {
+        searchField.addTextChangeListener(new TextChangeListener() {
 
             @Override
             public void textChange(TextChangeEvent event) {

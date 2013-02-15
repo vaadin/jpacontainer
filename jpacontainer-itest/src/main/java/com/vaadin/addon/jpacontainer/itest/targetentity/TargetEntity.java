@@ -41,7 +41,7 @@ public class TargetEntity extends UI {
         container.getEntityProvider().setLazyLoadingDelegate(
                 new HibernateLazyLoadingDelegate());
         Table t = new Table(null, container);
-        addComponent(t);
+        setContent(t);
     }
 
     @Test
@@ -51,7 +51,6 @@ public class TargetEntity extends UI {
         Class<?> type = container.getType("manyToMany");
 
         assertEquals(Set.class, type);
-
     }
 
 }

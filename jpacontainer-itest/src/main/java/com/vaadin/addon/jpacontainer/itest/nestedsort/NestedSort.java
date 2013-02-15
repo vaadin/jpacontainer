@@ -44,6 +44,6 @@ public class NestedSort extends UI {
                 "nestedsort");
         baseContainer.addNestedContainerProperty("nested.name");
         Table t = new Table(null, baseContainer);
-        addComponent(t);
+        setContent(t);
     }
 }
