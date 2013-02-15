@@ -11,6 +11,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
+import java.util.Set;
 
 import javax.persistence.Id;
 import javax.persistence.Version;
@@ -26,6 +27,7 @@ import com.vaadin.addon.jpacontainer.metadata.TestClasses.EmbeddedIdEntity_M;
 import com.vaadin.addon.jpacontainer.metadata.TestClasses.Integer_ConcreteId_M;
 import com.vaadin.addon.jpacontainer.metadata.TestClasses.Person_F;
 import com.vaadin.addon.jpacontainer.metadata.TestClasses.Person_M;
+import com.vaadin.addon.jpacontainer.testdata.Data;
 
 /**
  * Test case for {@link MetadataFactory}.
@@ -338,5 +340,13 @@ public class MetadataFactoryTest {
     public void testBuildMetadataForEntityWithTargetEntityAnnotatedField() {
         EntityClassMetadata<Data_D> metadata = factory
                 .getEntityClassMetadata(Data_D.class);
+    }
+
+    @Test
+    public void testCollectionTypeWithTargetEntityAnnotation() {
+        EntityClassMetadata<Data> metadata = factory
+                .getEntityClassMetadata(Data.class);
+        Class<?> type = metadata.getProperty("manyToMany").getType();
+        assertEquals(Set.class, type);
     }
 }

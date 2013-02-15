@@ -1,12 +1,6 @@
 package com.vaadin.addon.jpacontainer.itest.targetentity;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.Set;
-
 import javax.persistence.EntityManager;
-
-import org.junit.Test;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
@@ -42,15 +36,6 @@ public class TargetEntity extends UI {
                 new HibernateLazyLoadingDelegate());
         Table t = new Table(null, container);
         setContent(t);
-    }
-
-    @Test
-    public void testCollectionType() {
-        JPAContainer<Data> container = JPAContainerFactory.make(Data.class,
-                "targetentity");
-        Class<?> type = container.getType("manyToMany");
-
-        assertEquals(Set.class, type);
     }
 
 }
