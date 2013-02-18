@@ -23,17 +23,18 @@ public class LazyHibernateMainView extends VerticalLayout implements
         ComponentContainer {
 
     private JPAContainer<LazyPerson> personContainer;
-    private final LazyHibernate mainWindow;
 
-    public LazyHibernateMainView(LazyHibernate lazyHibernate) {
-        mainWindow = lazyHibernate;
+    public LazyHibernateMainView() {
         final Table table = new Table();
 
+        LazyHibernateEntityManagerProvider entityManagerProvider = new LazyHibernateEntityManagerProvider();
         personContainer = JPAContainerFactory.make(LazyPerson.class,
                 "lazyhibernate");
+        personContainer.getEntityProvider().setEntityManager(null);
+        personContainer.getEntityProvider().setEntityManagerProvider(
+                entityManagerProvider);
         personContainer.getEntityProvider().setLazyLoadingDelegate(
                 new HibernateLazyLoadingDelegate());
-        mainWindow.emprHelper.addContainer(personContainer);
 
         table.setContainerDataSource(personContainer);
         table.addGeneratedColumn("skillsString", new ColumnGenerator() {
@@ -56,7 +57,7 @@ public class LazyHibernateMainView extends VerticalLayout implements
 
         final Form form = new Form();
         // form.setWriteThrough(false);
-        form.setFormFieldFactory(new FieldFactory(mainWindow.emprHelper));
+        form.setFormFieldFactory(new FieldFactory());
         addComponent(form);
         addComponent(new Button("Save", new ClickListener() {
             @Override

@@ -107,7 +107,7 @@ public final class JPAContainerItem<T> implements EntityItem<T> {
          * <p>
          * If the property is read only, nothing happens.
          * 
-         * @throws com.vaadin.data.Property.ConversionException
+         * @throws ConversionException
          *             if the real value could not be set for some reason.
          */
         void commit() throws ConversionException {
@@ -222,11 +222,13 @@ public final class JPAContainerItem<T> implements EntityItem<T> {
             try {
                 Object value = propertyList
                         .getPropertyValue(entity, propertyId);
-                shouldLoadEntity = HibernateUtil
-                        .isUninitializedAndUnattachedProxy(value);
-                if (Collection.class.isAssignableFrom(propertyList
-                        .getPropertyType(propertyId))) {
-                    ((Collection<?>) value).iterator().hasNext();
+                if (value != null) {
+                    shouldLoadEntity = HibernateUtil
+                            .isUninitializedAndUnattachedProxy(value);
+                    if (Collection.class.isAssignableFrom(propertyList
+                            .getPropertyType(propertyId))) {
+                        ((Collection<?>) value).iterator().hasNext();
+                    }
                 }
             } catch (IllegalArgumentException e) {
                 shouldLoadEntity = true;

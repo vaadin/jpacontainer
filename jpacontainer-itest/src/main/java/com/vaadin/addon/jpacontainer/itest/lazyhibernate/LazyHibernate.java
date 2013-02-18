@@ -1,18 +1,11 @@
 package com.vaadin.addon.jpacontainer.itest.lazyhibernate;
 
-import com.vaadin.addon.jpacontainer.util.EntityManagerPerRequestHelper;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.UI;
 
 public class LazyHibernate extends UI {
-    EntityManagerPerRequestHelper emprHelper;
-
     static {
         LazyHibernateDataGenerator.create();
-    }
-
-    public LazyHibernate() {
-        emprHelper = new EntityManagerPerRequestHelper();
     }
 
     // @Override
@@ -31,6 +24,6 @@ public class LazyHibernate extends UI {
 
     @Override
     protected void init(VaadinRequest request) {
-        setContent(new LazyHibernateMainView(this));
+        setContent(new LazyHibernateMainView());
     }
 }

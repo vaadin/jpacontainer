@@ -153,7 +153,6 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
      * @param entityManagerProvider
      *            The entity manager provider to set.
      */
-    @Override
     public void setEntityManagerProvider(
             EntityManagerProvider entityManagerProvider) {
         this.entityManagerProvider = entityManagerProvider;
@@ -166,7 +165,6 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
      * 
      * @return the entity manager provider,
      */
-    @Override
     public EntityManagerProvider getEntityManagerProvider() {
         return entityManagerProvider;
     }
