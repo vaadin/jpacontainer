@@ -25,6 +25,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import com.vaadin.addon.jpacontainer.EntityContainer;
+import com.vaadin.addon.jpacontainer.EntityManagerProvider;
 import com.vaadin.addon.jpacontainer.EntityProvider;
 import com.vaadin.addon.jpacontainer.LazyLoadingDelegate;
 import com.vaadin.addon.jpacontainer.QueryModifierDelegate;
@@ -74,6 +75,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
     private transient EntityManager entityManager;
     private EntityClassMetadata<T> entityClassMetadata;
     private boolean entitiesDetached = true;
+    private EntityManagerProvider entityManagerProvider = null;
 
     /**
      * Creates a new <code>LocalEntityProvider</code>.
@@ -90,8 +92,11 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
     }
 
     /**
-     * Creates a new <code>LocalEntityProvider</code>. The entity manager must
-     * be set using {@link #setEntityManager(javax.persistence.EntityManager) }.
+     * Creates a new <code>LocalEntityProvider</code>. The entity manager or an
+     * entity manager provider must be set using
+     * {@link #setEntityManager(javax.persistence.EntityManager)} or
+     * {@link #setEntityManagerProvider(com.vaadin.addon.jpacontainer.EntityManagerProvider)}
+     * respectively.
      * 
      * @param entityClass
      *            the entity class (must not be null).
@@ -100,6 +105,20 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         assert entityClass != null : "entityClass must not be null";
         this.entityClassMetadata = MetadataFactory.getInstance()
                 .getEntityClassMetadata(entityClass);
+    }
+
+    /**
+     * Creates a new <code>LocalEntityProvider</code> with the specified
+     * {@link EntityManagerProvider}.
+     * 
+     * @param entityClass
+     * @param entityManagerProvider
+     */
+    public LocalEntityProvider(Class<T> entityClass,
+            EntityManagerProvider entityManagerProvider) {
+        this(entityClass);
+        assert entityManagerProvider != null : "entityManagerProvider must not be null";
+        setEntityManagerProvider(entityManagerProvider);
     }
 
     private Serializable serializableEntityManager;
@@ -127,6 +146,32 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
     }
 
     /**
+     * Sets the {@link EntityManagerProvider} that is used to find the current
+     * entity manager unless set using
+     * {@link #setEntityManager(javax.persistence.EntityManager)}
+     * 
+     * @param entityManagerProvider
+     *            The entity manager provider to set.
+     */
+    @Override
+    public void setEntityManagerProvider(
+            EntityManagerProvider entityManagerProvider) {
+        this.entityManagerProvider = entityManagerProvider;
+    }
+
+    /**
+     * Gets the {@link EntityManagerProvider} that is used to find the current
+     * entity manager unless one is specified using
+     * {@link #setEntityManager(javax.persistence.EntityManager)}.
+     * 
+     * @return the entity manager provider,
+     */
+    @Override
+    public EntityManagerProvider getEntityManagerProvider() {
+        return entityManagerProvider;
+    }
+
+    /**
      * Sets the entity manager.
      * 
      * @param entityManager
@@ -146,12 +191,16 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
     }
 
     /**
-     * Gets the entity manager.
+     * Gets the entity manager. If no entity manager has been set, the one
+     * returned by the registered entity manager provider is returned.
      * 
-     * @return the entity manager, or null if none has been specified.
+     * @return the entity manager.
      */
     public EntityManager getEntityManager() {
-        return this.entityManager;
+        if (entityManager != null) {
+            return entityManager;
+        }
+        return entityManagerProvider.getEntityManager();
     }
 
     /**
@@ -276,15 +325,13 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
     /**
      * Creates a filtered query that does not do any sorting.
      * 
-     * @see #createFilteredQuery(java.lang.String, java.lang.String,
-     *      com.vaadin.addon.jpacontainer.Filter, java.util.List, boolean,
-     *      com.vaadin.addon.jpacontainer.Filter.PropertyIdPreprocessor)
+     * @see #createFilteredQuery(com.vaadin.addon.jpacontainer.EntityContainer,
+     *      java.util.List, com.vaadin.data.Container.Filter, java.util.List,
+     *      boolean)
      * @param fieldsToSelect
      *            the fields to select (must not be null).
      * @param filter
      *            the filter to apply, or null if no filters should be applied.
-     * @param propertyIdPreprocessor
-     *            the property ID preprocessor (may be null).
      * @return the query (never null).
      */
     protected TypedQuery<Object> createUnsortedFilteredQuery(
@@ -299,8 +346,6 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
      * 
      * @param fieldsToSelect
      *            the fields to select (must not be null).
-     * @param entityAlias
-     *            the alias of the entity (must not be null).
      * @param filter
      *            the filter to apply, or null if no filters should be applied.
      * @param sortBy
@@ -310,11 +355,6 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
      *            true to swap the sort order, false to use the sort order
      *            specified in <code>sortBy</code>. Only applies if
      *            <code>sortBy</code> is not null.
-     * @param propertyIdPreprocessor
-     *            the property ID preprocessor to pass to
-     *            {@link Filter#toQLString(com.vaadin.addon.jpacontainer.Filter.PropertyIdPreprocessor)  }
-     *            , or null to use a default preprocessor (should be sufficient
-     *            in most cases).
      * @return the query (never null).
      */
     protected TypedQuery<Object> createFilteredQuery(

@@ -11,7 +11,7 @@ import org.junit.Test;
 import com.vaadin.addon.jpacontainer.SortBy;
 import com.vaadin.addon.jpacontainer.testdata.Person;
 
-public class LocalEntityManagerTest {
+public class LocalEntityProviderTest {
 
     private LocalEntityProvider<Person> entityProvider;
 

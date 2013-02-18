@@ -15,7 +15,7 @@ import com.vaadin.data.Container.Filter;
  * provide entities to {@link EntityContainer}s. It basically contains a subset
  * of the methods found in the standard {@link com.vaadin.data.Container}
  * interface. Note, that most of the methods return entity IDs and not entity
- * instances - only {@link #getEntity(java.lang.Object) } actually returns
+ * instances - only {@link #getEntity(EntityContainer, Object)} actually returns
  * instances.
  * <p>
  * Entity providers should at least implement this interface according to the
@@ -248,6 +248,24 @@ public interface EntityProvider<T> extends Serializable {
      * @return the entity manager, or null if none has been specified.
      */
     EntityManager getEntityManager();
+
+    /**
+     * Sets the {@link EntityManagerProvider} that is used to find the current
+     * entity manager if none is set using
+     * {@link #setEntityManager(javax.persistence.EntityManager)}
+     * 
+     * @param entityManagerProvider
+     *            The entity manager provider to set.
+     */
+    void setEntityManagerProvider(EntityManagerProvider entityManagerProvider);
+
+    /**
+     * Gets the {@link EntityManagerProvider} that is used to find the current
+     * entity manager.
+     * 
+     * @return the entity manager provider, or null if none specified.
+     */
+    EntityManagerProvider getEntityManagerProvider();
 
     /**
      * Set the delegate used for lazy loading.
