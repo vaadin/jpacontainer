@@ -1,5 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.vaadin.addon</groupId>
@@ -62,9 +62,10 @@
         <!-- Must not change this because of the Directory -->
         <Implementation-Title>Vaadin JPAContainer</Implementation-Title>
         <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
-        
-        <vaadin.version.maven>6.7.4</vaadin.version.maven>
-        <snapshot.repository.url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</snapshot.repository.url>
+
+        <vaadin.version.maven>6.8.8</vaadin.version.maven>
+        <snapshot.repository.url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/
+        </snapshot.repository.url>
         <hibernate-version>3.5.1-Final</hibernate-version>
     </properties>
 
@@ -105,16 +106,16 @@
             <version>${vaadin.version.maven}</version>
         </dependency>
         <dependency>
-        	<groupId>javax.transaction</groupId>
-        	<artifactId>transaction-api</artifactId>
-        	<version>1.1</version>
-        	<scope>provided</scope>
+            <groupId>javax.transaction</groupId>
+            <artifactId>transaction-api</artifactId>
+            <version>1.1</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
-        	<groupId>org.eclipse.persistence</groupId>
-        	<artifactId>javax.persistence</artifactId>
-        	<version>2.0.0</version>
-        	<scope>provided</scope>
+            <groupId>org.eclipse.persistence</groupId>
+            <artifactId>javax.persistence</artifactId>
+            <version>2.0.0</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -196,7 +197,8 @@
                     <include>pom.xml</include>
                 </includes>
                 <filtering>true</filtering>
-                <targetPath>${project.build.directory}/classes/META-INF/maven/${project.groupId}/${project.artifactId}</targetPath>
+                <targetPath>${project.build.directory}/classes/META-INF/maven/${project.groupId}/${project.artifactId}
+                </targetPath>
             </resource>
             <resource>
                 <directory>packaging</directory>
@@ -204,38 +206,39 @@
                     <include>pom.properties</include>
                 </includes>
                 <filtering>true</filtering>
-                <targetPath>${project.build.directory}/classes/META-INF/maven/${project.groupId}/${project.artifactId}</targetPath>
+                <targetPath>${project.build.directory}/classes/META-INF/maven/${project.groupId}/${project.artifactId}
+                </targetPath>
             </resource>
         </resources>
         <sourceDirectory>target/filtered-sources/main/java</sourceDirectory>
         <testSourceDirectory>target/filtered-sources/test/java</testSourceDirectory>
         <testResources>
-        	<testResource>
-        		<directory>../jpacontainer-addon-dev/src/test/resources</directory>
-        	</testResource>
+            <testResource>
+                <directory>../jpacontainer-addon-dev/src/test/resources</directory>
+            </testResource>
         </testResources>
         <plugins>
             <plugin>
-             <groupId>org.apache.maven.plugins</groupId>
-             <artifactId>maven-assembly-plugin</artifactId>
-             <version>2.2.1</version>
-             <configuration>
-                 <appendAssemblyId>false</appendAssemblyId>
-                 <descriptors>
-                     <descriptor>../assembly/assembly.xml</descriptor>
-                 </descriptors>
-             </configuration>
-             <executions>
-                 <execution>
-                     <id>make-assembly</id>
-                     <phase>package</phase>
-                     <goals>
-                         <goal>single</goal>
-                     </goals>
-                 </execution>
-             </executions>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.2.1</version>
+                <configuration>
+                    <appendAssemblyId>false</appendAssemblyId>
+                    <descriptors>
+                        <descriptor>../assembly/assembly.xml</descriptor>
+                    </descriptors>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
-     
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>properties-maven-plugin</artifactId>
