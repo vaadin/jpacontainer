@@ -133,6 +133,15 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
         });
         editButton.setEnabled(false);
 
+        Button refreshButton = new Button("Refresh");
+        refreshButton.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(ClickEvent event) {
+                JPAContainer<?> container = (JPAContainer<?>) personTable.getContainerDataSource();
+                container.refresh();
+            }
+        });
+
         searchField = new TextField();
         searchField.setInputPrompt("Search by name");
         searchField.addTextChangeListener(new TextChangeListener() {
@@ -155,6 +164,7 @@ public class AddressBookMainView extends HorizontalSplitPanel implements
         toolbar.addComponent(newButton);
         toolbar.addComponent(deleteButton);
         toolbar.addComponent(editButton);
+        toolbar.addComponent(refreshButton);
         toolbar.addComponent(searchField);
         toolbar.setWidth("100%");
         toolbar.setExpandRatio(searchField, 1);

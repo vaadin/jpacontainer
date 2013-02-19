@@ -1667,15 +1667,19 @@ public class JPAContainer<T> implements EntityContainer<T>,
 
     @SuppressWarnings("unchecked")
     public void refreshItem(Object itemId) {
-        LinkedList<WeakReference<JPAContainerItem<T>>> linkedList;
+        LinkedList<WeakReference<JPAContainerItem<T>>> linkedList = null;
         synchronized (getItemRegistry()) {
-            linkedList = (LinkedList<WeakReference<JPAContainerItem<T>>>) getItemRegistry()
-                    .get(itemId).clone();
+            LinkedList<WeakReference<JPAContainerItem<T>>> origList = getItemRegistry().get(itemId);
+            if (origList != null) {
+                linkedList = (LinkedList<WeakReference<JPAContainerItem<T>>>) origList.clone();
+            }
         }
-        for (WeakReference<JPAContainerItem<T>> weakReference : linkedList) {
-            JPAContainerItem<T> jpaContainerItem = weakReference.get();
-            if (jpaContainerItem != null) {
-                jpaContainerItem.refresh();
+        if (linkedList != null) {
+            for (WeakReference<JPAContainerItem<T>> weakReference : linkedList) {
+                JPAContainerItem<T> jpaContainerItem = weakReference.get();
+                if (jpaContainerItem != null) {
+                    jpaContainerItem.refresh();
+                }
             }
         }
     }
