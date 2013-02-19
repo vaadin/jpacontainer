@@ -1126,7 +1126,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
             for (Object id : itemIds) {
                 removeItem(id);
             }
-            if(!isWriteThrough()) {
+            if (!isWriteThrough()) {
                 commit();
             }
         } catch (Exception e) {
@@ -1176,8 +1176,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
      * not be used by other classes</b>. It is only called when the item is in
      * write through mode, i.e. when an updated property value is directly
      * reflected in the backed entity instance. If the item is in buffered mode
-     * (write through is off),
-     * {@link #containerItemModified(com.vaadin.addons.jpacontainer.EntityItem) }
+     * (write through is off), {@link #containerItemModified(JPAContainerItem)}
      * is used instead.
      * <p>
      * This method notifies the container that the specified property of
@@ -1222,8 +1221,8 @@ public class JPAContainer<T> implements EntityContainer<T>,
      * buffered mode (write through is off), i.e. when updated property values
      * are not reflected in the backend entity instance until the item's commit
      * method has been invoked. If write through is turned on,
-     * {@link #containerItemPropertyModified(com.vaadin.addons.jpacontainer.JPAContainerItem, java.lang.String)  }
-     * is used instead.
+     * {@link #containerItemPropertyModified(JPAContainerItem, String)} is used
+     * instead.
      * <p>
      * This method notifies the container that the specified <code>item</code>
      * has been modified. The container will then take appropriate actions to
@@ -1667,15 +1666,21 @@ public class JPAContainer<T> implements EntityContainer<T>,
 
     @SuppressWarnings("unchecked")
     public void refreshItem(Object itemId) {
-        LinkedList<WeakReference<JPAContainerItem<T>>> linkedList;
+        LinkedList<WeakReference<JPAContainerItem<T>>> linkedList = null;
         synchronized (getItemRegistry()) {
-            linkedList = (LinkedList<WeakReference<JPAContainerItem<T>>>) getItemRegistry()
-                    .get(itemId).clone();
+            LinkedList<WeakReference<JPAContainerItem<T>>> origList = getItemRegistry()
+                    .get(itemId);
+            if (origList != null) {
+                linkedList = (LinkedList<WeakReference<JPAContainerItem<T>>>) origList
+                        .clone();
+            }
         }
-        for (WeakReference<JPAContainerItem<T>> weakReference : linkedList) {
-            JPAContainerItem<T> jpaContainerItem = weakReference.get();
-            if (jpaContainerItem != null) {
-                jpaContainerItem.refresh();
+        if (linkedList != null) {
+            for (WeakReference<JPAContainerItem<T>> weakReference : linkedList) {
+                JPAContainerItem<T> jpaContainerItem = weakReference.get();
+                if (jpaContainerItem != null) {
+                    jpaContainerItem.refresh();
+                }
             }
         }
     }
@@ -1704,7 +1709,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
      * Sets the {@link QueryModifierDelegate}, which is called in the different
      * stages that the EntityProvider builds a criteria query.
      * 
-     * @param delegate
+     * @param queryModifierDelegate
      *            the delegate.
      */
     public void setQueryModifierDelegate(
