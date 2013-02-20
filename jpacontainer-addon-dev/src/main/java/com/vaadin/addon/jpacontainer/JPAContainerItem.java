@@ -656,8 +656,8 @@ public final class JPAContainerItem<T> implements EntityItem<T> {
     }
 
     public void setBuffered(boolean buffered) {
-        setReadThrough(!buffered);
         setWriteThrough(!buffered);
+        setReadThrough(!buffered);
     }
 
     public boolean isBuffered() {
