@@ -12,7 +12,14 @@ import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.OptimisticLockException;
+import javax.transaction.Transaction;
 
+import com.vaadin.addon.jpacontainer.BatchableEntityProvider;
+import com.vaadin.addon.jpacontainer.JPAContainerItem;
+import com.vaadin.addon.jpacontainer.MutableEntityProvider;
+import com.vaadin.addon.jpacontainer.provider.MutableLocalEntityProvider;
+import com.vaadin.data.Buffered;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -427,6 +434,120 @@ public abstract class AbstractComponentIntegrationTest extends
         personContainer.refresh();
         personContainer.refresh();
 
+    }
+
+    @Test
+    public void testConcurrentModification_buffered_shouldNotPersistSecondEdit() throws IOException {
+        JPAContainer<Person> container1 = JPAContainerFactory.makeBatchable(Person.class, getEntityManager());
+        JPAContainer<Person> container2 = JPAContainerFactory.makeBatchable(Person.class, getEntityManager());
+        container1.setBuffered(true);
+        container2.setBuffered(true);
+        EntityItem<Person> person1 = container1.getItem(container1.firstItemId());
+        EntityItem<Person> person2 = container2.getItem(container2.firstItemId());
+
+        person1.getItemProperty("firstName").setValue("First edit");
+        person1.getItemProperty("lastName").setValue("First edit");
+
+        person2.getItemProperty("firstName").setValue("Second edit");
+        person2.getItemProperty("lastName").setValue("Second edit");
+
+        // First store
+        container1.commit();
+        // Second store
+        try {
+            container2.commit();
+        } catch (Buffered.SourceException e) {
+            // expected optimistic lock
+            assertEquals(OptimisticLockException.class, e.getCause().getClass());
+        }
+
+        JPAContainer<Person> container3 = getPersonContainer();
+        EntityItem<Person> person3 = container3.getItem(container3.firstItemId());
+
+        assertEquals("First edit", person3.getItemProperty("firstName").getValue());
+        assertEquals("First edit", person3.getItemProperty("lastName").getValue());
+    }
+
+    @Test
+    public void testConcurrentModification_unbuffered_shouldPersistSecondEdit() throws IOException {
+        JPAContainer<Person> container1 = JPAContainerFactory.makeBatchable(Person.class, getEntityManager());
+        JPAContainer<Person> container2 = JPAContainerFactory.makeBatchable(Person.class, getEntityManager());
+        container1.setBuffered(false);
+        container2.setBuffered(false);
+
+        EntityItem<Person> person1 = container1.getItem(container1.firstItemId());
+        EntityItem<Person> person2 = container2.getItem(container2.firstItemId());
+
+        person1.getItemProperty("firstName").setValue("First edit");
+        person1.getItemProperty("lastName").setValue("First edit");
+
+        person2.getItemProperty("firstName").setValue("Second edit");
+        person2.getItemProperty("lastName").setValue("Second edit");
+
+        JPAContainer<Person> container3 = getPersonContainer();
+        EntityItem<Person> person3 = container3.getItem(container3.firstItemId());
+
+        assertEquals("Second edit", person3.getItemProperty("firstName").getValue());
+        assertEquals("Second edit", person3.getItemProperty("lastName").getValue());
+    }
+
+    private void runInTransaction(EntityManager em, Runnable runnable) {
+        try {
+            em.getTransaction().begin();
+            runnable.run();
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+        }
+    }
+
+    /* This test simulates what happens if you create an entity provider that handles transactions with EJB annotations (overrides runInTransaction and adds @TransactionRequired) */
+    @Test
+    public void testConcurrentModification_unbufferedEntitiesNotDetachedManualTransactions_shouldPersistSecondEdit() throws IOException {
+        JPAContainer<Person> container1 = JPAContainerFactory.makeBatchable(Person.class, getEntityManager());
+        JPAContainer<Person> container2 = JPAContainerFactory.makeBatchable(Person.class, getEntityManager());
+        container1.setBuffered(false);
+        container2.setBuffered(false);
+
+        container1.getEntityProvider().setEntitiesDetached(false);
+        container2.getEntityProvider().setEntitiesDetached(false);
+        ((MutableLocalEntityProvider<Person>)container1.getEntityProvider()).setTransactionsHandledByProvider(false);
+        ((MutableLocalEntityProvider<Person>)container2.getEntityProvider()).setTransactionsHandledByProvider(false);
+
+        final EntityItem<Person> person1 = container1.getItem(container1.firstItemId());
+        final EntityItem<Person> person2 = container2.getItem(container2.firstItemId());
+
+        runInTransaction(container1.getEntityProvider().getEntityManager(), new Runnable() {
+            @Override
+            public void run() {
+                person1.getItemProperty("firstName").setValue("First edit");
+            }
+        });
+        runInTransaction(container1.getEntityProvider().getEntityManager(), new Runnable() {
+            @Override
+            public void run() {
+                person1.getItemProperty("lastName").setValue("First edit");
+            }
+        });
+
+        runInTransaction(container2.getEntityProvider().getEntityManager(), new Runnable() {
+            @Override
+            public void run() {
+                person2.getItemProperty("firstName").setValue("Second edit");
+            }
+        });
+        runInTransaction(container2.getEntityProvider().getEntityManager(), new Runnable() {
+            @Override
+            public void run() {
+                person2.getItemProperty("lastName").setValue("Second edit");
+            }
+        });
+
+        JPAContainer<Person> container3 = getPersonContainer();
+        EntityItem<Person> person3 = container3.getItem(container3.firstItemId());
+
+        assertEquals("Second edit", person3.getItemProperty("firstName").getValue());
+        assertEquals("Second edit", person3.getItemProperty("lastName").getValue());
     }
 
 }
