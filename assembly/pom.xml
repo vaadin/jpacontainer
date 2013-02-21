@@ -8,9 +8,7 @@
         <version>3.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.vaadin.addon</groupId>
     <artifactId>jpacontainer-assembly</artifactId>
-    <version>${parent.version}</version>
     <packaging>pom</packaging>
     
     <name>JPAContainer ZIP Package for Directory</name>
