@@ -15,14 +15,14 @@
     <fileSet>
       <directory>.</directory>
       <includes>
-        <include>license-${license.short.name}.txt</include>
+        <include>LICENSE</include>
       </includes>
     </fileSet>
     <fileSet>
       <directory>../jpacontainer-addon/target</directory>
       <outputDirectory>./</outputDirectory>
       <includes>
-        <include>*-${license.short.name}-*.jar</include>
+        <include>*.jar</include>
       </includes>
     </fileSet>
     <fileSet>
@@ -59,11 +59,7 @@
 
   <files>
     <file>
-      <source>../assembly/licensing-${license.short.name}.txt</source>
-      <destName>licensing.txt</destName>
-    </file>
-    <file>
-      <source>../assembly/license-${license.short.name}.txt</source>
+      <source>../assembly/LICENSE</source>
     </file>
     <file>
       <source>../assembly/README</source>

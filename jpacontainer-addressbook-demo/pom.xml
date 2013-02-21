@@ -5,13 +5,21 @@
     <groupId>com.vaadin.demo</groupId>
     <artifactId>jpacontainer-addressbook-demo</artifactId>
     <packaging>war</packaging>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
     <name>Simple Vaadin JPAContainer example app</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <vaadin.version>7.0.0</vaadin.version>
-        <jpacontainer.version>3.0.0-SNAPSHOT</jpacontainer.version>
     </properties>
+
+    <licenses>
+        <license>
+            <name>Apache License version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
     <repositories>
         <repository>
             <id>EclipseLink Repo</id>
@@ -51,8 +59,8 @@
         </dependency>
         <dependency>
             <groupId>com.vaadin.addon</groupId>
-            <artifactId>jpacontainer-addon-agpl-3.0</artifactId>
-            <version>${jpacontainer.version}</version>
+            <artifactId>jpacontainer-addon</artifactId>
+            <version>3.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.persistence</groupId>
@@ -78,6 +86,45 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>com.mycila.maven-license-plugin</groupId>
+                <artifactId>maven-license-plugin</artifactId>
+                <version>1.9.0</version>
+                <configuration>
+                    <basedir>${basedir}</basedir>
+                    <header>${basedir}/../java-license-header.txt</header>
+                    <quiet>false</quiet>
+                    <failIfMissing>true</failIfMissing>
+                    <aggregate>false</aggregate>
+                    <useDefaultExcludes>true</useDefaultExcludes>
+                    <useDefaultMapping>true</useDefaultMapping>
+                    <encoding>UTF-8</encoding>
+                    <properties>
+                        <year>2009-2013</year>
+                    </properties>
+                    <excludes>
+                        <exclude>*/target/**</exclude>
+                        <exclude>*/doc/**</exclude>
+                        <exclude>**/*.xml</exclude>
+                        <exclude>**/README</exclude>
+                        <exclude>**/LICENSE</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>format</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>check-headers</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

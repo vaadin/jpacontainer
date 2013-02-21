@@ -5,7 +5,7 @@
     <parent>
         <artifactId>jpacontainer</artifactId>
         <groupId>com.vaadin.addon</groupId>
-        <version>${jpacontainer.version}</version>
+        <version>3.0.0-SNAPSHOT</version>
     </parent>
 
     <groupId>com.vaadin.addon</groupId>
@@ -22,7 +22,7 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.2.1</version>
                 <configuration>
-                    <finalName>vaadin-jpacontainer-${license.short.name}-${project.version}</finalName>
+                    <finalName>vaadin-jpacontainer-${project.version}</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
                     <descriptors>
                         <descriptor>assembly.xml</descriptor>

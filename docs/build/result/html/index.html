@@ -1,0 +1,1097 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Bound to Persist</title>
+    <link type="text/css" rel="stylesheet" href="styles.css" />
+    <style type="text/css">
+      .auto-T1 {}
+      .auto-T2 {font-style: italic; }
+      .auto-T3 {font-style: italic; font-weight: normal; }
+      .auto-T4 {font-weight: bold; color: #7f0055; }
+      .auto-T5 {font-weight: bold; color: #7f0055; }
+      .auto-T6 {color: #000000; }
+      .auto-T7 {color: #000000; }
+      .auto-T8 {font-weight: bold; color: #000000; }
+      .auto-T9 {font-style: italic; color: #000000; }
+      .auto-T10 {font-weight: normal; color: #000000; }
+      .auto-T11 {color: #000000; }
+      .auto-T12 {font-weight: bold; color: #000000; }
+      .auto-T13 {color: #646464; }
+      .auto-T14 {color: #0000c0; }
+      .auto-T15 {font-style: italic; color: #0000c0; }
+      .auto-T16 {color: #0000c0; }
+      .auto-T17 {font-weight: normal; color: #0000c0; }
+      .auto-T18 {color: #2a00ff; }
+      .auto-T19 {font-style: italic; color: #2a00ff; }
+      .auto-T20 {font-style: italic; color: #2a00ff; }
+      .auto-T21 {font-weight: normal; }
+      .auto-T22 {}
+      .auto-T23 {font-style: normal; }
+      .auto-T24 {font-weight: bold; }
+      .auto-T25 {}
+      .auto-T26 {color: #3f7f5f; }
+      .auto-T27 {color: #008080; }
+      .auto-T28 {color: #008080; }
+      .auto-T29 {color: #008080; }
+      .auto-T30 {color: #3f7f7f; }
+      .auto-T31 {color: #3f7f7f; }
+      .auto-T32 {color: #3f7f7f; }
+      .auto-T33 {color: #7f007f; }
+      .auto-T34 {color: #7f007f; }
+      .auto-T35 {color: #181615; }
+      .auto-T36 {color: #181615; }
+      .auto-T37 {font-style: normal; font-weight: normal; }
+    </style>
+  </head>
+  <body><div id="content"><div id="logo"><a href="http://vaadin.com/"><img alt="Vaadin" src="vaadin-logo-title.png" /></a></div>
+   
+   
+    
+    
+    
+    
+   
+    
+     <p class="title">Bound to Persist<br />with Vaadin JPAContainer </p>
+    
+   
+    
+     <p class="subtitle">Vaadin JPAContainer<br />2.0 </p>
+     
+     
+     
+    
+   
+   <p />
+   <p class="intro">Vaadin JPAContainer is a Vaadin Container implementation for binding Vaadin user interface components directly to Java objects persisted using the Java Persistence API </p>
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   <p />
+   
+    
+    
+     
+      
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+    
+   
+   <p />
+   <h1>1 Introduction</h1>
+   <h2>1.1 Overview</h2>
+   <p>Most business web applications need to either store data in or retrieve it from a database, or both. However, the data is rarely written directly from the user input to the database. Applications that follow a multilayered architecture have an intermediate business logic or <span class="auto-T2">domain layer</span>, which is implemented as Java classes.</p>
+   <p class="illustration"><img src="img/three-layer-architecture-hi.png" width="634.5500000000001" alt="[Image]" /> </p>
+   <p class="caption">Figure 1: Three-Layer Architecture </p>
+   <p>The data binding model in Vaadin can be used to bind user interface components to a domain layer. The purpose of <span class="auto-T2">Java Persistence API</span> is to define how the Java classes of the domain layer are mapped to database tables. Using the mappings, the instances of such classes can be <span class="auto-T2">persisted</span> – stored in and retrieved from the database – without writing complex queries and copying the values between the queries and the domain model.</p>
+   <p>Vaadin JPAContainer allows connecting Vaadin user interface components directly to the persistent model objects. It is an implementation of the container interface defined in the Vaadin core framework. You can use the container to display data in a table, tree, any other selection component, or edit the data in a form.</p>
+   <p class="illustration"><img src="Pictures/10000201000005CB0000017F061832EE.png" width="627.75" alt="[Image]" /> </p>
+   <p class="caption">Figure 2: Role of JPAContainer in binding Vaadin components to a database </p>
+   <p>In this tutorial, we revisit the Vaadin Tutorial presented in <a href="https://vaadin.com/tutorial">vaadin.com/tutorial</a> and make a similar application with persistence using JPAContainer.</p>
+   <p>But first, we start by going through the basic concepts of Vaadin data binding, Java Persistence API, JPA implementations, relational databases, and the role of JPAContainer to in the darkness<span class="auto-T23"> </span><span class="auto-Emphasis"><span class="auto-T23">bind them</span></span>.</p>
+   <p>Then, we are ready to look into installing Vaadin JPAContainer or importing the JPAContainer AddressBook Demo, defining a domain model, and using the JPAContainer in an application.</p>
+   <h2>1.2 Technologies Covered in the Tutorial</h2>
+   <p>The basic purpose of this tutorial is to demonstrate the use of the following technologies:</p>
+   <ul>
+    <li>
+     <p>Vaadin Framework</p>
+    </li>
+    <li>
+     <p>Vaadin JPAContainer</p>
+    </li>
+    <li>
+     <p>Java Persistence API</p>
+    </li>
+    <li>
+     <p>Java Bean Validation API</p>
+    </li>
+   </ul>
+   <p>We use the following additional tools:</p>
+   <ul>
+    <li>
+     <p>EclipseLink</p>
+    </li>
+    <li>
+     <p>Vaadin Bean Validation add-on</p>
+    </li>
+    <li>
+     <p>Hibernate Validator</p>
+    </li>
+    <li>
+     <p>H2 Database Engine</p>
+    </li>
+    <li>
+     <p>CustomField add-on</p>
+    </li>
+   </ul>
+   <p>Any implementation of the Java Persistence API could be used, but in this tutorial we choose to use EclipseLink, which is the reference implementation of JPA 2.0. Its choice is only relevant in the project configuration.</p>
+   <p>The Vaadin Bean Validation add-on allows validation of Vaadin forms using the Java Bean Validation API 1.0 (JSR-303). It is based on annotations for the bean properties. We use the Hibernate Validator as the chosen implementation of the API.</p>
+   <p>For the back-end relational database, we use an in-memory database using the H2 database engine.</p>
+   <p>The CustomField add-on allows creating composite field components much the same way as the standard CustomComponent in Vaadin core framework.</p>
+   <h2>1.3 Vaadin Data Model</h2>
+   <p>Let us first recapture the Vaadin data model introduced in the <a href="https://vaadin.com/book/-/page/datamodel.html">Chapter 9: </a><a href="https://vaadin.com/book/-/page/datamodel.html"><span class="auto-T2">Binding Components to Data</span></a> in Book of Vaadin. It consists of three levels of containment: <span class="auto-T2">properties</span>, <span class="auto-T2">items</span>, and <span class="auto-T2">containers</span>.</p>
+   <h3>1.3.1 Properties</h3>
+   <p>Atomic data is represented as <span class="classname">Property</span> objects that have a <span class="auto-T2">value</span> and a <span class="auto-T2">type</span>. Properties can be bound to <span class="classname">Field</span> components, such as a <span class="classname">TextField</span>, or a table cell.</p>
+   <p class="source-file source-file-start">// A property of some type </p>
+   <p class="source-file source-file-middle">ObjectProperty&lt;String&gt; p =<br />    <span class="code-keyword">new</span> ObjectProperty&lt;String&gt;(“<span class="auto-T18">the property value</span>”); </p>
+   <p class="source-file source-file-middle"> </p>
+   <p class="source-file source-file-middle">// A field </p>
+   <p class="source-file source-file-middle">TextField field = <span class="code-keyword">new</span> TextField(“<span class="auto-T18">Name</span>”); </p>
+   <p class="source-file source-file-middle"> </p>
+   <p class="source-file source-file-middle">// Bind the field to the property </p>
+   <p class="source-file source-file-end">field.setPropertyDataSource(p); </p>
+   <p>The <span class="classname">ObjectProperty</span> used above is just one implementation of the <span class="classname">Property</span> interface – in <span class="classname">JPAContainer</span> we use a different property type.</p>
+   <h3>1.3.2 Items</h3>
+   <p>An <span class="classname">Item</span> is a collection of properties that is typically bound to a <span class="classname">Form</span> or a row in a <span class="classname">Table</span> or some other selection component. Properties of an item are identified by a <span class="auto-T2">property identifier</span> (PID).</p>
+   <p class="source-file source-file-start">// Create an item with two properties </p>
+   <p class="source-file source-file-middle">PropertysetItem item = <span class="code-keyword">new</span> PropertysetItem(); </p>
+   <p class="source-file source-file-middle">item.addItemProperty("<span class="auto-T18">name</span>", </p>
+   <p class="source-file source-file-middle">                     <span class="code-keyword">new</span> ObjectProperty&lt;String&gt;("<span class="auto-T18">Zaphod</span>")); </p>
+   <p class="source-file source-file-middle">item.addItemProperty("<span class="auto-T18">age</span>", </p>
+   <p class="source-file source-file-middle">                     <span class="code-keyword">new</span> ObjectProperty&lt;Integer&gt;(42)); </p>
+   <p class="source-file source-file-middle"> </p>
+   <p class="source-file source-file-middle">// Bind it to a form </p>
+   <p class="source-file source-file-middle">Form form = <span class="code-keyword">new</span> Form(); </p>
+   <p class="source-file source-file-end">form.setItemDataSource(item); </p>
+   <h3>1.3.3 Containers</h3>
+   <p>A <span class="classname">Container</span> is a collection of items, usually bound to a <span class="classname">Table</span>, <span class="classname">Tree</span>, or some other selection component. Items in a container are identified by an item identifier (IID). Normally, all the items in a container have the same type and the same properties.</p>
+   <p>For a more detailed description of the Vaadin data model, please refer to Chapter 9: <a href="https://vaadin.com/book/-/page/datamodel.html">Binding Components to Data</a>.</p>
+   <h3>1.3.4 Normal (Non-Persistent) Binding to JavaBeans</h3>
+   <p>Vaadin core library provides <span class="classname">BeanItem</span> implementation of the <span class="classname">Item</span> interface to bind bean objects. At the <span class="classname">Container</span> level, Vaadin provides the <span class="classname">BeanItemContainer</span> and <span class="classname">BeanContainer</span> implementations. They are very useful for handling transient (non-persistent) objects.</p>
+   <p class="source-file source-file-start">// Here is a bean </p>
+   <p class="source-file source-file-middle"><span class="code-keyword">public</span> <span class="code-keyword">class</span> Bean <span class="code-keyword">implements</span> Serializable { </p>
+   <p class="source-file source-file-middle">    String <span class="code-string">name</span>; </p>
+   <p class="source-file source-file-middle">    double <span class="code-string">energy</span>; // Energy content in kJ/100g </p>
+   <p class="source-file source-file-middle">     </p>
+   <p class="source-file source-file-middle">    <span class="code-keyword">public</span> Bean(String name, double energy) { </p>
+   <p class="source-file source-file-middle">        <span class="code-keyword">this</span>.<span class="code-string">name</span>   = name; </p>
+   <p class="source-file source-file-middle">        <span class="code-keyword">this</span>.<span class="code-string">energy</span> = energy; </p>
+   <p class="source-file source-file-middle">    } </p>
+   <p class="source-file source-file-middle">     </p>
+   <p class="source-file source-file-middle">    <span class="code-keyword">public</span> String getName() { </p>
+   <p class="source-file source-file-middle">        <span class="code-keyword">return</span> <span class="code-string">name</span>; </p>
+   <p class="source-file source-file-middle">    } </p>
+   <p class="source-file source-file-middle">     </p>
+   <p class="source-file source-file-middle">    <span class="code-keyword">public</span> <span class="code-keyword">void</span> setName(String name) { </p>
+   <p class="source-file source-file-middle">        <span class="code-keyword">this</span>.<span class="code-string">name</span> = name; </p>
+   <p class="source-file source-file-middle">    } </p>
+   <p class="source-file source-file-middle">     </p>
+   <p class="source-file source-file-middle">    <span class="code-keyword">public</span> <span class="code-keyword">double</span> getEnergy() { </p>
+   <p class="source-file source-file-middle">        <span class="code-keyword">return</span> <span class="code-string">energy</span>; </p>
+   <p class="source-file source-file-middle">    } </p>
+   <p class="source-file source-file-middle">     </p>
+   <p class="source-file source-file-middle">    <span class="code-keyword">public</span> <span class="code-keyword">void</span> setEnergy(double energy) { </p>
+   <p class="source-file source-file-middle">        <span class="code-keyword">this</span>.<span class="code-string">energy</span> = energy; </p>
+   <p class="source-file source-file-middle">    } </p>
+   <p class="source-file source-file-middle">} </p>
+   <p class="source-file source-file-middle"> </p>
+   <p class="source-file source-file-middle">...     </p>
+   <p class="source-file source-file-middle">// Create a container for such beans </p>
+   <p class="source-file source-file-middle">BeanItemContainer&lt;Bean&gt; beans = </p>
+   <p class="source-file source-file-middle">    <span class="code-keyword">new</span> BeanItemContainer&lt;Bean&gt;(Bean.class); </p>
+   <p class="source-file source-file-middle">     </p>
+   <p class="source-file source-file-middle">// Add some beans to it </p>
+   <p class="source-file source-file-middle">beans.addBean(<span class="code-keyword">new</span> Bean(<span class="code-string">"Mung bean"</span>,   1452.0)); </p>
+   <p class="source-file source-file-middle">beans.addBean(<span class="code-keyword">new</span> Bean(<span class="code-string">"Chickpea"</span>,    686.0)); </p>
+   <p class="source-file source-file-middle">beans.addBean(<span class="code-keyword">new</span> Bean(<span class="code-string">"Lentil"</span>,      1477.0)); </p>
+   <p class="source-file source-file-middle">beans.addBean(<span class="code-keyword">new</span> Bean(<span class="code-string">"Common bean"</span>, 129.0)); </p>
+   <p class="source-file source-file-middle">beans.addBean(<span class="code-keyword">new</span> Bean(<span class="code-string">"Soybean"</span>,     1866.0)); </p>
+   <p class="source-file source-file-middle"> </p>
+   <p class="source-file source-file-middle">// Bind a table to it </p>
+   <p class="source-file source-file-middle">Table table = <span class="code-keyword">new</span> Table(<span class="code-string">"Beans of All Sorts"</span>, beans); </p>
+   <p class="source-file source-file-end">layout.addComponent(table); </p>
+   <p>Actually, the classes added to a <span class="classname">BeanItemContainer</span> do not need to be beans; only the setters and getters are relevant, and it is not necessary to implement <span class="classname">Serializable</span> and have a default constructor.</p>
+   <p>So, that should be simple. Next, we see how to persist Java classes.</p>
+   <h2>1.4 Java Persistence API</h2>
+   <p>Java Persistence API (JPA) is an API for object-relational mapping (ORM) of Java objects to a relational database. In JPA and entity-relationship modeling in general, a Java class is considered an <span class="auto-T2">entity</span>. Class (or entity) instances correspond with a row in a database table and member variables of a class with columns. Entities can also have relationships with other entities.</p>
+   <p>Vaadin JPAContainer supports the JPA 2.0 standard.</p>
+   <h3>1.4.1 Persistence Metadata</h3>
+   <p>JPA requires metadata about the entities and their relationships. The metadata can be defined in an XML metadata file or with Java annotations defined in the <span class="auto-Package_20_Name">javax.persistence</span> package. With JPAContainer, you need to provide the metadata as annotations.</p>
+   <p>For example, if we look at the <span class="classname">Person</span> class in the <span class="auto-T23">JPAContainer AddressBook Demo</span>, we define various database-related metadata for the member variables of a class:</p>
+   <p class="source-file source-file-start">@Entity </p>
+   <p class="source-file source-file-middle"><span class="auto-T4">public</span><span class="auto-T6"> </span><span class="auto-T4">class</span><span class="auto-T6"> Person {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T13">@Id</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T13">@GeneratedValue</span><span class="auto-T6">(strategy = GenerationType.</span><span class="auto-T15">AUTO</span><span class="auto-T6">)</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> Long </span><span class="auto-T14">id</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-middle"> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T13">@NotNull</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T13">@Size</span><span class="auto-T6">(min = 2, max = 24)</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> String </span><span class="auto-T14">firstName</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-middle"> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T13">@Size</span><span class="auto-T6">(min = 2, max = 24)</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> String </span><span class="auto-T14">lastName</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-middle"> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T13">@NotNull</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> Department </span><span class="auto-T14">department</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-end">    … </p>
+   <p>The JPA implementation uses reflection to read the annotations and defines a database model automatically from the class definitions.</p>
+   <p>JPA annotation is discussed in detail later in Section <a href="#__RefHeading__3056_1659804707">4.3</a>: <span class="auto-T2"><a href="#__RefHeading__3056_1659804707">Annotating the Classes for Persistence</a></span>.</p>
+   <h3>1.4.2 JPA Implementations</h3>
+   <p>Java Persistence API (JPA) is a specification that is implemented by various JPA implementations. EclipseLink is the reference implementation of JPA 2.0. It is found to be well suited for stateful applications, as is the case with Vaadin.</p>
+   <p>Hibernate is another popular implementation of the standard, where the implementation is provided in Hibernate EntityManager, Hibernate Metamodel Generator, and Hibernate Annotations. </p>
+   <h2>1.5 Rapid Start with Spring Roo</h2>
+   <p>Perhaps the quickest way to create a domain model and persist it with JPAContainer is to use Spring Roo, a rapid development tool for Java applications. It generates code that uses the Spring Framework, Java Persistence API, and Apache Maven. It also allows extending its functionality using add-ons, such as the Vaadin Plugin for Spring Roo. The Vaadin add-on can generate a user interface views based on the data model definitions given to Roo.</p>
+   <p>For a Spring Roo tutorial with Vaadin, please refer to <a href="https://vaadin.com/book/-/page/rapid.html">Chapter 12: </a><a href="https://vaadin.com/book/-/page/rapid.html"><span class="auto-T2">Rapid Development Using Vaadin and Roo</span></a> in the Book of Vaadin.</p>
+   <h1>2 Installing Vaadin JPAContainer</h1>
+   <p>This chapter gives basic instructions for installing Vaadin JPAContainer in your own application. If you just wish to go on with the tutorial and install JPAContainer later, you can skip to Chapter <a href="#__RefHeading__16398_1659804707">3</a>: <span class="auto-T2"><a href="#__RefHeading__16398_1659804707">JPAContainer AddressBook Demo</a></span>.</p>
+   <h2>2.1 Installation Options</h2>
+   <p>You have the following options for installing JPAContainer:</p>
+   <ul>
+    <li>
+     <p>Download installation package from Vaadin Directory</p>
+    </li>
+    <li>
+     <p>Define a Maven dependency</p>
+    </li>
+    <li>
+     <p>Create a new Vaadin project with a special archetype</p>
+    </li>
+   </ul>
+   <h2>2.2 Downloading JPAContainer from Vaadin Directory</h2>
+   <p>JPAContainer is available for immediate download from the Vaadin Directory at <a href="http://vaadin.com/directory#addon/vaadin-jpacontainer">http://vaadin.com/directory#addon/vaadin-jpacontainer</a>.</p>
+   <p class="illustration"><img src="img/download-annotated-hi.png" width="633.75" alt="[Image]" /> </p>
+   <p class="caption">Figure 3: Downloading JPAContainer from Vaadin Directory </p>
+   <ol>
+    <li>
+     <p>Select <span class="guilabel">Version</span> (the latest version is selected by default)</p>
+    </li>
+    <li>
+     <p>Click <span class="guilabel">Download Now</span></p>
+    </li>
+    <li>
+     <p>Select either <span class="guilabel">AGPL</span> or <span class="guilabel">CVAL</span> license</p>
+    </li>
+    <li>
+     <p>Click <span class="guibutton">Proceed to download</span></p>
+    </li>
+    <li>
+     <p>After downloading the installation package, extract its contents to a local folder using an appropriate ZIP extraction software for your operating system</p>
+    </li>
+   </ol>
+   <h4>Dual Licensing Under AGPL and CVAL</h4>
+   <p>Vaadin JPAContainer is available under two licenses: <span class="auto-T2">Affero General Public License</span> (AGPL) and <span class="auto-T2">Commercial Vaadin Add-on License</span> (CVAL). If your project is compatible with the open-source AGPL, you can use the add-on for free. Otherwise you must acquire a sufficient number of CVAL licenses before the 30-day trial period ends. Vaadin JPAContainer is distributed as a separate installation package for each license.</p>
+   <p>Use of 
+    Vaadin JPAContainer with the CVAL license is included in the Vaadin PRO subscription.</p>
+   <h2>2.3 Installation Package Content</h2>
+   <p>Once extracted to a local folder, the contents of the installation directory are illustrated in Figure 4.</p>
+   <p class="illustration"><img src="img/installation-contents.png" width="389.8" alt="[Image]" /> </p>
+   <p class="caption">Figure 4: Installation Package Contents </p>
+   <p>The files in the installation package are as follows:</p>
+   <p class="dictionary-term">README </p>
+   <p class="dictionary-definition">A readme file describing the package contents. </p>
+   <p class="dictionary-term">licensing.txt </p>
+   <p class="dictionary-definition">General information about licensing. </p>
+   <p class="dictionary-term">license-xxxx-y.y.txt </p>
+   <p class="dictionary-definition">The full license text for the library. </p>
+   <p class="dictionary-term">vaadin-jpacontainer-xxxx-y.y-z.z.z.jar </p>
+   <p class="dictionary-definition">The actual Vaadin JPAContainer library. The <span class="filename">xxxx</span> is the license name and <span class="filename">y.y</span> its version number. The final <span class="filename">z.z.z</span> is the version number of the Vaadin JPAContainer. </p>
+   <p class="dictionary-term">vaadin-jpacontainer-xxxx-y.y-z.z.z-javadoc.jar </p>
+   <p class="dictionary-definition">JavaDoc documentation JAR for the library. You can use it for example in Eclipse by associating the JavaDoc JAR with the JPAContainer JAR in the build path settings of your project. </p>
+   <p class="dictionary-term">apidocs </p>
+   <p class="dictionary-definition">The JavaDoc API documentation in plain HTML. </p>
+   <p class="dictionary-term">jpacontainer-tutorial.pdf </p>
+   <p class="dictionary-definition">This tutorial in PDF format. </p>
+   <p class="dictionary-term">jpacontainer-tutorial </p>
+   <p class="dictionary-definition">The tutorial in HTML format. The latest version of the tutorial is always available at <a href="http://vaadin.com/download/jpacontainer-tutorial/">vaadin.com/download/jpacontainer-tutorial/</a>. </p>
+   <p class="dictionary-term">jpacontainer-addressbook-demo </p>
+   <p class="dictionary-definition">The JPAContainer AddressBook Demo project covered in this tutorial. You can compile and package the application as a WAR with “<span class="parameter">mvn package</span>” or launch it in the Jetty web browser with “<span class="parameter">mvn jetty:run</span>”. You can also import the demo project in Eclipse as described in Section <a href="#__RefHeading__5264_1010636937">3.1.2</a>: <span class="auto-T2"><a href="#__RefHeading__5264_1010636937">Importing from Existing Installation Folder</a></span>. </p>
+   <p class="dictionary-term">jpacontainer-demo-z.z.z.war </p>
+   <p class="dictionary-definition">The basic JPAContainer demo. It is somewhat more extensive than the AddressBook Demo. </p>
+   <h2>2.4 Including Libraries in Your Project</h2>
+   <p>The Vaadin JPAContainer JAR must be included in the library folder of the web application. It is located in <span class="filename">WEB-INF/lib</span> path in a web application. In a normal Eclipse web projects the path is <span class="filename">WebContent/WEB-INF/lib</span>. In Maven projects the JARs are automatically included in the folder, as long as the dependencies are defined correctly.</p>
+   <h4>Required Libraries</h4>
+   <p>You will need the following JARs:</p>
+   <ul>
+    <li>
+     <p>Vaadin Framework Library</p>
+    </li>
+    <li>
+     <p>Vaadin JPAContainer</p>
+    </li>
+    <li>
+     <p>Java Persistence API 2.0 (<span class="auto-Package_20_Name">javax.persistence</span> package)</p>
+    </li>
+    <li>
+     <p>JPA implementation (EclipseLink, Hibernate, …)</p>
+    </li>
+    <li>
+     <p>Database driver or embedded engine (H2, HSQLDB, MySQL, …)</p>
+    </li>
+   </ul>
+   <p>The Vaadin Framework library is automatically downloaded and updated by the Vaadin Plugin for Eclipse.</p>
+   <h4>Optional Libraries</h4>
+   <p>Optional libraries included in the AddressBook Demo are:</p>
+   <ul>
+    <li>
+     <p>Vaadin BeanValidation add-on</p>
+    </li>
+    <li>
+     <p>Hibernate Validator</p>
+    </li>
+    <li>
+     <p>Logging library (SLF4J, …)</p>
+    </li>
+    <li>
+     <p>CustomField add-on</p>
+    </li>
+   </ul>
+   <h4>Example</h4>
+   <p>Below is an example listing of the JARs included in <span class="filename">WEB-INF/lib</span> in the AddressBook demo. The exact version numbers may vary.</p>
+   <p class="source-file source-file-start">beanvalidation-addon-0.6.2.jar </p>
+   <p class="source-file source-file-middle">customfield-0.9.3.jar </p>
+   <p class="source-file source-file-middle">eclipselink-2.2.0.jar </p>
+   <p class="source-file source-file-middle">h2-1.3.160.jar </p>
+   <p class="source-file source-file-middle">hibernate-validator-4.2.0.Final.jar </p>
+   <p class="source-file source-file-middle">javax.persistence-2.0.0.jar </p>
+   <p class="source-file source-file-middle">jpacontainer-addon-agpl-3.0-2.0.0-SNAPSHOT.jar </p>
+   <p class="source-file source-file-middle">slf4j-api-1.6.1.jar </p>
+   <p class="source-file source-file-middle">vaadin-6.7.1.jar </p>
+   <p class="source-file source-file-end">validation-api-1.0.0.GA.jar </p>
+   <h2>2.5 <a name="__RefHeading__64529_1659804707"> </a>Defining Dependencies in Maven</h2>
+   <p>You can find the dependency declaration for the JPAContainer add-on in the Vaadin Directory page, as illustrated in Figure 5.</p>
+   <p class="illustration"><img src="img/maven-pom-dependency.png" width="349.35" alt="[Image]" /> </p>
+   <p class="caption">Figure 5: JPAContainer dependency declaration for Maven. </p>
+   <p>The dependency definition needs to be put in the <span class="filename">pom.xml</span> file in the project. The demo project requires also various other dependencies, namely for EclipseLink, H2 database, BeanValidator, etc. Please see how they are defined in the <span class="filename">pom.xml</span>.</p>
+   <p>Detailed instructions for using Vaadin Add-ons in Maven projects are given in Book of Vaadin Chapter 13: <span class="auto-T2">Using Vaadin Add-ons</span>, in the Section <a href="https://vaadin.com/book/-/page/addons.maven.html"><span class="auto-T2">Using Add-ons in a Maven Project</span></a>.</p>
+   <h2>2.6 Vaadin JPAContainer Maven Archetype</h2>
+   <p>If you wish to create a new JPAContainer enabled Vaadin project with Maven, you can use the <span class="parameter">vaadin-archetype-jpacontainer</span> archetype. Please see the section <a href="https://vaadin.com/book/-/page/getting-started.maven.html">Creating a Project with Maven</a> in the Book of Vaadin for details on creating a Vaadin project with a Maven archetype.</p>
+   <h1>3 <a name="__RefHeading__16398_1659804707"> </a>JPAContainer AddressBook Demo</h1>
+   <p>In this JPAContainer tutorial, we create an application similar to the one presented in <a href="https://vaadin.com/tutorial">vaadin.com/tutorial</a>, but with persistence.</p>
+   <p>The demo project uses Maven, but you can set up a project just as well as a regular Eclipse project.</p>
+   <h2>3.1 Importing the Tutorial Project</h2>
+   <p>Before proceeding further, you should import the demo project to your favorite IDE...well, let's say that is Eclipse. As the project is Maven-based, Eclipse users need to install the m2e (or m2eclipse for older versions) plugin to be able to import Maven projects.</p>
+   <h3>3.1.1 Checking Out from Repository (optional)</h3>
+   <p>If you wish to use the latest version of the demo or do not have the Vaadin JPAContainer installation package at hand, you can check out the demo from the repository. If you do not wish to install Subclipse and the Subclipse SCM connector in Eclipse, which can cause some trouble sometimes, you can do the check-out from the command-line as follows:</p>
+   <ol>
+    <li>
+     <p>Install Subversion command-line tools or use some alternative Subversion client</p>
+    </li>
+    <li>
+     <p>Run the following command in a terminal window or use some other Subversion client to do the checkout:</p>
+    </li>
+   </ol>
+   <p class="source-file source-file-start">$ svn co <a href="http://dev.vaadin.com/svn/addons/JPAContainer/tru">http://dev.vaadin.com/svn/addons/JPAContain</a> </p>
+   <p class="source-file source-file-end"><a href="http://dev.vaadin.com/svn/addons/JPAContainer/tru">er/tru</a><a href="http://dev.vaadin.com/svn/addons/JPAContainer/trunk/jpacontainer-addressbook-demo">nk/jpacontainer-addressbook-demo</a> </p>
+   <h3>3.1.2 <a name="__RefHeading__5264_1010636937"> </a>Importing from Existing Installation Folder</h3>
+   <p>The demo project is included in the Vaadin JPAContainer installation package. Once extracted to a local folder or checked out from the repository as described above, you can import it in Eclipse as follows:</p>
+   <ol>
+    <li>
+     <p>Install m2e in Eclipse if you have not done so already</p>
+    </li>
+    <li>
+     <p>Select <span class="guilabel">File → Import</span> in Eclipse</p>
+    </li>
+    <li>
+     <p>Select <span class="guilabel">Maven → Existing Maven Projects</span>, and click <span class="guibutton">Next</span>.</p>
+    </li>
+    <li>
+     <p>Click <span class="guibutton">Browse</span> to select the <span class="filename">jpacontainer-addressbook-demo</span> folder where you checked out the project.</p>
+    </li>
+    <li>
+     <p>Click <span class="guibutton">Finish</span>.</p>
+    </li>
+   </ol>
+   <h3>3.1.3 Import from Repository Using Subclipse</h3>
+   <p>If you have installed Subclipse in Eclipse, you should be able to import the demo project a bit easier as follows:</p>
+   <ol>
+    <li>
+     <p>Install m2e in Eclipse if you have not done so already</p>
+    </li>
+    <li>
+     <p>Select <span class="auto-T24">File </span>→ <span class="auto-T24">Import</span></p>
+    </li>
+    <li>
+     <p>Select <span class="guilabel">Maven → Check out Maven Project from SCM</span>, and click <span class="guibutton">Next</span>.</p>
+    </li>
+    <li>
+     <p>In <span class="guilabel">SCM URL</span>, select <span class="guilabel">svn</span> and enter URL <a href="http://dev.vaadin.com/svn/addons/JPAContainer/trunk/jpacontainer-addressbook-demo">http://dev.vaadin.com/svn/addons/JPAContainer/trunk/jpacontainer-addressbook-demo</a></p>
+    </li>
+    <li>
+     <p>Click <span class="guibutton">Finish</span>.</p>
+    </li>
+   </ol>
+   <h2>3.2 Browsing the Application</h2>
+   <p>Importing the project takes a while. After it is finished, please take some time to inspect the project structure and files in Eclipse. The <span class="guilabel">Project Explorer</span> in Eclipse organizes Java source files in source folders, as illustrated in Figure 6.</p>
+   <p class="illustration"><img src="img/addressbook-project-contents.png" width="457.44999999999993" alt="[Image]" /> </p>
+   <p class="caption"><span class="auto-T21">Figure </span><span class="auto-T21">6</span><span class="auto-T21">: Browsing the project contents with Project Explorer in Eclipse.</span> </p>
+   <p class="dictionary-term">com.vaadin.demo.jpaaddressbook </p>
+   <p class="dictionary-definition"><span class="auto-T21">The JPAContainer AddressBook Demo package, which contains the application class (Section </span><span class="auto-T21"><a href="#__RefHeading__61139_1659804707">5.2</a></span><span class="auto-T21">: </span><span class="auto-T3"><a href="#__RefHeading__61139_1659804707">Application Class</a></span><span class="auto-T21">), the main view class (Section </span><span class="auto-T21"><a href="#__RefHeading__63704_1659804707">5.3</a></span><span class="auto-T21">: </span><span class="auto-T3"><a href="#__RefHeading__63704_1659804707">AddressBookMainView</a></span><span class="auto-T21">), some UI classes and some helpers.</span> </p>
+   <p class="dictionary-term">com.vaadin.demo.jpaaddressbook.domain </p>
+   <p class="dictionary-definition"><span class="auto-T21">Domain classes as described in Chapter </span><span class="auto-T21"><a href="#__RefHeading__32776_1659804707">4</a></span><span class="auto-T21">: </span><span class="auto-T3"><a href="#__RefHeading__32776_1659804707">Defining a Domain Model</a></span><span class="auto-T21">.</span> </p>
+   <p class="dictionary-term">src/main/resources/META-INF/persistence.xml </p>
+   <p class="dictionary-definition"><span class="auto-T21">The persistence configuration, as described in Section </span><span class="auto-T21"><a href="#__RefHeading__63975_1659804707">3.3</a></span><span class="auto-T21">: </span><span class="auto-T3"><a href="#__RefHeading__63975_1659804707">Persistence Configuration</a></span><span class="auto-T21">.</span> </p>
+   <p class="dictionary-term">pom.xml </p>
+   <p class="dictionary-definition"><span class="auto-T21">Maven project configuration file (Portable Object Model). It is a somewhat regular configuration for Vaadin application, as described in the Section 2.5: </span><a href="https://vaadin.com/book/-/page/getting-started.maven.html"><span class="auto-T21">Creating a Project with Maven</span></a><span class="auto-T21"> in the Book of Vaadin. The most relevant parts are the Vaadin JPAContainer and other dependency definitions, as mentioned in Section </span><span class="auto-T21"><a href="#__RefHeading__64529_1659804707">2.5</a></span><span class="auto-T21">: </span><span class="auto-T3"><a href="#__RefHeading__64529_1659804707">Defining Dependencies in Maven</a></span><span class="auto-T21">.</span> </p>
+   <h2>3.3 <a name="__RefHeading__63975_1659804707"> </a>Persistence Configuration</h2>
+   <p>Persistence configuration is done in a <span class="filename">persistence.xml</span> file. In the demo project, it is located in <span class="filename">src/main/resources/META-INF</span> folder. The configuration includes defining the following:</p>
+   <ul>
+    <li>
+     <p>The persistence unit</p>
+    </li>
+    <li>
+     <p>The persistence provider</p>
+    </li>
+    <li>
+     <p>The database driver and connection</p>
+    </li>
+    <li>
+     <p>Logging</p>
+    </li>
+   </ul>
+   <p>The <span class="filename">persistence.xml</span> file is packaged as <span class="filename">WEB-INF/classes/META-INF/persistence.xml</span> in the WAR. This is done automatically in a Maven build at the <span class="parameter">package</span> phase.</p>
+   <h3>3.3.1 Persistence XML Schema</h3>
+   <p>The beginning of the <span class="filename">persistence.xml</span> file defines the used schema and namespaces:</p>
+   <p class="source-file source-file-start"><span class="auto-T27">&lt;?</span><span class="auto-T30">xml</span> <span class="auto-T33">version</span><span class="auto-T35">=</span><span class="auto-T19">"1.0"</span> <span class="auto-T33">encoding</span><span class="auto-T35">=</span><span class="auto-T19">"UTF-8"</span><span class="auto-T27">?&gt;</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T27">&lt;</span><span class="auto-T30">persistence</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T32">    </span><span class="auto-T34">xmlns</span><span class="auto-T36">=</span><span class="auto-T20">"</span><a href="http://java.sun.com/xml/ns/persistence">http://java.sun.com/xml/ns/persistence</a><span class="auto-T20">"</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T34">    xmlns:xsi</span><span class="auto-T36">=</span><span class="auto-T20">"</span><a href="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</a><span class="auto-T20">"</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T33">    xsi:schemaLocation</span><span class="auto-T35">=</span><span class="auto-T19">"</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T20">      </span><a href="http://java.sun.com/xml/ns/persistence">http://java.sun.com/xml/ns/persistence</a> </p>
+   <p class="source-file source-file-middle"><span class="auto-T20">      </span><a href="http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd</a><span class="auto-T20">"</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T20">    </span><span class="auto-T34">version</span><span class="auto-T36">=</span><span class="auto-T20">"2.0"</span><span class="auto-T29">&gt;</span> </p>
+   <h3>3.3.2 Defining the Persistence Unit</h3>
+   <p>The root element of the persistence definition is <span class="parameter">persistence-unit</span>. Its name attribute is used in the application when referring to the persistence unit. In Section <a href="#__RefHeading__61139_1659804707">5.2</a>: <span class="auto-T2"><a href="#__RefHeading__61139_1659804707">Application Class</a></span> we define a global <span class="parameter">PERSISTENCE_UNIT</span> identifier for referring to the unit.</p>
+   <p class="source-file source-file-middle"><span class="auto-T35">    </span><span class="auto-T27">&lt;</span><span class="auto-T30">persistence-unit</span> <span class="auto-T33">name</span><span class="auto-T35">=</span><span class="auto-T19">"addressbook"</span><span class="auto-T27">&gt;</span> </p>
+   <h4>Persistence Provider</h4>
+   <p>The <span class="parameter">provider</span> is the JPA provider implementation used. We use the EclipseLink JPA, so we define its provider class here.</p>
+   <p class="source-file source-file-middle"><span class="auto-T35">        </span><span class="auto-T27">&lt;</span><span class="auto-T30">provider</span><span class="auto-T27">&gt;</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T27">            </span><span class="auto-T35">org.eclipse.persistence.jpa.PersistenceProvider</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T35">        </span><span class="auto-T27">&lt;/</span><span class="auto-T30">provider</span><span class="auto-T27">&gt;</span> </p>
+   <h4>Listing the Persistent Classes</h4>
+   <p>In this example, we allow including unlisted classes for persistence. The alternative is to specify each persistent class with a <span class="parameter">&lt;class&gt;</span> element.</p>
+   <p class="source-file source-file-middle"><span class="auto-T35">        </span><span class="auto-T27">&lt;</span><span class="auto-T30">exclude-unlisted-classes</span><span class="auto-T27">&gt;</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T27">            </span><span class="auto-T35">false</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T35">        </span><span class="auto-T27">&lt;/</span><span class="auto-T30">exclude-unlisted-classes</span><span class="auto-T27">&gt;</span> </p>
+   <p>JPA provider specific parameters are specified under the <span class="parameter">properties</span> element. As we use EclipseLink JPA, the parameters are specific to that. If you use another provider, please refer to its documentation for the parameters.</p>
+   <p class="source-file source-file-middle"><span class="auto-T35">        </span><span class="auto-T27">&lt;</span><span class="auto-T30">properties</span><span class="auto-T27">&gt;</span> </p>
+   <p class="source-file source-file-middle">           … </p>
+   <h3>3.3.3 Database Connection</h3>
+   <p>EclipseLink allows using JDBC for database connection. We use the H2 database, so we need to define its driver here.</p>
+   <p class="source-file source-file-middle"><span class="auto-T35" /><span class="auto-T27">&lt;</span><span class="auto-T30">property</span> <span class="auto-T33">name</span><span class="auto-T35">=</span><span class="auto-T19">"eclipselink.jdbc.platform"</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T33">value</span><span class="auto-T35">=</span><span class="auto-T19">"org.eclipse.persistence.platform.database.H2Platform"</span> <span class="auto-T27">/&gt;</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T35" /><span class="auto-T27">&lt;</span><span class="auto-T30">property</span> <span class="auto-T33">name</span><span class="auto-T35">=</span><span class="auto-T19">"eclipselink.jdbc.driver"</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T19">          </span><span class="auto-T33">value</span><span class="auto-T35">=</span><span class="auto-T19">"org.h2.Driver"</span> <span class="auto-T27">/&gt;</span> </p>
+   <p>We use an in-memory database for the demo with the following connection URL definition:</p>
+   <p class="source-file source-file-middle"><span class="auto-T35" /><span class="auto-T27">&lt;</span><span class="auto-T30">property</span> <span class="auto-T33">name</span><span class="auto-T35">=</span><span class="auto-T19">"eclipselink.jdbc.url"</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T19">          </span><span class="auto-T33">value</span><span class="auto-T35">=</span><span class="auto-T19">"jdbc:h2:˜/jpacontaineraddressbookh2db"</span> <span class="auto-T27">/&gt;</span> </p>
+   <p>We can just use the default user name and password for the H2 database.</p>
+   <p class="source-file source-file-middle"><span class="auto-T35" /><span class="auto-T27">&lt;</span><span class="auto-T30">property</span> <span class="auto-T33">name</span><span class="auto-T35">=</span><span class="auto-T19">"eclipselink.jdbc.user"</span> </p>
+   <p class="source-file source-file-middle">          <span class="auto-T33">value</span><span class="auto-T35">=</span><span class="auto-T19">"sa"</span> <span class="auto-T27">/&gt;</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T35" /><span class="auto-T27">&lt;</span><span class="auto-T30">property</span> <span class="auto-T33">name</span><span class="auto-T35">=</span><span class="auto-T19">"eclipselink.jdbc.password"</span>  </p>
+   <p class="source-file source-file-middle"><span class="auto-T33">          value</span><span class="auto-T35">=</span><span class="auto-T19">"sa"</span> <span class="auto-T27">/&gt;</span> </p>
+   <h3>3.3.4 Logging Configuation</h3>
+   <p>We set the logging level for EclipseLink JPA:</p>
+   <p class="source-file source-file-middle"><span class="auto-T35" /><span class="auto-T27">&lt;</span><span class="auto-T30">property</span> <span class="auto-T33">name</span><span class="auto-T35">=</span><span class="auto-T19">"eclipselink.logging.level"</span>  </p>
+   <p class="source-file source-file-middle"><span class="auto-T33">          value</span><span class="auto-T35">=</span><span class="auto-T19">"FINE"</span> <span class="auto-T27">/&gt;</span> </p>
+   <h3>3.3.5 Other Settings</h3>
+   <p>The rest is some Data Definition Language settings for EclipseLink. During development, when we use generated example data, we want EclipseLink to drop tables before trying to create them. In production environments, you should use “<span class="parameter">create-tables</span>”.</p>
+   <p class="source-file source-file-middle"><span class="auto-T35">   </span><span class="auto-T27">&lt;</span><span class="auto-T30">property</span> <span class="auto-T33">name</span><span class="auto-T35">=</span><span class="auto-T19">"eclipselink.ddl-generation"</span>  </p>
+   <p class="source-file source-file-middle"><span class="auto-T33">             value</span><span class="auto-T35">=</span><span class="auto-T19">"drop-and-create-tables"</span> <span class="auto-T27">/&gt;</span> </p>
+   <p>And there's no need to generate SQL files, just execute them directly to the database.</p>
+   <p class="source-file source-file-middle"><span class="auto-T35">   </span><span class="auto-T27">&lt;</span><span class="auto-T30">property</span> <span class="auto-T33">name</span><span class="auto-T35">=</span><span class="auto-T19">"eclipselink.ddl-generation.output-mode"</span> </p>
+   <p class="source-file source-file-middle">             <span class="auto-T33">value</span><span class="auto-T35">=</span><span class="auto-T19">"database"</span> <span class="auto-T27">/&gt;</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T35"> </span><span class="auto-T27">&lt;/</span><span class="auto-T30">properties</span><span class="auto-T27">&gt;</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T35" /><span class="auto-T27">&lt;/</span><span class="auto-T30">persistence-unit</span><span class="auto-T27">&gt;</span> </p>
+   <p class="source-file source-file-end"><span class="auto-T28">&lt;/</span><span class="auto-T31">persistence</span><span class="auto-T28">&gt;</span> </p>
+   <h2>3.4 Running the Application</h2>
+   <p>If you imported the project as a Maven project, you can launch it in a server as follows:</p>
+   <ol>
+    <li>
+     <p>Stop any web server you may have running in port 8080.</p>
+    </li>
+    <li>
+     <p>Right-click the project folder in Project Explorer and select <span class="guilabel">Run As → Maven Build...</span>.</p>
+    </li>
+    <li>
+     <p>In the <span class="guilabel">Edit Configuration</span> window that opens, enter “<span class="parameter">package jetty:run</span>” in the <span class="guilabel">Goals</span> field and click <span class="guibutton">Run</span>. Wait for a while as the light-weight Jetty web server is launched.</p>
+    </li>
+    <li>
+     <p>Open a web browser with URL <a href="http://localhost:8080/">http://localhost:8080/</a>.</p>
+    </li>
+   </ol>
+   <p>The AddressBook Demo application should work as shown in Figure 7.</p>
+   <p class="illustration"><img src="img/addressbook-window.png" width="634.5500000000001" alt="[Image]" /> </p>
+   <p class="caption">Figure 7: JPAContainer AddressBook Demo. </p>
+   <h2>3.5 Browsing the Sources Online</h2>
+   <p>You can also browse the source code of the demo project on-line at <a href="http://dev.vaadin.com/browser/svn/addons/JPAContainer/trunk/jpacontainer-addressbook-demo">http://dev.vaadin.com/browser/svn/addons/JPAContainer/trunk/jpacontainer-addressbook-demo</a>.</p>
+   <h1>4 <a name="__RefHeading__32776_1659804707"> </a>Defining a Domain Model</h1>
+   <p>In this chapter, we look into defining a domain model, implementing it as Java classes, and then enabling persistence by annotating the classes with JPA annotations.</p>
+   <h2>4.1 A Domain Model</h2>
+   <p><span class="auto-T21">The AddressBook has a simple domain model with two entities: a </span><span class="classname"><span class="auto-T22">Person</span></span><span class="auto-T21"> and a </span><span class="classname"><span class="auto-T22">Department</span></span><span class="auto-T21">.</span></p>
+   <p class="illustration"><img src="img/domain-model-hi.png" width="496.90000000000003" alt="[Image]" /> </p>
+   <p class="caption">Figure 8: Domain Model </p>
+   <p>A <span class="classname">Department</span> has an integer (Long) identifier and a name. Departments have a hierarchy, which is represented by a <span class="parameter">parent</span> reference. Each department has <span class="auto-T2">n</span> persons working in it.</p>
+   <p>A <span class="classname">Person</span> has also an integer (Long) identifier and a first and last names, as well as basic contact information. A person works in a department.</p>
+   <h2>4.2 Defining the Classes</h2>
+   <p>The classes are defined in the <span class="auto-Package_20_Name">com.vaadin.demo.jpaaddressbook.domain</span> package of the demo project.</p>
+   <h4>Department Class</h4>
+   <p>The <span class="classname">Department</span> class is defined from the domain model in as follows:</p>
+   <p class="source-file source-file-start"><span class="auto-T4">public</span><span class="auto-T6"> </span><span class="auto-T4">class</span><span class="auto-T6"> Department {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> Long </span><span class="auto-T14">id</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> String </span><span class="auto-T14">name</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> Set&lt;Person&gt; </span><span class="auto-T14">persons</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> Boolean </span><span class="auto-T14">superDepartment</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> Department </span><span class="auto-T14">parent</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-middle"> </p>
+   <p class="source-file source-file-middle">    … setters and getters … </p>
+   <p class="source-file source-file-end">} </p>
+   <p>Notice that we added a <span class="methodname">superDepartment</span> member that was not in the domain model. It is a shorthand variable that is only used internally for optimization to mark departments that only have sub-department and no personnel.</p>
+   <p class="source-file source-file-start"><span class="auto-T4">public</span><span class="auto-T6"> </span><span class="auto-T4">boolean</span><span class="auto-T6"> isSuperDepartment() {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">if</span><span class="auto-T6"> (</span><span class="auto-T14">superDepartment</span><span class="auto-T6"> == </span><span class="auto-T4">null</span><span class="auto-T6">) {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">        </span><span class="auto-T14">superDepartment</span><span class="auto-T6"> = getPersons().size() == 0;</span> </p>
+   <p class="source-file source-file-middle">    } </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">return</span><span class="auto-T6"> </span><span class="auto-T14">superDepartment</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-end">} </p>
+   <p>In addition, we define a <span class="methodname">hierarchicalName</span> property that only has a getter and is not associated with a member variable. Its value is the hierarchy path calculated dynamically using the <span class="methodname">toString()</span> method.</p>
+   <p class="source-file source-file-start"><span class="auto-T4">public</span><span class="auto-T6"> String getHierarchicalName() {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">if</span><span class="auto-T6"> (</span><span class="auto-T14">parent</span><span class="auto-T6"> != </span><span class="auto-T4">null</span><span class="auto-T6">) {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">        </span><span class="auto-T4">return</span><span class="auto-T6"> </span><span class="auto-T14">parent</span><span class="auto-T6">.toString() + </span><span class="auto-T18">" : "</span><span class="auto-T6"> + </span><span class="auto-T14">name</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-middle">    } </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">return</span><span class="auto-T6"> </span><span class="auto-T14">name</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-middle">} </p>
+   <p class="source-file source-file-middle"> </p>
+   <p class="source-file source-file-middle"><span class="auto-T4">public</span><span class="auto-T6"> String toString() {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">return</span><span class="auto-T6"> getHierarchicalName();</span> </p>
+   <p class="source-file source-file-end">} </p>
+   <h4>Person Class</h4>
+   <p>The <span class="classname">Person</span> class is defined from the domain model in as follows:</p>
+   <p class="source-file source-file-start"><span class="auto-T4">public</span><span class="auto-T6"> </span><span class="auto-T4">class</span><span class="auto-T6"> Person {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> Long </span><span class="auto-T14">id</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> String </span><span class="auto-T14">firstName</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> String </span><span class="auto-T14">lastName</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> String </span><span class="auto-T14">street</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> String </span><span class="auto-T14">city</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> String </span><span class="auto-T14">zipCode</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> String </span><span class="auto-T14">phoneNumber</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> Department </span><span class="auto-T14">department</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-middle"> </p>
+   <p class="source-file source-file-middle">    … setters and getters … </p>
+   <p class="source-file source-file-end">} </p>
+   <h2>4.3 <a name="__RefHeading__3056_1659804707"> </a>Annotating the Classes for Persistence</h2>
+   <p>Let us look at the basic JPA metadata annotations as they are used in the <span class="classname">Department</span> class of the tutorial project. The annotations are defined in the <span class="auto-Package_20_Name">javax.persistence</span> package. Please refer to JPA reference documentation for the complete list of possible annotations.</p>
+   <h3>4.3.1 @Entity</h3>
+   <p>Each class that is enabled as a persistent entity must have the <span class="parameter">@Entity</span> annotation.</p>
+   <p class="source-file source-file-start">@Entity </p>
+   <p class="source-file source-file-end"><span class="auto-T4">public</span><span class="auto-T6"> </span><span class="auto-T4">class</span><span class="auto-T6"> Department {</span> </p>
+   <h3>4.3.2 @Id</h3>
+   <p>Entities must have an identifier that is used as the primary key for the table. It is used for various purposes in database queries, most commonly for joining tables.</p>
+   <p class="source-file source-file-start">@Id </p>
+   <p class="source-file source-file-middle"><span class="auto-T13">@GeneratedValue</span><span class="auto-T6">(strategy = GenerationType.</span><span class="auto-T15">AUTO</span><span class="auto-T6">)</span> </p>
+   <p class="source-file source-file-end"><span class="auto-T4">private</span><span class="auto-T6"> Long </span><span class="auto-T14">id</span><span class="auto-T6">;</span> </p>
+   <p>The identifier is generated automatically in the database. The strategy for generating the identifier is defined with the <span class="parameter">@GeneratedValue</span> annotation.</p>
+   <h3>4.3.3 @OneToMany</h3>
+   <p>As noted earlier, entities can have relationships. The <span class="classname">Department</span> entity of the domain model has one-to-many relationship with the <span class="classname">Person</span> entity (“Department has persons”). This relationship is represented with the <span class="parameter">@OneToMany</span> annotation.</p>
+   <p class="source-file source-file-start"><span class="auto-T13">@OneToMany</span><span class="auto-T6">(mappedBy = </span><span class="auto-T18">"</span><span class="code-string"><span class="auto-T18">department</span></span><span class="auto-T18">"</span><span class="auto-T6">)</span> </p>
+   <p class="source-file source-file-end"><span class="auto-T4">private</span><span class="auto-T6"> Set&lt;Person&gt; </span><span class="auto-T14">persons</span><span class="auto-T6">;</span> </p>
+   <h3>4.3.4 @ManyToOne</h3>
+   <p>Many departments can belong to the same higher-level department, represented with <span class="parameter">@ManyToOne</span> annotation.</p>
+   <p class="source-file source-file-start">@ManyToOne </p>
+   <p class="source-file source-file-end"><span class="auto-T4">private</span><span class="auto-T6"> Department </span><span class="auto-T14">parent</span><span class="auto-T6">;</span> </p>
+   <h3>4.3.5 @Transient</h3>
+   <p>Properties that are not persisted are marked as transient with the <span class="parameter">@Transient</span> annotation.</p>
+   <p class="source-file source-file-start">@Transient </p>
+   <p class="source-file source-file-middle"><span class="auto-T4">private</span><span class="auto-T6"> Boolean </span><span class="auto-T14">superDepartment</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-middle">… </p>
+   <p class="source-file source-file-middle">@Transient </p>
+   <p class="source-file source-file-middle"><span class="auto-T4">public</span><span class="auto-T6"> String getHierarchicalName() {</span> </p>
+   <p class="source-file source-file-end">… </p>
+   <h1>5 Application Architecture</h1>
+   <p>This chapter describes the top-level user interface architecture of the JPAContainer AddressBook application.</p>
+   <h2>5.1 Overview</h2>
+   <p>The AddressBook application in the regular Vaadin Tutorial provides a reference architecture for Vaadin projects. The JPAContainer AddressBook takes this architecture further by including the persistence layer. It demonstrates the following tasks:</p>
+   <ul>
+    <li>
+     <p>Building a user interface view</p>
+    </li>
+    <li>
+     <p>Binding the UI to the persistent domain model with JPAContainer</p>
+    </li>
+    <li>
+     <p>Management of JPAContainer instances with a container factory</p>
+    </li>
+    <li>
+     <p>Persistence using EntityManager</p>
+    </li>
+    <li>
+     <p>Use of the ThreadLocal pattern to access global data</p>
+    </li>
+    <li>
+     <p>Filtering a JPAContainer</p>
+    </li>
+   </ul>
+   <h2>5.2 <a name="__RefHeading__61139_1659804707"> </a>Application Class</h2>
+   <p>The <span class="classname">JpaAddressbookApplication</span> is the main class of the application.</p>
+   <p class="illustration"><img src="img/application-class-hi.png" width="260" alt="[Image]" /> </p>
+   <p class="caption">Figure 9: AddressBook Application Class </p>
+   <p>The application class has the following tasks:</p>
+   <ul>
+    <li>
+     <p>Hold a global identifier for the persistence unit</p>
+    </li>
+    <li>
+     <p>Generate example data in the database</p>
+    </li>
+    <li>
+     <p>Create the main view</p>
+    </li>
+   </ul>
+   <p>The application class is defined in the <span class="auto-Package_20_Name">com.vaadin.demo.jpaaddressbook</span> package as follows:</p>
+   <p class="source-file source-file-start"><span class="auto-T4">public</span><span class="auto-T6"> </span><span class="auto-T4">class</span><span class="auto-T6"> </span><span class="auto-T11">JpaAddressbookApplication</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T12">       </span><span class="auto-T4">extends</span><span class="auto-T6"> Application </span>{ </p>
+   <p>We hold a globally accessible identifier string for the persistence unit in the application class. It is used for instantiating a <span class="classname">JPAContainer</span> or an entity manager.</p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">public</span><span class="auto-T6"> </span><span class="auto-T4">static</span><span class="auto-T6"> </span><span class="auto-T4">final</span><span class="auto-T6"> String </span><span class="auto-T15">PERSISTENCE_UNIT</span><span class="auto-T6"> =</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">                                             </span><span class="auto-T18">"addressbook"</span><span class="auto-T6">;</span> </p>
+   <p>The demo data is static global data generated already during the initialization of the application class as follows:</p>
+   <p class="source-file source-file-middle"> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">static</span><span class="auto-T6"> {</span> </p>
+   <p class="source-file source-file-middle">        DemoDataGenerator.<span class="auto-T2">create</span>(); </p>
+   <p class="source-file source-file-middle">    } </p>
+   <p class="source-file source-file-end">    … </p>
+   <p>The <span class="methodname">init()</span> method of the application is trivial as the application only has one view which is managed in the <span class="classname">AddressBookMainView</span> class:</p>
+   <p class="source-file source-file-start"><span class="auto-T6">    </span><span class="auto-T13">@Override</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">public</span><span class="auto-T6"> </span><span class="auto-T4">void</span><span class="auto-T6"> init() {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">        Window window = </span><span class="auto-T4">new</span><span class="auto-T6"> Window();</span> </p>
+   <p class="source-file source-file-middle">        setMainWindow(window); </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">        window.setContent(</span><span class="auto-T4">new</span><span class="auto-T6"> AddressBookMainView());</span> </p>
+   <p class="source-file source-file-end">    } </p>
+   <h2>5.3 <a name="__RefHeading__63704_1659804707"> </a>AddressBookMainView</h2>
+   <p>The main view of the application is realized in the <span class="classname">AddressBookMainView</span> class, which also handles most of the user interface logic. It extends from <span class="classname">HorizontalSplitPanel</span> to allow the user to resize the content.</p>
+   <h3>5.3.1 Overview of the User Interface</h3>
+   <p>The main view is shown in Figure 10.</p>
+   <p>On the left side of the split panel, we have a <span class="classname">Tree</span> component, which lets the user to browse and select a department that is used to filter the table on the right.</p>
+   <p>On the right side, we have a <span class="classname">Table</span> component, which shows all the persons in the selected department, and if no department is selected, all persons. It also contains buttons for adding, deleting, and editing items, as described in detail in Chapter <a href="#__RefHeading__49626_1659804707">6</a>: <span class="auto-T2"><a href="#__RefHeading__49626_1659804707">Creating, Reading, Updating, and Deleting</a></span>.</p>
+   <p class="illustration"><img src="img/addressbookmainview-annotated-hi.png" width="634.5500000000001" alt="[Image]" /> </p>
+   <p class="caption"><span class="auto-T21">Figure </span><span class="auto-T21">10</span><span class="auto-T21">: AddreddBookMainView</span> </p>
+   <p><span class="auto-T21">The underlying class relationships for the user interface are shown in Figure </span><span class="auto-T21">11</span><span class="auto-T21">.</span></p>
+   <p class="illustration"><img src="img/addressbookmainview-class-hi.png" width="311.15" alt="[Image]" /> </p>
+   <p class="caption">Figure 11: AddressBookMainView class diagram </p>
+   <p>Both the <span class="classname">Tree</span> and the <span class="classname">Table</span> are bound to a <span class="classname">JPAContainer</span> holding <span class="classname">Department</span> and <span class="classname">Person</span> objects, respectively.</p>
+   <h2>5.4 Creating and Using a JPAContainer</h2>
+   <p>The constructor of <span class="classname">AddressBookMainView</span> creates the <span class="classname">JPAContainer</span>s for the <span class="classname">Department</span> and <span class="classname">Person</span> objects shown in the tree and the table. References to the containers are kept for shorthand in member variables.</p>
+   <p class="source-file source-file-start"><span class="auto-T4">public</span><span class="auto-T8"> </span><span class="auto-T4">class</span><span class="auto-T8"> </span><span class="auto-T12">AddressBookMainView</span> </p>
+   <p class="source-file source-file-middle">       <span class="auto-T4">extends</span><span class="auto-T8"> HorizontalSplitPanel</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T8">       </span><span class="auto-T4">implements</span> ComponentContainer { </p>
+   <p class="source-file source-file-middle">   … </p>
+   <p class="source-file source-file-middle"><span class="auto-T8">   </span><span class="auto-T4">private</span><span class="auto-T8"> </span><span class="auto-T10">JPAContainer&lt;Department&gt;</span><span class="auto-T8"> </span><span class="auto-T17">departments</span><span class="auto-T10">;</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">   </span><span class="auto-T4">private</span><span class="auto-T6"> JPAContainer&lt;Person&gt; </span><span class="auto-T14">persons</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-middle">   … </p>
+   <p class="source-file source-file-middle"><span class="auto-T4">   public</span><span class="auto-T8"> AddressBookMainView() {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">       </span><span class="auto-T14">departments</span><span class="auto-T6"> = </span><span class="auto-T4">new</span><span class="auto-T6"> HierarchicalDepartmentContainer();</span> </p>
+   <p><span class="auto-T6">The </span><span class="classname"><span class="auto-T6">HierarchicalDepartmentContainer</span></span><span class="auto-T6"> and how it is bound to an entity manager as described is Section </span><span class="auto-T6"><a href="#__RefHeading__48460_1659804707">5.4.2</a></span><span class="auto-T6">: </span><span class="auto-T9"><a href="#__RefHeading__48460_1659804707">Setting the Entity Provider</a></span><span class="auto-T6"> below.</span></p>
+   <h3>5.4.1 Using the JPAContainerFactory to Create a JPAContainer</h3>
+   <p><span class="classname">JPAContainerFactory</span> contains static methods for building <span class="classname">JPAContainer</span>s from either a persistence context name (persistence unit) or from a <span class="classname">EntityManager</span> instance.</p>
+   <p>The static <span class="methodname">make()</span> method used in the demo creates a new <span class="classname">JPAContainer</span> backed by a <span class="classname">CachingMutableLocalEntityProvider</span>, using the name of the persistence unit. This particular method can be used if you do not know and do not need or want to know the instance of an <span class="classname">EntityManager</span> that is used, which is the case in simple instances. An instance of <span class="classname">EntityManagerFactory</span> will be created for the persistence unit and used to build entity managers.</p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T14">persons</span><span class="auto-T6"> = JPAContainerFactory.</span><span class="auto-T9">make</span><span class="auto-T6">(Person.</span><span class="auto-T4">class</span><span class="auto-T6">,</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">            JpaAddressbookApplication.</span><span class="auto-T15">PERSISTENCE_UNIT</span><span class="auto-T6">);</span> </p>
+   <p class="source-file source-file-end">    … </p>
+   <h3>5.4.2 <a name="__RefHeading__48460_1659804707"> </a>Setting the Entity Provider</h3>
+   <p><span class="auto-T6">If you create a </span><span class="classname"><span class="auto-T6">JPAContainer</span></span><span class="auto-T6"> object without the factory, as we did for the </span><span class="parameter"><span class="auto-T6">departments</span></span><span class="auto-T6"> container earlier, you must set an entity provider for it before you can use it. For the </span><span class="classname">HierarchicalDepartmentContainer</span>, we set it in the constructor. We use the efficient <span class="classname"><span class="auto-T6">CachingLocalEntityProvider</span></span><span class="auto-T6"> as there is no need to make modifications through this container.</span></p>
+   <p class="source-file source-file-start"><span class="auto-T4">public</span><span class="auto-T6"> </span><span class="auto-T4">class</span><span class="auto-T6"> </span><span class="auto-T11">HierarchicalDepartmentContainer</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T11">      </span><span class="auto-T6" /><span class="auto-T4">extends</span><span class="auto-T6"> JPAContainer&lt;Department&gt; {</span> </p>
+   <p class="source-file source-file-middle"> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">public</span><span class="auto-T6"> HierarchicalDepartmentContainer() {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">        </span><span class="auto-T4">super</span><span class="auto-T6">(Department.</span><span class="auto-T4">class</span><span class="auto-T6">);</span> </p>
+   <p class="source-file source-file-middle"> </p>
+   <p class="source-file source-file-middle">        // Create and set the entity provider </p>
+   <p class="source-file source-file-middle">        setEntityProvider( </p>
+   <p class="source-file source-file-middle"><span class="auto-T8">            </span><span class="auto-T4">new</span><span class="auto-T6"> CachingLocalEntityProvider&lt;Department&gt;(</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">                Department.</span><span class="auto-T4">class</span><span class="auto-T6">,</span> </p>
+   <p class="source-file source-file-middle">                JPAContainerFactory </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">                  .</span><span class="auto-T9">createEntityManagerForPersistenceUnit</span><span class="auto-T6">(</span> </p>
+   <p class="source-file source-file-middle">                      JpaAddressbookApplication </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">                          .</span><span class="auto-T15">PERSISTENCE_UNIT</span><span class="auto-T6">)));</span> </p>
+   <p class="source-file source-file-middle">        … </p>
+   <p class="source-file source-file-middle">    } </p>
+   <p class="source-file source-file-end">    … </p>
+   <p><span class="auto-T6">The underlying JPA entity manager is created with the </span><span class="classname"><span class="auto-T6">JPAContainerFactory</span></span><span class="auto-T6"> using the </span><span class="auto-T9">createEntityManagerForPersistenceUnit()</span> method. The factory caches the entity managers for each persistence unit. In the demo application, it is always the one identified with the <span class="parameter">PERSISTENCE_UNIT</span> in the application class.</p>
+   <h3>5.4.3 Binding a JPAContainer</h3>
+   <p>Binding the <span class="classname">Person</span> table to the <span class="classname">JPAContainer</span> is done simply in the constructor of the <span class="classname">Table</span> just as with any Vaadin container:</p>
+   <p class="source-file source-file-start"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> </span><span class="auto-T4">void</span><span class="auto-T6"> buildMainArea() {</span> </p>
+   <p class="source-file source-file-middle">        … </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">        </span><span class="auto-T14">personTable</span><span class="auto-T6"> = </span><span class="auto-T4">new</span><span class="auto-T6"> Table(</span><span class="auto-T4">null</span><span class="auto-T6">, </span><span class="auto-T14">persons</span><span class="auto-T6">);</span> </p>
+   <p class="source-file source-file-end">        … </p>
+   <h1>6 <a name="__RefHeading__49626_1659804707"> </a>Creating, Reading, Updating, and Deleting</h1>
+   <p>This chapter focuses on how the <span class="classname">AddressBookMainView</span> implements CRUD – creation, reading, updating, and deletion of data objects in the domain model. The basics of these tasks were covered in the Vaadin Tutorial (notice that the code is not exactly the same), so we concentrate on the parts relevant to using JPAContainer.</p>
+   <h2>6.1 Building the CRUD Area</h2>
+   <p>The right side of the main view contains a CRUD area where you can add items in the <span class="classname">Person</span> table by clicking the <span class="guibutton">Add</span> button, delete them with the <span class="guibutton">Delete</span> button, and edit the selected person with the <span class="guibutton"><span class="auto-T25">Edit</span></span> button.</p>
+   <p class="illustration"><img src="img/crudview-annotated-hi.png" width="630.3499999999999" alt="[Image]" /> </p>
+   <p class="caption">Figure 12: The CRUD area </p>
+   <p>The user interface controls for the CRUD as well as the <span class="classname">JPAContainer</span> references are defined as member variables:</p>
+   <p class="source-file source-file-start"><span class="auto-T4">public</span><span class="auto-T6"> </span><span class="auto-T4">class</span><span class="auto-T6"> </span><span class="auto-T11">AddressBookMainView</span><span class="auto-T6"> </span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T8">       </span><span class="auto-T4">extends</span><span class="auto-T6"> HorizontalSplitPanel</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T8">       </span><span class="auto-T4">implements</span> ComponentContainer { </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> Tree </span><span class="auto-T14">groupTree</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> Table </span><span class="auto-T14">personTable</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-middle"> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> TextField </span><span class="auto-T14">searchField</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-middle"> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> Button </span><span class="auto-T14">newButton</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> Button </span><span class="auto-T14">deleteButton</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> Button </span><span class="auto-T14">editButton</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-middle"> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> JPAContainer&lt;Department&gt; </span><span class="auto-T14">departments</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> JPAContainer&lt;Person&gt; </span><span class="auto-T14">persons</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-middle"> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> Department </span><span class="auto-T14">departmentFilter</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-end"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> String </span><span class="auto-T14">textFilter</span><span class="auto-T6">;</span> </p>
+   <p><span class="auto-T6">The </span><span class="parameter"><span class="auto-T6">departments</span></span><span class="auto-T6"> and </span><span class="parameter"><span class="auto-T6">persons</span></span><span class="auto-T6"> members are merely shorthand references to the containers managed by the </span><span class="classname"><span class="auto-T6">ContainerFactory</span></span><span class="auto-T6">, as explained next.</span></p>
+   <h2>6.2 <a name="__RefHeading__31946_1659804707"> </a>Creating an Item</h2>
+   <p><span class="auto-T6">New </span><span class="classname"><span class="auto-T6">Person</span></span><span class="auto-T6"> items are created by clicking the </span><span class="guibutton"><span class="auto-T6">Add</span></span><span class="auto-T6"> button. The button is created in the </span><span class="methodname"><span class="auto-T6">buildMainArea()</span></span><span class="auto-T6"> method as follows:</span></p>
+   <p class="source-file source-file-start"><span class="auto-T14">newButton</span><span class="auto-T6"> = </span><span class="auto-T4">new</span><span class="auto-T6"> Button(</span><span class="auto-T18">"Add"</span><span class="auto-T6">);</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T14">newButton</span><span class="auto-T6">.addListener(</span><span class="auto-T4">new</span><span class="auto-T6"> </span><span class="auto-T11">Button.ClickListener()</span><span class="auto-T6"> {</span> </p>
+   <p><span class="auto-T6">When the button is clicked, a new </span><span class="classname"><span class="auto-T6">Person</span></span><span class="auto-T6"> object is created and wrapped in a </span><span class="classname"><span class="auto-T6">BeanItem</span></span><span class="auto-T6"> to allow binding it to a </span><span class="classname"><span class="auto-T6">Form</span></span><span class="auto-T6">.</span></p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T13">@Override</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">public</span><span class="auto-T6"> </span><span class="auto-T4">void</span><span class="auto-T6"> buttonClick(ClickEvent event) {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">      </span><span class="auto-T4">final</span><span class="auto-T6"> BeanItem&lt;Person&gt; newPersonItem =</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">              </span><span class="auto-T4">new</span><span class="auto-T6"> BeanItem&lt;Person&gt;(</span><span class="auto-T4">new</span><span class="auto-T6"> Person());</span> </p>
+   <p><span class="auto-T6">Editing is done in a </span><span class="classname"><span class="auto-T6">PersonEditor</span></span><span class="auto-T6"> window documented in Section </span><span class="auto-T6"><a href="#__RefHeading__26736_1659804707">6.3</a></span><span class="auto-T6">: </span><span class="auto-T9"><a href="#__RefHeading__26736_1659804707">Editing an Item in a PersonEditor</a></span><span class="auto-T6">. The editor class defines an </span><span class="classname"><span class="auto-T6">EditorSavedListener</span></span><span class="auto-T6"> interface for handling </span><span class="classname"><span class="auto-T6">EditorSavedEvent</span></span><span class="auto-T6">s fired when the user clicks “</span><span class="guibutton"><span class="auto-T6">Save</span></span><span class="auto-T6">” in the editor.</span></p>
+   <p class="source-file source-file-middle">      PersonEditor personEditor = </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">              </span><span class="auto-T4">new</span><span class="auto-T6"> PersonEditor(newPersonItem);</span> </p>
+   <p class="source-file source-file-middle"> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">      personEditor.addListener(</span><span class="auto-T4">new</span><span class="auto-T6"> </span><span class="auto-T11">EditorSavedListener()</span><span class="auto-T6"> {</span> </p>
+   <p><span class="auto-T6">The PersonEditor is described in more detail in Section </span><span class="auto-T6"><a href="#__RefHeading__26736_1659804707">6.3</a></span><span class="auto-T6">: </span><span class="auto-T9"><a href="#__RefHeading__26736_1659804707">Editing an Item in a PersonEditor</a></span><span class="auto-T6">.</span></p>
+   <h4>Adding an Entity to the JPAContainer</h4>
+   <p><span class="auto-T6">When saved, the edited new item is taken out of the </span><span class="classname"><span class="auto-T6">BeanItem</span></span><span class="auto-T6"> wrapper and added to the </span><span class="classname"><span class="auto-T6">JPAContainer&lt;Person&gt;</span></span><span class="auto-T6"> with the </span><span class="methodname"><span class="auto-T6">addEntity()</span></span><span class="auto-T6"> method.</span></p>
+   <p class="source-file source-file-middle"><span class="auto-T6">          </span><span class="auto-T13">@Override</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">          </span><span class="auto-T4">public</span><span class="auto-T6"> </span><span class="auto-T4">void</span><span class="auto-T6"> editorSaved(EditorSavedEvent event) {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">              </span><span class="auto-T14">persons</span><span class="auto-T6">.addEntity(newPersonItem.getBean());</span> </p>
+   <p class="source-file source-file-middle">          } </p>
+   <p class="source-file source-file-middle">      }); </p>
+   <p class="source-file source-file-end">      … </p>
+   <p>Once written in the container, the <span class="classname">Table</span> bound to the container is automatically updated to display the new item (notice that it is added to the end).</p>
+   <h2>6.3 <a name="__RefHeading__26736_1659804707"> </a>Editing an Item in a PersonEditor</h2>
+   <p>The <span class="guibutton">Edit</span> button is disabled by default and enabled when an item is selected in the table. When clicked, the <span class="classname">PersonEditor</span> is opened for editing the currently selected item:</p>
+   <p class="source-file source-file-start"><span class="auto-T14">editButton</span><span class="auto-T6"> = </span><span class="auto-T4">new</span><span class="auto-T6"> Button(</span><span class="auto-T18">"Edit"</span><span class="auto-T6">);</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T14">editButton</span><span class="auto-T6">.addListener(</span><span class="auto-T4">new</span><span class="auto-T6"> </span><span class="auto-T11">Button.ClickListener()</span><span class="auto-T6"> {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T13">@Override</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">public</span><span class="auto-T6"> </span><span class="auto-T4">void</span><span class="auto-T6"> buttonClick(ClickEvent event) {</span> </p>
+   <p class="source-file source-file-middle">        getApplication().getMainWindow() </p>
+   <p class="source-file source-file-middle">          .addWindow(<span class="auto-T4">new </span><span class="auto-T6">PersonEditor(</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">             </span><span class="auto-T14">personTable</span><span class="auto-T6">.getItem(</span><span class="auto-T14">personTable</span>.getValue()))); </p>
+   <p class="source-file source-file-middle">    } </p>
+   <p class="source-file source-file-end">}); </p>
+   <p>The <span class="methodname">getValue()</span> returns the item identifier of the currently selected item (not the item itself) and <span class="methodname">getItem()</span> returns the actual item using the ID. Notice that the JPA entity ID of the <span class="classname">Person</span> entity is used also as the item identifier.</p>
+   <h4>PersonEditor</h4>
+   <p>The <span class="classname">PersonEditor</span> is a sub-window that contains a <span class="classname">Form</span> for editing a <span class="classname">Person</span> item.</p>
+   <p class="illustration"><img src="img/personeditor.png" width="443.1" alt="[Image]" /> </p>
+   <p class="caption">Figure 13: The PersonEditor </p>
+   <p>The <span class="classname">PersonEditor</span> is a sub-window that extends the <span class="classname">Window</span>. It also handles button clicks and creates the field components for the form.</p>
+   <p class="source-file source-file-start"><span class="auto-T4">public</span><span class="auto-T6"> </span><span class="auto-T4">class</span><span class="auto-T6"> PersonEditor </span><span class="auto-T4">extends</span><span class="auto-T6"> Window</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T8">        </span><span class="auto-T4">implements</span><span class="auto-T6"> Button.ClickListener, </span>FormFieldFactory { </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> </span><span class="auto-T4">final</span><span class="auto-T6"> Item </span><span class="auto-T14">personItem</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> Form </span><span class="auto-T14">editorForm</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> Button </span><span class="auto-T14">saveButton</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> Button </span><span class="auto-T14">cancelButton</span><span class="auto-T6">;</span> </p>
+   <p>The item to edit is given to the constructor as a parameter. When editing an existing item with the <span class="guibutton">Edit</span> button, the item is an <span class="classname">EntityItem&lt;Person&gt;</span>. When editing a new item added with the <span class="guibutton">Add</span> button, the item is a temporary <span class="classname">BeanItem&lt;Person&gt;</span> wrapper, as the person is not yet added to the <span class="classname">JPAContainer</span>.</p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">public</span><span class="auto-T6"> PersonEditor(Item personItem) {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">        </span><span class="auto-T4">this</span><span class="auto-T6">.</span><span class="auto-T14">personItem</span><span class="auto-T6"> = personItem;</span> </p>
+   <p><span class="auto-T6">We use a </span><span class="classname"><span class="auto-T6">BeanValidationForm</span></span><span class="auto-T6"> from the Vaadin BeanValidation add-on to edit the item. We enable buffering by calling </span><span class="methodname"><span class="auto-T6">setWriteThrough(false)</span></span><span class="auto-T6">, because otherwise the edited values would be written directly to the </span><span class="classname"><span class="auto-T6">JPAContainer</span></span><span class="auto-T6">. With buffering, they are written only after </span><span class="methodname"><span class="auto-T6">commit()</span></span><span class="auto-T6"> is called.</span></p>
+   <p class="source-file source-file-middle"><span class="auto-T6">        </span><span class="auto-T14">editorForm</span><span class="auto-T6"> =</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">            </span><span class="auto-T4">new</span><span class="auto-T6"> BeanValidationForm&lt;Person&gt;(Person.</span><span class="auto-T4">class</span><span class="auto-T6">);</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">        </span><span class="auto-T14">editorForm</span><span class="auto-T6">.setFormFieldFactory(</span><span class="auto-T4">this</span><span class="auto-T6">);</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">        </span><span class="auto-T14">editorForm</span><span class="auto-T6">.setWriteThrough(</span><span class="auto-T4">false</span><span class="auto-T6">);</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">        </span><span class="auto-T14">editorForm</span><span class="auto-T6">.setImmediate(</span><span class="auto-T4">true</span><span class="auto-T6">);</span> </p>
+   <p>And finally, we bind the person item to the form:</p>
+   <p class="source-file source-file-middle"><span class="auto-T6">        </span><span class="auto-T14">editorForm</span><span class="auto-T6">.setItemDataSource(personItem,</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">            Arrays.</span><span class="auto-T9">asList</span><span class="auto-T6">(</span><span class="auto-T18">"firstName"</span><span class="auto-T6">, </span><span class="auto-T18">"lastName"</span><span class="auto-T6">,</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">            </span><span class="auto-T18">"phoneNumber"</span><span class="auto-T6">, </span><span class="auto-T18">"street"</span><span class="auto-T6">, </span><span class="auto-T18">"city"</span><span class="auto-T6">, </span><span class="auto-T18">"zipCode"</span><span class="auto-T6">,</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">            </span><span class="auto-T18">"department"</span><span class="auto-T6">));</span> </p>
+   <p class="source-file source-file-end">        … </p>
+   <h4>Saving the Form</h4>
+   <p>When the <span class="guibutton">Save</span> button is clicked, the buffered form is written to the underlying data model by calling <span class="methodname">commit()</span>. In case of editing an existing item, the data is written directly to the <span class="classname">JPAContainer&lt;Person&gt;</span> and to the database. If editing a new item added with the <span class="guibutton">Add</span> button, the data is written to the <span class="classname">BeanItem&lt;Person&gt;</span>.</p>
+   <p class="source-file source-file-start">@Override </p>
+   <p class="source-file source-file-middle"><span class="auto-T4">public</span><span class="auto-T6"> </span><span class="auto-T4">void</span><span class="auto-T6"> buttonClick(ClickEvent event) {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">if</span><span class="auto-T6"> (event.getButton() == </span><span class="auto-T14">saveButton</span><span class="auto-T6">) {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">        </span><span class="auto-T14">editorForm</span><span class="auto-T6">.commit();</span> </p>
+   <p>Then an <span class="classname">EditorSavedEvent</span> is fired, to be received in an <span class="classname">EditorSavedListener</span>, as described in Section <a href="#__RefHeading__31946_1659804707">6.2</a>: <span class="auto-T2"><a href="#__RefHeading__31946_1659804707">Creating an Item</a></span>. This allows the <span class="classname">Add</span> button mechanism to move the new <span class="classname">Person</span> object from the <span class="classname">BeanItem&lt;Person&gt;</span> to the <span class="classname">JPAContainer&lt;Person&gt;</span>.</p>
+   <p class="source-file source-file-middle"><span class="auto-T6">        fireEvent(</span><span class="auto-T4">new</span><span class="auto-T6"> EditorSavedEvent(</span><span class="auto-T4">this</span><span class="auto-T6">, </span><span class="auto-T14">personItem</span><span class="auto-T6">));</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    } </span><span class="auto-T4">else</span><span class="auto-T6"> </span><span class="auto-T4">if</span><span class="auto-T6"> (event.getButton() == </span><span class="auto-T14">cancelButton</span><span class="auto-T6">) {</span> </p>
+   <p>Otherwise, just discard the form. Then, close the sub-window.</p>
+   <p class="source-file source-file-middle"><span class="auto-T6">        </span><span class="auto-T14">editorForm</span><span class="auto-T6">.discard();</span> </p>
+   <p class="source-file source-file-middle">    } </p>
+   <p class="source-file source-file-middle">    close(); </p>
+   <p class="source-file source-file-end">} </p>
+   <h2>6.4 Deleting an Item</h2>
+   <p><span class="auto-T6">Deleting an item is done simply with the </span><span class="methodname"><span class="auto-T6">removeItem()</span></span><span class="auto-T6"> method.</span></p>
+   <p class="source-file source-file-start"><span class="auto-T14">deleteButton</span><span class="auto-T6"> = </span><span class="auto-T4">new</span><span class="auto-T6"> Button(</span><span class="auto-T18">"Delete"</span><span class="auto-T6">);</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T14">deleteButton</span><span class="auto-T6">.addListener(</span><span class="auto-T4">new</span><span class="auto-T6"> </span><span class="auto-T11">Button.ClickListener()</span><span class="auto-T6"> {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T13">@Override</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">public</span><span class="auto-T6"> </span><span class="auto-T4">void</span><span class="auto-T6"> buttonClick(ClickEvent event) {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">        </span><span class="auto-T14">persons</span><span class="auto-T6">.removeItem(</span><span class="auto-T14">personTable</span><span class="auto-T6">.getValue());</span> </p>
+   <p class="source-file source-file-middle">    } </p>
+   <p class="source-file source-file-middle">}); </p>
+   <p class="source-file source-file-end"><span class="auto-T16">deleteButton</span><span class="auto-T7">.setEnabled(</span><span class="auto-T5">false</span><span class="auto-T7">);</span> </p>
+   <p>The <span class="methodname">getValue()</span> returns the item identifier of the currently selected item (not the item itself) and <span class="methodname">removeItem()</span> removes the item with the ID. Notice that the JPA entity ID of the <span class="classname">Person</span> entity is used also as the item identifier.</p>
+   <h1>7 <a name="__RefHeading__48010_1659804707"> </a>Presenting Hierarchical Data</h1>
+   <p><span class="auto-T6">This chapter describes how to bind </span><span class="classname"><span class="auto-T6">JPAContainer</span></span><span class="auto-T6"> to a hierarchical component, such as a </span><span class="classname"><span class="auto-T6">Tree</span></span><span class="auto-T6"> or </span><span class="classname"><span class="auto-T6">TreeTable</span></span><span class="auto-T6">.</span></p>
+   <h2>7.1 JPAContainer is Hierarchical</h2>
+   <p><span class="classname"><span class="auto-T6">JPAContainer</span></span><span class="auto-T6"> implements the </span><span class="classname"><span class="auto-T6">HierarchicalEntityContainer</span></span><span class="auto-T6"> interface, which extends the </span><span class="classname"><span class="auto-T6">Container.Hierarchical</span></span><span class="auto-T6"> interface that defines hierarchical representation of data in a </span><span class="classname"><span class="auto-T6">Container</span></span><span class="auto-T6">. You can bind any such container to a </span><span class="classname"><span class="auto-T6">Tree</span></span><span class="auto-T6"> or a </span><span class="classname"><span class="auto-T6">TreeTable</span></span><span class="auto-T6">.</span></p>
+   <p class="illustration"><img src="img/departmenttree.png" width="252.59999999999997" alt="[Image]" /> </p>
+   <p class="caption"><span class="auto-T6">Figure </span><span class="auto-T6">14</span><span class="auto-T6">: Tree Bound to a Hierarchical JPAContainer&lt;Department&gt;</span> </p>
+   <p><span class="auto-T6">The </span><span class="classname"><span class="auto-T6">HierarchicalEntityContainer</span></span><span class="auto-T6"> requires that the hierarchy is represented by parent references in the entities. Recall from the Chapter </span><span class="auto-T6"><a href="#__RefHeading__32776_1659804707">4</a></span><span class="auto-T6">: </span><span class="auto-T9"><a href="#__RefHeading__32776_1659804707">Defining a Domain Model</a></span><span class="auto-T6"> that the </span><span class="classname"><span class="auto-T6">Department</span></span><span class="auto-T6"> entity contains an </span><span class="auto-T9">«is part of»</span><span class="auto-T6"> relationship with itself, represented with a </span><span class="auto-T9">parent</span><span class="auto-T6"> property. The relationship is shown in Figure </span><span class="auto-T6">15</span><span class="auto-T6">.</span></p>
+   <p class="illustration"><img src="img/domain-model-department-hi.png" width="265.4" alt="[Image]" /> </p>
+   <p class="caption"><span class="auto-T6">Figure </span><span class="auto-T6">15</span><span class="auto-T6">: Hierarchy Representation in the Domain Model</span> </p>
+   <h2>7.2 Defining Hierarchy Relationship</h2>
+   <p><span class="auto-T6">The hierarchy relationships for the </span><span class="classname"><span class="auto-T6">JPAContainer&lt;Department&gt;</span></span><span class="auto-T6"> are defined by extending it as </span><span class="classname"><span class="auto-T6">HierarchicalDepartmentContainer</span></span><span class="auto-T6"> that makes the necessary settings.</span></p>
+   <h3>7.2.1 Setting the Parent Reference Property</h3>
+   <p><span class="auto-T6">The property representing the hierarchy by parenthood is defined with the </span><span class="methodname"><span class="auto-T6">setParentProperty()</span></span><span class="auto-T6"> method. In our domain model, the property name is coincidentally “</span><span class="parameter"><span class="auto-T6">parent</span></span><span class="auto-T6">”.</span></p>
+   <p class="source-file source-file-start"><span class="auto-T4">public</span><span class="auto-T6"> </span><span class="auto-T4">class</span><span class="auto-T6"> </span><span class="auto-T11">HierarchicalDepartmentContainer</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T11">       </span><span class="auto-T4">extends</span><span class="auto-T6"> JPAContainer&lt;Department&gt; {</span> </p>
+   <p class="source-file source-file-middle"> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">public</span><span class="auto-T6"> HierarchicalDepartmentContainer() {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">        </span><span class="auto-T4">super</span><span class="auto-T6">(Department.</span><span class="auto-T4">class</span><span class="auto-T6">);</span> </p>
+   <p class="source-file source-file-middle"> </p>
+   <p class="source-file source-file-middle">        … </p>
+   <p class="source-file source-file-middle"> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">        setParentProperty(</span><span class="auto-T18">"parent"</span><span class="auto-T6">);</span> </p>
+   <p class="source-file source-file-middle">    } </p>
+   <p class="source-file source-file-end">    … </p>
+   <h3>7.2.2 Redefining the areChildrenAllowed() Behaviour</h3>
+   <p><span class="auto-T6">The class overrides the </span><span class="methodname"><span class="auto-T6">areChildrenAllowed()</span></span><span class="auto-T6"> method to customize the logic for when children are allowed, that is, when the expansion marker is shown. We want to have only the non-leaf items expandable in the tree. Children are therefore allowed only for the root items, that is, the “super departments” having the </span><span class="parameter"><span class="auto-T6">superDepartment</span></span><span class="auto-T6"> property as </span><span class="parameter"><span class="auto-T6">true</span></span><span class="auto-T6">.</span></p>
+   <p class="source-file source-file-start">@Override </p>
+   <p class="source-file source-file-middle"><span class="auto-T4">public</span><span class="auto-T6"> </span><span class="auto-T4">boolean</span><span class="auto-T6"> areChildrenAllowed(Object itemId) {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">return</span><span class="auto-T6"> </span><span class="auto-T4">super</span><span class="auto-T6">.areChildrenAllowed(itemId) &amp;&amp;</span> </p>
+   <p class="source-file source-file-middle">           getItem(itemId).getEntity() </p>
+   <p class="source-file source-file-middle">               .isSuperDepartment(); </p>
+   <p class="source-file source-file-end">} </p>
+   <p><span class="auto-T6">The </span><span class="methodname"><span class="auto-T6">areChildrenAllowed()</span></span><span class="auto-T6"> in the </span><span class="classname"><span class="auto-T6">JPAContainer</span></span><span class="auto-T6"> superclass should be called to make basic checks.</span></p>
+   <h2>7.3 Creating Hierarchical Entities</h2>
+   <p><span class="auto-T6">The </span><span class="classname"><span class="auto-T6">Department</span></span><span class="auto-T6"> entities are created in the </span><span class="classname"><span class="auto-T6">DemoDataGenerator</span></span><span class="auto-T6"> by writing directly to the JPA </span><span class="classname"><span class="auto-T6">EntityManager</span></span><span class="auto-T6">, so that we do not use JPAContainer for this at all. We simply use the </span><span class="methodname"><span class="auto-T6">setParent()</span></span><span class="auto-T6"> for the children to set the hierarchy relationship.</span></p>
+   <p class="source-file source-file-start">em.getTransaction().begin(); </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">Random r = </span><span class="auto-T4">new</span><span class="auto-T6"> Random(0);</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6" /><span class="auto-T4">for</span><span class="auto-T6"> (String o : </span><span class="auto-T15">officeNames</span><span class="auto-T6">) {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    Department geoGroup = </span><span class="auto-T4">new</span><span class="auto-T6"> Department();</span> </p>
+   <p class="source-file source-file-middle">    geoGroup.setName(o); </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">for</span><span class="auto-T6"> (String g : </span><span class="auto-T15">groupsNames</span><span class="auto-T6">) {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">        Department group = </span><span class="auto-T4">new</span><span class="auto-T6"> Department();</span> </p>
+   <p class="source-file source-file-middle">        group.setName(g); </p>
+   <p class="source-file source-file-middle"> </p>
+   <p class="source-file source-file-middle">        … add persons to the group … </p>
+   <p class="source-file source-file-middle"> </p>
+   <p class="source-file source-file-middle">        group.setParent(geoGroup); </p>
+   <p class="source-file source-file-middle">        group.setPersons(gPersons); </p>
+   <p class="source-file source-file-middle">        em.persist(group); </p>
+   <p class="source-file source-file-middle">    } </p>
+   <p class="source-file source-file-middle">    em.persist(geoGroup); </p>
+   <p class="source-file source-file-middle">} </p>
+   <p class="source-file source-file-middle"> </p>
+   <p class="source-file source-file-end">em.getTransaction().commit(); </p>
+   <p />
+   <h1>8 Filtering Data</h1>
+   <p><span class="auto-T6">This step describes how to create filters for a </span><span class="classname"><span class="auto-T6">JPAContainer</span></span><span class="auto-T6">.</span></p>
+   <h2>8.1 Overview</h2>
+   <p><span class="auto-T6">The JPAContainer AddressBook demo provides two different ways to filter the persons in the </span><span class="classname"><span class="auto-T6">JPAContainer&lt;Person&gt;</span></span><span class="auto-T6"> container, attached to the </span><span class="classname"><span class="auto-T6">Table</span></span><span class="auto-T6">. First, the user can select a department from the tree on the left, in which case the persons are filtered by the department (or the super-department) they belong to. Second, the use can do text search to filter persons by their name property.</span></p>
+   <p><span class="auto-T6">Filtering a </span><span class="classname"><span class="auto-T6">JPAContainer</span></span><span class="auto-T6"> does not differ significantly from regular container filtering described in the section </span><a href="https://vaadin.com/book/-/page/datamodel.container.html#datamodel.container.filtered">Filterable Containers</a><span class="auto-T6"> in the Book of Vaadin.</span></p>
+   <h2>8.2 Filtering by Entity</h2>
+   <p><span class="auto-T6">Filtering persons by a department is done with a </span><span class="classname"><span class="auto-T6">Department</span></span><span class="auto-T6"> object stored as a member variable in the </span><span class="classname"><span class="auto-T6">AddressBookMainView</span></span><span class="auto-T6">:</span></p>
+   <p class="source-file"><span class="auto-T4">private</span><span class="auto-T6"> Department </span><span class="auto-T14">departmentFilter</span><span class="auto-T6">;</span> </p>
+   <h3>8.2.1 Setting the Filter</h3>
+   <p>Selecting an item in the department tree fires a value change event, which we handle to set the department filter.</p>
+   <p class="source-file source-file-start"><span class="auto-T14">groupTree</span><span class="auto-T6"> = </span><span class="auto-T4">new</span><span class="auto-T6"> Tree(</span><span class="auto-T4">null</span><span class="auto-T6">, </span><span class="auto-T14">departments</span><span class="auto-T6">);</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T14">groupTree</span><span class="auto-T6">.setItemCaptionPropertyId(</span><span class="auto-T18">"name"</span><span class="auto-T6">);</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T14">groupTree</span><span class="auto-T6">.setImmediate(</span><span class="auto-T4">true</span><span class="auto-T6">);</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T14">groupTree</span><span class="auto-T6">.setSelectable(</span><span class="auto-T4">true</span><span class="auto-T6">);</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T14">groupTree</span><span class="auto-T6">.addListener(</span><span class="auto-T4">new</span><span class="auto-T6"> </span><span class="auto-T11">Property.ValueChangeListener()</span><span class="auto-T6"> {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T13">@Override</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">public</span><span class="auto-T6"> </span><span class="auto-T4">void</span><span class="auto-T6"> valueChange(ValueChangeEvent event) {</span> </p>
+   <p class="source-file source-file-middle">        Object id = event.getProperty().getValue(); </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">        </span><span class="auto-T4">if</span><span class="auto-T6"> (id != </span><span class="auto-T4">null</span><span class="auto-T6">) {</span> </p>
+   <p><span class="auto-T6">Now, we can get the selected item from the container with </span><span class="methodname"><span class="auto-T6">getItem()</span></span><span class="auto-T6">, which returns an </span><span class="classname"><span class="auto-T6">EntityItem&lt;Department&gt;</span></span><span class="auto-T6"> wrapper. We can get a </span><span class="classname"><span class="auto-T6">Department</span></span><span class="auto-T6"> object reference with </span><span class="methodname"><span class="auto-T6">getEntity()</span></span><span class="auto-T6">.</span></p>
+   <p class="source-file source-file-middle">            Department entity = </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">                    </span><span class="auto-T14">departments</span><span class="auto-T6">.getItem(id).getEntity();</span> </p>
+   <p><span class="auto-T6">Then, we just set the filter and apply the filters in </span><span class="methodname"><span class="auto-T6">updateFilters()</span></span><span class="auto-T6">.</span></p>
+   <p class="source-file source-file-middle"><span class="auto-T6">            </span><span class="auto-T14">departmentFilter</span><span class="auto-T6"> = entity;</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">        } </span><span class="auto-T4">else</span><span class="auto-T6"> </span><span class="auto-T4">if</span><span class="auto-T6"> (</span><span class="auto-T14">departmentFilter</span><span class="auto-T6"> != </span><span class="auto-T4">null</span><span class="auto-T6">) {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">            </span><span class="auto-T14">departmentFilter</span><span class="auto-T6"> = </span><span class="auto-T4">null</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-middle">        } </p>
+   <p class="source-file source-file-middle">        updateFilters(); </p>
+   <p class="source-file source-file-middle">    } </p>
+   <p class="source-file source-file-end">}); </p>
+   <h3>8.2.2 Adding and Applying the Filter</h3>
+   <p>The <span class="methodname">updateFilters()</span> applies the department filter (as well as the other filter). We first clear up any existing filters and disable the <span class="classname">JPAContainer&lt;Person&gt;</span> automatic applying of filters immediately when they are added. As applying a filter takes a bit time and we have two filters, we want to apply them both at once.</p>
+   <p class="source-file source-file-start"><span class="code-keyword"><span class="auto-T4">private</span></span><span class="auto-T8"> </span><span class="auto-T4">void</span><span class="auto-T8"> updateFilters() {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T14">persons</span><span class="auto-T6">.setApplyFiltersImmediately(</span><span class="auto-T4">false</span><span class="auto-T6">);</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T14">persons</span><span class="auto-T6">.removeAllContainerFilters();</span> </p>
+   <p>As we have a two-level department hierarchy, we need to handle the cases for a department and super-department separately.</p>
+   <p class="source-file source-file-middle"><span class="auto-T4">    if</span><span class="auto-T6"> (</span><span class="auto-T14">departmentFilter</span><span class="auto-T6"> != </span><span class="auto-T4">null</span><span class="auto-T6">) {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T4">    </span><span class="auto-T6">    </span><span class="auto-T26">// two level hierarchy at max in our demo</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T4">    </span><span class="auto-T6">    </span><span class="auto-T4">if</span><span class="auto-T6"> (</span><span class="auto-T14">departmentFilter</span><span class="auto-T6">.getParent() == </span><span class="auto-T4">null</span><span class="auto-T6">) {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T4">    </span><span class="auto-T6">        </span><span class="auto-T14">persons</span><span class="auto-T6">.addContainerFilter(</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T4">    </span><span class="auto-T8">                </span><span class="auto-T4">new</span><span class="auto-T6"> Equal(</span><span class="auto-T18">"department.parent"</span><span class="auto-T6">,</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T4">    </span><span class="auto-T6">                          </span><span class="auto-T14">departmentFilter</span><span class="auto-T6">));</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T4">    </span><span class="auto-T6">    } </span><span class="auto-T4">else</span><span class="auto-T6"> {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T4">    </span><span class="auto-T6">        </span><span class="auto-T14">persons</span><span class="auto-T6">.addContainerFilter(</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T4">    </span><span class="auto-T8">                </span><span class="auto-T4">new</span><span class="auto-T6"> Equal(</span><span class="auto-T18">"department"</span><span class="auto-T6">,</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T4">    </span><span class="auto-T6">                          </span><span class="auto-T14">departmentFilter</span><span class="auto-T6">));</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T4">    </span>    } </p>
+   <p class="source-file source-file-middle"><span class="auto-T4">    </span>} </p>
+   <p class="source-file source-file-end">    … </p>
+   <p>The <span class="classname">Equal</span> constructor creates a filter that compares a container property in the <span class="classname">JPAContainer&lt;Person&gt;</span> to a value. The value of the <span class="auto-Package_20_Name">department</span> property of a <span class="classname">Person</span> bean is a <span class="classname">Department</span> object, so we can compare it to the stored filter object.</p>
+   <p>The <span class="classname">Equal</span> filter allows referencing nested bean properties with dot notation, so we were able to refer to the <span class="parameter">parent</span> property in the <span class="classname">Department</span> bean.</p>
+   <p>It is important to notice that even though the <span class="classname">JPAContainer&lt;Department&gt;</span> and <span class="classname">JPAContainer&lt;Person&gt;</span> were created separately using the entity manager, the <span class="classname">Department</span> entities referenced in the <span class="classname">Person</span> container are the same objects as in the <span class="classname">Department</span> container.</p>
+   <h4>Applying the Filters</h4>
+   <p>The filters are applied at the end of the <span class="methodname">updateFilters()</span> method as follows:</p>
+   <p class="source-file"><span class="auto-T16">persons</span><span class="auto-T7">.applyFilters();</span> </p>
+   <p>Notice that this applies also the text filter described next.</p>
+   <h2>8.3 Filtering by a String Property Value</h2>
+   <p><span class="auto-T6">Filtering persons by a text filter is done with string stored as a member variable in the </span><span class="classname"><span class="auto-T6">AddressBookMainView</span></span><span class="auto-T6">:</span></p>
+   <p class="source-file"><span class="auto-T4">private</span><span class="auto-T6"> String </span><span class="auto-T14">textFilter</span><span class="auto-T6">;</span> </p>
+   <p><span class="auto-T6">The search field is a </span><span class="classname"><span class="auto-T6">TextField</span></span><span class="auto-T6"> and the input is handled interactively with a text change listener. It simply stores the current input value in the filter string as follows:</span></p>
+   <p class="source-file source-file-start"><span class="auto-T14">searchField</span><span class="auto-T6"> = </span><span class="auto-T4">new</span><span class="auto-T6"> TextField();</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T14">searchField</span><span class="auto-T6">.setInputPrompt(</span><span class="auto-T18">"Search by name"</span><span class="auto-T6">);</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T14">searchField</span><span class="auto-T6">.addListener(</span><span class="auto-T4">new</span><span class="auto-T6"> </span><span class="auto-T11">TextChangeListener()</span><span class="auto-T6"> {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T13">@Override</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">public</span><span class="auto-T6"> </span><span class="auto-T4">void</span><span class="auto-T6"> textChange(TextChangeEvent event) {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">        </span><span class="auto-T14">textFilter</span><span class="auto-T6"> = event.getText();</span> </p>
+   <p class="source-file source-file-middle">        updateFilters(); </p>
+   <p class="source-file source-file-middle">    } </p>
+   <p class="source-file source-file-end">}); </p>
+   <p><span class="auto-T6">We use the filter string in a composite filter that checks whether the filter string matches the beginning of either </span><span class="parameter"><span class="auto-T6">firstName</span></span><span class="auto-T6"> or </span><span class="parameter"><span class="auto-T6">lastName</span></span><span class="auto-T6"> of a </span><span class="classname"><span class="auto-T6">Person</span></span><span class="auto-T6"> entity.</span></p>
+   <p class="source-file source-file-start"><span class="auto-T4">if</span><span class="auto-T6"> (</span><span class="auto-T14">textFilter</span><span class="auto-T6"> != </span><span class="auto-T4">null</span><span class="auto-T6"> &amp;&amp; !</span><span class="auto-T14">textFilter</span><span class="auto-T6">.equals(</span><span class="auto-T18">""</span><span class="auto-T6">)) {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    Or or = </span><span class="auto-T4">new</span><span class="auto-T6"> Or(</span><span class="auto-T4">new</span><span class="auto-T6"> Like(</span><span class="auto-T18">"firstName"</span><span class="auto-T6">,</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">                            </span><span class="auto-T14">textFilter</span><span class="auto-T6"> + </span><span class="auto-T18">"%"</span><span class="auto-T6">, </span><span class="auto-T4">false</span><span class="auto-T6">),</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">                   </span><span class="auto-T4">new</span><span class="auto-T6"> Like(</span><span class="auto-T18">"lastName"</span><span class="auto-T6">,</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">                            </span><span class="auto-T14">textFilter</span><span class="auto-T6"> + </span><span class="auto-T18">"%"</span><span class="auto-T6">, </span><span class="auto-T4">false</span><span class="auto-T6">));</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T14">persons</span><span class="auto-T6">.addContainerFilter(or);</span> </p>
+   <p class="source-file source-file-end">} </p>
+   <p>The filter is applied along with the department filter as described earlier.</p>
+   <h1>9 Vaadin Bean Validation</h1>
+   <p>This chapter describes the bean validation in the JPAContainer AddressBook Demo.</p>
+   <h2>9.1 Overview</h2>
+   <p>The AddressBook Demo uses the <a href="https://vaadin.com/directory#addon/vaadin-bean-validation"><span class="auto-T2">Vaadin Bean Validation add-on</span></a> for validating the beans after editing, before they are committed to the database.</p>
+   <p>The Vaadin Bean Validation add-on consists of a Vaadin validator and a form that automatically applies that validator. It uses the Java Bean Validation API 1.0 (JSR-303) for validating beans based on annotations on their fields.</p>
+   <p>To use the add-on, the project needs an implementation of the Bean Validation API. In our example project, we use the <span class="auto-T2">Hibernate Validator</span>.</p>
+   <h2>9.2 Annotations</h2>
+   <p>The validations constraints are defined in the entity classes as annotations. For example, in the <span class="classname">Person</span> class, we use the <span class="parameter">@NotNull</span> and <span class="parameter">@Size</span> constraints for some of the bean properties.</p>
+   <p class="source-file source-file-start">@Entity </p>
+   <p class="source-file source-file-middle"><span class="auto-T4">public</span><span class="auto-T6"> </span><span class="auto-T4">class</span><span class="auto-T6"> Person {</span> </p>
+   <p class="source-file source-file-middle">    … </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T13">@NotNull</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T13">@Size</span><span class="auto-T6">(min = 2, max = 24)</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> String </span><span class="auto-T14">firstName</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T13">@Size</span><span class="auto-T6">(min = 2, max = 24)</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> String </span><span class="auto-T14">lastName</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-middle">    … </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T13">@NotNull</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T13">@ManyToOne</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">private</span><span class="auto-T6"> Department </span><span class="auto-T14">department</span><span class="auto-T6">;</span> </p>
+   <p class="source-file source-file-end">    … </p>
+   <p>For a complete list of allowed constraints for different data types, please see the <a href="http://docs.oracle.com/javaee/6/tutorial/doc/gircz.html">Bean Validation API documentation</a>.</p>
+   <h2>9.3 Using the Validator</h2>
+   <p>The Bean Validation is used by using the <span class="classname">BeanValidationForm&lt;&gt;</span> instead of the regular form. The constructor of the generic type requires the bean type as a parameter.</p>
+   <p class="source-file source-file-start"><span class="auto-T4">public</span><span class="auto-T6"> PersonEditor(Item personItem) {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">this</span><span class="auto-T6">.</span><span class="auto-T14">personItem</span><span class="auto-T6"> = personItem;</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T14">editorForm</span><span class="auto-T6"> =</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">        </span><span class="auto-T4">new</span><span class="auto-T6"> BeanValidationForm&lt;Person&gt;(Person.</span><span class="auto-T4">class</span><span class="auto-T6">);</span> </p>
+   <p class="source-file source-file-end">    … </p>
+   <p><span class="auto-T6">After that, using bean validation is totally transparent as the </span><span class="classname"><span class="auto-T6">BeanValidationForm</span></span><span class="auto-T6"> attaches special bean validators to field as they are attached to the form.</span></p>
+   <h3>9.3.1 Doing Validation</h3>
+   <p>The validators are checked along with possible other validators when <span class="methodname">commit()</span> or <span class="methodname">validate()</span> is called for the form. In the <span class="classname">PersonEditor</span> we run <span class="methodname">commit()</span> simply as follows:</p>
+   <p class="source-file source-file-start"><span class="auto-T4">public</span><span class="auto-T6"> </span><span class="auto-T4">void</span><span class="auto-T6"> buttonClick(ClickEvent event) {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    </span><span class="auto-T4">if</span><span class="auto-T6"> (event.getButton() == </span><span class="auto-T14">saveButton</span><span class="auto-T6">) {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">        </span><span class="auto-T14">editorForm</span><span class="auto-T6">.commit();</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">        fireEvent(</span><span class="auto-T4">new</span><span class="auto-T6"> EditorSavedEvent(</span><span class="auto-T4">this</span><span class="auto-T6">, </span><span class="auto-T14">personItem</span><span class="auto-T6">));</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">    } </span><span class="auto-T4">else</span><span class="auto-T6"> </span><span class="auto-T4">if</span><span class="auto-T6"> (event.getButton() == </span><span class="auto-T14">cancelButton</span><span class="auto-T6">) {</span> </p>
+   <p class="source-file source-file-middle"><span class="auto-T6">        </span><span class="auto-T14">editorForm</span><span class="auto-T6">.discard();</span> </p>
+   <p class="source-file source-file-middle">    } </p>
+   <p class="source-file source-file-middle">    close(); </p>
+   <p class="source-file source-file-end">} </p>
+   <p>Bean validation is shown in action in Figure 16. Failing validation results in an error message.</p>
+   <p class="illustration"><img src="img/bean-validation.png" width="412.65" alt="[Image]" /> </p>
+   <p class="caption"><span class="auto-T6">Figure </span><span class="auto-T6">16</span><span class="auto-T6">: Bean Validation</span> </p>
+   <h3>9.3.2 Locale Setting for Bean Validation</h3>
+   <p><span class="auto-T6">The messages are defined in the bean validation implementation, in a </span><span class="filename"><span class="auto-T6">ValidationMessages.properties</span></span><span class="auto-T6"> file. The message is shown in the language specified with the locale setting for the form. The default language is English, but Hibernate Validator contains translations of the messages for a number of languages. If other languages are needed, you need to provide a translation of the properties file.</span></p>
+   <p><span class="auto-T6">  </span><span class="auto-T6" /><span class="auto-T6"> </span></p>
+   
+  </div></body></html>
