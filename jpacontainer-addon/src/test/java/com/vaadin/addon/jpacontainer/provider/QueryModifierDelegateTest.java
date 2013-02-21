@@ -150,16 +150,7 @@ public class QueryModifierDelegateTest {
 
     @Test
     public void testQueryModifierDelegateCalledWhenCounting() {
-        QueryModifierDelegate delegate = createMock(QueryModifierDelegate.class);
-        delegate.queryWillBeBuilt(isA(CriteriaBuilder.class),
-                isA(CriteriaQuery.class));
-        expectLastCall().times(2);
-        delegate.filtersWillBeAdded(isA(CriteriaBuilder.class),
-                isA(CriteriaQuery.class), isA(List.class));
-        delegate.filtersWereAdded(isA(CriteriaBuilder.class),
-                isA(CriteriaQuery.class));
-        delegate.queryHasBeenBuilt(isA(CriteriaBuilder.class),
-                isA(CriteriaQuery.class));
+        QueryModifierDelegate delegate = createMockDelegate();
         replay(delegate);
         entityProvider.setQueryModifierDelegate(delegate);
         entityProvider.getEntityCount(container, null);

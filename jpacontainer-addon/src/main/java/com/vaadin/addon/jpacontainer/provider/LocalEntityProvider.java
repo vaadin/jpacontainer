@@ -521,7 +521,6 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         }
         tellDelegateFiltersWereAdded(container, cb, query);
 
-        tellDelegateQueryWillBeBuilt(container, cb, query);
         if (getEntityClassMetadata().hasEmbeddedIdentifier()) {
             /*
              * Hibernate will generate SQL for "count(obj)" that does not run on
