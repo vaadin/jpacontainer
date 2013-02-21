@@ -47,10 +47,6 @@ jpacontainer-addressbook-demo
   Jetty with "mvn jetty:run". You can also import it in Eclipse as
   a project (requires the m2e plugin).
 
-licensing.txt
-
-  Information about the licenses and licensing.
-
-license-${license.short.name}.txt
+LICENSE
 
   The license for the JPAContainer.
