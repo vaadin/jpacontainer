@@ -33,12 +33,12 @@ TRYING OUT THE DEMO
 
   1. Compile and install the entire project:
 
-    $ mvn -Djpacontainer.version=1.2.0-SNAPSHOT install
+    $ mvn install
 
   2. Start the built-in Jetty web server:
 
     $ cd jpacontainer-demo
-    $ mvn -Djpacontainer.version=1.2.0-SNAPSHOT jetty:run
+    $ mvn jetty:run
 
   3. Open your favorite web browser and point it to:
 
@@ -49,7 +49,7 @@ READING THE MANUAL
   1. Generate the manual:
 
     $ cd jpacontainer-manual
-    $ mvn -Djpacontainer.version=1.2.0-SNAPSHOT docbkx:generate-html
+    $ mvn docbkx:generate-html
 
   2. Open the file jpacontainer-manual/target/docbkx/html/manual.html
      in your favorite web browser.
@@ -59,7 +59,7 @@ CHECKING THE CODE COVERAGE OF THE UNIT TESTS
   1. Run the code coverage check:
 
     $ cd jpacontainer-addon
-    $ mvn -Djpacontainer.version=1.2.0-SNAPSHOT cobertura:cobertura
+    $ mvn cobertura:cobertura
 
   2. Open the file jpacontainer-addon/target/site/cobertura/index.html
      in your favorite web browser.

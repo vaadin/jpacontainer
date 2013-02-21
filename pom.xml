@@ -5,7 +5,7 @@
     <groupId>com.vaadin.addon</groupId>
     <artifactId>jpacontainer</artifactId>
     <packaging>pom</packaging>
-    <version>${jpacontainer.version}</version>
+    <version>2.2.0-SNAPSHOT</version>
     <name>Vaadin JPAContainer</name>
     <description>Vaadin JPAContainer</description>
     <organization>
@@ -14,9 +14,9 @@
     </organization>
     <url>http://vaadin.com/</url>
     <scm>
-        <connection>scm:svn:http://dev.vaadin.com/svn/addons/JPAContainer/trunk</connection>
-        <developerConnection>scm:svn:http://dev.vaadin.com/svn/addons/JPAContainer/trunk</developerConnection>
-        <url>http://dev.vaadin.com/browser/addons/JPAContainer/trunk</url>
+        <connection>scm:svn:http://dev.vaadin.com/svn/addons/JPAContainer/branches/2.X</connection>
+        <developerConnection>scm:svn:http://dev.vaadin.com/svn/addons/JPAContainer/branches/2.X</developerConnection>
+        <url>http://dev.vaadin.com/browser/addons/JPAContainer/branches/2.X</url>
     </scm>
     <issueManagement>
         <system>trac</system>
@@ -39,31 +39,20 @@
         </developer>
     </developers>
     <licenses>
-        <!-- For the license that applies to this distribution package, see licensing.txt -->
         <license>
-            <name>GNU Affero General Public License version 3.0</name>
-            <url>http://www.gnu.org/licenses/agpl-3.0.html</url>
+            <name>Apache License version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
             <distribution>repo</distribution>
-        </license>
-        <license>
-            <name>Commercial Vaadin Add-On License version 2.0</name>
-            <url>http://vaadin.com/license/cval-2.0</url>
-            <distribution>manual</distribution>
         </license>
     </licenses>
 
     <properties>
-        <!-- May be overridden by the build system when creating CVAL licensed packages -->
-        <license.short.name>agpl-3.0</license.short.name>
-        <!-- Note the relative path for subprojects -->
-        <license.header.file>../java-license-header-${license.short.name}.properties</license.header.file>
-
         <Implementation-Version>${project.version}</Implementation-Version>
         <!-- Must not change this because of the Directory -->
         <Implementation-Title>Vaadin JPAContainer</Implementation-Title>
         <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
         
-        <vaadin.version.maven>6.7.4</vaadin.version.maven>
+        <vaadin.version.maven>6.8.8</vaadin.version.maven>
         <snapshot.repository.url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</snapshot.repository.url>
     </properties>
 
@@ -97,6 +86,8 @@
         <module>docs</module>
 <!--        <module>jpacontainer-demo</module> -->
         <module>jpacontainer-addon</module>
+        <module>jpacontainer-addressbook-demo</module>
+        <module>jpacontainer-itest</module>
     </modules>
 
     <build>
@@ -127,39 +118,39 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-        <plugins>
-	        <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>properties-maven-plugin</artifactId>
-                <version>1.0-alpha-2</version>
-                <executions>
-                    <execution>
-                        <id>read-gpg-passphrase</id>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>read-project-properties</goal>
-                        </goals>
-                        <configuration>
-                            <files>
-                                <file>${gpg.passphrase.file}</file>
-                            </files>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>sign-artifacts</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>sign</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
+        <!--<plugins>-->
+	        <!--<plugin>-->
+                <!--<groupId>org.codehaus.mojo</groupId>-->
+                <!--<artifactId>properties-maven-plugin</artifactId>-->
+                <!--<version>1.0-alpha-2</version>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<id>read-gpg-passphrase</id>-->
+                        <!--<phase>initialize</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>read-project-properties</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<files>-->
+                                <!--<file>${gpg.passphrase.file}</file>-->
+                            <!--</files>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-gpg-plugin</artifactId>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<id>sign-artifacts</id>-->
+                        <!--<phase>verify</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>sign</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
+        <!--</plugins>-->
     </build>
 </project>
