@@ -89,6 +89,7 @@
         <module>jpacontainer-addon</module>
         <module>jpacontainer-itest</module>
         <module>jpacontainer-addressbook-demo</module>
+        <module>assembly</module>
     </modules>
 
     <build>
