@@ -1,17 +1,8 @@
-This is the project that should be used for development. The 
-project with name jpacontainer-addon is used to build the 
-actual release packages. Sources are used from this project.
-
 This project should be:
  * standoalone
  * easily set up (svn co, cd, mvn install) and for any ide
  * easily testable
- 
- Note that this project should not be used for building 
- release files. E.g. license files and headers wont get to the 
- artifacts nor the jars will get signed.. Also this only builds
-  ...-agpl-3.0 version for local testing purposes.
- 
+
 Leave all major maven haxies to the build projects!
 
 NOTE, pom changes in this project will not get into the release

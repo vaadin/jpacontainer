@@ -1,14 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <parent>
-        <artifactId>jpacontainer</artifactId>
-        <groupId>com.vaadin.addon</groupId>
-        <version>2.2.0-SNAPSHOT</version>
-    </parent>
-
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>jpacontainer-addon</artifactId>
+    <groupId>com.vaadin.addon</groupId>
+    <artifactId>jpacontainer</artifactId>
+    <version>2.2.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Vaadin JPAContainer Addon</name>
@@ -19,10 +15,10 @@
     </organization>
     <url>http://vaadin.com/</url>
     <scm>
-        <connection>scm:svn:http://dev.vaadin.com/svn/addons/JPAContainer/trunk/jpacontainer-addon-dev</connection>
-        <developerConnection>scm:svn:http://dev.vaadin.com/svn/addons/JPAContainer/trunk/jpacontainer-addon-dev
+        <connection>scm:svn:http://dev.vaadin.com/svn/addons/JPAContainer/trunk/jpacontainer-addon</connection>
+        <developerConnection>scm:svn:http://dev.vaadin.com/svn/addons/JPAContainer/trunk/jpacontainer-addon
         </developerConnection>
-        <url>http://dev.vaadin.com/browser/addons/JPAContainer/trunk/jpacontainer-addon-dev</url>
+        <url>http://dev.vaadin.com/browser/addons/JPAContainer/trunk/jpacontainer-addon</url>
     </scm>
     <issueManagement>
         <system>trac</system>
