@@ -17,6 +17,7 @@ package com.vaadin.addon.jpacontainer.itest.lazyhibernate;
 
 import java.io.IOException;
 
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.servlet.Filter;
@@ -49,16 +50,28 @@ public class LazyHibernateServletFilter implements Filter {
     public void doFilter(ServletRequest servletRequest,
             ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
+
+        EntityManager em = null;
+
         try {
-            // Create and set the entity manager
-            LazyHibernateEntityManagerProvider
-                    .setCurrentEntityManager(entityManagerFactory
-                            .createEntityManager());
+            // Create
+            em = entityManagerFactory.createEntityManager();
+
+            // Set
+            LazyHibernateEntityManagerProvider.setCurrentEntityManager(em);
+
             // Handle the request
             filterChain.doFilter(servletRequest, servletResponse);
+
         } finally {
-            // Reset the entity manager
+
+            // Reset
             LazyHibernateEntityManagerProvider.setCurrentEntityManager(null);
+
+            // Close
+            if (em != null) {
+                em.close();
+            }
         }
     }
 
