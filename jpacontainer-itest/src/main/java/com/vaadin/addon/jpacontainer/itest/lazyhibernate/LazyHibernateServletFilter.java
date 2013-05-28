@@ -50,28 +50,13 @@ public class LazyHibernateServletFilter implements Filter {
     public void doFilter(ServletRequest servletRequest,
             ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
-
-        EntityManager em = null;
-
-        try {
-            // Create
-            em = entityManagerFactory.createEntityManager();
-
-            // Set
+        final EntityManager em = entityManagerFactory.createEntityManager();
+        try {                     
             LazyHibernateEntityManagerProvider.setCurrentEntityManager(em);
-
-            // Handle the request
-            filterChain.doFilter(servletRequest, servletResponse);
-
+            filterChain.doFilter(servletRequest, servletResponse);            
         } finally {
-
-            // Reset
             LazyHibernateEntityManagerProvider.setCurrentEntityManager(null);
-
-            // Close
-            if (em != null) {
-                em.close();
-            }
+            em.close();
         }
     }
 
