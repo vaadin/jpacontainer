@@ -49,8 +49,9 @@ public class MultiSelectConverter<T> implements
         return (EntityContainer<T>) select.getContainerDataSource();
     }
 
+    @Override
     public Collection<Object> convertToPresentation(Collection<T> value,
-            Locale locale)
+            Class<? extends Collection<Object>> targetType, Locale locale)
             throws com.vaadin.data.util.converter.Converter.ConversionException {
         // Value here is a collection of entities, should be transformed to a
         // collection (set) of identifier
@@ -74,7 +75,9 @@ public class MultiSelectConverter<T> implements
         return identifiers;
     }
 
-    public Collection<T> convertToModel(Collection<Object> value, Locale locale)
+    @Override
+    public Collection<T> convertToModel(Collection<Object> value,
+            Class<? extends Collection<T>> targetType, Locale locale)
             throws com.vaadin.data.util.converter.Converter.ConversionException {
 
         // NOTE, this currently works properly only if equals and hashcode
@@ -86,7 +89,7 @@ public class MultiSelectConverter<T> implements
         // formattedValue here is a set of identifiers.
         // We will modify the existing collection of entities to contain
         // corresponding entities
-        Collection<Object> idset = (Collection<Object>) value;
+        Collection<Object> idset = value;
 
         Collection<T> modelValue = (Collection<T>) getPropertyDataSource()
                 .getValue();
@@ -212,10 +215,12 @@ public class MultiSelectConverter<T> implements
         }
     }
 
+    @Override
     public Class<Collection<T>> getModelType() {
         return getPropertyDataSource().getType();
     }
 
+    @Override
     public Class<Collection<Object>> getPresentationType() {
         return getPropertyDataSource().getType();
     }

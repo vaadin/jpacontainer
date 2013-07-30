@@ -34,7 +34,9 @@ public class SingleSelectConverter<T> implements Converter<Object, T> {
         return (EntityContainer<T>) select.getContainerDataSource();
     }
 
-    public T convertToModel(Object value, Locale locale)
+    @Override
+    public T convertToModel(Object value, Class<? extends T> targetType,
+            Locale locale)
             throws com.vaadin.data.util.converter.Converter.ConversionException {
         if (value != select.getNullSelectionItemId()) {
             return getContainer().getEntityProvider().getEntity(getContainer(),
@@ -44,7 +46,9 @@ public class SingleSelectConverter<T> implements Converter<Object, T> {
         }
     }
 
-    public Object convertToPresentation(T value, Locale locale)
+    @Override
+    public Object convertToPresentation(T value,
+            Class<? extends Object> targetType, Locale locale)
             throws com.vaadin.data.util.converter.Converter.ConversionException {
         if (value != null) {
             return getContainer().getEntityProvider().getIdentifier(value);
@@ -52,10 +56,12 @@ public class SingleSelectConverter<T> implements Converter<Object, T> {
         return select.getNullSelectionItemId();
     }
 
+    @Override
     public Class<T> getModelType() {
         return getContainer().getEntityClass();
     }
 
+    @Override
     public Class<Object> getPresentationType() {
         return Object.class;
     }

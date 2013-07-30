@@ -1682,9 +1682,11 @@ public class JPAContainer<T> implements EntityContainer<T>,
     public void refreshItem(Object itemId) {
         LinkedList<WeakReference<JPAContainerItem<T>>> linkedList = null;
         synchronized (getItemRegistry()) {
-            LinkedList<WeakReference<JPAContainerItem<T>>> origList = getItemRegistry().get(itemId);
+            LinkedList<WeakReference<JPAContainerItem<T>>> origList = getItemRegistry()
+                    .get(itemId);
             if (origList != null) {
-                linkedList = (LinkedList<WeakReference<JPAContainerItem<T>>>) origList.clone();
+                linkedList = (LinkedList<WeakReference<JPAContainerItem<T>>>) origList
+                        .clone();
             }
         }
         if (linkedList != null) {
@@ -1754,5 +1756,10 @@ public class JPAContainer<T> implements EntityContainer<T>,
             ids.add(getIdByIndex(startIndex + i));
         }
         return ids;
+    }
+
+    @Override
+    public Collection<Filter> getContainerFilters() {
+        return filterSupport.getAppliedFilters();
     }
 }
