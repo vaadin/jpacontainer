@@ -64,8 +64,8 @@
         </dependency>
         <dependency>
             <groupId>com.vaadin.addon</groupId>
-            <artifactId>jpacontainer-addon</artifactId>
-            <version>3.0.0-SNAPSHOT</version>
+            <artifactId>jpacontainer</artifactId>
+            <version>3.1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.persistence</groupId>
