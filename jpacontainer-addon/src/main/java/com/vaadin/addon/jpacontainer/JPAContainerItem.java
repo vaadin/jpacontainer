@@ -352,7 +352,7 @@ public final class JPAContainerItem<T> implements EntityItem<T> {
         }
 
         public void removeValueChangeListener(ValueChangeListener listener) {
-            addListener(listener);
+            removeListener(listener);
         }
     }
 
