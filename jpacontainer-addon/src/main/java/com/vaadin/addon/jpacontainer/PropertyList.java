@@ -228,8 +228,10 @@ final class PropertyList<T> implements Serializable {
                 // does not contain any nestable properties
                 for (Method m : parentProperty.getType().getMethods()) {
                     if (m.getName().startsWith("get")
+                            && m.getName().length() > 3
                             && !Modifier.isStatic(m.getModifiers())
                             && m.getReturnType() != Void.TYPE
+                            && m.getParameterTypes().length == 0
                             && m.getDeclaringClass() != Object.class) {
                         String newName = parentPropertyName
                                 + "."
