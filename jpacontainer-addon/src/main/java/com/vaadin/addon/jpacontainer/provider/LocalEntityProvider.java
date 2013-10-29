@@ -31,6 +31,7 @@ import javax.persistence.TransactionRequiredException;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
@@ -306,7 +307,8 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
             path = root.join(idStrings[0], JoinType.LEFT);
             for (int i = 1; i < idStrings.length; i++) {
                 if (i < idStrings.length - 1) {
-                    path = ((Root<?>) path).join(idStrings[i], JoinType.LEFT);
+                    path = ((Join<?, ?>) path)
+                            .join(idStrings[i], JoinType.LEFT);
                 } else {
                     path = path.get(idStrings[i]);
                 }

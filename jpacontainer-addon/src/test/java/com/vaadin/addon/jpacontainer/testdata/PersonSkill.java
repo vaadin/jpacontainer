@@ -128,6 +128,11 @@ public class PersonSkill implements Serializable, Cloneable {
     }
 
     @Override
+    public String toString() {
+        return String.valueOf(getSkill());
+    }
+
+    @Override
     public PersonSkill clone() {
         PersonSkill ps = new PersonSkill();
         ps.id = id;

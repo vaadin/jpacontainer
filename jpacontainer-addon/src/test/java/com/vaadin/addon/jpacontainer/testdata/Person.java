@@ -158,6 +158,15 @@ public class Person implements Serializable, Cloneable {
         skills.add(ps);
     }
 
+    public boolean hasSkill(Skill skill) {
+        for (PersonSkill personSkill : getSkills()) {
+            if (personSkill.getSkill().equals(skill)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Person) {

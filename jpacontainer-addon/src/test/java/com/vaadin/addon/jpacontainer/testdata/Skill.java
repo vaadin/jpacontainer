@@ -17,6 +17,7 @@
 package com.vaadin.addon.jpacontainer.testdata;
 
 import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -26,12 +27,12 @@ import javax.persistence.Version;
 
 /**
  * Entity Java bean for testing.
- *
+ * 
  * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
 @Entity
-public class Skill implements Serializable, Cloneable {
+public class Skill implements Serializable, Cloneable, Comparable<Skill> {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -74,8 +75,8 @@ public class Skill implements Serializable, Cloneable {
 			return false;
 		}
 		final Skill other = (Skill) obj;
-		if ((this.skillName == null) ? (other.skillName != null) : !this.skillName.
-				equals(other.skillName)) {
+		if ((skillName == null) ? (other.skillName != null) : !skillName
+				.equals(other.skillName)) {
 			return false;
 		}
 		return true;
@@ -84,8 +85,13 @@ public class Skill implements Serializable, Cloneable {
 	@Override
 	public int hashCode() {
 		int hash = 7;
-		hash = 97 * hash + (this.skillName != null ? this.skillName.hashCode() : 0);
+		hash = 97 * hash + (skillName != null ? skillName.hashCode() : 0);
 		return hash;
+	}
+
+	@Override
+	public String toString() {
+		return skillName;
 	}
 
 	@Override
@@ -95,5 +101,10 @@ public class Skill implements Serializable, Cloneable {
 		s.skillName = skillName;
 		s.version = version;
 		return s;
+	}
+
+	@Override
+	public int compareTo(Skill o) {
+		return skillName.compareTo(o.getSkillName());
 	}
 }

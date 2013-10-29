@@ -31,11 +31,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -47,11 +50,12 @@ import org.eclipse.persistence.jpa.PersistenceProvider;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.vaadin.addon.jpacontainer.SortBy;
 import com.vaadin.addon.jpacontainer.provider.LocalEntityProvider;
 import com.vaadin.addon.jpacontainer.provider.emtests.AbstractLocalEntityProviderEMTest;
+import com.vaadin.addon.jpacontainer.testdata.DataGenerator;
 import com.vaadin.addon.jpacontainer.testdata.Person;
 import com.vaadin.addon.jpacontainer.testdata.Skill;
-import com.vaadin.addon.jpacontainer.testdata.DataGenerator;
 import com.vaadin.data.util.filter.Compare.Equal;
 
 /**
@@ -99,8 +103,8 @@ public class LocalEntityProviderEclipseLinkTest extends
         for (Skill s : DataGenerator.getSkills()) {
             Set<Object> persons = new HashSet<Object>();
             for (int i = 0; i < 10; i++) {
-                Person p = DataGenerator.getTestDataSortedByPrimaryKey()
-                        .get(rnd.nextInt(DataGenerator
+                Person p = DataGenerator.getTestDataSortedByPrimaryKey().get(
+                        rnd.nextInt(DataGenerator
                                 .getTestDataSortedByPrimaryKey().size()));
                 System.out.println("Skill: " + s + " Person: " + p);
                 if (!persons.contains(p.getId())) {
@@ -117,10 +121,41 @@ public class LocalEntityProviderEclipseLinkTest extends
         // Now try out the filter
         for (final Skill s : DataGenerator.getSkills()) {
             Collection<Object> returnedIds = entityProvider
-                    .getAllEntityIdentifiers(container, new Equal("skills.skill", s), null);
+                    .getAllEntityIdentifiers(container, new Equal(
+                            "skills.skill", s), null);
             assertTrue(skillPersonMap.get(s).containsAll(returnedIds));
             assertEquals(skillPersonMap.get(s).size(), returnedIds.size());
         }
+
+        // Test that sort by nested properties works with implicit joins
+        SortBy sortBy = new SortBy("skills.skill.skillName", true);
+        Collection<Object> sortedIds = entityProvider.getAllEntityIdentifiers(
+                container, null, Collections.singletonList(sortBy));
+        assertTrue(sortedIds.size() > 0);
+        // check that actually sorted by skill name
+        // first skip persons with no skills
+        Iterator<Object> it = sortedIds.iterator();
+        Person currentPerson = entityProvider.getEntity(container, it.next());
+        while (currentPerson.getSkills().isEmpty()) {
+            currentPerson = entityProvider.getEntity(container, it.next());
+        }
+        // previous person with the same skill
+        Person previousPerson;
+        // skills sorted by name
+        TreeSet<Skill> skills = new TreeSet<Skill>(DataGenerator.getSkills());
+        nextSkill: for (final Skill skill : skills) {
+            previousPerson = null;
+            while (it.hasNext() && currentPerson.hasSkill(skill)) {
+                // a person could have two consecutive skills, so skip to the
+                // next if the person is present twice in a row
+                if (currentPerson.equals(previousPerson)) {
+                    continue nextSkill;
+                }
+                previousPerson = currentPerson;
+                currentPerson = entityProvider.getEntity(container, it.next());
+            }
+        }
+        assertTrue(!it.hasNext());
 
         entityProvider.setQueryModifierDelegate(null);
     }
