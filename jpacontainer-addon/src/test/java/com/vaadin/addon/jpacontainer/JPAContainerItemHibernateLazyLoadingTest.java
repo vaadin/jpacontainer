@@ -212,5 +212,10 @@ public class JPAContainerItemHibernateLazyLoadingTest {
         assertEquals("Jimmy", firstItem.getEntity().getManager().getFirstName());
         assertEquals("Jimmy", firstItem.getItemProperty("manager.firstName")
                 .getValue());
+        //get back to the original value to not disturb other tests
+        firstItem.getItemProperty("manager.firstName").setValue("Jim");
+        assertEquals("Jim", firstItem.getEntity().getManager().getFirstName());
+        assertEquals("Jim", firstItem.getItemProperty("manager.firstName")
+                .getValue());
     }
 }

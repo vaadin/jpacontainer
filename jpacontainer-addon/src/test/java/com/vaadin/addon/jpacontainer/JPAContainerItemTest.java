@@ -27,6 +27,8 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.Collection;
 import java.util.Date;
 
@@ -111,7 +113,7 @@ public class JPAContainerItemTest {
     }
 
     @Test
-    public void testPrimitiveTypesWithFields() {
+    public void testPrimitiveTypesWithFields() throws ParseException {
 
         CheckBox checkBox = new CheckBox();
         TextField textField = new TextField();
@@ -136,14 +138,15 @@ public class JPAContainerItemTest {
         modifiedItem = null;
         modifiedPropertyId = null;
 
-        textField.setValue("3.55");
+        // since the locale decimal separator may not be a dot
+        textField.setValue(NumberFormat.getInstance().format(3.55));
 
         modifiedItem = null;
         modifiedPropertyId = null;
 
         Boolean newMaleValue = (Boolean) checkBox.getValue();
-        Double newDoubleValue = Double.parseDouble((String) textField
-                .getValue());
+        Double newDoubleValue = NumberFormat.getInstance().parse((String) textField
+                .getValue()).doubleValue();
 
         assertEquals(true, newMaleValue);
         assertEquals((Double) 3.55, newDoubleValue);
