@@ -444,23 +444,36 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         tellDelegateFiltersWereAdded(container, cb, query);
 
         if (getEntityClassMetadata().hasEmbeddedIdentifier()) {
-            /*
+             /*
              * Hibernate will generate SQL for "count(obj)" that does not run on
              * HSQLDB. "count(*)" works fine, but then EclipseLink won't work.
              * With this hack, this method should work with both Hibernate and
              * EclipseLink.
              */
-            query.select(cb.count(root.get(entityIdPropertyName).get(
-                    getEntityClassMetadata().getIdentifierProperty()
-                            .getTypeMetadata().getPersistentPropertyNames()
-                            .iterator().next())));
+            if (query.isDistinct()) {
+        	query.select(cb.countDistinct(getCountHackRoot(entityIdPropertyName, root)));
+            }else {
+        	query.select(cb.count(getCountHackRoot(entityIdPropertyName, root)));
+            }
         } else {
-
-            query.select(cb.count(root.get(entityIdPropertyName)));
+            if (query.isDistinct()) {
+		query.select(cb.countDistinct(root.get(entityIdPropertyName)));
+	    }
+	    else {
+		query.select(cb.count(root.get(entityIdPropertyName)));
+	    }
         }
         tellDelegateQueryHasBeenBuilt(container, cb, query);
         TypedQuery<Long> tq = doGetEntityManager().createQuery(query);
         return tq.getSingleResult() == 1;
+    }
+
+    private Path<Object> getCountHackRoot(String entityIdPropertyName, Root<T> root)
+    {
+	return root.get(entityIdPropertyName).get(
+	        getEntityClassMetadata().getIdentifierProperty()
+	                .getTypeMetadata().getPersistentPropertyNames()
+	                .iterator().next());
     }
 
     public boolean containsEntity(EntityContainer<T> container,
@@ -530,13 +543,18 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
              * With this hack, this method should work with both Hibernate and
              * EclipseLink.
              */
-
-            query.select(cb.count(root.get(entityIdPropertyName).get(
-                    getEntityClassMetadata().getIdentifierProperty()
-                            .getTypeMetadata().getPersistentPropertyNames()
-                            .iterator().next())));
+            if (query.isDistinct()) {
+        	query.select(cb.countDistinct(getCountHackRoot(entityIdPropertyName, root)));
+            }else {
+        	query.select(cb.count(getCountHackRoot(entityIdPropertyName, root)));
+            }
         } else {
-            query.select(cb.count(root.get(entityIdPropertyName)));
+            if (query.isDistinct()) {
+		query.select(cb.countDistinct(root.get(entityIdPropertyName)));
+	    }
+	    else {
+		query.select(cb.count(root.get(entityIdPropertyName)));
+	    }
         }
         tellDelegateQueryHasBeenBuilt(container, cb, query);
         TypedQuery<Long> tq = doGetEntityManager().createQuery(query);
