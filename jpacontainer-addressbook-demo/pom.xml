@@ -1,21 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <parent>
-        <artifactId>jpacontainer-modules</artifactId>
-        <groupId>com.vaadin.addon</groupId>
-        <version>3.1.1-SNAPSHOT</version>
-    </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.vaadin.demo</groupId>
     <artifactId>jpacontainer-addressbook-demo</artifactId>
+    <version>3.1.1-SNAPSHOT</version>
     <packaging>war</packaging>
     <name>Simple Vaadin JPAContainer example app</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <vaadin.version>7.1.1</vaadin.version>
+        <vaadin.version>7.1.7</vaadin.version>
     </properties>
+
+    <organization>
+        <name>Vaadin Ltd</name>
+        <url>http://vaadin.com/</url>
+    </organization>
+    <inceptionYear>2009</inceptionYear>
+    <url>http://vaadin.com/</url>
+    <scm>
+        <connection>scm:svn:http://dev.vaadin.com/svn/addons/JPAContainer/trunk</connection>
+        <developerConnection>scm:svn:http://dev.vaadin.com/svn/addons/JPAContainer/trunk</developerConnection>
+        <url>http://dev.vaadin.com/browser/addons/JPAContainer/trunk</url>
+    </scm>
+    <issueManagement>
+        <system>trac</system>
+        <url>http://dev.vaadin.com/</url>
+    </issueManagement>
+    <developers>
+        <developer>
+            <name>Petter Holmström</name>
+            <id>petter</id>
+            <email>petter at vaadin.com</email>
+            <organization>Vaadin Ltd</organization>
+            <timezone>+2</timezone>
+        </developer>
+        <developer>
+            <name>Henri Sara</name>
+            <id>hesara</id>
+            <email>hesara at vaadin.com</email>
+            <organization>Vaadin Ltd</organization>
+            <timezone>+2</timezone>
+        </developer>
+    </developers>
 
     <licenses>
         <license>
@@ -65,7 +93,7 @@
         <dependency>
             <groupId>com.vaadin.addon</groupId>
             <artifactId>jpacontainer</artifactId>
-            <version>3.1.1-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.persistence</groupId>
