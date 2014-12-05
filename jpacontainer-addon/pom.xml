@@ -15,10 +15,9 @@
     </organization>
     <url>http://vaadin.com/</url>
     <scm>
-        <connection>scm:svn:http://dev.vaadin.com/svn/addons/JPAContainer/trunk/jpacontainer-addon-dev</connection>
-        <developerConnection>scm:svn:http://dev.vaadin.com/svn/addons/JPAContainer/trunk/jpacontainer-addon-dev
-        </developerConnection>
-        <url>http://dev.vaadin.com/browser/addons/JPAContainer/trunk/jpacontainer-addon-dev</url>
+        <connection>scm:git:git@github.com:vaadin/jpacontainer.git</connection>
+        <developerConnection>scm:git:git@github.com:vaadin/jpacontainer.git</developerConnection>
+        <url>https://github.com/vaadin/jpacontainer</url>
     </scm>
     <issueManagement>
         <system>trac</system>
