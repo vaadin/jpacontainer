@@ -54,7 +54,7 @@
         <Implementation-Title>Vaadin JPAContainer</Implementation-Title>
         <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
 
-        <vaadin.version.maven>7.1.1</vaadin.version.maven>
+        <vaadin.version>7.1.7</vaadin.version>
         <snapshot.repository.url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</snapshot.repository.url>
         <hibernate-version>4.1.9.Final</hibernate-version>
     </properties>
@@ -93,7 +93,7 @@
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-server</artifactId>
-            <version>${vaadin.version.maven}</version>
+            <version>${vaadin.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -274,6 +274,19 @@
                 <configuration>
                     <excludeResources>true</excludeResources>
                 </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.9.1</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
