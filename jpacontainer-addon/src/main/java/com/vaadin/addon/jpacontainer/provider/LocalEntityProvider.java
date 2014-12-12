@@ -380,7 +380,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         CriteriaQuery<Object> query = cb.createQuery();
         Root<T> root = query.from(entityClassMetadata.getMappedClass());
 
-        tellDelegateQueryWillBeBuilt(container, cb, query);
+        tellDelegateQueryWillBeBuilt(container, cb, query,false);
 
         List<Predicate> predicates = new ArrayList<Predicate>();
         if (filter != null) {
@@ -429,7 +429,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<T> root = query.from(getEntityClassMetadata().getMappedClass());
 
-        tellDelegateQueryWillBeBuilt(container, cb, query);
+        tellDelegateQueryWillBeBuilt(container, cb, query,true);
 
         List<Predicate> predicates = new ArrayList<Predicate>();
         predicates.add(cb.equal(root.get(entityIdPropertyName),
@@ -524,7 +524,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<T> root = query.from(getEntityClassMetadata().getMappedClass());
 
-        tellDelegateQueryWillBeBuilt(container, cb, query);
+        tellDelegateQueryWillBeBuilt(container, cb, query,true);
 
         List<Predicate> predicates = new ArrayList<Predicate>();
         if (filter != null) {
@@ -846,10 +846,18 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
     // QueryModifierDelegate helper methods
 
     private void tellDelegateQueryWillBeBuilt(EntityContainer<T> container,
-            CriteriaBuilder cb, CriteriaQuery<?> query) {
+            CriteriaBuilder cb, CriteriaQuery<?> query,boolean forCount) {
         if (queryModifierDelegate != null) {
+            if (queryModifierDelegate instanceof QueryModifierDelegateCountAware)
+            {
+        	((QueryModifierDelegateCountAware)queryModifierDelegate).startQueryForCount(forCount);
+            }
             queryModifierDelegate.queryWillBeBuilt(cb, query);
         } else if (container.getQueryModifierDelegate() != null) {
+            if (container.getQueryModifierDelegate() instanceof QueryModifierDelegateCountAware)
+            {
+        	((QueryModifierDelegateCountAware)container.getQueryModifierDelegate()).startQueryForCount(forCount);
+            }
             container.getQueryModifierDelegate().queryWillBeBuilt(cb, query);
         }
     }
