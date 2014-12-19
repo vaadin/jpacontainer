@@ -491,19 +491,27 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
     public T getEntity(EntityContainer<T> container, Object entityId) {
         return doGetEntity(entityId);
     }
-
+    
+    @Override
+    public List<Object> getEntityIdentifierAt(EntityContainer<T> entityContainer, Filter filter, List<SortBy> sortBy,
+	    int index, int qty)
+    {
+	if (sortBy == null)
+	{
+	    sortBy = Collections.emptyList();
+	}
+	TypedQuery<Object> query = createFilteredQuery(entityContainer,
+		Arrays.asList(getEntityClassMetadata().getIdentifierProperty().getName()), filter,
+		addPrimaryKeyToSortList(sortBy), false);
+	query.setMaxResults(qty);
+	query.setFirstResult(index);
+	return query.getResultList();
+    }
+    
     protected Object doGetEntityIdentifierAt(EntityContainer<T> container,
             Filter filter, List<SortBy> sortBy, int index) {
-        if (sortBy == null) {
-            sortBy = Collections.emptyList();
-        }
-        TypedQuery<Object> query = createFilteredQuery(container,
-                Arrays.asList(getEntityClassMetadata().getIdentifierProperty()
-                        .getName()), filter, addPrimaryKeyToSortList(sortBy),
-                false);
-        query.setMaxResults(1);
-        query.setFirstResult(index);
-        List<?> result = query.getResultList();
+       
+        List<?> result = getEntityIdentifierAt(container,filter,sortBy,index,1);
         if (result.isEmpty()) {
             return null;
         } else {
@@ -979,4 +987,6 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         // Nothing to do in this implementation, since we don't keep any
         // items/entities cached.
     }
+
+ 
 }
