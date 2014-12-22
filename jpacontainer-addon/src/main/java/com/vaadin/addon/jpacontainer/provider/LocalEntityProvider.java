@@ -380,7 +380,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         CriteriaQuery<Object> query = cb.createQuery();
         Root<T> root = query.from(entityClassMetadata.getMappedClass());
 
-        tellDelegateQueryWillBeBuilt(container, cb, query);
+        tellDelegateQueryWillBeBuilt(container, cb, query,false);
 
         List<Predicate> predicates = new ArrayList<Predicate>();
         if (filter != null) {
@@ -429,7 +429,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<T> root = query.from(getEntityClassMetadata().getMappedClass());
 
-        tellDelegateQueryWillBeBuilt(container, cb, query);
+        tellDelegateQueryWillBeBuilt(container, cb, query,true);
 
         List<Predicate> predicates = new ArrayList<Predicate>();
         predicates.add(cb.equal(root.get(entityIdPropertyName),
@@ -444,23 +444,36 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         tellDelegateFiltersWereAdded(container, cb, query);
 
         if (getEntityClassMetadata().hasEmbeddedIdentifier()) {
-            /*
+             /*
              * Hibernate will generate SQL for "count(obj)" that does not run on
              * HSQLDB. "count(*)" works fine, but then EclipseLink won't work.
              * With this hack, this method should work with both Hibernate and
              * EclipseLink.
              */
-            query.select(cb.count(root.get(entityIdPropertyName).get(
-                    getEntityClassMetadata().getIdentifierProperty()
-                            .getTypeMetadata().getPersistentPropertyNames()
-                            .iterator().next())));
+            if (query.isDistinct()) {
+        	query.select(cb.countDistinct(getCountHackRoot(entityIdPropertyName, root)));
+            }else {
+        	query.select(cb.count(getCountHackRoot(entityIdPropertyName, root)));
+            }
         } else {
-
-            query.select(cb.count(root.get(entityIdPropertyName)));
+            if (query.isDistinct()) {
+		query.select(cb.countDistinct(root.get(entityIdPropertyName)));
+	    }
+	    else {
+		query.select(cb.count(root.get(entityIdPropertyName)));
+	    }
         }
         tellDelegateQueryHasBeenBuilt(container, cb, query);
         TypedQuery<Long> tq = doGetEntityManager().createQuery(query);
         return tq.getSingleResult() == 1;
+    }
+
+    private Path<Object> getCountHackRoot(String entityIdPropertyName, Root<T> root)
+    {
+	return root.get(entityIdPropertyName).get(
+	        getEntityClassMetadata().getIdentifierProperty()
+	                .getTypeMetadata().getPersistentPropertyNames()
+	                .iterator().next());
     }
 
     public boolean containsEntity(EntityContainer<T> container,
@@ -478,19 +491,27 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
     public T getEntity(EntityContainer<T> container, Object entityId) {
         return doGetEntity(entityId);
     }
-
+    
+    @Override
+    public List<Object> getEntityIdentifierAt(EntityContainer<T> entityContainer, Filter filter, List<SortBy> sortBy,
+	    int index, int qty)
+    {
+	if (sortBy == null)
+	{
+	    sortBy = Collections.emptyList();
+	}
+	TypedQuery<Object> query = createFilteredQuery(entityContainer,
+		Arrays.asList(getEntityClassMetadata().getIdentifierProperty().getName()), filter,
+		addPrimaryKeyToSortList(sortBy), false);
+	query.setMaxResults(qty);
+	query.setFirstResult(index);
+	return query.getResultList();
+    }
+    
     protected Object doGetEntityIdentifierAt(EntityContainer<T> container,
             Filter filter, List<SortBy> sortBy, int index) {
-        if (sortBy == null) {
-            sortBy = Collections.emptyList();
-        }
-        TypedQuery<Object> query = createFilteredQuery(container,
-                Arrays.asList(getEntityClassMetadata().getIdentifierProperty()
-                        .getName()), filter, addPrimaryKeyToSortList(sortBy),
-                false);
-        query.setMaxResults(1);
-        query.setFirstResult(index);
-        List<?> result = query.getResultList();
+       
+        List<?> result = getEntityIdentifierAt(container,filter,sortBy,index,1);
         if (result.isEmpty()) {
             return null;
         } else {
@@ -511,7 +532,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<T> root = query.from(getEntityClassMetadata().getMappedClass());
 
-        tellDelegateQueryWillBeBuilt(container, cb, query);
+        tellDelegateQueryWillBeBuilt(container, cb, query,true);
 
         List<Predicate> predicates = new ArrayList<Predicate>();
         if (filter != null) {
@@ -530,13 +551,18 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
              * With this hack, this method should work with both Hibernate and
              * EclipseLink.
              */
-
-            query.select(cb.count(root.get(entityIdPropertyName).get(
-                    getEntityClassMetadata().getIdentifierProperty()
-                            .getTypeMetadata().getPersistentPropertyNames()
-                            .iterator().next())));
+            if (query.isDistinct()) {
+        	query.select(cb.countDistinct(getCountHackRoot(entityIdPropertyName, root)));
+            }else {
+        	query.select(cb.count(getCountHackRoot(entityIdPropertyName, root)));
+            }
         } else {
-            query.select(cb.count(root.get(entityIdPropertyName)));
+            if (query.isDistinct()) {
+		query.select(cb.countDistinct(root.get(entityIdPropertyName)));
+	    }
+	    else {
+		query.select(cb.count(root.get(entityIdPropertyName)));
+	    }
         }
         tellDelegateQueryHasBeenBuilt(container, cb, query);
         TypedQuery<Long> tq = doGetEntityManager().createQuery(query);
@@ -828,10 +854,18 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
     // QueryModifierDelegate helper methods
 
     private void tellDelegateQueryWillBeBuilt(EntityContainer<T> container,
-            CriteriaBuilder cb, CriteriaQuery<?> query) {
+            CriteriaBuilder cb, CriteriaQuery<?> query,boolean forCount) {
         if (queryModifierDelegate != null) {
+            if (queryModifierDelegate instanceof QueryModifierDelegateCountAware)
+            {
+        	((QueryModifierDelegateCountAware)queryModifierDelegate).startQueryForCount(forCount);
+            }
             queryModifierDelegate.queryWillBeBuilt(cb, query);
         } else if (container.getQueryModifierDelegate() != null) {
+            if (container.getQueryModifierDelegate() instanceof QueryModifierDelegateCountAware)
+            {
+        	((QueryModifierDelegateCountAware)container.getQueryModifierDelegate()).startQueryForCount(forCount);
+            }
             container.getQueryModifierDelegate().queryWillBeBuilt(cb, query);
         }
     }
@@ -953,4 +987,6 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         // Nothing to do in this implementation, since we don't keep any
         // items/entities cached.
     }
+
+ 
 }

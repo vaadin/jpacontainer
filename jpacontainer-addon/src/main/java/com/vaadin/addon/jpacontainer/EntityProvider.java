@@ -111,6 +111,9 @@ public interface EntityProvider<T> extends Serializable {
     public Object getEntityIdentifierAt(EntityContainer<T> entityContainer,
             Filter filter, List<SortBy> sortBy, int index);
 
+    public List<Object> getEntityIdentifierAt(EntityContainer<T> entityContainer,
+            Filter filter, List<SortBy> sortBy, int index,int qty);
+
     /**
      * Gets the identifier of the first item in the list of entities determined
      * by <code>filter</code> and <code>sortBy</code>.

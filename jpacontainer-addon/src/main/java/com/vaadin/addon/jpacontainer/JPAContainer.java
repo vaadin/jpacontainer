@@ -1749,13 +1749,31 @@ public class JPAContainer<T> implements EntityContainer<T>,
         removeListener(listener);
     }
 
-    public List<?> getItemIds(int startIndex, int numberOfItems) {
-        // FIXME this should be optimized
-        ArrayList<Object> ids = new ArrayList<Object>();
-        for (int i = 0; i < numberOfItems; i++) {
-            ids.add(getIdByIndex(startIndex + i));
-        }
-        return ids;
+    public List<?> getItemIds(int startIndex, int numberOfItems)
+    {
+	if (isWriteThrough())
+	{
+	    return doGetEntityProvider().getEntityIdentifierAt(this, getAppliedFiltersAsConjunction(), getSortByList(),
+		    startIndex, numberOfItems);
+	}
+	int addedItems = bufferingDelegate.getAddedItemIds().size();
+	ArrayList<Object> ids = new ArrayList<Object>();
+
+	for (; startIndex < numberOfItems && numberOfItems > 0 && addedItems > startIndex; startIndex++)
+	{
+	    ids.add(bufferingDelegate.getAddedItemIds().get(startIndex));
+	    numberOfItems--;
+	}
+	if (numberOfItems > 0)
+	{
+	    startIndex -= addedItems;
+	    startIndex = bufferingDelegate.fixDbIndexWithDeletedItems(startIndex);
+	    ids.addAll(doGetEntityProvider().getEntityIdentifierAt(this, getAppliedFiltersAsConjunction(),
+		    getSortByList(), startIndex, numberOfItems));
+
+	}
+	return ids;
+
     }
 
     @Override
