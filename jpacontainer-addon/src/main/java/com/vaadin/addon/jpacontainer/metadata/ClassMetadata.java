@@ -419,7 +419,7 @@ public class ClassMetadata<T> implements Serializable {
                             currentObject, pmd);
                     if (currentObject == null) {
                         throw new IllegalStateException(
-                                "A null value was found in the chain of nested properties");
+                                "A null value was found in the chain of nested properties for property "+propertyName);
                     }
                     if (pmd instanceof PersistentPropertyMetadata) {
                         typeMetadata = (ClassMetadata<Object>) ((PersistentPropertyMetadata) pmd)
@@ -457,7 +457,7 @@ public class ClassMetadata<T> implements Serializable {
                         currentObject = getter.invoke(currentObject);
                         if (currentObject == null) {
                             throw new IllegalStateException(
-                                    "A null value was found in the chain of nested properties");
+                                    "A null value was found in the chain of nested properties for property "+propertyName);
                         }
                         type = getter.getReturnType();
                     } catch (Exception e) {
