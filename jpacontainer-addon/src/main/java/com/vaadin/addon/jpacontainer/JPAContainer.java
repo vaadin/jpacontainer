@@ -242,6 +242,11 @@ public class JPAContainer<T> implements EntityContainer<T>,
             listeners.remove(listener);
         }
     }
+    
+    public LinkedList<ItemSetChangeListener> getListeners()
+    {
+    	return listeners;
+    }
 
     /**
      * Publishes <code>event</code> to all registered
@@ -1747,6 +1752,11 @@ public class JPAContainer<T> implements EntityContainer<T>,
 
     public void removeItemSetChangeListener(ItemSetChangeListener listener) {
         removeListener(listener);
+    }
+    
+    public LinkedList<ItemSetChangeListener> getItemSetChangeListeners()
+    {
+    	return getListeners();
     }
 
     public List<?> getItemIds(int startIndex, int numberOfItems)
