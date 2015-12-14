@@ -166,8 +166,8 @@ public class FilterConverter {
             if (stringFilter.isIgnoreCase()) {
                 return cb.like(cb.upper(AdvancedFilterableSupport
                         .getPropertyPath(root, stringFilter.getPropertyId()
-                                .toString())), cb.upper(cb
-                        .literal(filterString)));
+                                .toString())), cb.literal(filterString.
+                                		toUpperCase()));
             } else {
                 return cb.like(AdvancedFilterableSupport.getPropertyPath(root,
                         stringFilter.getPropertyId().toString()), cb
@@ -194,8 +194,8 @@ public class FilterConverter {
             } else {
                 return cb.like(
                         cb.upper(AdvancedFilterableSupport.getPropertyPath(
-                                root, like.getPropertyId().toString())), cb
-                                .upper(cb.literal(like.getValue())));
+                                root, like.getPropertyId().toString())), 
+                        cb.literal(like.getValue().toUpperCase()));
             }
         }
     }
