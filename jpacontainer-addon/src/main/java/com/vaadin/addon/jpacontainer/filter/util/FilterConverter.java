@@ -164,14 +164,21 @@ public class FilterConverter {
                 filterString = "%" + filterString + "%";
             }
             if (stringFilter.isIgnoreCase()) {
-                return cb.like(cb.upper(AdvancedFilterableSupport
-                        .getPropertyPath(root, stringFilter.getPropertyId()
-                                .toString())), cb.literal(filterString.
-                                		toUpperCase()));
+                return cb.like(
+                        cb.upper(cb.concat(
+                                AdvancedFilterableSupport.getPropertyPath(root,
+                                        stringFilter.getPropertyId()
+                                                .toString()),
+                                cb.literal(""))),
+                        cb.literal(filterString.toUpperCase()));
             } else {
-                return cb.like(AdvancedFilterableSupport.getPropertyPath(root,
-                        stringFilter.getPropertyId().toString()), cb
-                        .literal(filterString));
+                return cb.like(
+                        cb.concat(
+                                AdvancedFilterableSupport.getPropertyPath(root,
+                                        stringFilter.getPropertyId()
+                                                .toString()),
+                                cb.literal("")),
+                        cb.literal(filterString));
             }
         }
     }
@@ -188,13 +195,17 @@ public class FilterConverter {
                 From<X, Y> root) {
             Like like = (Like) filter;
             if (like.isCaseSensitive()) {
-                return cb.like(AdvancedFilterableSupport.getPropertyPath(root,
-                        like.getPropertyId().toString()), cb.literal(like
-                        .getValue()));
+                return cb.like(cb.concat(
+                        AdvancedFilterableSupport.getPropertyPath(root,
+                                like.getPropertyId().toString()),
+                        cb.literal("")), cb.literal(like.getValue()));
             } else {
                 return cb.like(
-                        cb.upper(AdvancedFilterableSupport.getPropertyPath(
-                                root, like.getPropertyId().toString())), 
+
+                cb.upper(cb.concat(
+                        AdvancedFilterableSupport.getPropertyPath(root,
+                                like.getPropertyId().toString()),
+                        cb.literal(""))),
                         cb.literal(like.getValue().toUpperCase()));
             }
         }
