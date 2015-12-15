@@ -29,7 +29,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.From;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
+
 import com.vaadin.addon.jpacontainer.EntityProviderChangeEvent.EntityPropertyUpdatedEvent;
+import com.vaadin.addon.jpacontainer.filter.converter.IFilterConverter;
 import com.vaadin.addon.jpacontainer.filter.util.AdvancedFilterableSupport;
 import com.vaadin.addon.jpacontainer.metadata.EntityClassMetadata;
 import com.vaadin.addon.jpacontainer.metadata.MetadataFactory;
@@ -175,7 +181,7 @@ public class JPAContainer<T> implements EntityContainer<T>,
 
                     private static final long serialVersionUID = -23196201919497112L;
 
-                    public void filtersApplied(AdvancedFilterableSupport sender) {
+                    public void filtersApplied(AdvancedFilterable sender) {
                         fireContainerItemSetChange(new FiltersAppliedEvent<JPAContainer<T>>(
                                 JPAContainer.this));
                     }
@@ -1761,5 +1767,50 @@ public class JPAContainer<T> implements EntityContainer<T>,
     @Override
     public Collection<Filter> getContainerFilters() {
         return filterSupport.getAppliedFilters();
+    }
+
+    @Override
+    public void addFilterConverter(IFilterConverter filterConverter) {
+        filterSupport.addFilterConverter(filterConverter);
+    }
+
+    @Override
+    public void removeFilterConverter(IFilterConverter filterConverter) {
+        filterSupport.removeFilterConverter(filterConverter);
+    }
+
+    @Override
+    public boolean containsFilterConverter(IFilterConverter filterConverter) {
+        return filterSupport.containsFilterConverter(filterConverter);
+    }
+
+    @Override
+    public <X, Y> Predicate[] convertFiltersToArray(Collection<Filter> filters,
+            CriteriaBuilder criteriaBuilder, From<X, Y> root) {
+        return filterSupport.convertFiltersToArray(filters, criteriaBuilder,
+                root);
+    }
+
+    @Override
+    public <X, Y> List<Predicate> convertFilters(Collection<Filter> filters,
+            CriteriaBuilder criteriaBuilder, From<X, Y> root) {
+        return filterSupport.convertFilters(filters, criteriaBuilder, root);
+    }
+
+    @Override
+    public <X, Y> Predicate convertFilter(Filter filter,
+            CriteriaBuilder criteriaBuilder, From<X, Y> root) {
+        return filterSupport.convertFilter(filter, criteriaBuilder, root);
+    }
+
+    @Override
+    public <X, Y> Path<X> getPropertyPathTyped(From<X, Y> root,
+            Object propertyId) {
+        return filterSupport.getPropertyPathTyped(root, propertyId);
+    }
+
+    @Override
+    public Path<String> getPropertyPath(From<?, ?> root, Object propertyId) {
+        return filterSupport.getPropertyPath(root, propertyId);
     }
 }

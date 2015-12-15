@@ -19,8 +19,17 @@ package com.vaadin.addon.jpacontainer;
 import java.util.Collection;
 import java.util.List;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.From;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
+import com.vaadin.addon.jpacontainer.filter.converter.IFilterConverter;
 import com.vaadin.data.Container;
 import com.vaadin.data.Container.Filter;
+import com.vaadin.data.Container.Filterable;
 import com.vaadin.data.Container.ItemSetChangeEvent;
 
 /**
@@ -137,4 +146,89 @@ public interface AdvancedFilterable {
             return container;
         }
     }
+
+    /**
+     * Add converter that can convert a certain kind of {@link Filter} to a
+     * {@link Predicate}
+     * 
+     * @param filterConverter
+     *            converter that can convert a certain kind of {@link Filter} to
+     *            a {@link Predicate}
+     */
+    void addFilterConverter(IFilterConverter filterConverter);
+
+    /**
+     * Remove converter that can convert a certain kind of {@link Filter} to a
+     * {@link Predicate}
+     * 
+     * @param filterConverter
+     *            converter that can convert a certain kind of {@link Filter} to
+     *            a {@link Predicate}
+     */
+    void removeFilterConverter(IFilterConverter filterConverter);
+
+    /**
+     * Check if this object contains {@code filterConverter}.
+     * 
+     * @param filterConverter
+     * @return true, if this object contains {@code filterConverter}.
+     */
+    boolean containsFilterConverter(IFilterConverter filterConverter);
+
+    /**
+     * Converts a collection of {@link Filter} into a array of {@link Predicate}
+     * .
+     * 
+     * @param filters
+     *            Collection of {@link Filter}
+     * @return Array of {@link Predicate}
+     */
+    <X, Y> Predicate[] convertFiltersToArray(Collection<Filter> filters,
+            CriteriaBuilder criteriaBuilder, From<X, Y> root);
+
+    /**
+     * Converts a collection of {@link Filter} into a list of {@link Predicate}.
+     * 
+     * @param filters
+     *            Collection of {@link Filter}
+     * @return List of {@link Predicate}
+     */
+    <X, Y> List<Predicate> convertFilters(Collection<Filter> filters,
+            CriteriaBuilder criteriaBuilder, From<X, Y> root);
+
+    /**
+     * Convert a single {@link Filter} to a criteria {@link Predicate}.
+     * 
+     * @param filter
+     *            the {@link Filter} to convert
+     * @param criteriaBuilder
+     *            the {@link CriteriaBuilder} to use when creating the
+     *            {@link Predicate}
+     * @param root
+     *            the {@link CriteriaQuery} {@link Root} to use for finding
+     *            fields.
+     * @return a {@link Predicate} representing the {@link Filter} or null if
+     *         conversion failed.
+     */
+    <X, Y> Predicate convertFilter(Filter filter,
+            CriteriaBuilder criteriaBuilder, From<X, Y> root);
+
+    /**
+     * Get property path
+     * 
+     * @param root
+     * @param propertyId
+     * @return
+     */
+    <X, Y> Path<X> getPropertyPathTyped(From<X, Y> root, Object propertyId);
+
+    /**
+     * Get property path
+     * 
+     * @param root
+     * @param propertyId
+     * @return
+     */
+    Path<String> getPropertyPath(From<?, ?> root, Object propertyId);
+
 }

@@ -16,15 +16,8 @@
 
 package com.vaadin.addon.jpacontainer.filter.util;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.easymock.EasyMock.*;
+import static org.junit.Assert.*;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -32,6 +25,7 @@ import java.util.LinkedList;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.vaadin.addon.jpacontainer.filter.converter.IFilterConverter;
 import com.vaadin.data.Container.Filter;
 
 /**
@@ -236,4 +230,19 @@ public class AdvancedFilterableSupportTest {
 
         verify(listenerMock);
     }
+    
+    @Test
+    public void testFilterConvertersCount() {
+        IFilterConverter c = createMock(IFilterConverter.class);
+        AdvancedFilterableSupport s1 = new AdvancedFilterableSupport();
+        AdvancedFilterableSupport s2 = new AdvancedFilterableSupport();
+        assertFalse(s1.containsFilterConverter(c));
+        assertFalse(s2.containsFilterConverter(c));
+        s1.addFilterConverter(c);
+        assertTrue(s1.containsFilterConverter(c));
+        assertFalse(s2.containsFilterConverter(c));
+        AdvancedFilterableSupport s3 = new AdvancedFilterableSupport();
+        assertFalse(s3.containsFilterConverter(c));
+    }
+
 }
