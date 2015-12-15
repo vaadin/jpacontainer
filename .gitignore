@@ -23,3 +23,17 @@ pom.xml.versionsBackup
 pom.xml.next
 release.properties
 
+# Eclipse
+.metadata
+.classpath
+.settings
+.project
+.factorypath
+
+# JRebel
+rebel.xml
+
+# HSQLDB
+mem.log
+mem.properties
+mem.script
