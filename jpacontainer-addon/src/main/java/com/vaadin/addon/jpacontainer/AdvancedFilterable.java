@@ -19,8 +19,12 @@ package com.vaadin.addon.jpacontainer;
 import java.util.Collection;
 import java.util.List;
 
+import javax.persistence.criteria.Predicate;
+
+import com.vaadin.addon.jpacontainer.filter.converter.IFilterConverter;
 import com.vaadin.data.Container;
 import com.vaadin.data.Container.Filter;
+import com.vaadin.data.Container.Filterable;
 import com.vaadin.data.Container.ItemSetChangeEvent;
 
 /**
@@ -30,7 +34,7 @@ import com.vaadin.data.Container.ItemSetChangeEvent;
  * @author Petter Holmström (Vaadin Ltd)
  * @since 1.0
  */
-public interface AdvancedFilterable {
+public interface AdvancedFilterable extends IFilterTool {
 
     /**
      * Gets the IDs of all the properties that are filterable.
@@ -137,4 +141,33 @@ public interface AdvancedFilterable {
             return container;
         }
     }
+
+    /**
+     * Add converter that can convert a certain kind of {@link Filter} to a
+     * {@link Predicate}
+     * 
+     * @param filterConverter
+     *            converter that can convert a certain kind of {@link Filter} to
+     *            a {@link Predicate}
+     */
+    void addFilterConverter(IFilterConverter<?> filterConverter);
+
+    /**
+     * Remove converter that can convert a certain kind of {@link Filter} to a
+     * {@link Predicate}
+     * 
+     * @param filterConverter
+     *            converter that can convert a certain kind of {@link Filter} to
+     *            a {@link Predicate}
+     */
+    void removeFilterConverter(IFilterConverter<?> filterConverter);
+
+    /**
+     * Check if this object contains {@code filterConverter}.
+     * 
+     * @param filterConverter
+     * @return true, if this object contains {@code filterConverter}.
+     */
+    boolean containsFilterConverter(IFilterConverter<?> filterConverter);
+
 }

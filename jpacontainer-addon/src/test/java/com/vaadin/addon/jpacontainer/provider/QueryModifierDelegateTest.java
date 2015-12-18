@@ -41,18 +41,17 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.vaadin.addon.jpacontainer.EntityContainer;
+import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.QueryModifierDelegate;
 import com.vaadin.addon.jpacontainer.testdata.Person;
+import com.vaadin.addon.jpacontainer.testdata.StubEntity;
 import com.vaadin.addon.jpacontainer.util.DefaultQueryModifierDelegate;
 
 @SuppressWarnings({"rawtypes","unchecked"})
 public class QueryModifierDelegateTest {
     
-    static EntityContainer container = EasyMock.createNiceMock(EntityContainer.class);
-    static {
-        EasyMock.replay(container);
-    }
-
+    static EntityContainer container = new JPAContainer<StubEntity>(
+            StubEntity.class);
 
     private static EntityManagerFactory emf = Persistence
             .createEntityManagerFactory("eclipselink-in-memory");

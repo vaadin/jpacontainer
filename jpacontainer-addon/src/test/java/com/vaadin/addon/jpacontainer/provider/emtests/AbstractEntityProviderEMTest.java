@@ -16,10 +16,7 @@
 
 package com.vaadin.addon.jpacontainer.provider.emtests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,19 +36,20 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.vaadin.addon.jpacontainer.EntityContainer;
 import com.vaadin.addon.jpacontainer.EntityProvider;
+import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.SortBy;
 import com.vaadin.addon.jpacontainer.filter.JoinFilter;
 import com.vaadin.addon.jpacontainer.testdata.DataGenerator;
 import com.vaadin.addon.jpacontainer.testdata.EmbeddedIdPerson;
 import com.vaadin.addon.jpacontainer.testdata.Person;
 import com.vaadin.addon.jpacontainer.testdata.Skill;
+import com.vaadin.addon.jpacontainer.testdata.StubEntity;
 import com.vaadin.addon.jpacontainer.util.DefaultQueryModifierDelegate;
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.util.filter.Compare.Equal;
@@ -67,11 +65,9 @@ import com.vaadin.data.util.filter.Compare.Equal;
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class AbstractEntityProviderEMTest {
-    
-    protected static EntityContainer container = EasyMock.createNiceMock(EntityContainer.class);
-    static {
-        EasyMock.replay(container);
-    }
+
+    protected static EntityContainer container = new JPAContainer<StubEntity>(
+            StubEntity.class);
 
     protected static String getDatabaseFileName() throws IOException {
         File f = File.createTempFile("jpacontainer_integration_test", "");
@@ -696,7 +692,7 @@ public abstract class AbstractEntityProviderEMTest {
 
                     });
             Collection<Object> returnedIds = entityProvider
-                    .getAllEntityIdentifiers(null, null, null);
+                    .getAllEntityIdentifiers(container, null, null);
             System.out.println(returnedIds);
             assertTrue(skillPersonMap.get(s).containsAll(returnedIds));
             assertEquals(skillPersonMap.get(s).size(), returnedIds.size());

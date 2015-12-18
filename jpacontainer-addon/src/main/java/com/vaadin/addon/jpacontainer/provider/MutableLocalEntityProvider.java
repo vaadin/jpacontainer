@@ -187,7 +187,7 @@ public class MutableLocalEntityProvider<T> extends LocalEntityProvider<T>
         return dEntity;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public void updateEntityProperty(final Object entityId,
             final String propertyName, final Object propertyValue)
             throws IllegalArgumentException {

@@ -44,8 +44,7 @@ import com.vaadin.addon.jpacontainer.EntityProvider;
 import com.vaadin.addon.jpacontainer.LazyLoadingDelegate;
 import com.vaadin.addon.jpacontainer.QueryModifierDelegate;
 import com.vaadin.addon.jpacontainer.SortBy;
-import com.vaadin.addon.jpacontainer.filter.util.AdvancedFilterableSupport;
-import com.vaadin.addon.jpacontainer.filter.util.FilterConverter;
+import com.vaadin.addon.jpacontainer.filter.SubqueryProvider;
 import com.vaadin.addon.jpacontainer.metadata.EntityClassMetadata;
 import com.vaadin.addon.jpacontainer.metadata.MetadataFactory;
 import com.vaadin.addon.jpacontainer.metadata.PropertyKind;
@@ -296,8 +295,8 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
      *            the {@link CriteriaQuery} {@link Root} to be used.
      * @return
      */
-    protected Order translateSortBy(SortBy sortBy, boolean swapSortOrder,
-            CriteriaBuilder cb, Root<T> root) {
+    protected Order translateSortBy(EntityContainer<T> container, SortBy sortBy,
+            boolean swapSortOrder, CriteriaBuilder cb, Root<T> root) {
         String sortedPropId = sortBy.getPropertyId().toString();
         // First split the id and build a Path.
         String[] idStrings = sortedPropId.split("\\.");
@@ -315,7 +314,7 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
             }
         } else {
             // non-nested or embedded, we can select as usual
-            path = AdvancedFilterableSupport.getPropertyPathTyped(root,
+            path = container.getPropertyPathTyped(root,
                     sortedPropId);
         }
 
@@ -384,7 +383,8 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 
         List<Predicate> predicates = new ArrayList<Predicate>();
         if (filter != null) {
-            predicates.add(FilterConverter.convertFilter(filter, cb, root));
+            predicates.add(container.convertFilter(filter, cb, root,
+                    new SubqueryProvider(query)));
         }
         tellDelegateFiltersWillBeAdded(container, cb, query, predicates);
         if (!predicates.isEmpty()) {
@@ -395,8 +395,8 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         List<Order> orderBy = new ArrayList<Order>();
         if (sortBy != null && sortBy.size() > 0) {
             for (SortBy sortedProperty : sortBy) {
-                orderBy.add(translateSortBy(sortedProperty, swapSortOrder, cb,
-                        root));
+                orderBy.add(translateSortBy(container, sortedProperty,
+                        swapSortOrder, cb, root));
             }
         }
         tellDelegateOrderByWillBeAdded(container, cb, query, orderBy);
@@ -407,12 +407,12 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
                 || getEntityClassMetadata().hasEmbeddedIdentifier()) {
             List<Path<?>> paths = new ArrayList<Path<?>>();
             for (String fieldPath : fieldsToSelect) {
-                paths.add(AdvancedFilterableSupport.getPropertyPathTyped(root,
+                paths.add(container.getPropertyPathTyped(root,
                         fieldPath));
             }
             query.multiselect(paths.toArray(new Path<?>[paths.size()]));
         } else {
-            query.select(AdvancedFilterableSupport.getPropertyPathTyped(root,
+            query.select(container.getPropertyPathTyped(root,
                     fieldsToSelect.get(0)));
         }
         tellDelegateQueryHasBeenBuilt(container, cb, query);
@@ -435,7 +435,8 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
         predicates.add(cb.equal(root.get(entityIdPropertyName),
                 cb.literal(entityId)));
         if (filter != null) {
-            predicates.add(FilterConverter.convertFilter(filter, cb, root));
+            predicates.add(container.convertFilter(filter, cb, root,
+                    new SubqueryProvider(query)));
         }
         tellDelegateFiltersWillBeAdded(container, cb, query, predicates);
         if (!predicates.isEmpty()) {
@@ -515,7 +516,8 @@ public class LocalEntityProvider<T> implements EntityProvider<T>, Serializable {
 
         List<Predicate> predicates = new ArrayList<Predicate>();
         if (filter != null) {
-            predicates.add(FilterConverter.convertFilter(filter, cb, root));
+            predicates.add(container.convertFilter(filter, cb, root,
+                    new SubqueryProvider(query)));
         }
         tellDelegateFiltersWillBeAdded(container, cb, query, predicates);
         if (!predicates.isEmpty()) {

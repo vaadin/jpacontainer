@@ -17,16 +17,31 @@
 package com.vaadin.addon.jpacontainer.filter.util;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
 
 import com.vaadin.addon.jpacontainer.AdvancedFilterable;
+import com.vaadin.addon.jpacontainer.filter.ISubqueryProvider;
+import com.vaadin.addon.jpacontainer.filter.converter.AndConverter;
+import com.vaadin.addon.jpacontainer.filter.converter.BetweenConverter;
+import com.vaadin.addon.jpacontainer.filter.converter.CompareConverter;
+import com.vaadin.addon.jpacontainer.filter.converter.IFilterConverter;
+import com.vaadin.addon.jpacontainer.filter.converter.IsNullConverter;
+import com.vaadin.addon.jpacontainer.filter.converter.JoinFilterConverter;
+import com.vaadin.addon.jpacontainer.filter.converter.LikeConverter;
+import com.vaadin.addon.jpacontainer.filter.converter.NotFilterConverter;
+import com.vaadin.addon.jpacontainer.filter.converter.OrConverter;
+import com.vaadin.addon.jpacontainer.filter.converter.SimpleStringFilterConverter;
+import com.vaadin.addon.jpacontainer.util.CollectionUtil;
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.util.filter.AbstractJunctionFilter;
 import com.vaadin.data.util.filter.Between;
@@ -46,6 +61,21 @@ public class AdvancedFilterableSupport implements AdvancedFilterable,
         Serializable {
 
     private static final long serialVersionUID = 398382431841547719L;
+    
+    
+    Collection<IFilterConverter<?>> filterConverters = new ArrayList<IFilterConverter<?>>();
+
+    {
+        filterConverters.add(new AndConverter<Object>());
+        filterConverters.add(new OrConverter<Object>());
+        filterConverters.add(new CompareConverter<Object>());
+        filterConverters.add(new IsNullConverter<Object>());
+        filterConverters.add(new SimpleStringFilterConverter<Object>());
+        filterConverters.add(new LikeConverter<Object>());
+        filterConverters.add(new BetweenConverter<Object>());
+        filterConverters.add(new JoinFilterConverter<Object>());
+        filterConverters.add(new NotFilterConverter<Object>());
+    }
 
     /**
      * ApplyFiltersListener interface to be implemented by classes that want to
@@ -62,7 +92,7 @@ public class AdvancedFilterableSupport implements AdvancedFilterable,
          * @param sender
          *            the sender of the event.
          */
-        public void filtersApplied(AdvancedFilterableSupport sender);
+        public void filtersApplied(AdvancedFilterable sender);
     }
 
     /**
@@ -229,13 +259,15 @@ public class AdvancedFilterableSupport implements AdvancedFilterable,
         return unappliedFilters;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
-    public static Path<String> getPropertyPath(From<?, ?> root,
+    public Path<String> getPropertyPath(From<?, ?> root,
             Object propertyId) {
         return (Path<String>) getPropertyPathTyped(root, propertyId);
     }
 
-    public static <X, Y> Path<X> getPropertyPathTyped(From<X, Y> root,
+    @Override
+    public <X, Y> Path<X> getPropertyPathTyped(From<X, Y> root,
             Object propertyId) {
         String pid = propertyId.toString();
         String[] idStrings = pid.split("\\.");
@@ -275,4 +307,58 @@ public class AdvancedFilterableSupport implements AdvancedFilterable,
             applyFilters();
         }
     }
+
+    @Override
+    public void addFilterConverter(IFilterConverter<?> filterConverter) {
+        filterConverters.add(filterConverter);
+    }
+
+    @Override
+    public void removeFilterConverter(IFilterConverter<?> filterConverter) {
+        filterConverters.remove(filterConverter);
+    }
+
+    @Override
+    public boolean containsFilterConverter(IFilterConverter<?> filterConverter) {
+        return filterConverters.contains(filterConverter);
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    @Override
+    public <X, Y> Predicate convertFilter(Filter filter,
+            CriteriaBuilder criteriaBuilder, From<X, Y> root,
+            ISubqueryProvider subqueryProvider) {
+        assert filter != null : "filter must not be null";
+
+        for (IFilterConverter c : filterConverters) {
+            if (c.canConvert(filter)) {
+                return c.toPredicate(filter, criteriaBuilder, root, this,
+                        subqueryProvider);
+            }
+        }
+
+        throw new IllegalStateException("Cannot find any filterConverters for "
+                + filter.getClass().getSimpleName() + " filters!");
+    }
+
+    @Override
+    public <X, Y> List<Predicate> convertFilters(Collection<Filter> filters,
+            CriteriaBuilder criteriaBuilder, From<X, Y> root,
+            ISubqueryProvider subqueryProvider) {
+        List<Predicate> result = new ArrayList<Predicate>();
+        for (com.vaadin.data.Container.Filter filter : filters) {
+            result.add(convertFilter(filter, criteriaBuilder, root,
+                    subqueryProvider));
+        }
+        return result;
+    }
+
+    @Override
+    public <X, Y> Predicate[] convertFiltersToArray(Collection<Filter> filters,
+            CriteriaBuilder criteriaBuilder, From<X, Y> root,
+            ISubqueryProvider subqueryProvider) {
+        return CollectionUtil.toArray(Predicate.class, convertFilters(filters,
+                criteriaBuilder, root, subqueryProvider));
+    }
+    
 }
