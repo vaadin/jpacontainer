@@ -20,12 +20,13 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Predicate;
 
-import com.vaadin.addon.jpacontainer.AdvancedFilterable;
+import com.vaadin.addon.jpacontainer.IFilterTool;
+import com.vaadin.addon.jpacontainer.filter.ISubqueryProvider;
 import com.vaadin.addon.jpacontainer.filter.JoinFilter;
 import com.vaadin.data.Container.Filter;
 
 @SuppressWarnings("serial")
-public class JoinFilterConverter implements IFilterConverter {
+public class JoinFilterConverter<T> implements IFilterConverter<T> {
 
     @Override
     public boolean canConvert(Filter filter) {
@@ -33,12 +34,12 @@ public class JoinFilterConverter implements IFilterConverter {
     }
 
     @Override
-    public <X, Y> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
-            From<X, Y> root, AdvancedFilterable filterableSupport) {
+    public <X> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
+            From<X, T> root, IFilterTool filterTool, ISubqueryProvider subqueryProvider) {
         JoinFilter hibernateJoin = (JoinFilter) filter;
-        From<X, Y> join = root.join(hibernateJoin.getJoinProperty());
-        return cb.and(filterableSupport
-                .convertFiltersToArray(hibernateJoin.getFilters(), cb, join));
+        From<X, T> join = root.join(hibernateJoin.getJoinProperty());
+        return cb.and(filterTool
+                .convertFiltersToArray(hibernateJoin.getFilters(), cb, join, subqueryProvider));
     }
 
 }

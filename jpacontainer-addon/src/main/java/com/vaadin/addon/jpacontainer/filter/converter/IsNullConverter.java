@@ -20,7 +20,8 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Predicate;
 
-import com.vaadin.addon.jpacontainer.AdvancedFilterable;
+import com.vaadin.addon.jpacontainer.IFilterTool;
+import com.vaadin.addon.jpacontainer.filter.ISubqueryProvider;
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.util.filter.IsNull;
 
@@ -28,7 +29,7 @@ import com.vaadin.data.util.filter.IsNull;
  * Converts {@link IsNull} filters.
  */
 @SuppressWarnings("serial")
-public class IsNullConverter implements IFilterConverter {
+public class IsNullConverter<T> implements IFilterConverter<T> {
 
     @Override
     public boolean canConvert(Filter filter) {
@@ -36,9 +37,9 @@ public class IsNullConverter implements IFilterConverter {
     }
 
     @Override
-    public <X, Y> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
-            From<X, Y> root, AdvancedFilterable filterableSupport) {
-        return cb.isNull(filterableSupport.getPropertyPath(root,
+    public <X> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
+            From<X, T> root, IFilterTool filterTool, ISubqueryProvider subqueryProvider) {
+        return cb.isNull(filterTool.getPropertyPath(root,
                 ((IsNull) filter).getPropertyId()));
     }
 }

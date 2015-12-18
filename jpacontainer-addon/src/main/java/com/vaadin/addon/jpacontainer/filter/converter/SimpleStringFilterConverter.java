@@ -20,7 +20,8 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Predicate;
 
-import com.vaadin.addon.jpacontainer.AdvancedFilterable;
+import com.vaadin.addon.jpacontainer.IFilterTool;
+import com.vaadin.addon.jpacontainer.filter.ISubqueryProvider;
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.util.filter.SimpleStringFilter;
 
@@ -28,7 +29,7 @@ import com.vaadin.data.util.filter.SimpleStringFilter;
  * Converts {@link SimpleStringFilter} filters.
  */
 @SuppressWarnings("serial")
-public class SimpleStringFilterConverter implements IFilterConverter {
+public class SimpleStringFilterConverter<T> implements IFilterConverter<T> {
 
     @Override
     public boolean canConvert(Filter filter) {
@@ -36,8 +37,8 @@ public class SimpleStringFilterConverter implements IFilterConverter {
     }
 
     @Override
-    public <X, Y> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
-            From<X, Y> root, AdvancedFilterable filterableSupport) {
+    public <X> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
+            From<X, T> root, IFilterTool filterTool, ISubqueryProvider subqueryProvider) {
         SimpleStringFilter stringFilter = (SimpleStringFilter) filter;
         String filterString = stringFilter.getFilterString();
         if (stringFilter.isOnlyMatchPrefix()) {
@@ -49,14 +50,14 @@ public class SimpleStringFilterConverter implements IFilterConverter {
             return cb.like(
                     cb.upper(
                             cb.concat(
-                                    filterableSupport.getPropertyPath(root,
+                                    filterTool.getPropertyPath(root,
                                             stringFilter.getPropertyId()
                                                     .toString()),
                             cb.literal(""))),
                     cb.literal(filterString.toUpperCase()));
         } else {
             return cb.like(cb.concat(
-                    filterableSupport.getPropertyPath(root,
+                    filterTool.getPropertyPath(root,
                             stringFilter.getPropertyId().toString()),
                     cb.literal("")), cb.literal(filterString));
         }

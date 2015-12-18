@@ -21,12 +21,13 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Predicate;
 
-import com.vaadin.addon.jpacontainer.AdvancedFilterable;
+import com.vaadin.addon.jpacontainer.IFilterTool;
+import com.vaadin.addon.jpacontainer.filter.ISubqueryProvider;
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.util.filter.Between;
 
 @SuppressWarnings("serial")
-public class BetweenConverter implements IFilterConverter {
+public class BetweenConverter<T> implements IFilterConverter<T> {
 
     @Override
     public boolean canConvert(Filter filter) {
@@ -35,10 +36,10 @@ public class BetweenConverter implements IFilterConverter {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
-    public <X, Y> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
-            From<X, Y> root, AdvancedFilterable filterableSupport) {
+    public <X> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
+            From<X, T> root, IFilterTool filterTool, ISubqueryProvider subqueryProvider) {
         Between between = (Between) filter;
-        Expression<? extends Comparable> field = filterableSupport
+        Expression<? extends Comparable> field = filterTool
                 .getPropertyPath(root, between.getPropertyId());
         Expression<? extends Comparable> from = cb
                 .literal(between.getStartValue());

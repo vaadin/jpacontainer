@@ -22,18 +22,19 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Predicate;
 
-import com.vaadin.addon.jpacontainer.AdvancedFilterable;
+import com.vaadin.addon.jpacontainer.IFilterTool;
+import com.vaadin.addon.jpacontainer.filter.ISubqueryProvider;
 import com.vaadin.data.Container.Filter;
 
 /**
  * Interface for a converter that can convert a certain kind of {@link Filter}
  * to a {@link Predicate}.
  */
-public interface IFilterConverter extends Serializable {
+public interface IFilterConverter<T> extends Serializable {
 
     public boolean canConvert(Filter filter);
 
-    public <X, Y> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
-            From<X, Y> root, AdvancedFilterable filterableSupport);
+    public <X> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
+            From<X, T> root, IFilterTool filterTool, ISubqueryProvider subqueryProvider);
 
 }

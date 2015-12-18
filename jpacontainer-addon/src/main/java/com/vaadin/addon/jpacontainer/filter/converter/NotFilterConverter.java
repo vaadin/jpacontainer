@@ -20,12 +20,13 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Predicate;
 
-import com.vaadin.addon.jpacontainer.AdvancedFilterable;
+import com.vaadin.addon.jpacontainer.IFilterTool;
+import com.vaadin.addon.jpacontainer.filter.ISubqueryProvider;
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.util.filter.Not;
 
 @SuppressWarnings("serial")
-public class NotFilterConverter implements IFilterConverter {
+public class NotFilterConverter<T> implements IFilterConverter<T> {
 
     @Override
     public boolean canConvert(Filter filter) {
@@ -33,10 +34,9 @@ public class NotFilterConverter implements IFilterConverter {
     }
 
     @Override
-    public <X, Y> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
-            From<X, Y> root, AdvancedFilterable filterableSupport) {
+    public <X> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
+            From<X, T> root, IFilterTool filterTool, ISubqueryProvider subqueryProvider) {
         Not not = (Not) filter;
-        return cb.not(
-                filterableSupport.convertFilter(not.getFilter(), cb, root));
+        return cb.not(filterTool.convertFilter(not.getFilter(), cb, root, subqueryProvider));
     }
 }

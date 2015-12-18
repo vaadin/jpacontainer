@@ -233,7 +233,7 @@ public class AdvancedFilterableSupportTest {
     
     @Test
     public void testFilterConvertersCount() {
-        IFilterConverter c = createMock(IFilterConverter.class);
+        IFilterConverter<?> c = createMock(IFilterConverter.class);
         AdvancedFilterableSupport s1 = new AdvancedFilterableSupport();
         AdvancedFilterableSupport s2 = new AdvancedFilterableSupport();
         assertFalse(s1.containsFilterConverter(c));

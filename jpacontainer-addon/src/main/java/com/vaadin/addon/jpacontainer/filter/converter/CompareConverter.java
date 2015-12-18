@@ -21,7 +21,8 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Predicate;
 
-import com.vaadin.addon.jpacontainer.AdvancedFilterable;
+import com.vaadin.addon.jpacontainer.IFilterTool;
+import com.vaadin.addon.jpacontainer.filter.ISubqueryProvider;
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.util.filter.Compare;
 import com.vaadin.data.util.filter.Compare.Equal;
@@ -32,7 +33,7 @@ import com.vaadin.data.util.filter.IsNull;
  * Converts {@link Compare} filters ({@link Equal}, {@link Greater}, etc).
  */
 @SuppressWarnings("serial")
-public class CompareConverter implements IFilterConverter {
+public class CompareConverter<T> implements IFilterConverter<T> {
 
     @Override
     public boolean canConvert(Filter filter) {
@@ -41,16 +42,16 @@ public class CompareConverter implements IFilterConverter {
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
-    public <X, Y> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
-            From<X, Y> root, AdvancedFilterable filterableSupport) {
+    public <X> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
+            From<X, T> root, IFilterTool filterTool, ISubqueryProvider subqueryProvider) {
         Compare compare = (Compare) filter;
-        Expression propertyExpr = filterableSupport.getPropertyPath(root,
+        Expression propertyExpr = filterTool.getPropertyPath(root,
                 compare.getPropertyId());
         if (Compare.Operation.EQUAL == compare.getOperation()
                 && compare.getValue() == null) {
             // Make an IS NULL instead if "= null" is passed
-            return filterableSupport.convertFilter(
-                    new IsNull(compare.getPropertyId()), cb, root);
+            return filterTool.convertFilter(new IsNull(compare.getPropertyId()),
+                    cb, root, subqueryProvider);
         }
         Expression valueExpr = cb.literal(compare.getValue());
         switch (compare.getOperation()) {

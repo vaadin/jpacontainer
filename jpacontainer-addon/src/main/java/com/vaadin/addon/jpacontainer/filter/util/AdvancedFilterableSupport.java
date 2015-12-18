@@ -30,6 +30,7 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 
 import com.vaadin.addon.jpacontainer.AdvancedFilterable;
+import com.vaadin.addon.jpacontainer.filter.ISubqueryProvider;
 import com.vaadin.addon.jpacontainer.filter.converter.AndConverter;
 import com.vaadin.addon.jpacontainer.filter.converter.BetweenConverter;
 import com.vaadin.addon.jpacontainer.filter.converter.CompareConverter;
@@ -62,18 +63,18 @@ public class AdvancedFilterableSupport implements AdvancedFilterable,
     private static final long serialVersionUID = 398382431841547719L;
     
     
-    Collection<IFilterConverter> filterConverters = new ArrayList<IFilterConverter>();
+    Collection<IFilterConverter<?>> filterConverters = new ArrayList<IFilterConverter<?>>();
 
     {
-        filterConverters.add(new AndConverter());
-        filterConverters.add(new OrConverter());
-        filterConverters.add(new CompareConverter());
-        filterConverters.add(new IsNullConverter());
-        filterConverters.add(new SimpleStringFilterConverter());
-        filterConverters.add(new LikeConverter());
-        filterConverters.add(new BetweenConverter());
-        filterConverters.add(new JoinFilterConverter());
-        filterConverters.add(new NotFilterConverter());
+        filterConverters.add(new AndConverter<Object>());
+        filterConverters.add(new OrConverter<Object>());
+        filterConverters.add(new CompareConverter<Object>());
+        filterConverters.add(new IsNullConverter<Object>());
+        filterConverters.add(new SimpleStringFilterConverter<Object>());
+        filterConverters.add(new LikeConverter<Object>());
+        filterConverters.add(new BetweenConverter<Object>());
+        filterConverters.add(new JoinFilterConverter<Object>());
+        filterConverters.add(new NotFilterConverter<Object>());
     }
 
     /**
@@ -308,28 +309,31 @@ public class AdvancedFilterableSupport implements AdvancedFilterable,
     }
 
     @Override
-    public void addFilterConverter(IFilterConverter filterConverter) {
+    public void addFilterConverter(IFilterConverter<?> filterConverter) {
         filterConverters.add(filterConverter);
     }
 
     @Override
-    public void removeFilterConverter(IFilterConverter filterConverter) {
+    public void removeFilterConverter(IFilterConverter<?> filterConverter) {
         filterConverters.remove(filterConverter);
     }
 
     @Override
-    public boolean containsFilterConverter(IFilterConverter filterConverter) {
+    public boolean containsFilterConverter(IFilterConverter<?> filterConverter) {
         return filterConverters.contains(filterConverter);
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public <X, Y> Predicate convertFilter(Filter filter,
-            CriteriaBuilder criteriaBuilder, From<X, Y> root) {
+            CriteriaBuilder criteriaBuilder, From<X, Y> root,
+            ISubqueryProvider subqueryProvider) {
         assert filter != null : "filter must not be null";
 
         for (IFilterConverter c : filterConverters) {
             if (c.canConvert(filter)) {
-                return c.toPredicate(filter, criteriaBuilder, root, this);
+                return c.toPredicate(filter, criteriaBuilder, root, this,
+                        subqueryProvider);
             }
         }
 
@@ -339,19 +343,22 @@ public class AdvancedFilterableSupport implements AdvancedFilterable,
 
     @Override
     public <X, Y> List<Predicate> convertFilters(Collection<Filter> filters,
-            CriteriaBuilder criteriaBuilder, From<X, Y> root) {
+            CriteriaBuilder criteriaBuilder, From<X, Y> root,
+            ISubqueryProvider subqueryProvider) {
         List<Predicate> result = new ArrayList<Predicate>();
         for (com.vaadin.data.Container.Filter filter : filters) {
-            result.add(convertFilter(filter, criteriaBuilder, root));
+            result.add(convertFilter(filter, criteriaBuilder, root,
+                    subqueryProvider));
         }
         return result;
     }
 
     @Override
     public <X, Y> Predicate[] convertFiltersToArray(Collection<Filter> filters,
-            CriteriaBuilder criteriaBuilder, From<X, Y> root) {
-        return CollectionUtil.toArray(Predicate.class,
-                convertFilters(filters, criteriaBuilder, root));
+            CriteriaBuilder criteriaBuilder, From<X, Y> root,
+            ISubqueryProvider subqueryProvider) {
+        return CollectionUtil.toArray(Predicate.class, convertFilters(filters,
+                criteriaBuilder, root, subqueryProvider));
     }
     
 }
