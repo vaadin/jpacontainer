@@ -27,6 +27,7 @@ import javax.persistence.criteria.From;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import com.vaadin.addon.jpacontainer.filter.In;
 import com.vaadin.addon.jpacontainer.filter.JoinFilter;
 import com.vaadin.addon.jpacontainer.util.CollectionUtil;
 import com.vaadin.data.Container.Filter;
@@ -90,6 +91,24 @@ public class FilterConverter {
                 From<X, Y> root) {
             return cb.or(convertFiltersToArray(((Or) filter).getFilters(), cb,
                     root));
+        }
+    }
+
+    /**
+     * Converts {@link In} filters.
+     */
+    private static class InConverter implements Converter {
+        public boolean canConvert(Filter filter) {
+            return filter instanceof In;
+        }
+
+        @SuppressWarnings({ "rawtypes", "unchecked" })
+	public <X, Y> Predicate toPredicate(Filter filter, CriteriaBuilder cb,
+                From<X, Y> root) {
+            In in = (In) filter;
+            Expression propertyExpr = AdvancedFilterableSupport
+                    .getPropertyPath(root, in.getPropertyId());
+            return propertyExpr.in((Collection<?>) in.getValue());
         }
     }
 
@@ -252,7 +271,8 @@ public class FilterConverter {
                 new AndConverter(), new OrConverter(), new CompareConverter(),
                 new IsNullConverter(), new SimpleStringFilterConverter(),
                 new LikeConverter(), new BetweenConverter(),
-                new JoinFilterConverter(), new NotFilterConverter()));
+                new JoinFilterConverter(), new NotFilterConverter(),
+                new InConverter()));
     }
 
     /**
