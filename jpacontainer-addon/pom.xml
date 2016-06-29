@@ -190,7 +190,7 @@
                     <basedir>${basedir}</basedir>
                     <header>${basedir}/../java-license-header.txt</header>
                     <quiet>false</quiet>
-                    <failIfMissing>true</failIfMissing>
+                    <failIfMissing>false</failIfMissing>
                     <aggregate>false</aggregate>
                     <useDefaultExcludes>true</useDefaultExcludes>
                     <useDefaultMapping>true</useDefaultMapping>
