@@ -30,8 +30,8 @@ import com.vaadin.addon.jpacontainer.EntityItemProperty;
 import com.vaadin.addon.jpacontainer.metadata.EntityClassMetadata;
 import com.vaadin.addon.jpacontainer.metadata.MetadataFactory;
 import com.vaadin.addon.jpacontainer.metadata.PropertyMetadata;
-import com.vaadin.data.util.converter.Converter;
-import com.vaadin.ui.AbstractSelect;
+import com.vaadin.v7.data.util.converter.Converter;
+import com.vaadin.v7.ui.AbstractSelect;
 
 public class MultiSelectConverter<T> implements
         Converter<Collection<Object>, Collection<T>> {
@@ -52,7 +52,7 @@ public class MultiSelectConverter<T> implements
     @Override
     public Collection<Object> convertToPresentation(Collection<T> value,
             Class<? extends Collection<Object>> targetType, Locale locale)
-            throws com.vaadin.data.util.converter.Converter.ConversionException {
+            throws com.vaadin.v7.data.util.converter.Converter.ConversionException {
         // Value here is a collection of entities, should be transformed to a
         // collection (set) of identifier
         // TODO, consider creating a cached value
@@ -78,7 +78,7 @@ public class MultiSelectConverter<T> implements
     @Override
     public Collection<T> convertToModel(Collection<Object> value,
             Class<? extends Collection<T>> targetType, Locale locale)
-            throws com.vaadin.data.util.converter.Converter.ConversionException {
+            throws com.vaadin.v7.data.util.converter.Converter.ConversionException {
 
         // NOTE, this currently works properly only if equals and hashcode
         // methods have been implemented correctly (both depending on identifier

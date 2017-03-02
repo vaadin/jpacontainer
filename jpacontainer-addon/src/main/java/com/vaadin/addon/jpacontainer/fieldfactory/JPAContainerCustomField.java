@@ -21,17 +21,17 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import com.vaadin.data.Buffered;
-import com.vaadin.data.Property;
-import com.vaadin.data.Validatable;
-import com.vaadin.data.Validator;
-import com.vaadin.data.Validator.InvalidValueException;
+import com.vaadin.v7.data.Buffered;
+import com.vaadin.v7.data.Property;
+import com.vaadin.v7.data.Validatable;
+import com.vaadin.v7.data.Validator;
+import com.vaadin.v7.data.Validator.InvalidValueException;
 import com.vaadin.server.CompositeErrorMessage;
 import com.vaadin.server.ErrorMessage;
 import com.vaadin.server.UserError;
-import com.vaadin.ui.AbstractField;
+import com.vaadin.v7.ui.AbstractField;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.Field;
+import com.vaadin.v7.ui.Field;
 
 /**
  * A {@link CustomComponent} that implements the {@link Field} interface,
@@ -958,7 +958,7 @@ public abstract class JPAContainerCustomField<T> extends CustomComponent
      * 
      * In general, "empty" state is same as null..
      */
-    protected boolean isEmpty() {
+    public boolean isEmpty() {
         return (getValue() == null);
     }
 
@@ -1000,5 +1000,10 @@ public abstract class JPAContainerCustomField<T> extends CustomComponent
             Buffered.SourceException currentBufferedSourceException) {
         this.currentBufferedSourceException = currentBufferedSourceException;
         markAsDirty();
+    }
+
+    @Override
+    public void setReadOnly(boolean newStatus) {
+        super.setReadOnly(newStatus);
     }
 }

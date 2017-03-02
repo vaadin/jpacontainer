@@ -17,9 +17,9 @@
 package com.vaadin.addon.jpacontainer;
 
 import com.vaadin.addon.jpacontainer.metadata.PropertyKind;
-import com.vaadin.data.Buffered;
-import com.vaadin.data.Container;
-import com.vaadin.data.Validator.InvalidValueException;
+import com.vaadin.v7.data.Buffered;
+import com.vaadin.v7.data.Container;
+import com.vaadin.v7.data.Validator.InvalidValueException;
 
 /**
  * A Container for {@link EntityItem}s. The data is provided by a

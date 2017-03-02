@@ -18,10 +18,10 @@ package com.vaadin.addon.jpacontainer.fieldfactory;
 import java.util.Arrays;
 
 import com.vaadin.addon.jpacontainer.EntityContainer;
-import com.vaadin.data.Property;
-import com.vaadin.data.Validator.InvalidValueException;
-import com.vaadin.data.util.BeanItem;
-import com.vaadin.ui.Form;
+import com.vaadin.v7.data.Property;
+import com.vaadin.v7.data.Validator.InvalidValueException;
+import com.vaadin.v7.data.util.BeanItem;
+import com.vaadin.v7.ui.Form;
 
 /**
  * TODO ensure this works without write buffering properly. There might be an

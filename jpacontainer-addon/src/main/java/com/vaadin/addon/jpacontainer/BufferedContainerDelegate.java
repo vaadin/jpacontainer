@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import com.vaadin.data.Buffered.SourceException;
-import com.vaadin.data.Validator.InvalidValueException;
+import com.vaadin.v7.data.Buffered.SourceException;
+import com.vaadin.v7.data.Validator.InvalidValueException;
 
 /**
  * A delegate class used by {@link JPAContainer} to handle buffered changes.

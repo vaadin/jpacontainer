@@ -24,12 +24,12 @@ import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.Invoice2.TestEnum
 import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.InvoiceRow;
 import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.InvoiceRow2;
 import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.Product;
-import com.vaadin.data.Property;
-import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.v7.data.Property;
+import com.vaadin.v7.data.Property.ValueChangeEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalSplitPanel;
-import com.vaadin.ui.OptionGroup;
-import com.vaadin.ui.Tree;
+import com.vaadin.v7.ui.OptionGroup;
+import com.vaadin.v7.ui.Tree;
 import com.vaadin.ui.Window;
 
 public class InvoicerTestApp extends Window implements

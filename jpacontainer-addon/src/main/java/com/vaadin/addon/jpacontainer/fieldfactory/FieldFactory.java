@@ -44,18 +44,18 @@ import com.vaadin.addon.jpacontainer.metadata.PropertyKind;
 import com.vaadin.addon.jpacontainer.provider.jndijta.CachingBatchableEntityProvider;
 import com.vaadin.addon.jpacontainer.provider.jndijta.CachingMutableEntityProvider;
 import com.vaadin.addon.jpacontainer.provider.jndijta.JndiJtaProvider;
-import com.vaadin.data.Container;
-import com.vaadin.data.Item;
-import com.vaadin.ui.AbstractSelect;
-import com.vaadin.ui.AbstractTextField;
+import com.vaadin.v7.data.Container;
+import com.vaadin.v7.data.Item;
+import com.vaadin.v7.ui.AbstractSelect;
+import com.vaadin.v7.ui.AbstractTextField;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.DefaultFieldFactory;
-import com.vaadin.ui.Field;
-import com.vaadin.ui.Form;
-import com.vaadin.ui.FormFieldFactory;
-import com.vaadin.ui.NativeSelect;
-import com.vaadin.ui.Table;
-import com.vaadin.ui.TableFieldFactory;
+import com.vaadin.v7.ui.DefaultFieldFactory;
+import com.vaadin.v7.ui.Field;
+import com.vaadin.v7.ui.Form;
+import com.vaadin.v7.ui.FormFieldFactory;
+import com.vaadin.v7.ui.NativeSelect;
+import com.vaadin.v7.ui.Table;
+import com.vaadin.v7.ui.TableFieldFactory;
 
 /**
  * A {@link FormFieldFactory} and {@link TableFieldFactory} implementation

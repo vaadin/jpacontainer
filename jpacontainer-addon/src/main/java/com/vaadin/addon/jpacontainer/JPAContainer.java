@@ -36,15 +36,15 @@ import com.vaadin.addon.jpacontainer.metadata.MetadataFactory;
 import com.vaadin.addon.jpacontainer.metadata.PersistentPropertyMetadata;
 import com.vaadin.addon.jpacontainer.metadata.PropertyKind;
 import com.vaadin.addon.jpacontainer.util.CollectionUtil;
-import com.vaadin.data.Container;
-import com.vaadin.data.Item;
-import com.vaadin.data.Property;
-import com.vaadin.data.Validator.InvalidValueException;
-import com.vaadin.data.util.filter.And;
-import com.vaadin.data.util.filter.Compare.Equal;
-import com.vaadin.data.util.filter.IsNull;
-import com.vaadin.data.util.filter.SimpleStringFilter;
-import com.vaadin.data.util.filter.UnsupportedFilterException;
+import com.vaadin.v7.data.Container;
+import com.vaadin.v7.data.Item;
+import com.vaadin.v7.data.Property;
+import com.vaadin.v7.data.Validator.InvalidValueException;
+import com.vaadin.v7.data.util.filter.And;
+import com.vaadin.v7.data.util.filter.Compare.Equal;
+import com.vaadin.v7.data.util.filter.IsNull;
+import com.vaadin.v7.data.util.filter.SimpleStringFilter;
+import com.vaadin.v7.data.util.filter.UnsupportedFilterException;
 
 /**
  * This is the main container class of JPAContainer (and the default

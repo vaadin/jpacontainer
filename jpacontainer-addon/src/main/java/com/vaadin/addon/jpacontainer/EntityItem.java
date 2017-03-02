@@ -18,9 +18,9 @@ package com.vaadin.addon.jpacontainer;
 
 import java.util.Collection;
 
-import com.vaadin.data.Buffered;
-import com.vaadin.data.Item;
-import com.vaadin.data.Property;
+import com.vaadin.v7.data.Buffered;
+import com.vaadin.v7.data.Item;
+import com.vaadin.v7.data.Property;
 
 /**
  * Interface defining the Items that are contained in a {@link EntityContainer}.

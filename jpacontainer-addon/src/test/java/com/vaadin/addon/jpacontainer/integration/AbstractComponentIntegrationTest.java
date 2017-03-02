@@ -34,7 +34,7 @@ import com.vaadin.addon.jpacontainer.BatchableEntityProvider;
 import com.vaadin.addon.jpacontainer.JPAContainerItem;
 import com.vaadin.addon.jpacontainer.MutableEntityProvider;
 import com.vaadin.addon.jpacontainer.provider.MutableLocalEntityProvider;
-import com.vaadin.data.Buffered;
+import com.vaadin.v7.data.Buffered;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -49,20 +49,20 @@ import com.vaadin.addon.jpacontainer.testdata.BeanWithLogic;
 import com.vaadin.addon.jpacontainer.testdata.DataGenerator;
 import com.vaadin.addon.jpacontainer.testdata.Department;
 import com.vaadin.addon.jpacontainer.testdata.Person;
-import com.vaadin.data.Item;
-import com.vaadin.data.Property;
-import com.vaadin.data.util.filter.Compare.Equal;
+import com.vaadin.v7.data.Item;
+import com.vaadin.v7.data.Property;
+import com.vaadin.v7.data.util.filter.Compare.Equal;
 import com.vaadin.server.PaintException;
-import com.vaadin.ui.ComboBox;
+import com.vaadin.v7.ui.ComboBox;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.DefaultFieldFactory;
-import com.vaadin.ui.Field;
-import com.vaadin.ui.Form;
-import com.vaadin.ui.FormFieldFactory;
-import com.vaadin.ui.Label;
+import com.vaadin.v7.ui.DefaultFieldFactory;
+import com.vaadin.v7.ui.Field;
+import com.vaadin.v7.ui.Form;
+import com.vaadin.v7.ui.FormFieldFactory;
+import com.vaadin.v7.ui.Label;
 import com.vaadin.ui.Layout;
-import com.vaadin.ui.ListSelect;
-import com.vaadin.ui.Table;
+import com.vaadin.v7.ui.ListSelect;
+import com.vaadin.v7.ui.Table;
 
 public abstract class AbstractComponentIntegrationTest extends
         AbstractIntegrationTest {
@@ -263,7 +263,7 @@ public abstract class AbstractComponentIntegrationTest extends
         Label label = new Label(property) {
             @Override
             public void valueChange(
-                    com.vaadin.data.Property.ValueChangeEvent event) {
+                    com.vaadin.v7.data.Property.ValueChangeEvent event) {
                 valueChangeCalls[0] = valueChangeCalls[0] + 1;
                 super.valueChange(event);
             }
@@ -347,7 +347,7 @@ public abstract class AbstractComponentIntegrationTest extends
         new Label(property) {
             @Override
             public void valueChange(
-                    com.vaadin.data.Property.ValueChangeEvent event) {
+                    com.vaadin.v7.data.Property.ValueChangeEvent event) {
                 valueChangeCalls[0] = valueChangeCalls[0] + 1;
                 super.valueChange(event);
             }

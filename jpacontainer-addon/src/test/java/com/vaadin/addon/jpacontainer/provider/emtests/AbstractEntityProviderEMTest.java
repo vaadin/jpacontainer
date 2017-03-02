@@ -53,8 +53,8 @@ import com.vaadin.addon.jpacontainer.testdata.EmbeddedIdPerson;
 import com.vaadin.addon.jpacontainer.testdata.Person;
 import com.vaadin.addon.jpacontainer.testdata.Skill;
 import com.vaadin.addon.jpacontainer.util.DefaultQueryModifierDelegate;
-import com.vaadin.data.Container.Filter;
-import com.vaadin.data.util.filter.Compare.Equal;
+import com.vaadin.v7.data.Container.Filter;
+import com.vaadin.v7.data.util.filter.Compare.Equal;
 
 /**
  * Abstract test case for {@link EntityProvider} that should work with any

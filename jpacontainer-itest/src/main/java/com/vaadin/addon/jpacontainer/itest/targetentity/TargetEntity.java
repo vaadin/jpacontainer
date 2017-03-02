@@ -24,7 +24,7 @@ import com.vaadin.addon.jpacontainer.itest.targetentity.domain.Data;
 import com.vaadin.addon.jpacontainer.itest.targetentity.domain.EconomicObject;
 import com.vaadin.addon.jpacontainer.util.HibernateLazyLoadingDelegate;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.ui.Table;
+import com.vaadin.v7.ui.Table;
 import com.vaadin.ui.UI;
 
 public class TargetEntity extends UI {

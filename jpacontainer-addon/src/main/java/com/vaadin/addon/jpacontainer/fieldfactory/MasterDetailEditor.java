@@ -27,21 +27,21 @@ import com.vaadin.addon.jpacontainer.EntityItem;
 import com.vaadin.addon.jpacontainer.EntityItemProperty;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.util.HibernateUtil;
-import com.vaadin.data.Container.Filter;
-import com.vaadin.data.Validator.InvalidValueException;
-import com.vaadin.data.util.BeanItem;
-import com.vaadin.data.util.filter.Compare;
+import com.vaadin.v7.data.Container.Filter;
+import com.vaadin.v7.data.Validator.InvalidValueException;
+import com.vaadin.v7.data.util.BeanItem;
+import com.vaadin.v7.data.util.filter.Compare;
 import com.vaadin.event.Action;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
-import com.vaadin.ui.CustomField;
-import com.vaadin.ui.DefaultFieldFactory;
-import com.vaadin.ui.Form;
-import com.vaadin.ui.Table;
-import com.vaadin.ui.TableFieldFactory;
+import com.vaadin.v7.ui.CustomField;
+import com.vaadin.v7.ui.DefaultFieldFactory;
+import com.vaadin.v7.ui.Form;
+import com.vaadin.v7.ui.Table;
+import com.vaadin.v7.ui.TableFieldFactory;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class MasterDetailEditor extends CustomField implements Action.Handler {

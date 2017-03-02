@@ -18,8 +18,8 @@ package com.vaadin.addon.jpacontainer.fieldfactory;
 import java.util.Locale;
 
 import com.vaadin.addon.jpacontainer.EntityContainer;
-import com.vaadin.data.util.converter.Converter;
-import com.vaadin.ui.AbstractSelect;
+import com.vaadin.v7.data.util.converter.Converter;
+import com.vaadin.v7.ui.AbstractSelect;
 
 public class SingleSelectConverter<T> implements Converter<Object, T> {
 
@@ -37,7 +37,7 @@ public class SingleSelectConverter<T> implements Converter<Object, T> {
     @Override
     public T convertToModel(Object value, Class<? extends T> targetType,
             Locale locale)
-            throws com.vaadin.data.util.converter.Converter.ConversionException {
+            throws com.vaadin.v7.data.util.converter.Converter.ConversionException {
         if (value != select.getNullSelectionItemId()) {
             return getContainer().getEntityProvider().getEntity(getContainer(),
                     value);
@@ -49,7 +49,7 @@ public class SingleSelectConverter<T> implements Converter<Object, T> {
     @Override
     public Object convertToPresentation(T value,
             Class<? extends Object> targetType, Locale locale)
-            throws com.vaadin.data.util.converter.Converter.ConversionException {
+            throws com.vaadin.v7.data.util.converter.Converter.ConversionException {
         if (value != null) {
             return getContainer().getEntityProvider().getIdentifier(value);
         }

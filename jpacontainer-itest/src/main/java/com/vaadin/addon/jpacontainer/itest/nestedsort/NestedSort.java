@@ -22,7 +22,7 @@ import com.vaadin.addon.jpacontainer.JPAContainerFactory;
 import com.vaadin.addon.jpacontainer.itest.nestedsort.domain.Base;
 import com.vaadin.addon.jpacontainer.itest.nestedsort.domain.Nested;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.ui.Table;
+import com.vaadin.v7.ui.Table;
 import com.vaadin.ui.UI;
 
 public class NestedSort extends UI {

@@ -52,13 +52,13 @@ import org.junit.Test;
 import com.vaadin.addon.jpacontainer.JPAContainer.AllItemsRefreshedEvent;
 import com.vaadin.addon.jpacontainer.testdata.Address;
 import com.vaadin.addon.jpacontainer.testdata.Person;
-import com.vaadin.data.Container;
-import com.vaadin.data.Container.Filter;
-import com.vaadin.data.Container.ItemSetChangeEvent;
-import com.vaadin.data.Container.ItemSetChangeListener;
-import com.vaadin.data.util.filter.And;
-import com.vaadin.data.util.filter.Compare.Equal;
-import com.vaadin.data.util.filter.IsNull;
+import com.vaadin.v7.data.Container;
+import com.vaadin.v7.data.Container.Filter;
+import com.vaadin.v7.data.Container.ItemSetChangeEvent;
+import com.vaadin.v7.data.Container.ItemSetChangeListener;
+import com.vaadin.v7.data.util.filter.And;
+import com.vaadin.v7.data.util.filter.Compare.Equal;
+import com.vaadin.v7.data.util.filter.IsNull;
 
 /**
  * Test case for {@link JPAContainer}.

@@ -53,7 +53,7 @@ import com.vaadin.addon.jpacontainer.provider.emtests.AbstractCachingMutableLoca
 import com.vaadin.addon.jpacontainer.testdata.Person;
 import com.vaadin.addon.jpacontainer.testdata.Skill;
 import com.vaadin.addon.jpacontainer.testdata.DataGenerator;
-import com.vaadin.data.util.filter.Compare.Equal;
+import com.vaadin.v7.data.util.filter.Compare.Equal;
 
 /**
  * Entity Manager test for {@link CachingMutableLocalEntityProvider} that uses

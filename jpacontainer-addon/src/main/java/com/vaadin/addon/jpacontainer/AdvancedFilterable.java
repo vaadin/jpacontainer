@@ -19,9 +19,9 @@ package com.vaadin.addon.jpacontainer;
 import java.util.Collection;
 import java.util.List;
 
-import com.vaadin.data.Container;
-import com.vaadin.data.Container.Filter;
-import com.vaadin.data.Container.ItemSetChangeEvent;
+import com.vaadin.v7.data.Container;
+import com.vaadin.v7.data.Container.Filter;
+import com.vaadin.v7.data.Container.ItemSetChangeEvent;
 
 /**
  * Container that supports a bit more advanced filtering than {@link Filterable}

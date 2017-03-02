@@ -4,7 +4,7 @@
 
     <groupId>com.vaadin.addon</groupId>
     <artifactId>jpacontainer</artifactId>
-    <version>3.2.0-SNAPSHOT</version>
+    <version>3.2.0.v8-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Vaadin JPAContainer Add-on</name>

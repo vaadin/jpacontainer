@@ -19,19 +19,19 @@ package com.vaadin.addon.jpacontainer.filter;
 import java.util.List;
 
 import com.vaadin.addon.jpacontainer.util.CollectionUtil;
-import com.vaadin.data.Container.Filter;
-import com.vaadin.data.util.filter.And;
-import com.vaadin.data.util.filter.Between;
-import com.vaadin.data.util.filter.Compare.Equal;
-import com.vaadin.data.util.filter.Compare.Greater;
-import com.vaadin.data.util.filter.Compare.GreaterOrEqual;
-import com.vaadin.data.util.filter.Compare.Less;
-import com.vaadin.data.util.filter.Compare.LessOrEqual;
-import com.vaadin.data.util.filter.IsNull;
-import com.vaadin.data.util.filter.Like;
-import com.vaadin.data.util.filter.Not;
-import com.vaadin.data.util.filter.Or;
-import com.vaadin.data.util.filter.SimpleStringFilter;
+import com.vaadin.v7.data.Container.Filter;
+import com.vaadin.v7.data.util.filter.And;
+import com.vaadin.v7.data.util.filter.Between;
+import com.vaadin.v7.data.util.filter.Compare.Equal;
+import com.vaadin.v7.data.util.filter.Compare.Greater;
+import com.vaadin.v7.data.util.filter.Compare.GreaterOrEqual;
+import com.vaadin.v7.data.util.filter.Compare.Less;
+import com.vaadin.v7.data.util.filter.Compare.LessOrEqual;
+import com.vaadin.v7.data.util.filter.IsNull;
+import com.vaadin.v7.data.util.filter.Like;
+import com.vaadin.v7.data.util.filter.Not;
+import com.vaadin.v7.data.util.filter.Or;
+import com.vaadin.v7.data.util.filter.SimpleStringFilter;
 
 /**
  * Utility class for creating filter instances.
