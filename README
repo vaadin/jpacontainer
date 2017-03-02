@@ -1,3 +1,31 @@
+Forked version of JPAContainer which runs on Vaadin 8 with v7 Grid.
+
+Gradle users: Just add the following repository:
+
+  repositories {
+      // for customized version of jpacontainer
+      maven {
+          url "http://www.baka.sk/maven2"
+      }
+  }
+
+Then just add the following dependency:
+
+  compile 'com.vaadin.addon:jpacontainer:3.2.0.v8'
+
+And you can continue to use v7.Grid with jpacontainer and gradually convert your project to
+v8 Grid with DataProviders.
+
+For the demo you can check this project: https://github.com/mvysny/vaadin-on-kotlin
+
+The direct link to the demo project is here: https://github.com/mvysny/vaadin-on-kotlin/tree/vaadin8experiment/vok-example-crud7
+
+
+
+
+
+
+
 JPAContainer README
 ===================
 
