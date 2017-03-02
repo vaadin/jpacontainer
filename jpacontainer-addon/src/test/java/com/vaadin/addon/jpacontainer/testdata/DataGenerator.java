@@ -27,8 +27,8 @@ import java.util.Random;
 import javax.persistence.EntityManager;
 
 import com.vaadin.addon.jpacontainer.SortBy;
-import com.vaadin.data.Container.Filter;
-import com.vaadin.data.util.filter.Like;
+import com.vaadin.v7.data.Container.Filter;
+import com.vaadin.v7.data.util.filter.Like;
 
 /**
  * A helper class to generate some test data and persist it.

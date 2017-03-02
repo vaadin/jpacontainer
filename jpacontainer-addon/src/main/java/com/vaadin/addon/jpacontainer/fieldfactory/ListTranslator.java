@@ -22,9 +22,9 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 
-import com.vaadin.data.Container;
-import com.vaadin.data.Container.Indexed;
-import com.vaadin.ui.AbstractSelect;
+import com.vaadin.v7.data.Container;
+import com.vaadin.v7.data.Container.Indexed;
+import com.vaadin.v7.ui.AbstractSelect;
 
 /**
  * Generic wrapper property that translates items (Set from Vaadin selects) to a

@@ -23,16 +23,16 @@ import com.vaadin.addon.jpacontainer.fieldfactory.FieldFactory;
 import com.vaadin.addon.jpacontainer.itest.lazyhibernate.domain.LazyPerson;
 import com.vaadin.addon.jpacontainer.itest.lazyhibernate.domain.LazySkill;
 import com.vaadin.addon.jpacontainer.util.HibernateLazyLoadingDelegate;
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.v7.data.Property.ValueChangeEvent;
+import com.vaadin.v7.data.Property.ValueChangeListener;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComponentContainer;
-import com.vaadin.ui.Form;
-import com.vaadin.ui.Table;
-import com.vaadin.ui.Table.ColumnGenerator;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.v7.ui.Form;
+import com.vaadin.v7.ui.Table;
+import com.vaadin.v7.ui.Table.ColumnGenerator;
+import com.vaadin.v7.ui.VerticalLayout;
 
 public class LazyHibernateMainView extends VerticalLayout implements
         ComponentContainer {

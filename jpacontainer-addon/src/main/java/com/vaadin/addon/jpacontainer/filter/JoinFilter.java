@@ -15,9 +15,9 @@
  */
 package com.vaadin.addon.jpacontainer.filter;
 
-import com.vaadin.data.Container.Filter;
-import com.vaadin.data.Item;
-import com.vaadin.data.util.filter.AbstractJunctionFilter;
+import com.vaadin.v7.data.Container.Filter;
+import com.vaadin.v7.data.Item;
+import com.vaadin.v7.data.util.filter.AbstractJunctionFilter;
 
 /**
  * This filter allows you to implement filtering on joined tables using

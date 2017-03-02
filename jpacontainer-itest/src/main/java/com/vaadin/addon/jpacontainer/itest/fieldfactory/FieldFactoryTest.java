@@ -31,23 +31,23 @@ import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.CustomerGroup;
 import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.Invoice;
 import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.InvoiceRow;
 import com.vaadin.addon.jpacontainer.itest.fieldfactory.domain.Product;
-import com.vaadin.data.Property;
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.util.filter.Compare;
+import com.vaadin.v7.data.Property;
+import com.vaadin.v7.data.Property.ValueChangeEvent;
+import com.vaadin.v7.data.util.filter.Compare;
 import com.vaadin.event.Action;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.ui.AbstractSelect;
+import com.vaadin.v7.ui.AbstractSelect;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Form;
-import com.vaadin.ui.ListSelect;
-import com.vaadin.ui.Table;
-import com.vaadin.ui.TwinColSelect;
+import com.vaadin.v7.ui.CheckBox;
+import com.vaadin.v7.ui.ComboBox;
+import com.vaadin.v7.ui.Form;
+import com.vaadin.v7.ui.ListSelect;
+import com.vaadin.v7.ui.Table;
+import com.vaadin.v7.ui.TwinColSelect;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.v7.ui.VerticalLayout;
 
 public class FieldFactoryTest extends UI {
 

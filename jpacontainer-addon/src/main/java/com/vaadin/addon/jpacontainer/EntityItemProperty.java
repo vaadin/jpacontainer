@@ -16,7 +16,7 @@
 
 package com.vaadin.addon.jpacontainer;
 
-import com.vaadin.data.Property;
+import com.vaadin.v7.data.Property;
 
 /**
  * Interface defining the Properties that are contained in a {@link EntityItem}.

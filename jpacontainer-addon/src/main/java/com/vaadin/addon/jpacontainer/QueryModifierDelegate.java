@@ -23,7 +23,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 
-import com.vaadin.data.Container.Filter;
+import com.vaadin.v7.data.Container.Filter;
 
 /**
  * The QueryModifierDelegate interface defines methods that will be called at

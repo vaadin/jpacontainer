@@ -21,7 +21,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
-import com.vaadin.data.Container.Filter;
+import com.vaadin.v7.data.Container.Filter;
 
 /**
  * Like the name suggests, the purpose of the <code>EntityProvider</code> is to

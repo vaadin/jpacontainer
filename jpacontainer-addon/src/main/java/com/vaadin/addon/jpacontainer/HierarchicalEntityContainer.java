@@ -16,7 +16,7 @@
 
 package com.vaadin.addon.jpacontainer;
 
-import com.vaadin.data.Container;
+import com.vaadin.v7.data.Container;
 
 /**
  * This is a preliminary interface for adding hierarchical support to

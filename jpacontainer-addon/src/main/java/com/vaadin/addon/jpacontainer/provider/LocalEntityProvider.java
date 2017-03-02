@@ -50,12 +50,12 @@ import com.vaadin.addon.jpacontainer.metadata.EntityClassMetadata;
 import com.vaadin.addon.jpacontainer.metadata.MetadataFactory;
 import com.vaadin.addon.jpacontainer.metadata.PropertyKind;
 import com.vaadin.addon.jpacontainer.util.CollectionUtil;
-import com.vaadin.data.Container.Filter;
-import com.vaadin.data.util.filter.And;
-import com.vaadin.data.util.filter.Compare.Equal;
-import com.vaadin.data.util.filter.Compare.Greater;
-import com.vaadin.data.util.filter.Compare.Less;
-import com.vaadin.data.util.filter.Or;
+import com.vaadin.v7.data.Container.Filter;
+import com.vaadin.v7.data.util.filter.And;
+import com.vaadin.v7.data.util.filter.Compare.Equal;
+import com.vaadin.v7.data.util.filter.Compare.Greater;
+import com.vaadin.v7.data.util.filter.Compare.Less;
+import com.vaadin.v7.data.util.filter.Or;
 
 /**
  * A read-only entity provider that works with a local {@link EntityManager}.

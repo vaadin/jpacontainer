@@ -32,7 +32,7 @@ import java.util.LinkedList;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.vaadin.data.Container.Filter;
+import com.vaadin.v7.data.Container.Filter;
 
 /**
  * Test case for {@link AdvancedFilterableSupport}.

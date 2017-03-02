@@ -20,14 +20,14 @@ import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
 import com.vaadin.addon.jpacontainer.itest.TestLauncherUI;
 import com.vaadin.addon.jpacontainer.itest.domain.Department;
-import com.vaadin.data.Property;
-import com.vaadin.data.util.converter.Converter.ConversionException;
-import com.vaadin.data.util.filter.Compare.Equal;
-import com.vaadin.data.util.filter.IsNull;
-import com.vaadin.ui.ComboBox;
+import com.vaadin.v7.data.Property;
+import com.vaadin.v7.data.util.converter.Converter.ConversionException;
+import com.vaadin.v7.data.util.filter.Compare.Equal;
+import com.vaadin.v7.data.util.filter.IsNull;
+import com.vaadin.v7.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
-import com.vaadin.ui.CustomField;
+import com.vaadin.v7.ui.CustomField;
 
 /**
  * A custom field that allows selection of a department.
@@ -61,7 +61,7 @@ public class DepartmentSelector extends CustomField<Department> {
                 .addValueChangeListener(new Property.ValueChangeListener() {
                     @Override
                     public void valueChange(
-                            com.vaadin.data.Property.ValueChangeEvent event) {
+                            com.vaadin.v7.data.Property.ValueChangeEvent event) {
                         /*
                          * Modify filtering of the department combobox
                          */
@@ -74,7 +74,7 @@ public class DepartmentSelector extends CustomField<Department> {
         department.addValueChangeListener(new Property.ValueChangeListener() {
             @Override
             public void valueChange(
-                    com.vaadin.data.Property.ValueChangeEvent event) {
+                    com.vaadin.v7.data.Property.ValueChangeEvent event) {
                 /*
                  * Modify the actual value of the custom field.
                  */

@@ -34,8 +34,8 @@ import com.vaadin.addon.jpacontainer.EntityContainer;
 import com.vaadin.addon.jpacontainer.EntityProvider;
 import com.vaadin.addon.jpacontainer.QueryModifierDelegate;
 import com.vaadin.addon.jpacontainer.SortBy;
-import com.vaadin.data.Container.Filter;
-import com.vaadin.data.Item;
+import com.vaadin.v7.data.Container.Filter;
+import com.vaadin.v7.data.Item;
 
 /**
  * Delegate class that implements caching for {@link LocalEntityProvider}s and

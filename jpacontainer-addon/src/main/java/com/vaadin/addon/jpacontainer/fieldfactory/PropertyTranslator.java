@@ -15,10 +15,10 @@
  */
 package com.vaadin.addon.jpacontainer.fieldfactory;
 
-import com.vaadin.data.Property;
-import com.vaadin.data.util.AbstractProperty;
-import com.vaadin.data.util.PropertyFormatter;
-import com.vaadin.data.util.converter.Converter.ConversionException;
+import com.vaadin.v7.data.Property;
+import com.vaadin.v7.data.util.AbstractProperty;
+import com.vaadin.v7.data.util.PropertyFormatter;
+import com.vaadin.v7.data.util.converter.Converter.ConversionException;
 
 /**
  * PropertyTranslator is bit like the {@link PropertyFormatter}, but works also
@@ -229,7 +229,7 @@ public abstract class PropertyTranslator extends AbstractProperty implements
      * 
      * This should not be called directly.
      */
-    public void valueChange(com.vaadin.data.Property.ValueChangeEvent event) {
+    public void valueChange(com.vaadin.v7.data.Property.ValueChangeEvent event) {
         fireValueChange();
     }
 
@@ -239,7 +239,7 @@ public abstract class PropertyTranslator extends AbstractProperty implements
      * This should not be called directly.
      */
     public void readOnlyStatusChange(
-            com.vaadin.data.Property.ReadOnlyStatusChangeEvent event) {
+            com.vaadin.v7.data.Property.ReadOnlyStatusChangeEvent event) {
         fireReadOnlyStatusChange();
     }
 

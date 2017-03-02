@@ -17,31 +17,31 @@ package com.vaadin.demo.jpaaddressbook;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
-import com.vaadin.data.Property;
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.util.BeanItem;
-import com.vaadin.data.util.filter.Compare.Equal;
-import com.vaadin.data.util.filter.Like;
-import com.vaadin.data.util.filter.Or;
+import com.vaadin.v7.data.Property;
+import com.vaadin.v7.data.Property.ValueChangeEvent;
+import com.vaadin.v7.data.util.BeanItem;
+import com.vaadin.v7.data.util.filter.Compare.Equal;
+import com.vaadin.v7.data.util.filter.Like;
+import com.vaadin.v7.data.util.filter.Or;
 import com.vaadin.demo.jpaaddressbook.PersonEditor.EditorSavedEvent;
 import com.vaadin.demo.jpaaddressbook.PersonEditor.EditorSavedListener;
 import com.vaadin.demo.jpaaddressbook.domain.Department;
 import com.vaadin.demo.jpaaddressbook.domain.Person;
-import com.vaadin.event.FieldEvents.TextChangeEvent;
-import com.vaadin.event.FieldEvents.TextChangeListener;
-import com.vaadin.event.ItemClickEvent;
-import com.vaadin.event.ItemClickEvent.ItemClickListener;
+import com.vaadin.v7.event.FieldEvents.TextChangeEvent;
+import com.vaadin.v7.event.FieldEvents.TextChangeListener;
+import com.vaadin.v7.event.ItemClickEvent;
+import com.vaadin.v7.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComponentContainer;
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.v7.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
-import com.vaadin.ui.Table;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.Tree;
+import com.vaadin.v7.ui.Table;
+import com.vaadin.v7.ui.TextField;
+import com.vaadin.v7.ui.Tree;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.v7.ui.VerticalLayout;
 
 public class AddressBookMainView extends HorizontalSplitPanel implements
         ComponentContainer {

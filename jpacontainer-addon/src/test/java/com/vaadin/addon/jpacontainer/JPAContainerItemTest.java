@@ -37,12 +37,12 @@ import org.junit.Test;
 
 import com.vaadin.addon.jpacontainer.testdata.Address;
 import com.vaadin.addon.jpacontainer.testdata.Person;
-import com.vaadin.data.Property;
-import com.vaadin.data.Property.ReadOnlyException;
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.util.converter.StringToDoubleConverter;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.TextField;
+import com.vaadin.v7.data.Property;
+import com.vaadin.v7.data.Property.ReadOnlyException;
+import com.vaadin.v7.data.Property.ValueChangeEvent;
+import com.vaadin.v7.data.util.converter.StringToDoubleConverter;
+import com.vaadin.v7.ui.CheckBox;
+import com.vaadin.v7.ui.TextField;
 
 /**
  * Test case for {@link JPAContainerItem}.

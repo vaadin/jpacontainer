@@ -20,16 +20,16 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 
 import com.vaadin.addon.jpacontainer.itest.domain.Person;
-import com.vaadin.data.Item;
-import com.vaadin.data.validator.BeanValidator;
+import com.vaadin.v7.data.Item;
+import com.vaadin.v7.data.validator.BeanValidator;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.DefaultFieldFactory;
-import com.vaadin.ui.Field;
-import com.vaadin.ui.Form;
-import com.vaadin.ui.FormFieldFactory;
-import com.vaadin.ui.TextField;
+import com.vaadin.v7.ui.DefaultFieldFactory;
+import com.vaadin.v7.ui.Field;
+import com.vaadin.v7.ui.Form;
+import com.vaadin.v7.ui.FormFieldFactory;
+import com.vaadin.v7.ui.TextField;
 import com.vaadin.ui.Window;
 
 @SuppressWarnings("serial")

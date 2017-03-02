@@ -26,12 +26,12 @@ import java.util.List;
 import java.util.Map;
 
 import com.vaadin.addon.jpacontainer.util.HibernateUtil;
-import com.vaadin.data.Container;
-import com.vaadin.data.Container.ItemSetChangeEvent;
-import com.vaadin.data.Property;
-import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.data.Validator.InvalidValueException;
-import com.vaadin.data.util.converter.Converter.ConversionException;
+import com.vaadin.v7.data.Container;
+import com.vaadin.v7.data.Container.ItemSetChangeEvent;
+import com.vaadin.v7.data.Property;
+import com.vaadin.v7.data.Property.ValueChangeListener;
+import com.vaadin.v7.data.Validator.InvalidValueException;
+import com.vaadin.v7.data.util.converter.Converter.ConversionException;
 
 /**
  * {@link EntityItem}-implementation that is used by {@link JPAContainer}.
