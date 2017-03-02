@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.vaadin.demo</groupId>
     <artifactId>jpacontainer-addressbook-demo</artifactId>
-    <version>4.0.0</version>
+    <version>4.0.1-SNAPSHOT</version>
     <packaging>war</packaging>
     <name>Simple Vaadin JPAContainer example app</name>
     <properties>
