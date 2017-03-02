@@ -3,7 +3,6 @@ Forked version of JPAContainer which runs on Vaadin 8 with v7 Grid.
 Gradle users: Just add the following repository:
 
   repositories {
-      // for customized version of jpacontainer
       maven {
           url "http://www.baka.sk/maven2"
       }
