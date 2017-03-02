@@ -13,8 +13,8 @@ Then just add the following dependency:
 
   compile 'com.vaadin.addon:jpacontainer:3.2.0.v8'
 
-And you can continue to use v7.Grid with jpacontainer and gradually convert your project to
-v8 Grid with DataProviders.
+By adding this dependency you can continue to use v7.Grid with jpacontainer and gradually convert your project to
+v8 Grid with DataProviders. Please read more here: http://mavi.logdown.com/posts/1493424-using-jpacontainer-with-vaadin-8s-v7-compatibility-grid
 
 For the demo you can check this project: https://github.com/mvysny/vaadin-on-kotlin
 
