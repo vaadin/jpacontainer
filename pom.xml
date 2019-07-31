@@ -54,7 +54,7 @@
         <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
 
         <vaadin.version>8.0.0</vaadin.version>
-        <snapshot.repository.url>http://oss.sonatype.org/content/repositories/vaadin-snapshots/</snapshot.repository.url>
+        <snapshot.repository.url>https://oss.sonatype.org/content/repositories/vaadin-snapshots/</snapshot.repository.url>
     </properties>
 
     <repositories>
@@ -74,7 +74,7 @@
     <!--         <repository> -->
     <!--             <id>vaadin-staging</id> -->
     <!--             <name>Vaadin release staging repository</name> -->
-    <!--             <url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url> -->
+    <!--             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url> -->
     <!--         </repository> -->
     <!--         <snapshotRepository> -->
     <!--             <id>vaadin-snapshots</id> -->
