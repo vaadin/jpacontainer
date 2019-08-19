@@ -1,0 +1,4 @@
+Bundle-Name: ${project.name}
+Bundle-Version: ${project.version}
+Bundle-SymbolicName: ${project.groupId}.${project.artifactId}
+Export-Package: com.vaadin.addon.jpacontainer, com.vaadin.addon.jpacontainer.filter, com.vaadin.addon.jpacontainer.util

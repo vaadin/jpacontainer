@@ -178,10 +178,41 @@
             <version>0.3.0</version>
             <scope>test</scope>
         </dependency>
+	<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>osgi.core</artifactId>
+			<version>6.0.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>osgi.annotation</artifactId>
+			<version>6.0.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>osgi.cmpn</artifactId>
+			<version>6.0.0</version>
+			<scope>provided</scope>
+		</dependency>
+
     </dependencies>
     <build>
         <finalName>vaadin-jpacontainer-${project.version}</finalName>
         <plugins>
+	  <plugin>
+				<groupId>biz.aQute.bnd</groupId>
+				<artifactId>bnd-maven-plugin</artifactId>
+				<version>4.2.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>bnd-process</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
             <plugin>
                 <groupId>com.mycila.maven-license-plugin</groupId>
                 <artifactId>maven-license-plugin</artifactId>
@@ -226,8 +257,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>1.7</source>
+                    <target>1.7</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
@@ -241,14 +272,24 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+		<version>3.1.2</version>
                 <configuration>
                     <archive>
+		      <manifestFile>
+							${project.build.outputDirectory}/META-INF/MANIFEST.MF
+		      </manifestFile>
+
+		      <!-- manifest>
+			<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+		      </manifest>
                         <manifestEntries>
                             <Implementation-Version>${Implementation-Version}</Implementation-Version>
                             <Implementation-Title>${Implementation-Title}</Implementation-Title>
                             <Implementation-Vendor>${Implementation-Vendor}</Implementation-Vendor>
                             <Vaadin-Package-Version>1</Vaadin-Package-Version>
-                        </manifestEntries>
+			    <Implementation-Build>${buildNumber}</Implementation-Build>
+			    <Implementation-Branch>${scmBranch}</Implementation-Branch>
+                        </manifestEntries-->
                     </archive>
                     <!-- exclude other META-INF data under build directory ??? -->
                     <!-- <includes> -->
@@ -285,7 +326,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.9.1</version>
+                <version>3.1.1</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
